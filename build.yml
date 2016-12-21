@@ -1,0 +1,11 @@
+name:    neon
+default: compile
+targets:
+
+    clean:
+        - "rm -rf build"
+
+    compile:
+        - "mkdir -p build"
+        - "go build -o build/neon"
+
