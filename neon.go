@@ -1,43 +1,46 @@
 package main
 
 import (
+	"flag"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 const (
-	FILENAME = "build.yml"
+	DEFAULT_BUILD_FILE = "build.yml"
 )
 
-var directory = "."
+var directory string
 var build Build
 
-func printError(err error, message string) {
+func StopOnError(err error, message string, code int) {
 	if err != nil {
 		println(message)
-		os.Exit(2)
+		os.Exit(code)
 	}
 }
 
+func StopWithError(message string, code int) {
+	println(message)
+	os.Exit(code)
+}
+
 func main() {
-	source, err := ioutil.ReadFile(FILENAME)
-	if err != nil {
-		panic(err)
-	}
+	buildFile := flag.String("file", DEFAULT_BUILD_FILE, "build file to run")
+	flag.Parse()
+	directory = filepath.Dir(*buildFile)
+	source, err := ioutil.ReadFile(*buildFile)
+	StopOnError(err, "Error loading build file '"+*buildFile+"'", 1)
 	err = yaml.Unmarshal(source, &build)
-	if err != nil {
-		panic(err)
-	}
-	var targets []string
-	if len(os.Args) > 1 {
-		targets = os.Args[1:]
-	} else {
+	StopOnError(err, "Error parsing build file '"+*buildFile+"'", 2)
+	targets := flag.Args()
+	if len(targets) == 0 {
 		if build.Default != "" {
 			targets = []string{build.Default}
 		} else {
-			println("No default target")
-			os.Exit(2)
+			StopWithError("No default target", 3)
 		}
 	}
 	for _, t := range targets {

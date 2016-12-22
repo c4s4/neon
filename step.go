@@ -37,7 +37,7 @@ func execute(cmd string) string {
 	command.Dir = directory
 	output, err := command.CombinedOutput()
 	result := strings.TrimSpace(string(output))
-	printError(err, "Error running command '"+cmd+"': "+result)
+	StopOnError(err, "Error running command '"+cmd+"': "+result, 5)
 	return result
 }
 
