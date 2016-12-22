@@ -1,11 +1,23 @@
 name:    neon
 default: compile
+
+properties:
+  name:      neon
+  build_dir: build
+
 targets:
 
-    clean:
-        - "rm -rf build"
+  clean:
+    steps:
+    - "rm -rf #{build_dir}"
 
-    compile:
-        - "mkdir -p build"
-        - "go build -o build/neon"
+  test:
+    steps:
+    - "go test"
+
+  compile:
+    depends: [clean, test]
+    steps:
+    - "mkdir -p #{build_dir}"
+    - "go build -o #{build_dir}/#{name}"
 

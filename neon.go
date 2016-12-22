@@ -1,13 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
-	"os/exec"
-	"runtime"
-	"strings"
 )
 
 const (
@@ -15,6 +11,7 @@ const (
 )
 
 var directory = "."
+var build Build
 
 func printError(err error, message string) {
 	if err != nil {
@@ -23,49 +20,7 @@ func printError(err error, message string) {
 	}
 }
 
-func execute(cmd string) string {
-	var command *exec.Cmd
-	if runtime.GOOS == "windows" {
-		command = exec.Command("cmd.exe", "/C", cmd)
-	} else {
-		command = exec.Command("sh", "-c", cmd)
-	}
-	command.Dir = directory
-	output, err := command.CombinedOutput()
-	result := strings.TrimSpace(string(output))
-	printError(err, "Error running command '"+cmd+"': "+result)
-	return result
-}
-
-type Step string
-
-func (s Step) Run() {
-	output := execute(string(s))
-	fmt.Println(output)
-}
-
-type Target []Step
-
-func (t Target) Run() {
-	for _, s := range t {
-		s.Run()
-	}
-}
-
-type Build struct {
-	Name    string
-	Default string
-	Targets map[string]Target
-}
-
-func (b Build) Run(t string) {
-	fmt.Printf("# Running target %s\n", t)
-	target := b.Targets[t]
-	target.Run()
-}
-
 func main() {
-	var build Build
 	source, err := ioutil.ReadFile(FILENAME)
 	if err != nil {
 		panic(err)
