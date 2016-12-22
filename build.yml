@@ -1,11 +1,14 @@
 name:    neon
-default: compile
+default: all
 
 properties:
   name:      neon
   build_dir: build
 
 targets:
+
+  all:
+    depends: [clean, test, compile]
 
   clean:
     steps:
@@ -16,7 +19,6 @@ targets:
     - "go test"
 
   compile:
-    depends: [clean, test]
     steps:
     - "mkdir -p #{build_dir}"
     - "go build -o #{build_dir}/#{name}"

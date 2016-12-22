@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"strings"
 )
 
 type Build struct {
@@ -63,7 +62,7 @@ func (build *Build) ReplaceProperties(command string) string {
 	return replaced
 }
 
-func (build *Build) Execute(cmd string) string {
+func (build *Build) Execute(cmd string) {
 	cmd = build.ReplaceProperties(cmd)
 	var command *exec.Cmd
 	if runtime.GOOS == "windows" {
@@ -72,8 +71,8 @@ func (build *Build) Execute(cmd string) string {
 		command = exec.Command("sh", "-c", cmd)
 	}
 	command.Dir = filepath.Dir(build.File)
-	output, err := command.CombinedOutput()
-	result := strings.TrimSpace(string(output))
-	StopOnError(err, "Error running command '"+cmd+"': "+result, 5)
-	return result
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+	err := command.Run()
+	StopOnError(err, "Error running command '"+cmd+"'", 5)
 }

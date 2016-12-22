@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/fatih/color"
 )
 
@@ -24,7 +23,6 @@ func (target *Target) Run() {
 	}
 	color.Yellow("Running target " + target.Name)
 	for _, step := range target.Steps {
-		output := target.Build.Execute(step)
-		fmt.Println(output)
+		target.Build.Execute(step)
 	}
 }
