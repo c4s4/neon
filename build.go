@@ -14,8 +14,8 @@ type Build struct {
 	Targets    map[string]*Target
 }
 
-func (b Build) Init(file string) {
-	b.File = file
+func (build Build) Init(file string) {
+	build.File = file
 }
 
 func (build Build) Dir() string {
