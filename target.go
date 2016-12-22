@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 )
 
 type Target struct {
@@ -21,7 +22,7 @@ func (target *Target) Run() {
 		dependency := target.Build.Target(depend)
 		dependency.Run()
 	}
-	fmt.Printf("# Running target %s\n", target.Name)
+	color.Yellow("Running target " + target.Name)
 	for _, step := range target.Steps {
 		output := target.Build.Execute(step)
 		fmt.Println(output)

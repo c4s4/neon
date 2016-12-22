@@ -23,6 +23,7 @@ help:
 deps:
 	@echo "$(YELLOW)Installing Go dependencies$(CLEAR)"
 	go get gopkg.in/yaml.v2
+	go get github.com/fatih/color
 
 test:
 	@echo "$(YELLOW)Running test$(CLEAR)"
