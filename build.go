@@ -3,23 +3,35 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 type Build struct {
+	File       string
 	Name       string
 	Default    string
 	Properties map[string]string
 	Targets    map[string]*Target
 }
 
-func (b Build) Run(t string) {
-	fmt.Printf("# Running target %s\n", t)
-	target := b.Targets[t]
-	target.Run()
+func (b Build) Init(file string) {
+	b.File = file
 }
 
-func (b Build) Target(t string) *Target {
-	if target, ok := b.Targets[t]; ok {
+func (build Build) Dir() string {
+	return filepath.Dir(build.File)
+}
+
+func (build Build) Run(targets []string) {
+	for _, target := range targets {
+		fmt.Printf("# Running target %s\n", target)
+		target := build.Targets[target]
+		target.Run()
+	}
+}
+
+func (build Build) Target(t string) *Target {
+	if target, ok := build.Targets[t]; ok {
 		return target
 	} else {
 		fmt.Printf("Target %s was not found", t)
