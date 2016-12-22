@@ -13,11 +13,16 @@ all: clean test build
 help:
 	@echo "$(YELLOW)Print help$(CLEAR)"
 	@echo "$(CYAN)help$(CLEAR)    Print this help screen"
+	@echo "$(CYAN)deps$(CLEAR)    Import dependencies"
 	@echo "$(CYAN)test$(CLEAR)    Run tests"
 	@echo "$(CYAN)build$(CLEAR)   Build executable"
 	@echo "$(CYAN)archive$(CLEAR) Build binary archive"
 	@echo "$(CYAN)release$(CLEAR) Make a release"
 	@echo "$(CYAN)clean$(CLEAR)   Clean generated files"
+
+deps:
+	@echo "$(YELLOW)Installing Go dependencies$(CLEAR)"
+	go get gopkg.in/yaml.v2
 
 test:
 	@echo "$(YELLOW)Running test$(CLEAR)"

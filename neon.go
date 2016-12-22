@@ -27,16 +27,16 @@ func StopWithError(message string, code int) {
 func main() {
 	var build *Build
 	// parse command line
-	buildFile := *flag.String("file", DEFAULT_BUILD_FILE, "build file to run")
+	buildFile := flag.String("file", DEFAULT_BUILD_FILE, "build file to run")
 	flag.Parse()
-	source, err := ioutil.ReadFile(buildFile)
-	StopOnError(err, "Error loading build file '"+buildFile+"'", 1)
-	err = yaml.Unmarshal(source, build)
-	StopOnError(err, "Error parsing build file '"+buildFile+"'", 2)
+	source, err := ioutil.ReadFile(*buildFile)
+	StopOnError(err, "Error loading build file '"+*buildFile+"'", 1)
+	err = yaml.Unmarshal(source, &build)
+	StopOnError(err, "Error parsing build file '"+*buildFile+"'", 2)
 	// initialize build
-	buildFile, err = filepath.Abs(buildFile)
+	absBuildFile, err := filepath.Abs(*buildFile)
 	StopOnError(err, "Error getting build file path", 4)
-	build.Init(buildFile)
+	build.Init(absBuildFile)
 	// parse targets on command line
 	targets := flag.Args()
 	if len(targets) == 0 {

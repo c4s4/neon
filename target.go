@@ -1,17 +1,29 @@
 package main
 
+import (
+	"fmt"
+)
+
 type Target struct {
-	Depends []string
-	Steps   []Step
 	Name    string
+	Build   *Build
+	Depends []string
+	Steps   []string
 }
 
-func (t Target) Run() {
-	for _, d := range t.Depends {
-		target := build.Target(d)
-		target.Run()
+func (target *Target) Init(build *Build, name string) {
+	target.Build = build
+	target.Name = name
+}
+
+func (target *Target) Run() {
+	for _, depend := range target.Depends {
+		dependency := target.Build.Target(depend)
+		dependency.Run()
 	}
-	for _, s := range t.Steps {
-		s.Run()
+	fmt.Printf("# Running target %s\n", target.Name)
+	for _, step := range target.Steps {
+		output := target.Build.Execute(step)
+		fmt.Println(output)
 	}
 }
