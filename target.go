@@ -1,9 +1,5 @@
 package main
 
-import (
-	"github.com/fatih/color"
-)
-
 type Target struct {
 	Name    string
 	Build   *Build
@@ -21,7 +17,7 @@ func (target *Target) Run() {
 		dependency := target.Build.Target(depend)
 		dependency.Run()
 	}
-	color.Yellow("Running target " + target.Name)
+	PrintTarget("Running target " + target.Name)
 	for _, step := range target.Steps {
 		target.Build.Execute(step)
 	}

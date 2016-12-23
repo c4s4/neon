@@ -46,5 +46,5 @@ func main() {
 	build := LoadBuildFile(buildFile)
 	targets := ParseTargets(build)
 	build.Run(targets)
-	StopOnOK()
+	PrintOK()
 }
