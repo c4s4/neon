@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"runtime"
 	"sort"
+	"unicode/utf8"
 )
 
 type Build struct {
@@ -98,7 +99,7 @@ func (build *Build) Help() {
 	length := 0
 	targets := []string{}
 	for name, _ := range build.Targets {
-		if len(name) > length {
+		if utf8.RuneCountInString(name) > length {
 			length = len(name)
 		}
 		targets = append(targets, name)
