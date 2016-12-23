@@ -67,7 +67,7 @@ func (build *Build) Help() {
 	targets := []string{}
 	for name, _ := range build.Targets {
 		if utf8.RuneCountInString(name) > length {
-			length = len(name)
+			length = utf8.RuneCountInString(name)
 		}
 		targets = append(targets, name)
 	}
