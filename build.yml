@@ -1,5 +1,6 @@
-name:    neon
+name: neon
 default: all
+doc: "Build file to build neon"
 
 properties:
   name:      neon
@@ -10,24 +11,29 @@ targets:
 
   all:
     depends: [clean, test, build]
+    doc: "Default target"
 
   deps:
+    doc: "Install libraries"
     steps:
     - "go get gopkg.in/yaml.v2"
     - "go get github.com/fatih/color"
     - "go get github.com/mitchellh/gox"
 
   test:
+    doc: "Run unit tests"
     steps:
     - "go test"
 
   build:
+    doc: "Build neon binary"
     steps:
     - "mkdir -p #{build_dir}"
     - "go build -o #{build_dir}/#{name}"
 
   archive:
     depends: [clean]
+    doc: "Generate distribution archive"
     steps:
     - "mkdir -p #{build_dir}/#{name}-#{version}/"
     - "gox -output=#{build_dir}/#{name}-#{version}/{{.Dir}}_{{.OS}}_{{.Arch}}"
@@ -43,9 +49,11 @@ targets:
 
   release:
     depends: [clean, test, archive]
+    doc: "Perform a release"
     steps:
     - "release"
 
   clean:
+    doc: "Clean generated files"
     steps:
     - "rm -rf #{build_dir}"
