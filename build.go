@@ -11,6 +11,7 @@ import (
 
 type Build struct {
 	File       string
+	Dir        string
 	Name       string
 	Default    string
 	Properties map[string]string
@@ -19,13 +20,10 @@ type Build struct {
 
 func (build *Build) Init(file string) {
 	build.File = file
+	build.Dir = filepath.Dir(build.File)
 	for name, target := range build.Targets {
 		target.Init(build, name)
 	}
-}
-
-func (build *Build) Dir() string {
-	return filepath.Dir(build.File)
 }
 
 func (build *Build) Run(targets []string) {
@@ -68,7 +66,7 @@ func (build *Build) Execute(cmd string) {
 	} else {
 		command = exec.Command("sh", "-c", cmd)
 	}
-	command.Dir = filepath.Dir(build.File)
+	command.Dir = build.Dir
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	err := command.Run()
