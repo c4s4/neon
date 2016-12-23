@@ -1,12 +1,14 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sort"
 )
 
 type Build struct {
@@ -14,6 +16,7 @@ type Build struct {
 	Dir        string
 	Name       string
 	Default    string
+	Doc        string
 	Properties map[string]string
 	Targets    map[string]*Target
 }
@@ -26,11 +29,25 @@ func (build *Build) Init(file string) {
 	}
 }
 
-func (build *Build) Run(targets []string) {
+func (build *Build) ParseTargets() []string {
+	targets := flag.Args()
+	if len(targets) == 0 {
+		if build.Default != "" {
+			targets = []string{build.Default}
+		} else {
+			StopWithError("No default target", 3)
+		}
+	}
+	return targets
+}
+
+func (build *Build) Run() {
+	targets := build.ParseTargets()
 	for _, target := range targets {
 		target := build.Target(target)
 		target.Run()
 	}
+	PrintOK()
 }
 
 func (build *Build) Target(name string) *Target {
@@ -71,4 +88,23 @@ func (build *Build) Execute(cmd string) {
 	command.Stderr = os.Stderr
 	err := command.Run()
 	StopOnError(err, "Error running command '"+cmd+"'", 5)
+}
+
+func (build *Build) Help() {
+	if build.Doc != "" {
+		fmt.Println(build.Doc)
+		fmt.Println()
+	}
+	length := 0
+	targets := []string{}
+	for name, _ := range build.Targets {
+		if len(name) > length {
+			length = len(name)
+		}
+		targets = append(targets, name)
+	}
+	sort.Strings(targets)
+	for _, target := range targets {
+		PrintTargetHelp(target, build.Target(target).Doc, length)
+	}
 }

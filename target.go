@@ -2,6 +2,7 @@ package main
 
 type Target struct {
 	Name    string
+	Doc     string
 	Build   *Build
 	Depends []string
 	Steps   []string

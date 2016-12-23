@@ -11,10 +11,11 @@ const (
 	DEFAULT_BUILD_FILE = "build.yml"
 )
 
-func ParseCommandLine() *string {
-	buildFile := flag.String("file", DEFAULT_BUILD_FILE, "build file to run")
+func ParseCommandLine() (*string, *bool) {
+	buildFile := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
+	buildHelp := flag.Bool("build", false, "Print build help")
 	flag.Parse()
-	return buildFile
+	return buildFile, buildHelp
 }
 
 func LoadBuildFile(buildFile *string) *Build {
@@ -29,22 +30,12 @@ func LoadBuildFile(buildFile *string) *Build {
 	return build
 }
 
-func ParseTargets(build *Build) []string {
-	targets := flag.Args()
-	if len(targets) == 0 {
-		if build.Default != "" {
-			targets = []string{build.Default}
-		} else {
-			StopWithError("No default target", 3)
-		}
-	}
-	return targets
-}
-
 func main() {
-	buildFile := ParseCommandLine()
+	buildFile, buildHelp := ParseCommandLine()
 	build := LoadBuildFile(buildFile)
-	targets := ParseTargets(build)
-	build.Run(targets)
-	PrintOK()
+	if *buildHelp {
+		build.Help()
+	} else {
+		build.Run()
+	}
 }
