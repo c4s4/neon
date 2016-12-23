@@ -105,7 +105,8 @@ func (build *Build) Help() {
 		targets = append(targets, name)
 	}
 	sort.Strings(targets)
-	for _, target := range targets {
-		PrintTargetHelp(target, build.Target(target).Doc, length)
+	for _, name := range targets {
+		target := build.Target(name)
+		PrintTargetHelp(name, target.Doc, target.Depends, length)
 	}
 }

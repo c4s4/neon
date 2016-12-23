@@ -14,12 +14,16 @@ func PrintTarget(message string) {
 	color.Yellow(message)
 }
 
-func PrintTargetHelp(name, doc string, length int) {
+func PrintTargetHelp(name, doc string, depends []string, length int) {
+	deps := ""
+	if len(depends) > 0 {
+		deps = "[" + strings.Join(depends, ", ") + "]"
+	}
 	if doc != "" {
-		fmt.Fprintf(color.Output, "%s%s %s\n", cyan(name),
-			strings.Repeat(" ", length-utf8.RuneCountInString(name)), doc)
+		fmt.Fprintf(color.Output, "%s%s %s %s\n", cyan(name),
+			strings.Repeat(" ", length-utf8.RuneCountInString(name)), doc, deps)
 	} else {
-		fmt.Fprintf(color.Output, "%s\n", cyan(name))
+		fmt.Fprintf(color.Output, "%s %s\n", cyan(name), deps)
 	}
 }
 
