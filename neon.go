@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"github.com/fatih/color"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -12,15 +14,17 @@ const (
 	DEFAULT_BUILD_FILE = "build.yml"
 )
 
+var red = color.New(color.FgRed, color.Bold).SprintFunc()
+
 func StopOnError(err error, message string, code int) {
 	if err != nil {
-		println(message)
+		fmt.Printf("%s: %s (%s)\n", red("ERROR"), message, err.Error())
 		os.Exit(code)
 	}
 }
 
 func StopWithError(message string, code int) {
-	println(message)
+	fmt.Printf("%s: %s\n", red("ERROR"), message)
 	os.Exit(code)
 }
 
@@ -48,4 +52,5 @@ func main() {
 	}
 	// run build
 	build.Run(targets)
+	color.New(color.FgGreen).Add(color.Bold).Println("OK")
 }

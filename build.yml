@@ -3,23 +3,49 @@ default: all
 
 properties:
   name:      neon
+  version:   0.1.0
   build_dir: build
 
 targets:
 
   all:
-    depends: [clean, test, compile]
+    depends: [clean, test, build]
 
-  clean:
+  deps:
     steps:
-    - "rm -rf #{build_dir}"
+    - "go get gopkg.in/yaml.v2"
+    - "go get github.com/fatih/color"
+    - "go get github.com/mitchellh/gox"
 
   test:
     steps:
     - "go test"
 
-  compile:
+  build:
     steps:
     - "mkdir -p #{build_dir}"
     - "go build -o #{build_dir}/#{name}"
 
+  archive:
+    depends: [clean]
+    steps:
+    - "mkdir -p #{build_dir}/#{name}-#{version}/"
+    - "gox -output=#{build_dir}/#{name}-#{version}/{{.Dir}}_{{.OS}}_{{.Arch}}"
+    - "cp LICENSE.txt #{build_dir}/#{name}-#{version}/"
+    - |
+      cp README.md #{build_dir}/ &&
+      cd #{build_dir} &&
+      md2pdf README.md &&
+      cp README.pdf #{name}-#{version}/
+    - |
+      cd #{build_dir} &&
+      tar cvzf #{name}-bin-#{version}.tar.gz #{name}-#{version}
+
+  release:
+    depends: [clean, test, archive]
+    steps:
+    - "release"
+
+  clean:
+    steps:
+    - "rm -rf #{build_dir}"

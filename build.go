@@ -30,17 +30,16 @@ func (build *Build) Dir() string {
 
 func (build *Build) Run(targets []string) {
 	for _, target := range targets {
-		target := build.Targets[target]
+		target := build.Target(target)
 		target.Run()
 	}
 }
 
-func (build *Build) Target(t string) *Target {
-	if target, ok := build.Targets[t]; ok {
+func (build *Build) Target(name string) *Target {
+	if target, ok := build.Targets[name]; ok {
 		return target
 	} else {
-		fmt.Printf("Target %s was not found", t)
-		os.Exit(3)
+		StopWithError(fmt.Sprintf("Target '%s' was not found", name), 6)
 		return nil
 	}
 }
@@ -50,8 +49,7 @@ func (build *Build) ReplaceProperty(expression string) string {
 	if value, ok := build.Properties[property]; ok {
 		return value
 	} else {
-		println("Property %s was not found", property)
-		os.Exit(3)
+		StopWithError(fmt.Sprintf("Property '%s' was not found", property), 7)
 		return ""
 	}
 }
