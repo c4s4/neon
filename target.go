@@ -20,6 +20,6 @@ func (target *Target) Run() {
 	}
 	PrintTarget("Running target " + target.Name)
 	for _, step := range target.Steps {
-		target.Build.Execute(step)
+		target.Build.Context.Execute(step)
 	}
 }

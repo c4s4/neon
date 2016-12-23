@@ -19,6 +19,7 @@ targets:
     - "go get gopkg.in/yaml.v2"
     - "go get github.com/fatih/color"
     - "go get github.com/mitchellh/gox"
+    - "go get github.com/mattn/anko"
 
   test:
     doc: "Run unit tests"
