@@ -14,7 +14,7 @@ type Build struct {
 	Name       string
 	Default    string
 	Doc        string
-	Properties map[string]string
+	Properties map[string]interface{}
 	Targets    map[string]*Target
 	Context    *Context
 }
@@ -81,8 +81,9 @@ func (build *Build) Help() {
 		}
 		fmt.Println("Properties:")
 		for _, name := range properties {
-			value := build.Context.GetProperty(name).String()
-			PrintTargetHelp(name, value, []string{}, length)
+			value := build.Context.GetProperty(name)
+			valueString := fmt.Sprintf("%#v", value)
+			PrintTargetHelp(name, valueString, []string{}, length)
 		}
 		newLine = true
 	}
