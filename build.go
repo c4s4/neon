@@ -59,11 +59,29 @@ func (build *Build) Target(name string) *Target {
 }
 
 func (build *Build) Help() {
+	// print build documentation
 	if build.Doc != "" {
 		fmt.Println(build.Doc)
 		fmt.Println()
 	}
+	// print build properties
 	length := 0
+	properties := []string{}
+	for name, _ := range build.Properties {
+		if utf8.RuneCountInString(name) > length {
+			length = utf8.RuneCountInString(name)
+		}
+		properties = append(properties, name)
+	}
+	sort.Strings(properties)
+	fmt.Println("Properties:")
+	for _, name := range properties {
+		value := build.Context.GetProperty(name).String()
+		PrintTargetHelp(name, value, []string{}, length)
+	}
+	fmt.Println()
+	// print targets documentation
+	length = 0
 	targets := []string{}
 	for name, _ := range build.Targets {
 		if utf8.RuneCountInString(name) > length {
@@ -72,6 +90,7 @@ func (build *Build) Help() {
 		targets = append(targets, name)
 	}
 	sort.Strings(targets)
+	fmt.Println("Targets:")
 	for _, name := range targets {
 		target := build.Target(name)
 		PrintTargetHelp(name, target.Doc, target.Depends, length)
