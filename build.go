@@ -82,7 +82,7 @@ func (build *Build) Help() {
 		fmt.Println("Properties:")
 		for _, name := range properties {
 			value := build.Context.GetProperty(name)
-			valueString := fmt.Sprintf("%#v", value)
+			valueString := fmt.Sprintf("%v", value)
 			PrintTargetHelp(name, valueString, []string{}, length)
 		}
 		newLine = true
