@@ -24,15 +24,15 @@ func LoadBuildFile(file string) (*Build, error) {
 	var build *Build
 	source, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, fmt.Errorf("Error loading build file '%s': %s", file, err)
+		return nil, fmt.Errorf("loading build file '%s': %v", file, err)
 	}
 	err = yaml.Unmarshal(source, &build)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing build file '%s': %s", file, err)
+		return nil, fmt.Errorf("parsing build file '%s': %v", file, err)
 	}
 	absBuildFile, err := filepath.Abs(file)
 	if err != nil {
-		return nil, fmt.Errorf("Error getting build file path: %s", err)
+		return nil, fmt.Errorf("getting build file path: %v", err)
 	}
 	build.Init(absBuildFile)
 	return build, nil

@@ -55,7 +55,7 @@ func Serialize(object interface{}) (string, error) {
 			}
 			return "[" + strings.Join(pairs, ", ") + "]", nil
 		default:
-			return "", fmt.Errorf("No serializer for type '%T'", object)
+			return "", fmt.Errorf("no serializer for type '%T'", object)
 		}
 	}
 }

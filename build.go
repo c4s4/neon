@@ -35,7 +35,7 @@ func (build *Build) ParseTargets() ([]string, error) {
 		if build.Default != "" {
 			targets = []string{build.Default}
 		} else {
-			return nil, errors.New("No default target")
+			return nil, errors.New("no default target")
 		}
 	}
 	return targets, nil
@@ -61,7 +61,7 @@ func (build *Build) Target(name string) (*Target, error) {
 	if target, ok := build.Targets[name]; ok {
 		return target, nil
 	} else {
-		return nil, fmt.Errorf("Target '%s' was not found", name)
+		return nil, fmt.Errorf("target '%s' was not found", name)
 	}
 }
 
@@ -90,11 +90,11 @@ func (build *Build) Help() error {
 		for _, name := range properties {
 			value, err := build.Context.GetProperty(name)
 			if err != nil {
-				return err
+				return fmt.Errorf("getting property '%s': %v", name, err)
 			}
 			valueStr, err := Serialize(value)
 			if err != nil {
-				return fmt.Errorf("Error formatting property '%s': %v", name, err)
+				return fmt.Errorf("formatting property '%s': %v", name, err)
 			}
 			PrintTargetHelp(name, valueStr, []string{}, length)
 		}
