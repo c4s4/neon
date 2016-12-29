@@ -4,7 +4,6 @@ import (
 	"github.com/mattn/anko/vm"
 	"os"
 	"os/exec"
-	"reflect"
 	"regexp"
 	"runtime"
 )
@@ -29,10 +28,10 @@ func (context *Context) SetProperty(name string, value interface{}) {
 	context.Env.Define(name, value)
 }
 
-func (context *Context) GetProperty(name string) reflect.Value {
+func (context *Context) GetProperty(name string) interface{} {
 	value, err := context.Env.Get(name)
 	StopOnError(err, "Error getting value of '"+name+"'", 10)
-	return value
+	return value.Interface()
 }
 
 func (context *Context) ReplaceProperty(expression string) string {

@@ -13,7 +13,7 @@ func TestSerializeString(t *testing.T) {
 }
 
 func TestSerializeInt(t *testing.T) {
-	expected := "42"
+	expected := `42`
 	actual, err := Serialize(42)
 	if err != nil || actual != expected {
 		t.Error("Error serializing int", err)
@@ -21,7 +21,7 @@ func TestSerializeInt(t *testing.T) {
 }
 
 func TestSerializeFloat(t *testing.T) {
-	expected := "4.2"
+	expected := `4.2`
 	actual, err := Serialize(4.2)
 	if err != nil || actual != expected {
 		t.Error("Error serializing float", err)
@@ -29,7 +29,7 @@ func TestSerializeFloat(t *testing.T) {
 }
 
 func TestSerializeList(t *testing.T) {
-	expected := "[1, 2, 3]"
+	expected := `[1, 2, 3]`
 	actual, err := Serialize([]int{1, 2, 3})
 	if err != nil || actual != expected {
 		t.Error("Error serializing slice", err)
