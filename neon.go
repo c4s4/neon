@@ -2,8 +2,10 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 )
 
@@ -18,24 +20,42 @@ func ParseCommandLine() (*string, *bool) {
 	return buildFile, buildHelp
 }
 
-func LoadBuildFile(buildFile *string) *Build {
+func LoadBuildFile(file string) (*Build, error) {
 	var build *Build
-	source, err := ioutil.ReadFile(*buildFile)
-	StopOnError(err, "Error loading build file '"+*buildFile+"'", 1)
+	source, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil, fmt.Errorf("Error loading build file '%s': %s", file, err)
+	}
 	err = yaml.Unmarshal(source, &build)
-	StopOnError(err, "Error parsing build file '"+*buildFile+"'", 2)
-	absBuildFile, err := filepath.Abs(*buildFile)
-	StopOnError(err, "Error getting build file path", 4)
+	if err != nil {
+		return nil, fmt.Errorf("Error parsing build file '%s': %s", file, err)
+	}
+	absBuildFile, err := filepath.Abs(file)
+	if err != nil {
+		return nil, fmt.Errorf("Error getting build file path: %s", err)
+	}
 	build.Init(absBuildFile)
-	return build
+	return build, nil
 }
 
 func main() {
-	buildFile, buildHelp := ParseCommandLine()
-	build := LoadBuildFile(buildFile)
-	if *buildHelp {
-		build.Help()
+	file, help := ParseCommandLine()
+	build, err := LoadBuildFile(*file)
+	if err != nil {
+		PrintError(err.Error())
+		os.Exit(1)
+	}
+	if *help {
+		err = build.Help()
+		if err != nil {
+			PrintError(err.Error())
+			os.Exit(2)
+		}
 	} else {
-		build.Run()
+		err = build.Run()
+		if err != nil {
+			PrintError(err.Error())
+			os.Exit(2)
+		}
 	}
 }

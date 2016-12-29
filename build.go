@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"path/filepath"
@@ -28,37 +29,43 @@ func (build *Build) Init(file string) {
 	}
 }
 
-func (build *Build) ParseTargets() []string {
+func (build *Build) ParseTargets() ([]string, error) {
 	targets := flag.Args()
 	if len(targets) == 0 {
 		if build.Default != "" {
 			targets = []string{build.Default}
 		} else {
-			StopWithError("No default target", 3)
+			return nil, errors.New("No default target")
 		}
 	}
-	return targets
+	return targets, nil
 }
 
-func (build *Build) Run() {
-	targets := build.ParseTargets()
+func (build *Build) Run() error {
+	targets, err := build.ParseTargets()
+	if err != nil {
+		return err
+	}
 	for _, target := range targets {
-		target := build.Target(target)
+		target, err := build.Target(target)
+		if err != nil {
+			return err
+		}
 		target.Run()
 	}
 	PrintOK()
+	return nil
 }
 
-func (build *Build) Target(name string) *Target {
+func (build *Build) Target(name string) (*Target, error) {
 	if target, ok := build.Targets[name]; ok {
-		return target
+		return target, nil
 	} else {
-		StopWithError(fmt.Sprintf("Target '%s' was not found", name), 6)
-		return nil
+		return nil, fmt.Errorf("Target '%s' was not found", name)
 	}
 }
 
-func (build *Build) Help() {
+func (build *Build) Help() error {
 	newLine := false
 	// print build documentation
 	if build.Doc != "" {
@@ -81,9 +88,12 @@ func (build *Build) Help() {
 		}
 		fmt.Println("Properties:")
 		for _, name := range properties {
-			value := build.Context.GetProperty(name)
+			value, err := build.Context.GetProperty(name)
+			if err != nil {
+				return err
+			}
 			valueStr, err := Serialize(value)
-			StopOnError(err, "Error serializing property '"+name+"' value", 12)
+			return fmt.Errorf("Error serializing property '" + name + "' value")
 			PrintTargetHelp(name, valueStr, []string{}, length)
 		}
 		newLine = true
@@ -104,8 +114,12 @@ func (build *Build) Help() {
 		}
 		fmt.Println("Targets:")
 		for _, name := range targets {
-			target := build.Target(name)
+			target, err := build.Target(name)
+			if err != nil {
+				return err
+			}
 			PrintTargetHelp(name, target.Doc, target.Depends, length)
 		}
 	}
+	return nil
 }

@@ -13,13 +13,20 @@ func (target *Target) Init(build *Build, name string) {
 	target.Name = name
 }
 
-func (target *Target) Run() {
+func (target *Target) Run() error {
 	for _, depend := range target.Depends {
-		dependency := target.Build.Target(depend)
+		dependency, err := target.Build.Target(depend)
+		if err != nil {
+			return err
+		}
 		dependency.Run()
 	}
 	PrintTarget("Running target " + target.Name)
 	for _, step := range target.Steps {
-		target.Build.Context.Execute(step)
+		err := target.Build.Context.Execute(step)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
