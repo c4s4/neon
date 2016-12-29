@@ -35,3 +35,11 @@ func TestSerializeList(t *testing.T) {
 		t.Error("Error serializing slice", err)
 	}
 }
+
+func TestSerializeMap(t *testing.T) {
+	expected := `["bar": 2, "foo": 1]`
+	actual, err := Serialize(map[string]int{"foo": 1, "bar": 2})
+	if err != nil || actual != expected {
+		t.Error("Error serializing map", err)
+	}
+}
