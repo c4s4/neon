@@ -20,7 +20,7 @@ func ParseCommandLine() (*string, *bool) {
 	return buildFile, buildHelp
 }
 
-func LoadBuildFile(file string) (*Build, error) {
+func LoadBuild(file string) (*Build, error) {
 	var build *Build
 	source, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -40,22 +40,18 @@ func LoadBuildFile(file string) (*Build, error) {
 
 func main() {
 	file, help := ParseCommandLine()
-	build, err := LoadBuildFile(*file)
+	build, err := LoadBuild(*file)
 	if err != nil {
 		PrintError(err.Error())
 		os.Exit(1)
 	}
 	if *help {
 		err = build.Help()
-		if err != nil {
-			PrintError(err.Error())
-			os.Exit(2)
-		}
 	} else {
 		err = build.Run()
-		if err != nil {
-			PrintError(err.Error())
-			os.Exit(2)
-		}
+	}
+	if err != nil {
+		PrintError(err.Error())
+		os.Exit(2)
 	}
 }
