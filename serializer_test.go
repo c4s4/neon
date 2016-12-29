@@ -36,10 +36,26 @@ func TestSerializeList(t *testing.T) {
 	}
 }
 
+func TestSerializeCompositeList(t *testing.T) {
+	expected := `[1, 2, 3, "spam"]`
+	actual, err := Serialize([]interface{}{1, 2, 3, "spam"})
+	if err != nil || actual != expected {
+		t.Error("Error serializing composite slice", err)
+	}
+}
+
 func TestSerializeMap(t *testing.T) {
 	expected := `["bar": 2, "foo": 1]`
 	actual, err := Serialize(map[string]int{"foo": 1, "bar": 2})
 	if err != nil || actual != expected {
 		t.Error("Error serializing map", err)
+	}
+}
+
+func TestSerializeCompositeMap(t *testing.T) {
+	expected := `["bar": 2, "foo": 1, 3: "spam"]`
+	actual, err := Serialize(map[interface{}]interface{}{"foo": 1, "bar": 2, 3: "spam"})
+	if err != nil || actual != expected {
+		t.Error("Error serializing composite map", err)
 	}
 }
