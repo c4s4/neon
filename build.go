@@ -93,7 +93,9 @@ func (build *Build) Help() error {
 				return err
 			}
 			valueStr, err := Serialize(value)
-			return fmt.Errorf("Error serializing property '" + name + "' value")
+			if err != nil {
+				return fmt.Errorf("Error formatting property '%s': %v", name, err)
+			}
 			PrintTargetHelp(name, valueStr, []string{}, length)
 		}
 		newLine = true
