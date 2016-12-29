@@ -81,9 +81,10 @@ func (build *Build) Help() {
 		}
 		fmt.Println("Properties:")
 		for _, name := range properties {
-			value := build.Context.GetProperty(name)
-			valueString := fmt.Sprintf("%v", value)
-			PrintTargetHelp(name, valueString, []string{}, length)
+			value := build.Context.GetProperty(name).Interface()
+			valueStr, err := Serialize(value)
+			StopOnError(err, "Error serializing property '"+name+"' value", 12)
+			PrintTargetHelp(name, valueStr, []string{}, length)
 		}
 		newLine = true
 	}
