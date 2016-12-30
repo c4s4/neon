@@ -4,6 +4,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"path/filepath"
 	"sort"
 	"unicode/utf8"
@@ -20,13 +22,60 @@ type Build struct {
 	Context    *Context
 }
 
-func (build *Build) Init(file string) {
+func NewBuild(file string) (*Build, error) {
+	source, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil, fmt.Errorf("loading build file '%s': %v", file, err)
+	}
+	var structure map[string]interface{}
+	err = yaml.Unmarshal(source, &structure)
+	if err != nil {
+		return nil, fmt.Errorf("parsing build file '%s': must be a YAML map", file)
+	}
+	path, err := filepath.Abs(file)
+	if err != nil {
+		return nil, fmt.Errorf("getting build file path: %v", err)
+	}
+	build := &Build{}
+	err = build.Init(path, &structure)
+	return build, err
+}
+
+func (build *Build) Init(file string, structure *map[string]interface{}) error {
+	str, err := getString(structure, "name")
+	if err != nil {
+		return err
+	}
+	build.Name = str
+	str, err = getString(structure, "default")
+	if err != nil {
+		return err
+	}
+	build.Default = str
+	str, err = getString(structure, "doc")
+	if err != nil {
+		return err
+	}
+	build.Doc = str
 	build.File = file
 	build.Dir = filepath.Dir(build.File)
-	build.Context = NewContext(build)
-	for name, target := range build.Targets {
-		target.Init(build, name)
+	//build.Context = NewContext(build)
+	//for name, target := range build.Targets {
+	//	target.Init(build, name)
+	//}
+	return nil
+}
+
+func getString(dict *map[string]interface{}, name string) (string, error) {
+	value, ok := (*dict)[name]
+	if !ok {
+		return "", nil
 	}
+	str, ok := value.(string)
+	if !ok {
+		return "", fmt.Errorf("field '%s' must be a string", name)
+	}
+	return str, nil
 }
 
 func (build *Build) ParseTargets() ([]string, error) {

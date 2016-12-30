@@ -2,11 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
 	"os"
-	"path/filepath"
 )
 
 const (
@@ -14,33 +10,15 @@ const (
 )
 
 func ParseCommandLine() (*string, *bool) {
-	buildFile := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
-	buildHelp := flag.Bool("build", false, "Print build help")
+	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
+	help := flag.Bool("build", false, "Print build help")
 	flag.Parse()
-	return buildFile, buildHelp
-}
-
-func LoadBuild(file string) (*Build, error) {
-	var build *Build
-	source, err := ioutil.ReadFile(file)
-	if err != nil {
-		return nil, fmt.Errorf("loading build file '%s': %v", file, err)
-	}
-	err = yaml.Unmarshal(source, &build)
-	if err != nil {
-		return nil, fmt.Errorf("parsing build file '%s': %v", file, err)
-	}
-	absBuildFile, err := filepath.Abs(file)
-	if err != nil {
-		return nil, fmt.Errorf("getting build file path: %v", err)
-	}
-	build.Init(absBuildFile)
-	return build, nil
+	return file, help
 }
 
 func main() {
 	file, help := ParseCommandLine()
-	build, err := LoadBuild(*file)
+	build, err := NewBuild(*file)
 	if err != nil {
 		PrintError(err.Error())
 		os.Exit(1)
