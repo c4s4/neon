@@ -29,7 +29,7 @@ func PrintTargetHelp(name, doc string, depends []string, length int) {
 }
 
 func PrintError(message string) {
-	fmt.Fprintf(color.Output, "%s: %s\n", red("ERROR"), message)
+	fmt.Fprintf(color.Output, "%s %s\n", red("ERROR"), message)
 }
 
 func PrintOK() {

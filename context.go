@@ -2,26 +2,29 @@ package main
 
 import (
 	"github.com/mattn/anko/vm"
-	"os"
-	"os/exec"
 	"regexp"
-	"runtime"
+	"sort"
 )
 
 type Context struct {
-	Env   *vm.Env
-	Build *Build
+	Env        *vm.Env
+	Build      *Build
+	Properties []string
 }
 
-func NewContext(build *Build) *Context {
-	context := Context{
+func NewContext(build *Build, object Object) *Context {
+	context := &Context{
 		Env:   vm.NewEnv(),
 		Build: build,
 	}
-	for name, value := range build.Properties {
+	var properties []string
+	for name, value := range object {
 		context.SetProperty(name, value)
+		properties = append(properties, name)
 	}
-	return &context
+	sort.Strings(properties)
+	context.Properties = properties
+	return context
 }
 
 func (context *Context) SetProperty(name string, value interface{}) {
@@ -46,18 +49,4 @@ func (context *Context) ReplaceProperties(command string) string {
 	r := regexp.MustCompile("#{.*?}")
 	replaced := r.ReplaceAllStringFunc(command, context.ReplaceProperty)
 	return replaced
-}
-
-func (context *Context) Execute(cmd string) error {
-	cmd = context.ReplaceProperties(cmd)
-	var command *exec.Cmd
-	if runtime.GOOS == "windows" {
-		command = exec.Command("cmd.exe", "/C", cmd)
-	} else {
-		command = exec.Command("sh", "-c", cmd)
-	}
-	command.Dir = context.Build.Dir
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
-	return command.Run()
 }

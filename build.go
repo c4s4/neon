@@ -1,8 +1,6 @@
 package main
 
 import (
-	"errors"
-	"flag"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -12,105 +10,93 @@ import (
 )
 
 type Build struct {
-	File       string
-	Dir        string
-	Name       string
-	Default    string
-	Doc        string
-	Properties map[string]interface{}
-	Targets    map[string]*Target
-	Context    *Context
+	File    string
+	Dir     string
+	Name    string
+	Default string
+	Doc     string
+	Context *Context
+	Targets map[string]*Target
 }
 
 func NewBuild(file string) (*Build, error) {
+	build := &Build{}
 	source, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, fmt.Errorf("loading build file '%s': %v", file, err)
 	}
-	var structure map[string]interface{}
-	err = yaml.Unmarshal(source, &structure)
+	var object Object
+	err = yaml.Unmarshal(source, &object)
 	if err != nil {
-		return nil, fmt.Errorf("parsing build file '%s': must be a YAML map", file)
+		return nil, fmt.Errorf("build must be a YAML map with string keys")
 	}
+	err = object.CheckFields([]string{"name", "default", "doc", "properties", "targets"})
+	if err != nil {
+		return nil, err
+	}
+	str, err := object.GetString("name")
+	if err != nil {
+		return nil, err
+	}
+	build.Name = str
+	str, err = object.GetString("default")
+	if err != nil {
+		return nil, err
+	}
+	build.Default = str
+	str, err = object.GetString("doc")
+	if err != nil {
+		return nil, err
+	}
+	build.Doc = str
 	path, err := filepath.Abs(file)
 	if err != nil {
 		return nil, fmt.Errorf("getting build file path: %v", err)
 	}
-	build := &Build{}
-	err = build.Init(path, &structure)
-	return build, err
-}
-
-func (build *Build) Init(file string, structure *map[string]interface{}) error {
-	str, err := getString(structure, "name")
+	build.File = path
+	build.Dir = filepath.Dir(path)
+	properties, err := object.GetObject("properties")
 	if err != nil {
-		return err
+		return nil, err
 	}
-	build.Name = str
-	str, err = getString(structure, "default")
+	build.Context = NewContext(build, properties)
+	targets, err := object.GetObject("targets")
 	if err != nil {
-		return err
+		return nil, err
 	}
-	build.Default = str
-	str, err = getString(structure, "doc")
-	if err != nil {
-		return err
-	}
-	build.Doc = str
-	build.File = file
-	build.Dir = filepath.Dir(build.File)
-	//build.Context = NewContext(build)
-	//for name, target := range build.Targets {
-	//	target.Init(build, name)
-	//}
-	return nil
-}
-
-func getString(dict *map[string]interface{}, name string) (string, error) {
-	value, ok := (*dict)[name]
-	if !ok {
-		return "", nil
-	}
-	str, ok := value.(string)
-	if !ok {
-		return "", fmt.Errorf("field '%s' must be a string", name)
-	}
-	return str, nil
-}
-
-func (build *Build) ParseTargets() ([]string, error) {
-	targets := flag.Args()
-	if len(targets) == 0 {
-		if build.Default != "" {
-			targets = []string{build.Default}
-		} else {
-			return nil, errors.New("no default target")
-		}
-	}
-	return targets, nil
-}
-
-func (build *Build) Run() error {
-	targets, err := build.ParseTargets()
-	if err != nil {
-		return err
-	}
-	for _, target := range targets {
-		target, err := build.Target(target)
+	build.Targets = make(map[string]*Target)
+	for name, _ := range targets {
+		object, err := targets.GetObject(name)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		target.Run()
+		target, err := NewTarget(build, name, object)
+		if err != nil {
+			return nil, err
+		}
+		build.Targets[name] = target
 	}
-	PrintOK()
-	return nil
+	return build, nil
 }
 
-func (build *Build) Target(name string) (*Target, error) {
-	if target, ok := build.Targets[name]; ok {
-		return target, nil
+func (build *Build) Run(targets []string) error {
+	if len(targets) == 0 {
+		if build.Default == "" {
+			return fmt.Errorf("No default target")
+		}
+		return build.Run([]string{build.Default})
 	} else {
-		return nil, fmt.Errorf("target '%s' was not found", name)
+		for _, name := range targets {
+			target, ok := build.Targets[name]
+			if !ok {
+				return fmt.Errorf("target '%s' not found", name)
+			}
+			err := target.Run()
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	}
 }
 
@@ -123,20 +109,17 @@ func (build *Build) Help() error {
 	}
 	// print build properties
 	length := 0
-	properties := []string{}
-	for name, _ := range build.Properties {
+	for _, name := range build.Context.Properties {
 		if utf8.RuneCountInString(name) > length {
 			length = utf8.RuneCountInString(name)
 		}
-		properties = append(properties, name)
 	}
-	sort.Strings(properties)
-	if len(properties) > 0 {
+	if len(build.Context.Properties) > 0 {
 		if newLine {
 			fmt.Println()
 		}
 		fmt.Println("Properties:")
-		for _, name := range properties {
+		for _, name := range build.Context.Properties {
 			value, err := build.Context.GetProperty(name)
 			if err != nil {
 				return fmt.Errorf("getting property '%s': %v", name, err)
@@ -151,7 +134,7 @@ func (build *Build) Help() error {
 	}
 	// print targets documentation
 	length = 0
-	targets := []string{}
+	var targets []string
 	for name, _ := range build.Targets {
 		if utf8.RuneCountInString(name) > length {
 			length = utf8.RuneCountInString(name)
@@ -165,10 +148,7 @@ func (build *Build) Help() error {
 		}
 		fmt.Println("Targets:")
 		for _, name := range targets {
-			target, err := build.Target(name)
-			if err != nil {
-				return err
-			}
+			target := build.Targets[name]
 			PrintTargetHelp(name, target.Doc, target.Depends, length)
 		}
 	}
