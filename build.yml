@@ -36,8 +36,8 @@ targets:
     depends: [clean]
     doc: "Generate distribution archive"
     steps:
-    - "mkdir -p #{build_dir}/#{name}-#{version}/"
-    - "gox -output=#{build_dir}/#{name}-#{version}/{{.Dir}}_{{.OS}}_{{.Arch}}"
+    - "mkdir -p #{build_dir}/#{name}-#{version}/bin/"
+    - "gox -output=#{build_dir}/#{name}-#{version}/bin/{{.Dir}}_{{.OS}}_{{.Arch}}"
     - "cp LICENSE.txt #{build_dir}/#{name}-#{version}/"
     - |
       cp README.md #{build_dir}/ &&
