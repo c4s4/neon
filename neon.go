@@ -32,8 +32,9 @@ func main() {
 		}
 	} else {
 		err = build.Run(targets)
-		PrintOK()
-		if err != nil {
+		if err == nil {
+			PrintOK()
+		} else {
 			PrintError(err.Error())
 			os.Exit(2)
 		}
