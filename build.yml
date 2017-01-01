@@ -45,6 +45,12 @@ targets:
       md2pdf README.md &&
       cp README.pdf #{name}-#{version}/
     - |
+      cp CHANGELOG.yml #{build_dir}/ &&
+      cd #{build_dir} &&
+      changelog to markdown > CHANGELOG.md &&
+      md2pdf CHANGELOG.md &&
+      cp CHANGELOG.pdf #{name}-#{version}/
+    - |
       cd #{build_dir} &&
       tar cvzf #{name}-bin-#{version}.tar.gz #{name}-#{version}
 
