@@ -2,33 +2,60 @@ package main
 
 import (
 	"github.com/mattn/anko/vm"
+	"reflect"
 	"regexp"
-	"sort"
 )
 
 type Context struct {
 	Env        *vm.Env
 	Build      *Build
 	Properties []string
+	Error      error
 }
 
-func NewContext(build *Build, object Object) *Context {
+func NewContext(build *Build, object Object) (*Context, error) {
 	context := &Context{
 		Env:   vm.NewEnv(),
 		Build: build,
 	}
-	var properties []string
-	for name, value := range object {
-		context.SetProperty(name, value)
-		properties = append(properties, name)
+	properties, err := context.SetProperties(object)
+	if err != nil {
+		return nil, err
 	}
-	sort.Strings(properties)
 	context.Properties = properties
-	return context
+	return context, nil
 }
 
 func (context *Context) SetProperty(name string, value interface{}) {
 	context.Env.Define(name, value)
+}
+
+func (context *Context) SetProperties(object Object) ([]string, error) {
+	properties := object.Fields()
+	todo, _ := NewObject(object)
+	length := len(todo)
+	list := make([]string, len(todo)+1)
+	for length < len(list) && len(todo) > 0 {
+		list = todo.Fields()
+		for _, field := range list {
+			value := todo[field]
+			str, ok := value.(string)
+			if ok {
+				replaced, err := context.ReplaceProperties(str)
+				if err != nil {
+					continue
+				} else {
+					context.SetProperty(field, replaced)
+					delete(todo, field)
+				}
+			} else {
+				context.SetProperty(field, value)
+				delete(todo, field)
+			}
+		}
+		length = len(todo)
+	}
+	return properties, nil
 }
 
 func (context *Context) GetProperty(name string) (interface{}, error) {
@@ -39,14 +66,17 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 	return value.Interface(), nil
 }
 
-func (context *Context) ReplaceProperty(expression string) string {
+func (context *Context) replaceProperty(expression string) string {
 	name := expression[2 : len(expression)-1]
-	value, _ := context.Env.Get(name)
-	return value.String()
+	value, err := context.GetProperty(name)
+	context.Error = err
+	return reflect.ValueOf(value).String()
 }
 
-func (context *Context) ReplaceProperties(command string) string {
+func (context *Context) ReplaceProperties(command string) (string, error) {
 	r := regexp.MustCompile("#{.*?}")
-	replaced := r.ReplaceAllStringFunc(command, context.ReplaceProperty)
-	return replaced
+	replaced := r.ReplaceAllStringFunc(command, context.replaceProperty)
+	err := context.Error
+	context.Error = nil
+	return replaced, err
 }

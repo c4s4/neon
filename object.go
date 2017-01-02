@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"reflect"
+	"sort"
 )
 
 type Object map[string]interface{}
@@ -86,4 +87,23 @@ func (object Object) CheckFields(fields []string) error {
 		}
 	}
 	return nil
+}
+
+func (object Object) Copy() Object {
+	copy := make(map[string]interface{})
+	for name, value := range object {
+		copy[name] = value
+	}
+	return copy
+}
+
+func (object Object) Fields() []string {
+	fields := make([]string, len(object))
+	index := 0
+	for name, _ := range object {
+		fields[index] = name
+		index++
+	}
+	sort.Strings(fields)
+	return fields
 }

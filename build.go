@@ -66,7 +66,11 @@ func NewBuild(file string, debug bool) (*Build, error) {
 			return nil, err
 		}
 	}
-	build.Context = NewContext(build, properties)
+	context, err := NewContext(build, properties)
+	if err != nil {
+		return nil, err
+	}
+	build.Context = context
 	targets, err := object.GetObject("targets")
 	if err != nil {
 		if err.Error() == "field 'targets' not found" {

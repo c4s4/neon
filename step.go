@@ -25,7 +25,10 @@ func NewStep(target *Target, cmd interface{}) (*Step, error) {
 }
 
 func (step *Step) Run() error {
-	cmd := step.Target.Build.Context.ReplaceProperties(step.Command)
+	cmd, err := step.Target.Build.Context.ReplaceProperties(step.Command)
+	if err != nil {
+		return err
+	}
 	var command *exec.Cmd
 	if runtime.GOOS == "windows" {
 		command = exec.Command("cmd.exe", "/C", cmd)
