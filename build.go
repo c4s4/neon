@@ -17,38 +17,41 @@ type Build struct {
 	Doc     string
 	Context *Context
 	Targets map[string]*Target
+	Debug   bool
 }
 
-func NewBuild(file string) (*Build, error) {
+func NewBuild(file string, debug bool) (*Build, error) {
 	build := &Build{}
+	build.Debug = debug
+	build.Log("Loading build file '%s'", file)
 	source, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, fmt.Errorf("loading build file '%s': %v", file, err)
 	}
+	build.Log("Parsing build file")
 	var object Object
 	err = yaml.Unmarshal(source, &object)
 	if err != nil {
 		return nil, fmt.Errorf("build must be a YAML map with string keys")
 	}
+	build.Log("Build structure: %#v", object)
+	build.Log("Reading build first level fields")
 	err = object.CheckFields([]string{"name", "default", "doc", "properties", "targets"})
 	if err != nil {
 		return nil, err
 	}
 	str, err := object.GetString("name")
-	if err != nil {
-		return nil, err
+	if err == nil {
+		build.Name = str
 	}
-	build.Name = str
 	str, err = object.GetString("default")
-	if err != nil {
-		return nil, err
+	if err == nil {
+		build.Default = str
 	}
-	build.Default = str
 	str, err = object.GetString("doc")
-	if err != nil {
-		return nil, err
+	if err == nil {
+		build.Doc = str
 	}
-	build.Doc = str
 	path, err := filepath.Abs(file)
 	if err != nil {
 		return nil, fmt.Errorf("getting build file path: %v", err)
@@ -153,4 +156,10 @@ func (build *Build) Help() error {
 		}
 	}
 	return nil
+}
+
+func (build *Build) Log(message string, args ...interface{}) {
+	if build.Debug {
+		fmt.Println(fmt.Sprintf(message, args...))
+	}
 }

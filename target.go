@@ -13,19 +13,21 @@ type Target struct {
 }
 
 func NewTarget(build *Build, name string, object Object) (*Target, error) {
+	build.Log("Parsing target '%s'", name)
+	build.Log("Target structure: %#v", object)
 	target := &Target{
 		Build: build,
 		Name:  name,
 	}
+	build.Log("Reading target '%s' first level fields", name)
 	err := object.CheckFields([]string{"doc", "depends", "steps"})
 	if err != nil {
 		return nil, err
 	}
 	doc, err := object.GetString("doc")
-	if err != nil {
-		return nil, err
+	if err == nil {
+		target.Doc = doc
 	}
-	target.Doc = doc
 	depends, err := object.GetListStrings("depends")
 	if err != nil {
 		return nil, fmt.Errorf("depends must be a list of strings")
@@ -36,7 +38,8 @@ func NewTarget(build *Build, name string, object Object) (*Target, error) {
 		return nil, fmt.Errorf("steps must be a list of strings or maps")
 	}
 	var steps []*Step
-	for _, object := range list {
+	for index, object := range list {
+		build.Log("Parsing step %v in target '%s'", index, name)
 		step, err := NewStep(target, object)
 		if err != nil {
 			return nil, err
