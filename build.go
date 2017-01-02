@@ -60,12 +60,20 @@ func NewBuild(file string, debug bool) (*Build, error) {
 	build.Dir = filepath.Dir(path)
 	properties, err := object.GetObject("properties")
 	if err != nil {
-		return nil, err
+		if err.Error() == "field 'properties' not found" {
+			properties = make(map[string]interface{})
+		} else {
+			return nil, err
+		}
 	}
 	build.Context = NewContext(build, properties)
 	targets, err := object.GetObject("targets")
 	if err != nil {
-		return nil, err
+		if err.Error() == "field 'targets' not found" {
+			properties = make(map[string]interface{})
+		} else {
+			return nil, err
+		}
 	}
 	build.Targets = make(map[string]*Target)
 	for name, _ := range targets {
@@ -85,7 +93,7 @@ func NewBuild(file string, debug bool) (*Build, error) {
 func (build *Build) Run(targets []string) error {
 	if len(targets) == 0 {
 		if build.Default == "" {
-			return fmt.Errorf("No default target")
+			return fmt.Errorf("no default target")
 		}
 		return build.Run([]string{build.Default})
 	} else {
