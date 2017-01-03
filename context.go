@@ -15,14 +15,14 @@ type Context struct {
 
 func NewContext(build *Build, object Object) (*Context, error) {
 	context := &Context{
-		Env:   vm.NewEnv(),
-		Build: build,
+		Env:        vm.NewEnv(),
+		Build:      build,
+		Properties: object.Fields(),
 	}
-	properties, err := context.SetProperties(object)
+	err := context.SetProperties(object)
 	if err != nil {
 		return nil, err
 	}
-	context.Properties = properties
 	return context, nil
 }
 
@@ -30,11 +30,11 @@ func (context *Context) SetProperty(name string, value interface{}) {
 	context.Env.Define(name, value)
 }
 
-func (context *Context) SetProperties(object Object) ([]string, error) {
-	properties := object.Fields()
+func (context *Context) SetProperties(object Object) error {
 	todo, _ := NewObject(object)
 	length := len(todo)
 	list := make([]string, len(todo)+1)
+	var err error
 	for length < len(list) && len(todo) > 0 {
 		list = todo.Fields()
 		for _, field := range list {
@@ -55,7 +55,10 @@ func (context *Context) SetProperties(object Object) ([]string, error) {
 		}
 		length = len(todo)
 	}
-	return properties, nil
+	if len(todo) > 0 {
+		return err
+	}
+	return nil
 }
 
 func (context *Context) GetProperty(name string) (interface{}, error) {
