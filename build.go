@@ -139,7 +139,7 @@ func (build *Build) Help() error {
 			if err != nil {
 				return fmt.Errorf("getting property '%s': %v", name, err)
 			}
-			valueStr, err := Serialize(value)
+			valueStr, err := PropertyToString(value, true)
 			if err != nil {
 				return fmt.Errorf("formatting property '%s': %v", name, err)
 			}
