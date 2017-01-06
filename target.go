@@ -42,7 +42,7 @@ func NewTarget(build *Build, name string, object Object) (*Target, error) {
 		build.Log("Parsing step %v in target '%s'", index, name)
 		step, err := NewStep(target, object)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("parsing target '%s': %v", name, err)
 		}
 		steps = append(steps, step)
 	}

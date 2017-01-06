@@ -84,5 +84,5 @@ func NewTaskStep(target *Target, task map[interface{}]interface{}) (Step, error)
 }
 
 func (step TaskStep) Run() error {
-	return nil
+	return step.Task()
 }

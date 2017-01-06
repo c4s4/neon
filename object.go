@@ -47,7 +47,7 @@ func (object Object) GetList(field string) ([]interface{}, error) {
 	if slice.Kind() == reflect.Slice {
 		result := make([]interface{}, slice.Len())
 		for i := 0; i < slice.Len(); i++ {
-			result[i] = slice.Index(i)
+			result[i] = slice.Index(i).Interface()
 		}
 		return result, nil
 	} else {

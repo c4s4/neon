@@ -80,9 +80,9 @@ func (context *Context) replaceProperty(expression string) string {
 	return reflect.ValueOf(value).String()
 }
 
-func (context *Context) ReplaceProperties(command string) (string, error) {
+func (context *Context) ReplaceProperties(text string) (string, error) {
 	r := regexp.MustCompile("#{.*?}")
-	replaced := r.ReplaceAllStringFunc(command, context.replaceProperty)
+	replaced := r.ReplaceAllStringFunc(text, context.replaceProperty)
 	err := context.Error
 	context.Error = nil
 	return replaced, err
