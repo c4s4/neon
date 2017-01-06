@@ -9,7 +9,7 @@ type Target struct {
 	Name    string
 	Doc     string
 	Depends []string
-	Steps   []*Step
+	Steps   []Step
 }
 
 func NewTarget(build *Build, name string, object Object) (*Target, error) {
@@ -33,11 +33,11 @@ func NewTarget(build *Build, name string, object Object) (*Target, error) {
 		return nil, fmt.Errorf("depends must be a list of strings")
 	}
 	target.Depends = depends
-	list, err := object.GetListStrings("steps")
+	list, err := object.GetList("steps")
 	if err != nil {
-		return nil, fmt.Errorf("steps must be a list of strings or maps")
+		return nil, fmt.Errorf("steps must be a list")
 	}
-	var steps []*Step
+	var steps []Step
 	for index, object := range list {
 		build.Log("Parsing step %v in target '%s'", index, name)
 		step, err := NewStep(target, object)

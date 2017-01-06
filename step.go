@@ -7,24 +7,35 @@ import (
 	"runtime"
 )
 
-type Step struct {
+type Step interface {
+	Run() error
+}
+
+func NewStep(target *Target, step interface{}) (Step, error) {
+	switch step := step.(type) {
+	case string:
+		return NewShellStep(target, step)
+	case map[interface{}]interface{}:
+		return NewTaskStep(target, step)
+	default:
+		return nil, fmt.Errorf("step must be string or map")
+	}
+}
+
+type ShellStep struct {
 	Target  *Target
 	Command string
 }
 
-func NewStep(target *Target, cmd interface{}) (*Step, error) {
-	command, ok := cmd.(string)
-	if !ok {
-		return nil, fmt.Errorf("step must be string")
-	}
-	step := &Step{
+func NewShellStep(target *Target, shell string) (Step, error) {
+	step := ShellStep{
 		Target:  target,
-		Command: command,
+		Command: shell,
 	}
 	return step, nil
 }
 
-func (step *Step) Run() error {
+func (step ShellStep) Run() error {
 	cmd, err := step.Target.Build.Context.ReplaceProperties(step.Command)
 	if err != nil {
 		return err
@@ -39,4 +50,39 @@ func (step *Step) Run() error {
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	return command.Run()
+}
+
+type TaskStep struct {
+	Target *Target
+	Task   Task
+}
+
+func NewTaskStep(target *Target, task map[interface{}]interface{}) (Step, error) {
+	object, err := NewObject(task)
+	if err != nil {
+		return nil, fmt.Errorf("Task must be a map with string keys")
+	}
+	fields := object.Fields()
+	if len(fields) != 1 {
+		return nil, fmt.Errorf("Task must be a map with a single key")
+	}
+	name := fields[0]
+	args := object[name]
+	function, ok := tasksMap[name]
+	if !ok {
+		return nil, fmt.Errorf("unknown task '%s'", name)
+	}
+	funcTask, err := function(target, args)
+	if err != nil {
+		return nil, err
+	}
+	step := TaskStep{
+		Target: target,
+		Task:   funcTask,
+	}
+	return step, nil
+}
+
+func (step TaskStep) Run() error {
+	return nil
 }

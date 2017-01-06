@@ -38,6 +38,23 @@ func (object Object) GetString(field string) (string, error) {
 	return str, nil
 }
 
+func (object Object) GetList(field string) ([]interface{}, error) {
+	thing, ok := object[field]
+	if !ok {
+		return make([]interface{}, 0), nil
+	}
+	slice := reflect.ValueOf(thing)
+	if slice.Kind() == reflect.Slice {
+		result := make([]interface{}, slice.Len())
+		for i := 0; i < slice.Len(); i++ {
+			result[i] = slice.Index(i)
+		}
+		return result, nil
+	} else {
+		return nil, fmt.Errorf("field must be a list")
+	}
+}
+
 func (object Object) GetListStrings(field string) ([]string, error) {
 	thing, ok := object[field]
 	if !ok {

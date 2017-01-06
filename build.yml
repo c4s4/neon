@@ -25,7 +25,7 @@ targets:
   build:
     doc: "Build neon binary"
     steps:
-    - "mkdir -p #{build_dir}"
+    - mkdir: "#{build_dir}"
     - "go build -o #{build_dir}/#{name}"
 
   archive:
