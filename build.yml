@@ -1,5 +1,5 @@
 name: neon
-default: all
+default: [clean, test, build]
 doc: "Build file to build neon"
 
 properties:
@@ -8,10 +8,6 @@ properties:
   build_dir: build
 
 targets:
-
-  all:
-    depends: [clean, test, build]
-    doc: "Default target"
 
   deps:
     doc: "Install libraries"
