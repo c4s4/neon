@@ -33,7 +33,7 @@ targets:
     - "go build -o #{build_dir}/#{name}"
 
   archive:
-    depends: [clean]
+    depends: clean
     doc: "Generate distribution archive"
     steps:
     - "mkdir -p #{build_dir}/#{name}-#{version}/bin/"

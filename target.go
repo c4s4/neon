@@ -28,7 +28,7 @@ func NewTarget(build *Build, name string, object Object) (*Target, error) {
 	if err == nil {
 		target.Doc = doc
 	}
-	depends, err := object.GetListStrings("depends")
+	depends, err := object.GetListStringsOrString("depends")
 	if err != nil {
 		return nil, fmt.Errorf("depends must be a list of strings")
 	}

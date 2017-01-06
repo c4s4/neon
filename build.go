@@ -13,7 +13,7 @@ type Build struct {
 	File    string
 	Dir     string
 	Name    string
-	Default string
+	Default []string
 	Doc     string
 	Context *Context
 	Targets map[string]*Target
@@ -44,9 +44,9 @@ func NewBuild(file string, debug bool) (*Build, error) {
 	if err == nil {
 		build.Name = str
 	}
-	str, err = object.GetString("default")
+	list, err := object.GetListStringsOrString("default")
 	if err == nil {
-		build.Default = str
+		build.Default = list
 	}
 	str, err = object.GetString("doc")
 	if err == nil {
@@ -96,10 +96,10 @@ func NewBuild(file string, debug bool) (*Build, error) {
 
 func (build *Build) Run(targets []string) error {
 	if len(targets) == 0 {
-		if build.Default == "" {
+		if len(build.Default) == 0 {
 			return fmt.Errorf("no default target")
 		}
-		return build.Run([]string{build.Default})
+		return build.Run(build.Default)
 	} else {
 		for _, name := range targets {
 			target, ok := build.Targets[name]

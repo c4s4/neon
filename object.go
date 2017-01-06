@@ -61,6 +61,32 @@ func (object Object) GetListStrings(field string) ([]string, error) {
 	}
 }
 
+func (object Object) GetListStringsOrString(field string) ([]string, error) {
+	thing, ok := object[field]
+	if !ok {
+		return make([]string, 0), nil
+	}
+	err := fmt.Errorf("field must be a map with string keys")
+	slice := reflect.ValueOf(thing)
+	if slice.Kind() == reflect.Slice {
+		result := make([]string, slice.Len())
+		for i := 0; i < slice.Len(); i++ {
+			value := slice.Index(i)
+			str, ok := value.Interface().(string)
+			if !ok {
+				return nil, err
+			}
+			result[i] = str
+		}
+		return result, nil
+	} else if slice.Kind() == reflect.String {
+		str, _ := slice.Interface().(string)
+		return []string{str}, nil
+	} else {
+		return nil, err
+	}
+}
+
 func (object Object) GetObject(field string) (Object, error) {
 	value, ok := object[field]
 	if !ok {
