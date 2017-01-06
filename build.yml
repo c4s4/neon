@@ -32,7 +32,7 @@ targets:
     depends: clean
     doc: "Generate distribution archive"
     steps:
-    - "mkdir -p #{build_dir}/#{name}-#{version}/bin/"
+    - mkdir: "#{build_dir}/#{name}-#{version}/bin/"
     - "gox -output=#{build_dir}/#{name}-#{version}/bin/{{.Dir}}_{{.OS}}_{{.Arch}}"
     - "cp LICENSE.txt #{build_dir}/#{name}-#{version}/"
     - |
