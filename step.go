@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 )
 
 type Step interface {
@@ -57,30 +58,28 @@ type TaskStep struct {
 	Task   Task
 }
 
-func NewTaskStep(target *Target, task map[interface{}]interface{}) (Step, error) {
-	object, err := NewObject(task)
+func NewTaskStep(target *Target, m map[interface{}]interface{}) (Step, error) {
+	object, err := NewObject(m)
 	if err != nil {
 		return nil, fmt.Errorf("Task must be a map with string keys")
 	}
 	fields := object.Fields()
-	if len(fields) != 1 {
-		return nil, fmt.Errorf("Task must be a map with a single key")
+	for name, constructor := range tasksMap {
+		for _, field := range fields {
+			if name == field {
+				task, err := constructor(target, object)
+				if err != nil {
+					return nil, err
+				}
+				step := TaskStep{
+					Target: target,
+					Task:   task,
+				}
+				return step, nil
+			}
+		}
 	}
-	name := fields[0]
-	args := object[name]
-	function, ok := tasksMap[name]
-	if !ok {
-		return nil, fmt.Errorf("unknown task '%s'", name)
-	}
-	funcTask, err := function(target, args)
-	if err != nil {
-		return nil, err
-	}
-	step := TaskStep{
-		Target: target,
-		Task:   funcTask,
-	}
-	return step, nil
+	return nil, fmt.Errorf("unknown task '%s'", strings.Join(fields, "/"))
 }
 
 func (step TaskStep) Run() error {

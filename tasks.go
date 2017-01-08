@@ -9,16 +9,17 @@ const (
 	DEFAULT_FILE_MODE = 0777
 )
 
-var tasksMap = map[string]func(target *Target, args interface{}) (Task, error){
+type Task func() error
+
+type Constructor func(target *Target, args Object) (Task, error)
+
+var tasksMap = map[string]Constructor{
 	"print": Print,
-	"echo":  Print,
 	"mkdir": MkDir,
 }
 
-type Task func() error
-
-func Print(target *Target, args interface{}) (Task, error) {
-	message, ok := args.(string)
+func Print(target *Target, args Object) (Task, error) {
+	message, ok := args["print"].(string)
 	if !ok {
 		return nil, fmt.Errorf("argument of task print must be a string")
 	}
@@ -32,10 +33,10 @@ func Print(target *Target, args interface{}) (Task, error) {
 	}, nil
 }
 
-func MkDir(target *Target, args interface{}) (Task, error) {
-	dir, ok := args.(string)
+func MkDir(target *Target, args Object) (Task, error) {
+	dir, ok := args["mkdir"].(string)
 	if !ok {
-		return nil, fmt.Errorf("argument to task mkdir must be s string")
+		return nil, fmt.Errorf("argument to task mkdir must be a string")
 	}
 	return func() error {
 		evaluated, err := target.Build.Context.ReplaceProperties(dir)
