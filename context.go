@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	anko_core "github.com/mattn/anko/builtins"
 	"github.com/mattn/anko/vm"
 	"reflect"
 	"regexp"
@@ -18,8 +19,10 @@ type Context struct {
 }
 
 func NewContext(build *Build, object Object) (*Context, error) {
+	env := vm.NewEnv()
+	anko_core.LoadAllBuiltins(env)
 	context := &Context{
-		Env:        vm.NewEnv(),
+		Env:        env,
 		Build:      build,
 		Properties: object.Fields(),
 	}
@@ -28,6 +31,11 @@ func NewContext(build *Build, object Object) (*Context, error) {
 		return nil, err
 	}
 	return context, nil
+}
+
+func (context *Context) Evaluate(source string) (interface{}, error) {
+	value, err := context.Env.Execute(source)
+	return value, err
 }
 
 func (context *Context) SetProperty(name string, value interface{}) {

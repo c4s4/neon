@@ -14,8 +14,23 @@ type Task func() error
 type Constructor func(target *Target, args Object) (Task, error)
 
 var tasksMap = map[string]Constructor{
+	"go":    Go,
 	"print": Print,
 	"mkdir": MkDir,
+}
+
+func Go(target *Target, args Object) (Task, error) {
+	source, ok := args["go"].(string)
+	if !ok {
+		return nil, fmt.Errorf("argument of task go must be a string")
+	}
+	return func() error {
+		_, err := target.Build.Context.Evaluate(source)
+		if err != nil {
+			return fmt.Errorf("evaluating go source: %v", err)
+		}
+		return nil
+	}, nil
 }
 
 func Print(target *Target, args Object) (Task, error) {
