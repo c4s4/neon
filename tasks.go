@@ -20,6 +20,7 @@ func init() {
 	tasksMap = map[string]Constructor{
 		"go":     Go,
 		"print":  Print,
+		"rm":     Rm,
 		"cd":     Cd,
 		"mkdir":  MkDir,
 		"delete": Delete,
@@ -56,6 +57,25 @@ func Print(target *Target, args Object) (Task, error) {
 			return fmt.Errorf("processing print argument: %v", err)
 		}
 		fmt.Println(evaluated)
+		return nil
+	}, nil
+}
+
+func Rm(target *Target, args Object) (Task, error) {
+	file, ok := args["rm"].(string)
+	if !ok {
+		return nil, fmt.Errorf("argument to task rm must be a string")
+	}
+	return func() error {
+		file, err := target.Build.Context.ReplaceProperties(file)
+		fmt.Printf("Removing file '%s'\n", file)
+		if err != nil {
+			return fmt.Errorf("processing rm argument: %v", err)
+		}
+		err = os.Remove(file)
+		if err != nil {
+			return fmt.Errorf("removing file '%s': %s", file, err)
+		}
 		return nil
 	}, nil
 }
