@@ -35,7 +35,7 @@ func NewContext(build *Build, object Object) (*Context, error) {
 
 func (context *Context) Evaluate(source string) (interface{}, error) {
 	value, err := context.Env.Execute(source)
-	return value, err
+	return value.Interface(), err
 }
 
 func (context *Context) SetProperty(name string, value interface{}) {
@@ -85,7 +85,9 @@ func (context *Context) replaceProperty(expression string) string {
 	name := expression[2 : len(expression)-1]
 	value, err := context.GetProperty(name)
 	context.Error = err
-	return reflect.ValueOf(value).String()
+	str, err := PropertyToString(value, false)
+	context.Error = err
+	return str
 }
 
 func (context *Context) ReplaceProperties(text string) (string, error) {
@@ -108,6 +110,10 @@ func PropertyToString(object interface{}, quotes bool) (string, error) {
 		}
 	case int:
 		return strconv.Itoa(value), nil
+	case int32:
+		return strconv.Itoa(int(value)), nil
+	case int64:
+		return strconv.Itoa(int(value)), nil
 	case float64:
 		return strconv.FormatFloat(value, 'g', -1, 64), nil
 	default:

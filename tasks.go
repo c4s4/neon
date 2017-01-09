@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"reflect"
 )
 
 const (
@@ -13,11 +14,19 @@ type Task func() error
 
 type Constructor func(target *Target, args Object) (Task, error)
 
-var tasksMap = map[string]Constructor{
-	"go":    Go,
-	"print": Print,
-	"mkdir": MkDir,
+var tasksMap map[string]Constructor
+
+func init() {
+	tasksMap = map[string]Constructor{
+		"go":    Go,
+		"print": Print,
+		"mkdir": MkDir,
+		"if":    If,
+		"for":   For,
+	}
 }
+
+// TASKS DEFINITIONS
 
 func Go(target *Target, args Object) (Task, error) {
 	source, ok := args["go"].(string)
@@ -41,7 +50,7 @@ func Print(target *Target, args Object) (Task, error) {
 	return func() error {
 		evaluated, err := target.Build.Context.ReplaceProperties(message)
 		if err != nil {
-			return fmt.Errorf("processing print argument")
+			return fmt.Errorf("processing print argument: %v", err)
 		}
 		fmt.Println(evaluated)
 		return nil
@@ -65,4 +74,184 @@ func MkDir(target *Target, args Object) (Task, error) {
 		}
 		return nil
 	}, nil
+}
+
+func If(target *Target, args Object) (Task, error) {
+	fields := args.Fields()
+	if err := FieldsInList(fields, []string{"if", "then", "else"}); err != nil {
+		return nil, fmt.Errorf("building if condition: %v", err)
+	}
+	if err := FieldsMandatory(fields, []string{"if", "then"}); err != nil {
+		return nil, fmt.Errorf("building if condition: %v", err)
+	}
+	condition, err := args.GetString("if")
+	if err != nil {
+		return nil, fmt.Errorf("evaluating if construct: %v", err)
+	}
+	thenSteps, err := ParseSteps(target, args, "then")
+	if err != nil {
+		return nil, err
+	}
+	var elseSteps []Step
+	if FieldInList("else", fields) {
+		elseSteps, err = ParseSteps(target, args, "else")
+		if err != nil {
+			return nil, err
+		}
+	}
+	return func() error {
+		result, err := target.Build.Context.Evaluate(condition)
+		if err != nil {
+			return fmt.Errorf("evaluating if condition: %v", err)
+		}
+		boolean, ok := result.(bool)
+		if !ok {
+			return fmt.Errorf("evaluating if condition: must return a bool")
+		}
+		if boolean {
+			err := RunSteps(thenSteps)
+			if err != nil {
+				return err
+			}
+		} else {
+			err := RunSteps(elseSteps)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}, nil
+}
+
+func For(target *Target, args Object) (Task, error) {
+	fields := args.Fields()
+	if err := FieldsInList(fields, []string{"for", "in", "do"}); err != nil {
+		return nil, fmt.Errorf("building 'for' loop: %v", err)
+	}
+	if err := FieldsMandatory(fields, []string{"for", "in", "do"}); err != nil {
+		return nil, fmt.Errorf("building 'for' loop: %v", err)
+	}
+	variable, err := args.GetString("for")
+	if err != nil {
+		return nil, fmt.Errorf("'for' field of a 'for' loop must be a string")
+	}
+	list, err := args.GetList("in")
+	expression := ""
+	if err != nil {
+		expression, err = args.GetString("in")
+		if err != nil {
+			return nil, fmt.Errorf("'in' field of 'for' loop must be a list or string")
+		}
+	}
+	steps, err := ParseSteps(target, args, "do")
+	if err != nil {
+		return nil, err
+	}
+	return func() error {
+		if expression != "" {
+			result, err := target.Build.Context.Evaluate(expression)
+			if err != nil {
+				return fmt.Errorf("evaluating in field of for loop: %v", err)
+			}
+			list, err = ToList(result)
+			if err != nil {
+				return fmt.Errorf("'in' field of 'for' loop must be an expression that returns a list")
+			}
+		}
+		for _, value := range list {
+			target.Build.Context.SetProperty(variable, value)
+			if err != nil {
+				return err
+			}
+			err := RunSteps(steps)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}, nil
+
+}
+
+// UTILITY FUNCTIONS
+
+func FieldsInList(fields, list []string) error {
+	for _, field := range fields {
+		found := false
+		for _, e := range list {
+			if e == field {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return fmt.Errorf("unknown field '%s'", field)
+		}
+	}
+	return nil
+}
+
+func FieldInList(field string, list []string) bool {
+	for _, f := range list {
+		if f == field {
+			return true
+		}
+	}
+	return false
+}
+
+func FieldsMandatory(fields, mandatory []string) error {
+	for _, manda := range mandatory {
+		found := false
+		for _, field := range fields {
+			if manda == field {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return fmt.Errorf("mandatory field '%s' not found", manda)
+		}
+	}
+	return nil
+}
+
+func ParseSteps(target *Target, object Object, field string) ([]Step, error) {
+	list, err := object.GetList(field)
+	if err != nil {
+		return nil, err
+	}
+	var steps []Step
+	for index, element := range list {
+		target.Build.Log("Parsing step %v in %s field", index, field)
+		step, err := NewStep(target, element)
+		if err != nil {
+			return nil, fmt.Errorf("parsing target '%s': %v", target.Name, err)
+		}
+		steps = append(steps, step)
+	}
+	return steps, nil
+}
+
+func RunSteps(steps []Step) error {
+	for _, step := range steps {
+		err := step.Run()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func ToList(object interface{}) ([]interface{}, error) {
+	slice := reflect.ValueOf(object)
+	if slice.Kind() == reflect.Slice {
+		result := make([]interface{}, slice.Len())
+		for i := 0; i < slice.Len(); i++ {
+			result[i] = slice.Index(i).Interface()
+		}
+		return result, nil
+	} else {
+		return nil, fmt.Errorf("must be a list")
+	}
 }
