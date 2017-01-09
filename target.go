@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 type Target struct {
@@ -55,6 +56,10 @@ func (target *Target) Run() error {
 		target.Build.Run(target.Depends)
 	}
 	PrintTarget("Running target " + target.Name)
+	err := os.Chdir(target.Build.Dir)
+	if err != nil {
+		return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
+	}
 	for _, step := range target.Steps {
 		err := step.Run()
 		if err != nil {

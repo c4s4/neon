@@ -47,7 +47,11 @@ func (step ShellStep) Run() error {
 	} else {
 		command = exec.Command("sh", "-c", cmd)
 	}
-	command.Dir = step.Target.Build.Dir
+	dir, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("getting current working directory: %v", err)
+	}
+	command.Dir = dir
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	return command.Run()

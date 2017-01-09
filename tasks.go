@@ -20,6 +20,7 @@ func init() {
 	tasksMap = map[string]Constructor{
 		"go":     Go,
 		"print":  Print,
+		"cd":     Cd,
 		"mkdir":  MkDir,
 		"if":     If,
 		"for":    For,
@@ -58,20 +59,39 @@ func Print(target *Target, args Object) (Task, error) {
 	}, nil
 }
 
+func Cd(target *Target, args Object) (Task, error) {
+	dir, ok := args["cd"].(string)
+	if !ok {
+		return nil, fmt.Errorf("argument to task cd must be a string")
+	}
+	return func() error {
+		directory, err := target.Build.Context.ReplaceProperties(dir)
+		fmt.Printf("Changing to directory '%s'\n", directory)
+		if err != nil {
+			return fmt.Errorf("processing cd argument: %v", err)
+		}
+		err = os.Chdir(directory)
+		if err != nil {
+			return fmt.Errorf("changing to directory '%s': %s", directory, err)
+		}
+		return nil
+	}, nil
+}
+
 func MkDir(target *Target, args Object) (Task, error) {
 	dir, ok := args["mkdir"].(string)
 	if !ok {
 		return nil, fmt.Errorf("argument to task mkdir must be a string")
 	}
 	return func() error {
-		evaluated, err := target.Build.Context.ReplaceProperties(dir)
-		fmt.Printf("Making directory '%s'\n", evaluated)
+		directory, err := target.Build.Context.ReplaceProperties(dir)
+		fmt.Printf("Making directory '%s'\n", directory)
 		if err != nil {
-			return fmt.Errorf("processing mkdir argument")
+			return fmt.Errorf("processing mkdir argument: %v", err)
 		}
-		err = os.MkdirAll(evaluated, DEFAULT_FILE_MODE)
+		err = os.MkdirAll(directory, DEFAULT_FILE_MODE)
 		if err != nil {
-			return fmt.Errorf("making directory '%s': %s", dir, err)
+			return fmt.Errorf("making directory '%s': %s", directory, err)
 		}
 		return nil
 	}, nil
