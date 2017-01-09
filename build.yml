@@ -16,6 +16,7 @@ targets:
     - "go get github.com/fatih/color"
     - "go get github.com/mitchellh/gox"
     - "go get github.com/mattn/anko"
+    - "go get github.com/mattn/go-zglob"
 
   test:
     doc: "Run unit tests"
