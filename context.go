@@ -43,32 +43,42 @@ func (context *Context) SetProperty(name string, value interface{}) {
 }
 
 func (context *Context) SetProperties(object Object) error {
-	todo, _ := NewObject(object)
-	length := len(todo)
-	list := make([]string, len(todo)+1)
-	var err error
-	for length < len(list) && len(todo) > 0 {
-		list = todo.Fields()
-		for _, field := range list {
-			value := todo[field]
+	todo := object.Fields()
+	var crash error
+	for len(todo) > 0 {
+		var done []string
+		for _, name := range todo {
+			value := object[name]
 			str, ok := value.(string)
 			if ok {
-				replaced, err := context.ReplaceProperties(str)
-				if err != nil {
-					continue
+				eval, err := context.ReplaceProperties(str)
+				if err == nil {
+					context.SetProperty(name, eval)
+					done = append(done, name)
 				} else {
-					context.SetProperty(field, replaced)
-					delete(todo, field)
+					crash = err
 				}
 			} else {
-				context.SetProperty(field, value)
-				delete(todo, field)
+				context.SetProperty(name, value)
+				done = append(done, name)
 			}
 		}
-		length = len(todo)
-	}
-	if len(todo) > 0 {
-		return err
+		if len(done) == 0 {
+			return fmt.Errorf("evaluating properties: %v", crash)
+		}
+		var next []string
+		for _, name := range todo {
+			found := false
+			for _, n := range done {
+				if name == n {
+					found = true
+				}
+			}
+			if !found {
+				next = append(next, name)
+			}
+		}
+		todo = next
 	}
 	return nil
 }
@@ -84,9 +94,16 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 func (context *Context) replaceProperty(expression string) string {
 	name := expression[2 : len(expression)-1]
 	value, err := context.GetProperty(name)
-	context.Error = err
-	str, err := PropertyToString(value, false)
-	context.Error = err
+	if err != nil {
+		context.Error = err
+	}
+	var str string
+	if err == nil {
+		str, err = PropertyToString(value, false)
+		if err != nil {
+			context.Error = err
+		}
+	}
 	return str
 }
 
