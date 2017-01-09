@@ -3,9 +3,10 @@ default: [clean, test, build]
 doc: "Build file to build neon"
 
 properties:
-  name:      neon
-  version:   0.1.0
-  build_dir: build
+  name:      "neon"
+  version:   "0.1.0"
+  build_dir: "build"
+  arc_dir:   "#{build_dir}/#{name}-#{version}"
 
 targets:
 
@@ -33,9 +34,9 @@ targets:
     depends: clean
     doc: "Generate distribution archive"
     steps:
-    - mkdir: "#{build_dir}/#{name}-#{version}/bin/"
-    - "gox -output=#{build_dir}/#{name}-#{version}/bin/{{.Dir}}_{{.OS}}_{{.Arch}}"
-    - "cp LICENSE.txt #{build_dir}/#{name}-#{version}/"
+    - mkdir: "#{arc_dir}/bin/"
+    - "gox -output=#{arc_dir}/bin/{{.Dir}}_{{.OS}}_{{.Arch}}"
+    - "cp LICENSE.txt #{arc_dir}/"
     - |
       cp README.md #{build_dir}/ &&
       cd #{build_dir} &&
@@ -60,4 +61,4 @@ targets:
   clean:
     doc: "Clean generated files"
     steps:
-    - "rm -rf #{build_dir}"
+    - delete: "#{build_dir}"
