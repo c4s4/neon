@@ -18,11 +18,12 @@ var tasksMap map[string]Constructor
 
 func init() {
 	tasksMap = map[string]Constructor{
-		"go":    Go,
-		"print": Print,
-		"mkdir": MkDir,
-		"if":    If,
-		"for":   For,
+		"go":     Go,
+		"print":  Print,
+		"mkdir":  MkDir,
+		"if":     If,
+		"for":    For,
+		"delete": Delete,
 	}
 }
 
@@ -171,6 +172,29 @@ func For(target *Target, args Object) (Task, error) {
 		return nil
 	}, nil
 
+}
+
+func Delete(target *Target, args Object) (Task, error) {
+	directories, err := args.GetListStringsOrString("delete")
+	if err != nil {
+		return nil, fmt.Errorf("delete argument must be string or list of strings")
+	}
+	return func() error {
+		for _, dir := range directories {
+			directory, err := target.Build.Context.ReplaceProperties(dir)
+			if err != nil {
+				return fmt.Errorf("evaluating directory in task delete: %v", err)
+			}
+			if _, err := os.Stat(directory); err == nil {
+				fmt.Printf("Deleting directory '%s'\n", directory)
+				err = os.RemoveAll(directory)
+				if err != nil {
+					return fmt.Errorf("deleting directory '%s': %v", directory, err)
+				}
+			}
+		}
+		return nil
+	}, nil
 }
 
 // UTILITY FUNCTIONS
