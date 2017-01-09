@@ -24,6 +24,7 @@ func init() {
 		"mkdir":  MkDir,
 		"if":     If,
 		"for":    For,
+		"while":  While,
 		"delete": Delete,
 	}
 }
@@ -123,7 +124,7 @@ func If(target *Target, args Object) (Task, error) {
 	return func() error {
 		result, err := target.Build.Context.Evaluate(condition)
 		if err != nil {
-			return fmt.Errorf("evaluating if condition: %v", err)
+			return fmt.Errorf("evaluating 'if' condition: %v", err)
 		}
 		boolean, ok := result.(bool)
 		if !ok {
@@ -192,6 +193,44 @@ func For(target *Target, args Object) (Task, error) {
 		return nil
 	}, nil
 
+}
+
+func While(target *Target, args Object) (Task, error) {
+	fields := args.Fields()
+	if err := FieldsInList(fields, []string{"while", "do"}); err != nil {
+		return nil, fmt.Errorf("building 'while' loop: %v", err)
+	}
+	if err := FieldsMandatory(fields, []string{"while", "do"}); err != nil {
+		return nil, fmt.Errorf("building 'while' loop: %v", err)
+	}
+	condition, err := args.GetString("while")
+	if err != nil {
+		return nil, fmt.Errorf("'while' field of a 'while' loop must be a string")
+	}
+	steps, err := ParseSteps(target, args, "do")
+	if err != nil {
+		return nil, err
+	}
+	return func() error {
+		for {
+			result, err := target.Build.Context.Evaluate(condition)
+			if err != nil {
+				return fmt.Errorf("evaluating 'while' field of 'while' loop: %v", err)
+			}
+			loop, ok := result.(bool)
+			if !ok {
+				return fmt.Errorf("evaluating 'while' condition: must return a bool")
+			}
+			if !loop {
+				break
+			}
+			err = RunSteps(steps)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}, nil
 }
 
 func Delete(target *Target, args Object) (Task, error) {
