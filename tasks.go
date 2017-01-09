@@ -22,10 +22,10 @@ func init() {
 		"print":  Print,
 		"cd":     Cd,
 		"mkdir":  MkDir,
+		"delete": Delete,
 		"if":     If,
 		"for":    For,
 		"while":  While,
-		"delete": Delete,
 	}
 }
 
@@ -93,6 +93,29 @@ func MkDir(target *Target, args Object) (Task, error) {
 		err = os.MkdirAll(directory, DEFAULT_FILE_MODE)
 		if err != nil {
 			return fmt.Errorf("making directory '%s': %s", directory, err)
+		}
+		return nil
+	}, nil
+}
+
+func Delete(target *Target, args Object) (Task, error) {
+	directories, err := args.GetListStringsOrString("delete")
+	if err != nil {
+		return nil, fmt.Errorf("delete argument must be string or list of strings")
+	}
+	return func() error {
+		for _, dir := range directories {
+			directory, err := target.Build.Context.ReplaceProperties(dir)
+			if err != nil {
+				return fmt.Errorf("evaluating directory in task delete: %v", err)
+			}
+			if _, err := os.Stat(directory); err == nil {
+				fmt.Printf("Deleting directory '%s'\n", directory)
+				err = os.RemoveAll(directory)
+				if err != nil {
+					return fmt.Errorf("deleting directory '%s': %v", directory, err)
+				}
+			}
 		}
 		return nil
 	}, nil
@@ -227,29 +250,6 @@ func While(target *Target, args Object) (Task, error) {
 			err = RunSteps(steps)
 			if err != nil {
 				return err
-			}
-		}
-		return nil
-	}, nil
-}
-
-func Delete(target *Target, args Object) (Task, error) {
-	directories, err := args.GetListStringsOrString("delete")
-	if err != nil {
-		return nil, fmt.Errorf("delete argument must be string or list of strings")
-	}
-	return func() error {
-		for _, dir := range directories {
-			directory, err := target.Build.Context.ReplaceProperties(dir)
-			if err != nil {
-				return fmt.Errorf("evaluating directory in task delete: %v", err)
-			}
-			if _, err := os.Stat(directory); err == nil {
-				fmt.Printf("Deleting directory '%s'\n", directory)
-				err = os.RemoveAll(directory)
-				if err != nil {
-					return fmt.Errorf("deleting directory '%s': %v", directory, err)
-				}
 			}
 		}
 		return nil
