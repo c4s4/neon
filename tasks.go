@@ -27,6 +27,7 @@ func init() {
 		"if":     If,
 		"for":    For,
 		"while":  While,
+		"try":    Try,
 	}
 }
 
@@ -268,6 +269,35 @@ func While(target *Target, args Object) (Task, error) {
 				break
 			}
 			err = RunSteps(steps)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}, nil
+}
+
+func Try(target *Target, args Object) (Task, error) {
+	fields := args.Fields()
+	if err := FieldsInList(fields, []string{"try", "catch"}); err != nil {
+		return nil, fmt.Errorf("building try construct: %v", err)
+	}
+	if err := FieldsMandatory(fields, []string{"try", "catch"}); err != nil {
+		return nil, fmt.Errorf("building try construct: %v", err)
+	}
+	trySteps, err := ParseSteps(target, args, "try")
+	if err != nil {
+		return nil, err
+	}
+	catchSteps, err := ParseSteps(target, args, "catch")
+	if err != nil {
+		return nil, err
+	}
+	return func() error {
+		err := RunSteps(trySteps)
+		if err != nil {
+			target.Build.Context.SetProperty("error", err.Error())
+			err = RunSteps(catchSteps)
 			if err != nil {
 				return err
 			}
