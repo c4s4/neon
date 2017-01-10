@@ -5,18 +5,7 @@ import (
 	"os"
 )
 
-func Find(patterns ...string) []string {
-	var files []string
-	for _, pattern := range patterns {
-		f, _ := zglob.Glob(pattern)
-		for _, e := range f {
-			files = append(files, e)
-		}
-	}
-	return files
-}
-
-func FindDir(dir string, patterns ...string) []string {
+func Find(dir string, patterns ...string) []string {
 	oldDir, err := os.Getwd()
 	if err != nil {
 		return nil

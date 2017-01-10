@@ -36,7 +36,6 @@ func NewContext(build *Build, object Object) (*Context, error) {
 
 func (context *Context) AddBuiltins() {
 	context.Env.Define("find", Find)
-	context.Env.Define("findDir", FindDir)
 }
 
 func (context *Context) Evaluate(source string) (interface{}, error) {
