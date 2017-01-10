@@ -28,6 +28,7 @@ func init() {
 		"for":    For,
 		"while":  While,
 		"try":    Try,
+		"nop":    Nop,
 	}
 }
 
@@ -302,6 +303,19 @@ func Try(target *Target, args Object) (Task, error) {
 				return err
 			}
 		}
+		return nil
+	}, nil
+}
+
+func Nop(target *Target, args Object) (Task, error) {
+	fields := args.Fields()
+	if err := FieldsInList(fields, []string{"nop"}); err != nil {
+		return nil, fmt.Errorf("building nop instruction: %v", err)
+	}
+	if err := FieldsMandatory(fields, []string{"nop"}); err != nil {
+		return nil, fmt.Errorf("building nop instruction: %v", err)
+	}
+	return func() error {
 		return nil
 	}, nil
 }
