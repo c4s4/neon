@@ -30,7 +30,13 @@ func NewContext(build *Build, object Object) (*Context, error) {
 	if err != nil {
 		return nil, err
 	}
+	context.AddBuiltins()
 	return context, nil
+}
+
+func (context *Context) AddBuiltins() {
+	context.Env.Define("find", Find)
+	context.Env.Define("findDir", FindDir)
 }
 
 func (context *Context) Evaluate(source string) (interface{}, error) {
