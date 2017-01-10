@@ -60,10 +60,11 @@ func (target *Target) Run() error {
 	if err != nil {
 		return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
 	}
-	for _, step := range target.Steps {
+	for index, step := range target.Steps {
 		err := step.Run()
 		if err != nil {
-			return err
+			return fmt.Errorf("running target '%s' step %v: %v",
+				target.Name, index+1, err)
 		}
 	}
 	return nil
