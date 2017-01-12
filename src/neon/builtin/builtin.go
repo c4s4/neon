@@ -1,4 +1,4 @@
-package main
+package builtin
 
 import (
 	zglob "github.com/mattn/go-zglob"

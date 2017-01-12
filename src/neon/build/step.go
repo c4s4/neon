@@ -1,7 +1,8 @@
-package main
+package build
 
 import (
 	"fmt"
+	"neon/util"
 	"os"
 	"os/exec"
 	"runtime"
@@ -63,7 +64,7 @@ type TaskStep struct {
 }
 
 func NewTaskStep(target *Target, m map[interface{}]interface{}) (Step, error) {
-	object, err := NewObject(m)
+	object, err := util.NewObject(m)
 	if err != nil {
 		return nil, fmt.Errorf("Task must be a map with string keys")
 	}

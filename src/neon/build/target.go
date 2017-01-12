@@ -1,7 +1,8 @@
-package main
+package build
 
 import (
 	"fmt"
+	"neon/util"
 	"os"
 )
 
@@ -13,7 +14,7 @@ type Target struct {
 	Steps   []Step
 }
 
-func NewTarget(build *Build, name string, object Object) (*Target, error) {
+func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 	build.Log("Parsing target '%s'", name)
 	build.Log("Target structure: %#v", object)
 	target := &Target{
@@ -55,7 +56,7 @@ func (target *Target) Run() error {
 	if len(target.Depends) > 0 {
 		target.Build.Run(target.Depends)
 	}
-	PrintTarget("Running target " + target.Name)
+	util.PrintTarget("Running target " + target.Name)
 	err := os.Chdir(target.Build.Dir)
 	if err != nil {
 		return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)

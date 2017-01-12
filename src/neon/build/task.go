@@ -1,7 +1,8 @@
-package main
+package build
 
 import (
 	"fmt"
+	"neon/util"
 	"os"
 	"reflect"
 )
@@ -12,7 +13,7 @@ const (
 
 type Task func() error
 
-type Constructor func(target *Target, args Object) (Task, error)
+type Constructor func(target *Target, args util.Object) (Task, error)
 
 var tasksMap map[string]Constructor
 
@@ -34,7 +35,7 @@ func init() {
 
 // TASKS DEFINITIONS
 
-func Go(target *Target, args Object) (Task, error) {
+func Go(target *Target, args util.Object) (Task, error) {
 	source, ok := args["go"].(string)
 	if !ok {
 		return nil, fmt.Errorf("argument of task go must be a string")
@@ -48,7 +49,7 @@ func Go(target *Target, args Object) (Task, error) {
 	}, nil
 }
 
-func Print(target *Target, args Object) (Task, error) {
+func Print(target *Target, args util.Object) (Task, error) {
 	message, ok := args["print"].(string)
 	if !ok {
 		return nil, fmt.Errorf("argument of task print must be a string")
@@ -63,7 +64,7 @@ func Print(target *Target, args Object) (Task, error) {
 	}, nil
 }
 
-func Rm(target *Target, args Object) (Task, error) {
+func Rm(target *Target, args util.Object) (Task, error) {
 	file, ok := args["rm"].(string)
 	if !ok {
 		return nil, fmt.Errorf("argument to task rm must be a string")
@@ -82,7 +83,7 @@ func Rm(target *Target, args Object) (Task, error) {
 	}, nil
 }
 
-func Cd(target *Target, args Object) (Task, error) {
+func Cd(target *Target, args util.Object) (Task, error) {
 	dir, ok := args["cd"].(string)
 	if !ok {
 		return nil, fmt.Errorf("argument to task cd must be a string")
@@ -101,7 +102,7 @@ func Cd(target *Target, args Object) (Task, error) {
 	}, nil
 }
 
-func MkDir(target *Target, args Object) (Task, error) {
+func MkDir(target *Target, args util.Object) (Task, error) {
 	dir, ok := args["mkdir"].(string)
 	if !ok {
 		return nil, fmt.Errorf("argument to task mkdir must be a string")
@@ -120,7 +121,7 @@ func MkDir(target *Target, args Object) (Task, error) {
 	}, nil
 }
 
-func Delete(target *Target, args Object) (Task, error) {
+func Delete(target *Target, args util.Object) (Task, error) {
 	directories, err := args.GetListStringsOrString("delete")
 	if err != nil {
 		return nil, fmt.Errorf("delete argument must be string or list of strings")
@@ -143,7 +144,7 @@ func Delete(target *Target, args Object) (Task, error) {
 	}, nil
 }
 
-func If(target *Target, args Object) (Task, error) {
+func If(target *Target, args util.Object) (Task, error) {
 	fields := args.Fields()
 	if err := FieldsInList(fields, []string{"if", "then", "else"}); err != nil {
 		return nil, fmt.Errorf("building if condition: %v", err)
@@ -190,7 +191,7 @@ func If(target *Target, args Object) (Task, error) {
 	}, nil
 }
 
-func For(target *Target, args Object) (Task, error) {
+func For(target *Target, args util.Object) (Task, error) {
 	fields := args.Fields()
 	if err := FieldsInList(fields, []string{"for", "in", "do"}); err != nil {
 		return nil, fmt.Errorf("building 'for' loop: %v", err)
@@ -240,7 +241,7 @@ func For(target *Target, args Object) (Task, error) {
 
 }
 
-func While(target *Target, args Object) (Task, error) {
+func While(target *Target, args util.Object) (Task, error) {
 	fields := args.Fields()
 	if err := FieldsInList(fields, []string{"while", "do"}); err != nil {
 		return nil, fmt.Errorf("building 'while' loop: %v", err)
@@ -278,7 +279,7 @@ func While(target *Target, args Object) (Task, error) {
 	}, nil
 }
 
-func Try(target *Target, args Object) (Task, error) {
+func Try(target *Target, args util.Object) (Task, error) {
 	fields := args.Fields()
 	if err := FieldsInList(fields, []string{"try", "catch"}); err != nil {
 		return nil, fmt.Errorf("building try construct: %v", err)
@@ -307,7 +308,7 @@ func Try(target *Target, args Object) (Task, error) {
 	}, nil
 }
 
-func Nop(target *Target, args Object) (Task, error) {
+func Nop(target *Target, args util.Object) (Task, error) {
 	fields := args.Fields()
 	if err := FieldsInList(fields, []string{"nop"}); err != nil {
 		return nil, fmt.Errorf("building nop instruction: %v", err)
@@ -363,7 +364,7 @@ func FieldsMandatory(fields, mandatory []string) error {
 	return nil
 }
 
-func ParseSteps(target *Target, object Object, field string) ([]Step, error) {
+func ParseSteps(target *Target, object util.Object, field string) ([]Step, error) {
 	list, err := object.GetList(field)
 	if err != nil {
 		return nil, err

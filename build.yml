@@ -22,20 +22,20 @@ targets:
   test:
     doc: "Run unit tests"
     steps:
-    - "go test"
+    - "go test #{name}"
 
   build:
     doc: "Build neon binary"
     steps:
     - mkdir: "#{build_dir}"
-    - "go build -o #{build_dir}/#{name}"
+    - "go build -o #{build_dir}/#{name} #{name}"
 
   archive:
     depends: clean
     doc: "Generate distribution archive"
     steps:
     - mkdir: "#{arc_dir}/bin/"
-    - "gox -output=#{arc_dir}/bin/{{.Dir}}_{{.OS}}_{{.Arch}}"
+    - "gox -output=#{arc_dir}/bin/{{.Dir}}_{{.OS}}_{{.Arch}} #{name}"
     - "cp LICENSE.txt #{arc_dir}/"
     - |
       cp README.md #{build_dir}/ &&

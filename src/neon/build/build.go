@@ -1,9 +1,10 @@
-package main
+package build
 
 import (
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"neon/util"
 	"path/filepath"
 	"sort"
 	"unicode/utf8"
@@ -29,7 +30,7 @@ func NewBuild(file string, debug bool) (*Build, error) {
 		return nil, fmt.Errorf("loading build file '%s': %v", file, err)
 	}
 	build.Log("Parsing build file")
-	var object Object
+	var object util.Object
 	err = yaml.Unmarshal(source, &object)
 	if err != nil {
 		return nil, fmt.Errorf("build must be a YAML map with string keys")
@@ -143,7 +144,7 @@ func (build *Build) Help() error {
 			if err != nil {
 				return fmt.Errorf("formatting property '%s': %v", name, err)
 			}
-			PrintTargetHelp(name, valueStr, []string{}, length)
+			util.PrintTargetHelp(name, valueStr, []string{}, length)
 		}
 		newLine = true
 	}
@@ -164,7 +165,7 @@ func (build *Build) Help() error {
 		fmt.Println("Targets:")
 		for _, name := range targets {
 			target := build.Targets[name]
-			PrintTargetHelp(name, target.Doc, target.Depends, length)
+			util.PrintTargetHelp(name, target.Doc, target.Depends, length)
 		}
 	}
 	return nil

@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"neon/build"
+	"neon/util"
 	"os"
 )
 
@@ -20,23 +22,23 @@ func ParseCommandLine() (*string, *bool, *bool, []string) {
 
 func main() {
 	file, help, debug, targets := ParseCommandLine()
-	build, err := NewBuild(*file, *debug)
+	build, err := build.NewBuild(*file, *debug)
 	if err != nil {
-		PrintError(err.Error())
+		util.PrintError(err.Error())
 		os.Exit(1)
 	}
 	if *help {
 		err = build.Help()
 		if err != nil {
-			PrintError(err.Error())
+			util.PrintError(err.Error())
 			os.Exit(2)
 		}
 	} else {
 		err = build.Run(targets)
 		if err == nil {
-			PrintOK()
+			util.PrintOK()
 		} else {
-			PrintError(err.Error())
+			util.PrintError(err.Error())
 			os.Exit(2)
 		}
 	}

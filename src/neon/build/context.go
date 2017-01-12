@@ -1,9 +1,11 @@
-package main
+package build
 
 import (
 	"fmt"
 	anko_core "github.com/mattn/anko/builtins"
 	"github.com/mattn/anko/vm"
+	"neon/builtin"
+	"neon/util"
 	"reflect"
 	"regexp"
 	"sort"
@@ -18,7 +20,7 @@ type Context struct {
 	Error      error
 }
 
-func NewContext(build *Build, object Object) (*Context, error) {
+func NewContext(build *Build, object util.Object) (*Context, error) {
 	env := vm.NewEnv()
 	anko_core.LoadAllBuiltins(env)
 	context := &Context{
@@ -35,7 +37,7 @@ func NewContext(build *Build, object Object) (*Context, error) {
 }
 
 func (context *Context) AddBuiltins() {
-	context.Env.Define("find", Find)
+	context.Env.Define("find", builtin.Find)
 }
 
 func (context *Context) Evaluate(source string) (interface{}, error) {
@@ -47,7 +49,7 @@ func (context *Context) SetProperty(name string, value interface{}) {
 	context.Env.Define(name, value)
 }
 
-func (context *Context) SetProperties(object Object) error {
+func (context *Context) SetProperties(object util.Object) error {
 	todo := object.Fields()
 	var crash error
 	for len(todo) > 0 {
