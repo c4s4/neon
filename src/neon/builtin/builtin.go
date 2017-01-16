@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"fmt"
 	"github.com/mattn/anko/vm"
 	zglob "github.com/mattn/go-zglob"
 	"os"
@@ -39,6 +40,6 @@ func Find(dir string, patterns ...string) []string {
 	return files
 }
 
-func Throw(message string) {
-	panic(message)
+func Throw(message string) error {
+	return fmt.Errorf(message)
 }
