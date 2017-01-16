@@ -1,34 +1,38 @@
 name: neon
-default: [clean, test, build]
+default: [clean, test, bin]
 doc: "Build file to build neon"
 
 properties:
-  name:      "neon"
-  version:   "0.1.0"
-  build_dir: "build"
-  arc_dir:   "#{build_dir}/#{name}-#{version}"
+  name:         "neon"
+  version:      "0.1.0"
+  build_dir:    "build"
+  arc_dir:      "#{build_dir}/#{name}-#{version}"
+  dependencies:
+  - "gopkg.in/yaml.v2"
+  - "github.com/fatih/color"
+  - "github.com/mitchellh/gox"
+  - "github.com/mattn/anko"
+  - "github.com/mattn/go-zglob"
 
 targets:
 
   deps:
     doc: "Install libraries"
     steps:
-    - "go get gopkg.in/yaml.v2"
-    - "go get github.com/fatih/color"
-    - "go get github.com/mitchellh/gox"
-    - "go get github.com/mattn/anko"
-    - "go get github.com/mattn/go-zglob"
+    - for: dependency
+      in:  dependencies
+      do:
+      - "go get #{dependency}"
 
   test:
     doc: "Run unit tests"
     steps:
-    - "go test #{name}"
+    - "go test #{name}/..."
 
-  build:
+  bin:
     doc: "Build neon binary"
     steps:
-    - mkdir: "#{build_dir}"
-    - "go build -o #{build_dir}/#{name} #{name}"
+    - "go install #{name}"
 
   archive:
     depends: clean
@@ -37,20 +41,12 @@ targets:
     - mkdir: "#{arc_dir}/bin/"
     - "gox -output=#{arc_dir}/bin/{{.Dir}}_{{.OS}}_{{.Arch}} #{name}"
     - "cp LICENSE.txt #{arc_dir}/"
-    - |
-      cp README.md #{build_dir}/ &&
-      cd #{build_dir} &&
-      md2pdf README.md &&
-      cp README.pdf #{name}-#{version}/
-    - |
-      cp CHANGELOG.yml #{build_dir}/ &&
-      cd #{build_dir} &&
-      changelog to markdown > CHANGELOG.md &&
-      md2pdf CHANGELOG.md &&
-      cp CHANGELOG.pdf #{name}-#{version}/
-    - |
-      cd #{build_dir} &&
-      tar cvzf #{name}-bin-#{version}.tar.gz #{name}-#{version}
+    - "md2pdf -o #{arc_dir}/README.pdf README.md"
+    - "changelog to markdown > #{build_dir}/CHANGELOG.md"
+    - "md2pdf -o #{arc_dir}/CHANGELOG.pdf #{build_dir}/CHANGELOG.md"
+    - "rm #{build_dir}/CHANGELOG.md"
+    - cd: "#{build_dir}"
+    - "tar cvzf #{name}-#{version}.tar.gz #{name}-#{version}"
 
   release:
     depends: [clean, test, archive]
