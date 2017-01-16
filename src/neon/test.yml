@@ -1,4 +1,6 @@
+doc: Built file to test builds
 default:
+- builtin_throw
 - builtin_find
 
 properties:
@@ -6,12 +8,28 @@ properties:
 
 targets:
 
+  builtin_throw:
+    doc: Test the throw builtin function
+    steps:
+    - try:
+      - go: 'throw("TEST")'
+      catch:
+      - go: |
+          if error != "evaluating go source: TEST" {
+            throw("Throw test failure")
+          } else {
+            println("Throw test success")
+          }
+
   builtin_find:
+    doc: Test the find builtin function
     steps:
     - mkdir: "#{BUILD_DIR}/spam"
     - "touch #{BUILD_DIR}/foo #{BUILD_DIR}/spam/bar"
     - go: |
           files = toString(find(BUILD_DIR, "**/*"))
-          if files != "[fooX spam spam/bar]" {
+          if files != "[foo spam spam/bar]" {
             throw("ERROR")
+          } else {
+            println("Find test success")
           }
