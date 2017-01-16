@@ -23,6 +23,7 @@ type Context struct {
 func NewContext(build *Build, object util.Object) (*Context, error) {
 	env := vm.NewEnv()
 	anko_core.LoadAllBuiltins(env)
+	builtin.AddBuiltins(env)
 	context := &Context{
 		Env:        env,
 		Build:      build,
@@ -32,12 +33,7 @@ func NewContext(build *Build, object util.Object) (*Context, error) {
 	if err != nil {
 		return nil, err
 	}
-	context.AddBuiltins()
 	return context, nil
-}
-
-func (context *Context) AddBuiltins() {
-	context.Env.Define("find", builtin.Find)
 }
 
 func (context *Context) Evaluate(source string) (interface{}, error) {

@@ -1,0 +1,17 @@
+default:
+- builtin_find
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_find:
+    steps:
+    - mkdir: "#{BUILD_DIR}/spam"
+    - "touch #{BUILD_DIR}/foo #{BUILD_DIR}/spam/bar"
+    - go: |
+          files = toString(find(BUILD_DIR, "**/*"))
+          if files != "[fooX spam spam/bar]" {
+            throw("ERROR")
+          }
