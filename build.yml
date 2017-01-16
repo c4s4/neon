@@ -28,6 +28,7 @@ targets:
     doc: "Run unit tests"
     steps:
     - "go test #{name}/..."
+    - "neon -file src/neon/test.yml"
 
   bin:
     doc: "Build neon binary"
