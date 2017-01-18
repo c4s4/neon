@@ -53,6 +53,8 @@ func (context *Context) SetProperty(name string, value interface{}) {
 }
 
 func (context *Context) SetProperties(object util.Object) error {
+	context.SetProperty("BASE", context.Build.Dir)
+	context.SetProperty("HERE", context.Build.Here)
 	todo := object.Fields()
 	var crash error
 	for len(todo) > 0 {
@@ -194,15 +196,33 @@ func (context *Context) GetEnvironment() ([]string, error) {
 		environment[name] = value
 	}
 	environment["BASE"] = context.Build.Dir
-	for name, value := range context.Environment {
-		r := regexp.MustCompile("\\${.*?}")
+	environment["HERE"] = context.Build.Here
+	var variables []string
+	for name, _ := range context.Environment {
+		variables = append(variables, name)
+	}
+	sort.Strings(variables)
+	for _, name := range variables {
+		value := context.Environment[name]
+		r := regexp.MustCompile("[\\$#]{.*?}")
 		replaced := r.ReplaceAllStringFunc(value, func(expression string) string {
 			name := expression[2 : len(expression)-1]
-			value, ok := environment[name]
-			if !ok {
-				return ""
+			if expression[0:1] == "$" {
+				value, ok := environment[name]
+				if !ok {
+					return expression
+				} else {
+					return value
+				}
+			} else {
+				value, err := context.GetProperty(name)
+				if err != nil {
+					return expression
+				} else {
+					str, _ := PropertyToString(value, false)
+					return str
+				}
 			}
-			return value
 		})
 		environment[name] = replaced
 	}

@@ -5,6 +5,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"neon/util"
+	"os"
 	"path/filepath"
 	"sort"
 	"unicode/utf8"
@@ -13,6 +14,7 @@ import (
 type Build struct {
 	File    string
 	Dir     string
+	Here    string
 	Name    string
 	Default []string
 	Doc     string
@@ -60,6 +62,11 @@ func NewBuild(file string, debug bool) (*Build, error) {
 	}
 	build.File = path
 	build.Dir = filepath.Dir(path)
+	here, err := os.Getwd()
+	if err != nil {
+		return nil, fmt.Errorf("getting current directory: %v", err)
+	}
+	build.Here = here
 	properties, err := object.GetObject("properties")
 	if err != nil {
 		if err.Error() == "field 'properties' not found" {
