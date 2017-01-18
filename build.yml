@@ -3,11 +3,11 @@ default: [clean, test, bin]
 doc: "Build file to build neon"
 
 properties:
-  name:         "neon"
-  version:      "0.1.0"
-  build_dir:    "build"
-  arc_dir:      "#{build_dir}/#{name}-#{version}"
-  dependencies:
+  NAME:         "neon"
+  VERSION:      "0.1.0"
+  BUILD_DIR:    "build"
+  ARC_DIR:      "#{BUILD_DIR}/#{NAME}-#{VERSION}"
+  DEPENDENCIES:
   - "gopkg.in/yaml.v2"
   - "github.com/fatih/color"
   - "github.com/mitchellh/gox"
@@ -20,34 +20,34 @@ targets:
     doc: "Install libraries"
     steps:
     - for: dependency
-      in:  dependencies
+      in:  DEPENDENCIES
       do:
       - "go get #{dependency}"
 
   test:
     doc: "Run unit tests"
     steps:
-    - "go test #{name}/..."
+    - "go test #{NAME}/..."
     - "neon -file src/neon/test.yml"
 
   bin:
     doc: "Build neon binary"
     steps:
-    - "go install #{name}"
+    - "go install #{NAME}"
 
   archive:
     depends: clean
     doc: "Generate distribution archive"
     steps:
-    - mkdir: "#{arc_dir}/bin/"
-    - "gox -output=#{arc_dir}/bin/{{.Dir}}_{{.OS}}_{{.Arch}} #{name}"
-    - "cp LICENSE.txt #{arc_dir}/"
-    - "md2pdf -o #{arc_dir}/README.pdf README.md"
-    - "changelog to markdown > #{build_dir}/CHANGELOG.md"
-    - "md2pdf -o #{arc_dir}/CHANGELOG.pdf #{build_dir}/CHANGELOG.md"
-    - "rm #{build_dir}/CHANGELOG.md"
-    - cd: "#{build_dir}"
-    - "tar cvzf #{name}-#{version}.tar.gz #{name}-#{version}"
+    - mkdir: "#{ARC_DIR}/bin/"
+    - "gox -output=#{ARC_DIR}/bin/{{.Dir}}_{{.OS}}_{{.Arch}} #{NAME}"
+    - "cp LICENSE.txt #{ARC_DIR}/"
+    - "md2pdf -o #{ARC_DIR}/README.pdf README.md"
+    - "changelog to markdown > #{BUILD_DIR}/CHANGELOG.md"
+    - "md2pdf -o #{ARC_DIR}/CHANGELOG.pdf #{BUILD_DIR}/CHANGELOG.md"
+    - "rm #{BUILD_DIR}/CHANGELOG.md"
+    - cd: "#{BUILD_DIR}"
+    - "tar cvzf #{NAME}-#{VERSION}.tar.gz #{NAME}-#{VERSION}"
 
   release:
     depends: [clean, test, archive]
@@ -58,4 +58,4 @@ targets:
   clean:
     doc: "Clean generated files"
     steps:
-    - delete: "#{build_dir}"
+    - delete: "#{BUILD_DIR}"
