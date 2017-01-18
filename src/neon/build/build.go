@@ -157,6 +157,27 @@ func (build *Build) Help() error {
 		}
 		newLine = true
 	}
+	// print build environment
+	length = 0
+	var names []string
+	for name, _ := range build.Context.Environment {
+		if utf8.RuneCountInString(name) > length {
+			length = utf8.RuneCountInString(name)
+		}
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	if len(build.Context.Environment) > 0 {
+		if newLine {
+			fmt.Println()
+		}
+		fmt.Println("Environment:")
+		for _, name := range names {
+			value := "\"" + build.Context.Environment[name] + "\""
+			util.PrintTargetHelp(name, value, []string{}, length)
+		}
+		newLine = true
+	}
 	// print targets documentation
 	length = 0
 	var targets []string
