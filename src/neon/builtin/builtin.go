@@ -13,9 +13,9 @@ var Builtins = map[string]interface{}{
 	"throw": Throw,
 }
 
-func AddBuiltins(env *vm.Env) {
+func AddBuiltins(vm *vm.Env) {
 	for name, function := range Builtins {
-		env.Define(name, function)
+		vm.Define(name, function)
 	}
 }
 

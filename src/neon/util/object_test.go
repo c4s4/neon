@@ -21,3 +21,17 @@ func TestGetListStringsOrStringEmpty(t *testing.T) {
 		t.Error("No error getting string!", actual)
 	}
 }
+
+func TestToMapStringString(t *testing.T) {
+	object := Object{"foo": "1", "bar": "2"}
+	actual, err := object.ToMapStringString()
+	if err != nil {
+		t.Error("Error getting the map string string")
+	}
+	if actual["foo"] != "1" {
+		t.Error("Error getting the map string string")
+	}
+	if actual["bar"] != "2" {
+		t.Error("Error getting the map string string")
+	}
+}

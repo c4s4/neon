@@ -55,6 +55,10 @@ func (step ShellStep) Run() error {
 	command.Dir = dir
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
+	command.Env, err = step.Target.Build.Context.GetEnvironment()
+	if err != nil {
+		return fmt.Errorf("building environment: %v", err)
+	}
 	return command.Run()
 }
 

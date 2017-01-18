@@ -37,7 +37,8 @@ func NewBuild(file string, debug bool) (*Build, error) {
 	}
 	build.Log("Build structure: %#v", object)
 	build.Log("Reading build first level fields")
-	err = object.CheckFields([]string{"name", "default", "doc", "properties", "targets"})
+	err = object.CheckFields([]string{"name", "default", "doc", "properties",
+		"environment", "targets"})
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +68,15 @@ func NewBuild(file string, debug bool) (*Build, error) {
 			return nil, err
 		}
 	}
-	context, err := NewContext(build, properties)
+	environment, err := object.GetObject("environment")
+	if err != nil {
+		if err.Error() == "field 'environment' not found" {
+			environment = make(map[string]interface{})
+		} else {
+			return nil, err
+		}
+	}
+	context, err := NewContext(build, properties, environment)
 	if err != nil {
 		return nil, err
 	}

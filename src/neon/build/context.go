@@ -6,6 +6,7 @@ import (
 	"github.com/mattn/anko/vm"
 	"neon/builtin"
 	"neon/util"
+	"os"
 	"reflect"
 	"regexp"
 	"sort"
@@ -14,22 +15,28 @@ import (
 )
 
 type Context struct {
-	Env        *vm.Env
-	Build      *Build
-	Properties []string
-	Error      error
+	VM          *vm.Env
+	Build       *Build
+	Properties  []string
+	Environment map[string]string
+	Error       error
 }
 
-func NewContext(build *Build, object util.Object) (*Context, error) {
-	env := vm.NewEnv()
-	anko_core.LoadAllBuiltins(env)
-	builtin.AddBuiltins(env)
-	context := &Context{
-		Env:        env,
-		Build:      build,
-		Properties: object.Fields(),
+func NewContext(build *Build, properties util.Object, env util.Object) (*Context, error) {
+	vm := vm.NewEnv()
+	anko_core.LoadAllBuiltins(vm)
+	builtin.AddBuiltins(vm)
+	environment, err := env.ToMapStringString()
+	if err != nil {
+		return nil, fmt.Errorf("getting environment: %v", err)
 	}
-	err := context.SetProperties(object)
+	context := &Context{
+		VM:          vm,
+		Build:       build,
+		Properties:  properties.Fields(),
+		Environment: environment,
+	}
+	err = context.SetProperties(properties)
 	if err != nil {
 		return nil, err
 	}
@@ -37,12 +44,12 @@ func NewContext(build *Build, object util.Object) (*Context, error) {
 }
 
 func (context *Context) Evaluate(source string) (interface{}, error) {
-	value, err := context.Env.Execute(source)
+	value, err := context.VM.Execute(source)
 	return value.Interface(), err
 }
 
 func (context *Context) SetProperty(name string, value interface{}) {
-	context.Env.Define(name, value)
+	context.VM.Define(name, value)
 }
 
 func (context *Context) SetProperties(object util.Object) error {
@@ -87,7 +94,7 @@ func (context *Context) SetProperties(object util.Object) error {
 }
 
 func (context *Context) GetProperty(name string) (interface{}, error) {
-	value, err := context.Env.Get(name)
+	value, err := context.VM.Get(name)
 	if err != nil {
 		return nil, err
 	}
@@ -176,4 +183,33 @@ func PropertyToString(object interface{}, quotes bool) (string, error) {
 			return "", fmt.Errorf("no serializer for type '%T'", object)
 		}
 	}
+}
+
+func (context *Context) GetEnvironment() ([]string, error) {
+	environment := make(map[string]string)
+	for _, line := range os.Environ() {
+		index := strings.Index(line, "=")
+		name := line[:index]
+		value := line[index+1:]
+		environment[name] = value
+	}
+	environment["BASE"] = context.Build.Dir
+	for name, value := range context.Environment {
+		r := regexp.MustCompile("\\${.*?}")
+		replaced := r.ReplaceAllStringFunc(value, func(expression string) string {
+			name := expression[2 : len(expression)-1]
+			value, ok := environment[name]
+			if !ok {
+				return ""
+			}
+			return value
+		})
+		environment[name] = replaced
+	}
+	var lines []string
+	for name, value := range environment {
+		line := name + "=" + value
+		lines = append(lines, line)
+	}
+	return lines, nil
 }

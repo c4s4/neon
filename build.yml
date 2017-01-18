@@ -1,5 +1,5 @@
 name: neon
-default: [clean, test, bin]
+default: [clean, test, integ, bin]
 doc: "Build file to build neon"
 
 properties:
@@ -13,6 +13,10 @@ properties:
   - "github.com/mitchellh/gox"
   - "github.com/mattn/anko"
   - "github.com/mattn/go-zglob"
+
+environment:
+  GOPATH: "${BASE}"
+  PATH:   "${BASE}/bin:${PATH}"
 
 targets:
 
@@ -28,6 +32,10 @@ targets:
     doc: "Run unit tests"
     steps:
     - "go test #{NAME}/..."
+
+  integ:
+    doc: "Run an integration test on a build file"
+    steps:
     - "neon -file src/neon/test.yml"
 
   bin:

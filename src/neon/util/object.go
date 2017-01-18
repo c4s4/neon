@@ -150,3 +150,15 @@ func (object Object) Fields() []string {
 	sort.Strings(fields)
 	return fields
 }
+
+func (object Object) ToMapStringString() (map[string]string, error) {
+	mapStringString := make(map[string]string)
+	for name, value := range object {
+		str, ok := value.(string)
+		if !ok {
+			return nil, fmt.Errorf("field '%s' is not a string", name)
+		}
+		mapStringString[name] = str
+	}
+	return mapStringString, nil
+}
