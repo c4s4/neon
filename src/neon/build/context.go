@@ -19,7 +19,6 @@ type Context struct {
 	Build       *Build
 	Properties  []string
 	Environment map[string]string
-	Error       error
 }
 
 func NewContext(build *Build, properties util.Object, env util.Object) (*Context, error) {
@@ -103,27 +102,23 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 	return value.Interface(), nil
 }
 
-func (context *Context) replaceProperty(expression string) string {
-	name := expression[2 : len(expression)-1]
-	value, err := context.GetProperty(name)
-	if err != nil {
-		context.Error = err
-	}
-	var str string
-	if err == nil {
-		str, err = PropertyToString(value, false)
-		if err != nil {
-			context.Error = err
-		}
-	}
-	return str
-}
-
 func (context *Context) ReplaceProperties(text string) (string, error) {
 	r := regexp.MustCompile("#{.*?}")
-	replaced := r.ReplaceAllStringFunc(text, context.replaceProperty)
-	err := context.Error
-	context.Error = nil
+	var err error
+	replaced := r.ReplaceAllStringFunc(text, func(expression string) string {
+		name := expression[2 : len(expression)-1]
+		value, err := context.Evaluate(name)
+		if err != nil {
+			return ""
+		} else {
+			str, err := PropertyToString(value, false)
+			if err != nil {
+				return ""
+			} else {
+				return str
+			}
+		}
+	})
 	return replaced, err
 }
 
