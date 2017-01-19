@@ -3,11 +3,13 @@ package build
 import (
 	"fmt"
 	zglob "github.com/mattn/go-zglob"
+	"io/ioutil"
 	"neon/util"
 	"os"
 	"reflect"
 	"sort"
 	"strings"
+	"time"
 )
 
 const (
@@ -26,6 +28,7 @@ func init() {
 		"print":  Print,
 		"chdir":  Chdir,
 		"mkdir":  MkDir,
+		"touch":  Touch,
 		"remove": Remove,
 		"delete": Delete,
 		"if":     If,
@@ -109,13 +112,46 @@ func MkDir(target *Target, args util.Object) (Task, error) {
 	}
 	return func() error {
 		directory, err := target.Build.Context.ReplaceProperties(dir)
-		fmt.Printf("Making directory '%s'\n", directory)
 		if err != nil {
 			return fmt.Errorf("processing mkdir argument: %v", err)
 		}
+		fmt.Printf("Making directory '%s'\n", directory)
 		err = os.MkdirAll(directory, DEFAULT_FILE_MODE)
 		if err != nil {
 			return fmt.Errorf("making directory '%s': %s", directory, err)
+		}
+		return nil
+	}, nil
+}
+
+func Touch(target *Target, args util.Object) (Task, error) {
+	fields := []string{"touch"}
+	if err := CheckFields(args, fields, fields); err != nil {
+		return nil, err
+	}
+	files, err := args.GetListStringsOrString("touch")
+	if err != nil {
+		return nil, fmt.Errorf("argument to task touch must be a string or list of strings")
+	}
+	return func() error {
+		fmt.Printf("Touching %d file(s)\n", len(files))
+		for _, file := range files {
+			path, err := target.Build.Context.ReplaceProperties(file)
+			if err != nil {
+				return fmt.Errorf("processing touch argument: %v", err)
+			}
+			if FileExists(path) {
+				time := time.Now()
+				err = os.Chtimes(path, time, time)
+				if err != nil {
+					return fmt.Errorf("changing times of file '%s': %v", path, err)
+				}
+			} else {
+				err := ioutil.WriteFile(path, []byte{}, DEFAULT_FILE_MODE)
+				if err != nil {
+					return fmt.Errorf("creating file '%s': %v", path, err)
+				}
+			}
 		}
 		return nil
 	}, nil
@@ -435,5 +471,13 @@ func ToList(object interface{}) ([]interface{}, error) {
 		return result, nil
 	} else {
 		return nil, fmt.Errorf("must be a list")
+	}
+}
+
+func FileExists(file string) bool {
+	if _, err := os.Stat(file); err == nil {
+		return true
+	} else {
+		return false
 	}
 }

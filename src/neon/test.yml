@@ -2,6 +2,7 @@ doc: Built file to test builds
 default:
 - builtin_throw
 - builtin_find
+- task_touch
 
 properties:
   BUILD_DIR: "../../build"
@@ -28,9 +29,24 @@ targets:
     - mkdir: "#{BUILD_DIR}/spam"
     - "touch #{BUILD_DIR}/foo #{BUILD_DIR}/spam/bar"
     - script: |
-          files = toString(find(BUILD_DIR, "**/*"))
-          if files != "[foo spam spam/bar]" {
-            throw("ERROR: " + files)
-          } else {
-            println("Find test success")
-          }
+        files = toString(find(BUILD_DIR, "**/*"))
+        if files != "[foo spam spam/bar]" {
+          throw("ERROR: " + files)
+        } else {
+          println("Find test success")
+        }
+
+  task_touch:
+    doc: Test task touch
+    steps:
+    - delete: "#{BUILD_DIR}"
+    - mkdir: "#{BUILD_DIR}/touch"
+    - touch: "#{BUILD_DIR}/touch/foo"
+    - script: |
+        files = toString(find(BUILD_DIR, "touch/*"))
+        if files != "[touch/foo]" {
+          throw("ERROR: " + files)
+        } else {
+          println("Touch test success")
+        }
+        

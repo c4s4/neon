@@ -26,8 +26,7 @@ Todo
 
 - Look for build file recursively in file system.
 - Tasks
-  - copy
   - link
-  - touch
+  - copy
 
 *Enjoy!*
