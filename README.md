@@ -21,4 +21,14 @@ Documentation
 
 You shoud start reading [the quick start](doc/quickstart.md), then to get a Neon expert, you can read [the user guide](doc/userguide.md).
 
+Todo
+----
+
+Tasks :
+
+- remove
+- copy
+- link
+- touch
+
 *Enjoy!*
