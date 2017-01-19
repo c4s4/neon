@@ -2,9 +2,11 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"neon/build"
 	"neon/util"
 	"os"
+	"path/filepath"
 )
 
 const (
@@ -20,18 +22,44 @@ func ParseCommandLine() (*string, *bool, *bool, []string) {
 	return file, help, debug, targets
 }
 
+func FindBuildFile(name string) (string, error) {
+	absolute, err := filepath.Abs(name)
+	if err != nil {
+		return "", fmt.Errorf("getting build file path: %v", err)
+	}
+	file := filepath.Base(absolute)
+	dir := filepath.Dir(absolute)
+	for {
+		path := filepath.Join(dir, file)
+		if util.FileExists(path) {
+			return path, nil
+		} else {
+			parent := filepath.Dir(dir)
+			if parent == dir {
+				return "", fmt.Errorf("build file not found")
+			}
+			dir = parent
+		}
+	}
+}
+
 func main() {
 	file, help, debug, targets := ParseCommandLine()
-	build, err := build.NewBuild(*file, *debug)
+	path, err := FindBuildFile(*file)
 	if err != nil {
 		util.PrintError(err.Error())
 		os.Exit(1)
+	}
+	build, err := build.NewBuild(path, *debug)
+	if err != nil {
+		util.PrintError(err.Error())
+		os.Exit(2)
 	}
 	if *help {
 		err = build.Help()
 		if err != nil {
 			util.PrintError(err.Error())
-			os.Exit(2)
+			os.Exit(3)
 		}
 	} else {
 		err = build.Run(targets)
@@ -39,7 +67,7 @@ func main() {
 			util.PrintOK()
 		} else {
 			util.PrintError(err.Error())
-			os.Exit(2)
+			os.Exit(4)
 		}
 	}
 }

@@ -141,7 +141,7 @@ func Touch(target *Target, args util.Object) (Task, error) {
 			if err != nil {
 				return fmt.Errorf("processing touch argument: %v", err)
 			}
-			if FileExists(path) {
+			if util.FileExists(path) {
 				time := time.Now()
 				err = os.Chtimes(path, time, time)
 				if err != nil {
@@ -503,13 +503,5 @@ func ToList(object interface{}) ([]interface{}, error) {
 		return result, nil
 	} else {
 		return nil, fmt.Errorf("must be a list")
-	}
-}
-
-func FileExists(file string) bool {
-	if _, err := os.Stat(file); err == nil {
-		return true
-	} else {
-		return false
 	}
 }
