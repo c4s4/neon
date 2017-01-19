@@ -6,11 +6,13 @@ import (
 	zglob "github.com/mattn/go-zglob"
 	"os"
 	"sort"
+	"time"
 )
 
 var Builtins = map[string]interface{}{
 	"find":  Find,
 	"throw": Throw,
+	"now":   Now,
 }
 
 func AddBuiltins(vm *vm.Env) {
@@ -42,4 +44,8 @@ func Find(dir string, patterns ...string) []string {
 
 func Throw(message string) error {
 	return fmt.Errorf(message)
+}
+
+func Now() string {
+	return time.Now().Format("2006-01-02 15:04:05")
 }
