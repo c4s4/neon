@@ -24,7 +24,6 @@ You shoud start reading [the quick start](doc/quickstart.md), then to get a Neon
 Todo
 ----
 
-- Look for build file recursively in file system.
 - Tasks
   - copy
 
