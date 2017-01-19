@@ -53,8 +53,8 @@ targets:
     - "md2pdf -o #{ARC_DIR}/README.pdf README.md"
     - "changelog to markdown > #{BUILD_DIR}/CHANGELOG.md"
     - "md2pdf -o #{ARC_DIR}/CHANGELOG.pdf #{BUILD_DIR}/CHANGELOG.md"
-    - "rm #{BUILD_DIR}/CHANGELOG.md"
-    - cd: "#{BUILD_DIR}"
+    - remove: "#{BUILD_DIR}/CHANGELOG.md"
+    - chdir: "#{BUILD_DIR}"
     - "tar cvzf #{NAME}-#{VERSION}.tar.gz #{NAME}-#{VERSION}"
 
   release:

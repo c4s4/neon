@@ -24,11 +24,10 @@ You shoud start reading [the quick start](doc/quickstart.md), then to get a Neon
 Todo
 ----
 
-Tasks :
-
-- remove
-- copy
-- link
-- touch
+- Look for build file recursively in file system.
+- Tasks
+  - copy
+  - link
+  - touch
 
 *Enjoy!*
