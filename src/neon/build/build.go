@@ -209,6 +209,15 @@ func (build *Build) Help() error {
 	return nil
 }
 
+func (build *Build) PrintTargets() {
+	var targets []string
+	for name, _ := range build.Targets {
+		targets = append(targets, name)
+	}
+	sort.Strings(targets)
+	fmt.Println(strings.Join(targets, " "))
+}
+
 func (build *Build) PrintTasks() {
 	var tasks []string
 	for name, _ := range TasksMap {
