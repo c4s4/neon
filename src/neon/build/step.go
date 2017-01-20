@@ -73,10 +73,10 @@ func NewTaskStep(target *Target, m map[interface{}]interface{}) (Step, error) {
 		return nil, fmt.Errorf("Task must be a map with string keys")
 	}
 	fields := object.Fields()
-	for name, constructor := range tasksMap {
+	for name, descriptor := range TasksMap {
 		for _, field := range fields {
 			if name == field {
-				task, err := constructor(target, object)
+				task, err := descriptor.Constructor(target, object)
 				if err != nil {
 					return nil, err
 				}

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -206,6 +207,15 @@ func (build *Build) Help() error {
 		}
 	}
 	return nil
+}
+
+func (build *Build) PrintTasks() {
+	var tasks []string
+	for name, _ := range TasksMap {
+		tasks = append(tasks, name)
+	}
+	sort.Strings(tasks)
+	fmt.Println(strings.Join(tasks, " "))
 }
 
 func (build *Build) Log(message string, args ...interface{}) {

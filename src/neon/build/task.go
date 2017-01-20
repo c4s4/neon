@@ -21,24 +21,71 @@ type Task func() error
 
 type Constructor func(target *Target, args util.Object) (Task, error)
 
-var tasksMap map[string]Constructor
+type Descriptor struct {
+	Constructor Constructor
+	Help        string
+}
+
+var TasksMap map[string]Descriptor
 
 func init() {
-	tasksMap = map[string]Constructor{
-		"script": Script,
-		"print":  Print,
-		"chdir":  Chdir,
-		"mkdir":  MkDir,
-		"touch":  Touch,
-		"link":   Link,
-		"copy":   Copy,
-		"remove": Remove,
-		"delete": Delete,
-		"if":     If,
-		"for":    For,
-		"while":  While,
-		"try":    Try,
-		"pass":   Pass,
+	TasksMap = map[string]Descriptor{
+		"script": {
+			Constructor: Script,
+			Help:        "",
+		},
+		"print": {
+			Constructor: Print,
+			Help:        "",
+		},
+		"chdir": {
+			Constructor: Chdir,
+			Help:        "",
+		},
+		"mkdir": {
+			Constructor: MkDir,
+			Help:        "",
+		},
+		"touch": {
+			Constructor: Touch,
+			Help:        "",
+		},
+		"link": {
+			Constructor: Link,
+			Help:        "",
+		},
+		"copy": {
+			Constructor: Copy,
+			Help:        "",
+		},
+		"remove": {
+			Constructor: Remove,
+			Help:        "",
+		},
+		"delete": {
+			Constructor: Delete,
+			Help:        "",
+		},
+		"if": {
+			Constructor: If,
+			Help:        "",
+		},
+		"for": {
+			Constructor: For,
+			Help:        "",
+		},
+		"while": {
+			Constructor: While,
+			Help:        "",
+		},
+		"try": {
+			Constructor: Try,
+			Help:        "",
+		},
+		"pass": {
+			Constructor: Pass,
+			Help:        "",
+		},
 	}
 }
 
