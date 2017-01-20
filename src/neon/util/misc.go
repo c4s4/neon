@@ -39,7 +39,7 @@ func CopyFile(source, dest string) error {
 		return fmt.Errorf("creating desctination file '%s': %v", dest, err)
 	}
 	defer to.Close()
-	_, err = io.Copy(from, to)
+	_, err = io.Copy(to, from)
 	if err != nil {
 		return fmt.Errorf("copying file: %v", err)
 	}

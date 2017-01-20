@@ -239,7 +239,11 @@ func (context *Context) FindFiles(dir string, patterns []string) ([]string, erro
 	}
 	defer os.Chdir(oldDir)
 	if dir != "" {
-		err = os.Chdir(dir)
+		eval, err := context.ReplaceProperties(dir)
+		if err != nil {
+			return nil, fmt.Errorf("evaluating source directory: %v", err)
+		}
+		err = os.Chdir(eval)
 		if err != nil {
 			return nil, nil
 		}

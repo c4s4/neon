@@ -232,6 +232,30 @@ func Copy(target *Target, args util.Object) (Task, error) {
 		return nil, fmt.Errorf("copy task must have one of 'to' or 'toDir' argument")
 	}
 	return func() error {
+		// evaluate arguments
+		for index, pattern := range patterns {
+			eval, err := target.Build.Context.ReplaceProperties(pattern)
+			if err != nil {
+				return fmt.Errorf("evaluating pattern: %v", err)
+			}
+			patterns[index] = eval
+		}
+		eval, err := target.Build.Context.ReplaceProperties(dir)
+		if err != nil {
+			return fmt.Errorf("evaluating source directory: %v", err)
+		}
+		dir = eval
+		eval, err = target.Build.Context.ReplaceProperties(to)
+		if err != nil {
+			return fmt.Errorf("evaluating destination file: %v", err)
+		}
+		to = eval
+		eval, err = target.Build.Context.ReplaceProperties(toDir)
+		if err != nil {
+			return fmt.Errorf("evaluating destination directory: %v", err)
+		}
+		toDir = eval
+		// find source files
 		sources, err := target.Build.Context.FindFiles(dir, patterns)
 		if err != nil {
 			return fmt.Errorf("getting source files for copy task: %v", err)
