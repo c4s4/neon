@@ -32,59 +32,59 @@ func init() {
 	TasksMap = map[string]Descriptor{
 		"script": {
 			Constructor: Script,
-			Help:        "",
+			Help:        "Run an Anko script",
 		},
 		"print": {
 			Constructor: Print,
-			Help:        "",
+			Help:        "Print a message on the console",
 		},
 		"chdir": {
 			Constructor: Chdir,
-			Help:        "",
+			Help:        "Change current working directory",
 		},
 		"mkdir": {
 			Constructor: MkDir,
-			Help:        "",
+			Help:        "Make a directory",
 		},
 		"touch": {
 			Constructor: Touch,
-			Help:        "",
+			Help:        "Touch a file (create it or change its time)",
 		},
 		"link": {
 			Constructor: Link,
-			Help:        "",
+			Help:        "Create a symbolic link",
 		},
 		"copy": {
 			Constructor: Copy,
-			Help:        "",
+			Help:        "Copy file(s)",
 		},
 		"remove": {
 			Constructor: Remove,
-			Help:        "",
+			Help:        "Remove file(s)",
 		},
 		"delete": {
 			Constructor: Delete,
-			Help:        "",
+			Help:        "Delete a directory recursively",
 		},
 		"if": {
 			Constructor: If,
-			Help:        "",
+			Help:        "If condition",
 		},
 		"for": {
 			Constructor: For,
-			Help:        "",
+			Help:        "For loop",
 		},
 		"while": {
 			Constructor: While,
-			Help:        "",
+			Help:        "While loop",
 		},
 		"try": {
 			Constructor: Try,
-			Help:        "",
+			Help:        "Try/catch construct",
 		},
 		"pass": {
 			Constructor: Pass,
-			Help:        "",
+			Help:        "Does nothing",
 		},
 	}
 }
