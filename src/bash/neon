@@ -1,11 +1,9 @@
 # To enable bash completion for neon, copy this file in directory 
 # /etc/bash_completion.d/. Next time you open a terminal, neon completion
-# should work:
+# on targets should work:
 # 
 # $ neon t[TAB]
 # tag test
-#
-# Completion works on targets of the build file.
 
 _neon()
 {
@@ -15,34 +13,17 @@ _neon()
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     case $prev in
-        -k)
-            tasks="`neon -x`"
+        -task)
+            tasks="`neon -tasks`"
             COMPREPLY=( $(compgen -W "${tasks}" -- $cur ) )
-            return 0
-            ;;
-        -t)
-            templates="`neon -y`"
-            COMPREPLY=( $(compgen -W "${templates}" -- $cur ) )
-            return 0
-            ;;
-        -e)
-            templates="`neon -y`"
-            COMPREPLY=( $(compgen -W "${templates}" -- $cur ) )
             return 0
             ;;
     esac
 
-    if [[ ${cur} == -* ]] ; then
-        opts="`neon -o`" 
-        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
-        return 0
-    else
-        opts="`neon -a`"
-        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
-        return 0
-    fi
+    opts="`neon -targets`"
+    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+    return 0
 }
 
 complete -F _neon neon
-complete -F _neon b
-
+complete -F _neon n
