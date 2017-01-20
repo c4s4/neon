@@ -107,11 +107,13 @@ func (context *Context) ReplaceProperties(text string) (string, error) {
 	var err error
 	replaced := r.ReplaceAllStringFunc(text, func(expression string) string {
 		name := expression[2 : len(expression)-1]
-		value, err := context.Evaluate(name)
+		var value interface{}
+		value, err = context.Evaluate(name)
 		if err != nil {
 			return ""
 		} else {
-			str, err := PropertyToString(value, false)
+			var str string
+			str, err = PropertyToString(value, false)
 			if err != nil {
 				return ""
 			} else {
