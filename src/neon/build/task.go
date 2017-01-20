@@ -3,11 +3,10 @@ package build
 import (
 	"fmt"
 	zglob "github.com/mattn/go-zglob"
-	"io"
 	"io/ioutil"
 	"neon/util"
 	"os"
-	"reflect"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -193,31 +192,69 @@ func Link(target *Target, args util.Object) (Task, error) {
 }
 
 func Copy(target *Target, args util.Object) (Task, error) {
-	fields := []string{"copy", "to"}
-	if err := CheckFields(args, fields, fields); err != nil {
+	fields := []string{"copy", "dir", "to", "todir", "flat"}
+	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err
 	}
-	s, err := args.GetString("copy")
+	patterns, err := args.GetListStringsOrString("copy")
 	if err != nil {
-		return nil, fmt.Errorf("argument copy must be a string")
+		return nil, fmt.Errorf("argument copy must be a string or list of strings")
 	}
-	d, err := args.GetString("to")
-	if err != nil {
-		return nil, fmt.Errorf("argument to of task copy must be a string")
+	var dir string
+	if args.HasField("dir") {
+		dir, err = args.GetString("dir")
+		if err != nil {
+			return nil, fmt.Errorf("argument dir of task copy must be a string", err)
+		}
+	}
+	var to string
+	if args.HasField("to") {
+		to, err = args.GetString("to")
+		if err != nil {
+			return nil, fmt.Errorf("argument to of task copy must be a string")
+		}
+	}
+	var toDir string
+	if args.HasField("todir") {
+		toDir, err = args.GetString("todir")
+		if err != nil {
+			return nil, fmt.Errorf("argument todir of task copy must be a string")
+		}
+	}
+	flat := true
+	if args.HasField("flat") {
+		flat, err = args.GetBoolean("flat")
+		if err != nil {
+			return nil, fmt.Errorf("argument flat of task copy must be a boolean")
+		}
+	}
+	if (to == "" && toDir == "") || (to != "" && toDir != "") {
+		return nil, fmt.Errorf("copy task must have one of 'to' or 'toDir' argument")
 	}
 	return func() error {
-		source, err := target.Build.Context.ReplaceProperties(s)
+		sources, err := target.Build.Context.FindFiles(dir, patterns)
 		if err != nil {
-			return fmt.Errorf("processing copy argument: %v", err)
+			return fmt.Errorf("getting source files for copy task: %v", err)
 		}
-		dest, err := target.Build.Context.ReplaceProperties(d)
-		if err != nil {
-			return fmt.Errorf("processing to argument of copy task: %v", err)
+		if to != "" && len(sources) > 1 {
+			return fmt.Errorf("can't copy more than one file to a given file, use todir instead")
 		}
-		fmt.Printf("Copying file '%s' to '%s'\n", source, dest)
-		err = CopyFile(source, dest)
-		if err != nil {
-			return fmt.Errorf("copying files: %v", err)
+		if len(sources) < 1 {
+			return nil
+		}
+		fmt.Printf("Copying %d file(s)\n", len(sources))
+		if to != "" {
+			file := filepath.Join(dir, sources[0])
+			err = util.CopyFile(file, to)
+			if err != nil {
+				return fmt.Errorf("copying file: %v", err)
+			}
+		}
+		if toDir != "" {
+			err = util.CopyFilesToDir(dir, sources, toDir, flat)
+			if err != nil {
+				return fmt.Errorf("copying file: %v", err)
+			}
 		}
 		return nil
 	}, nil
@@ -237,7 +274,7 @@ func Remove(target *Target, args util.Object) (Task, error) {
 		for _, patt := range patterns {
 			pattern, err := target.Build.Context.ReplaceProperties(patt)
 			if err != nil {
-				return fmt.Errorf("evaluating pattern in task remove: %v", err)
+				return fmt.Errorf("evaluating argument in task remove: %v", err)
 			}
 			list, _ := zglob.Glob(pattern)
 			for _, file := range list {
@@ -353,7 +390,7 @@ func For(target *Target, args util.Object) (Task, error) {
 			if err != nil {
 				return fmt.Errorf("evaluating in field of for loop: %v", err)
 			}
-			list, err = ToList(result)
+			list, err = util.ToList(result)
 			if err != nil {
 				return fmt.Errorf("'in' field of 'for' loop must be an expression that returns a list")
 			}
@@ -523,41 +560,6 @@ func RunSteps(steps []Step) error {
 		if err != nil {
 			return err
 		}
-	}
-	return nil
-}
-
-func ToList(object interface{}) ([]interface{}, error) {
-	slice := reflect.ValueOf(object)
-	if slice.Kind() == reflect.Slice {
-		result := make([]interface{}, slice.Len())
-		for i := 0; i < slice.Len(); i++ {
-			result[i] = slice.Index(i).Interface()
-		}
-		return result, nil
-	} else {
-		return nil, fmt.Errorf("must be a list")
-	}
-}
-
-func CopyFile(source, dest string) error {
-	from, err := os.Open(source)
-	if err != nil {
-		return fmt.Errorf("opening source file '%s': %v", source, err)
-	}
-	defer from.Close()
-	to, err := os.Create(dest)
-	if err != nil {
-		return fmt.Errorf("creating desctination file '%s': %v", dest, err)
-	}
-	defer to.Close()
-	_, err = io.Copy(from, to)
-	if err != nil {
-		return fmt.Errorf("copying file: %v", err)
-	}
-	err = to.Sync()
-	if err != nil {
-		return fmt.Errorf("syncing destination file: %v", err)
 	}
 	return nil
 }

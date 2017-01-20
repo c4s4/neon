@@ -4,6 +4,7 @@ import (
 	"fmt"
 	anko_core "github.com/mattn/anko/builtins"
 	"github.com/mattn/anko/vm"
+	zglob "github.com/mattn/go-zglob"
 	"neon/builtin"
 	"neon/util"
 	"os"
@@ -229,4 +230,31 @@ func (context *Context) GetEnvironment() ([]string, error) {
 		lines = append(lines, line)
 	}
 	return lines, nil
+}
+
+func (context *Context) FindFiles(dir string, patterns []string) ([]string, error) {
+	oldDir, err := os.Getwd()
+	if err != nil {
+		return nil, fmt.Errorf("getting working directory: %v", err)
+	}
+	defer os.Chdir(oldDir)
+	if dir != "" {
+		err = os.Chdir(dir)
+		if err != nil {
+			return nil, nil
+		}
+	}
+	var files []string
+	for _, pattern := range patterns {
+		evaluated, err := context.ReplaceProperties(pattern)
+		if err != nil {
+			return nil, fmt.Errorf("evaluating pattern: %v", err)
+		}
+		list, _ := zglob.Glob(evaluated)
+		for _, file := range list {
+			files = append(files, file)
+		}
+	}
+	sort.Strings(files)
+	return files, nil
 }

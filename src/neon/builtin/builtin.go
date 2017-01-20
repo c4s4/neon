@@ -26,6 +26,7 @@ func Find(dir string, patterns ...string) []string {
 	if err != nil {
 		return nil
 	}
+	defer os.Chdir(oldDir)
 	err = os.Chdir(dir)
 	if err != nil {
 		return nil
@@ -38,7 +39,6 @@ func Find(dir string, patterns ...string) []string {
 		}
 	}
 	sort.Strings(files)
-	os.Chdir(oldDir)
 	return files
 }
 

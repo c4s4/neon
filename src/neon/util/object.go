@@ -38,6 +38,18 @@ func (object Object) GetString(field string) (string, error) {
 	return str, nil
 }
 
+func (object Object) GetBoolean(field string) (bool, error) {
+	value, ok := object[field]
+	if !ok {
+		return false, fmt.Errorf("field '%s' not found", field)
+	}
+	boolean, ok := value.(bool)
+	if !ok {
+		return false, fmt.Errorf("field '%s' must be a boolean", field)
+	}
+	return boolean, nil
+}
+
 func (object Object) GetList(field string) ([]interface{}, error) {
 	thing, ok := object[field]
 	if !ok {
@@ -149,6 +161,15 @@ func (object Object) Fields() []string {
 	}
 	sort.Strings(fields)
 	return fields
+}
+
+func (object Object) HasField(field string) bool {
+	for name, _ := range object {
+		if name == field {
+			return true
+		}
+	}
+	return false
 }
 
 func (object Object) ToMapStringString() (map[string]string, error) {
