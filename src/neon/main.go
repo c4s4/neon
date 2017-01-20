@@ -13,15 +13,16 @@ const (
 	DEFAULT_BUILD_FILE = "build.yml"
 )
 
-func ParseCommandLine() (*string, *bool, *bool, *bool, *bool, []string) {
+func ParseCommandLine() (string, bool, bool, bool, string, bool, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
 	help := flag.Bool("build", false, "Print build help")
 	debug := flag.Bool("debug", false, "Output debugging information")
 	tasks := flag.Bool("tasks", false, "Print tasks list")
+	task := flag.String("task", "", "Print help on given task")
 	targs := flag.Bool("targets", false, "Print targets list")
 	flag.Parse()
 	targets := flag.Args()
-	return file, help, debug, tasks, targs, targets
+	return *file, *help, *debug, *tasks, *task, *targs, targets
 }
 
 func FindBuildFile(name string) (string, error) {
@@ -46,26 +47,28 @@ func FindBuildFile(name string) (string, error) {
 }
 
 func main() {
-	file, help, debug, tasks, targs, targets := ParseCommandLine()
-	path, err := FindBuildFile(*file)
+	file, help, debug, tasks, task, targs, targets := ParseCommandLine()
+	path, err := FindBuildFile(file)
 	if err != nil {
 		util.PrintError(err.Error())
 		os.Exit(1)
 	}
-	build, err := build.NewBuild(path, *debug)
+	build, err := build.NewBuild(path, debug)
 	if err != nil {
 		util.PrintError(err.Error())
 		os.Exit(2)
 	}
-	if *help {
+	if help {
 		err = build.Help()
 		if err != nil {
 			util.PrintError(err.Error())
 			os.Exit(3)
 		}
-	} else if *tasks {
+	} else if tasks {
 		build.PrintTasks()
-	} else if *targs {
+	} else if task != "" {
+		build.PrintHelpTask(task)
+	} else if targs {
 		build.PrintTargets()
 	} else {
 		err = build.Run(targets)

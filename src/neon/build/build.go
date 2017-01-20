@@ -227,6 +227,16 @@ func (build *Build) PrintTasks() {
 	fmt.Println(strings.Join(tasks, " "))
 }
 
+func (build *Build) PrintHelpTask(task string) {
+	for name, descriptor := range TasksMap {
+		if name == task {
+			fmt.Println(descriptor.Help)
+			return
+		}
+	}
+	fmt.Printf("Task '%s' was not found\n", task)
+}
+
 func (build *Build) Log(message string, args ...interface{}) {
 	if build.Debug {
 		fmt.Println(fmt.Sprintf(message, args...))
