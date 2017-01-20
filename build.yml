@@ -49,7 +49,8 @@ targets:
     steps:
     - mkdir: "#{ARC_DIR}/bin/"
     - "gox -output=#{ARC_DIR}/bin/{{.Dir}}_{{.OS}}_{{.Arch}} #{NAME}"
-    - "cp LICENSE.txt #{ARC_DIR}/"
+    - copy: "LICENSE.txt"
+      to:   "#{ARC_DIR}/"
     - "md2pdf -o #{ARC_DIR}/README.pdf README.md"
     - "changelog to markdown > #{BUILD_DIR}/CHANGELOG.md"
     - "md2pdf -o #{ARC_DIR}/CHANGELOG.pdf #{BUILD_DIR}/CHANGELOG.md"

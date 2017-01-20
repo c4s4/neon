@@ -3,6 +3,7 @@ package build
 import (
 	"fmt"
 	zglob "github.com/mattn/go-zglob"
+	"io"
 	"io/ioutil"
 	"neon/util"
 	"os"
@@ -13,7 +14,8 @@ import (
 )
 
 const (
-	DEFAULT_FILE_MODE = 0777
+	FILE_MODE     = 0644
+	DIR_FILE_MODE = 0755
 )
 
 type Task func() error
@@ -30,6 +32,7 @@ func init() {
 		"mkdir":  MkDir,
 		"touch":  Touch,
 		"link":   Link,
+		"copy":   Copy,
 		"remove": Remove,
 		"delete": Delete,
 		"if":     If,
@@ -117,7 +120,7 @@ func MkDir(target *Target, args util.Object) (Task, error) {
 			return fmt.Errorf("processing mkdir argument: %v", err)
 		}
 		fmt.Printf("Making directory '%s'\n", directory)
-		err = os.MkdirAll(directory, DEFAULT_FILE_MODE)
+		err = os.MkdirAll(directory, DIR_FILE_MODE)
 		if err != nil {
 			return fmt.Errorf("making directory '%s': %s", directory, err)
 		}
@@ -148,7 +151,7 @@ func Touch(target *Target, args util.Object) (Task, error) {
 					return fmt.Errorf("changing times of file '%s': %v", path, err)
 				}
 			} else {
-				err := ioutil.WriteFile(path, []byte{}, DEFAULT_FILE_MODE)
+				err := ioutil.WriteFile(path, []byte{}, FILE_MODE)
 				if err != nil {
 					return fmt.Errorf("creating file '%s': %v", path, err)
 				}
@@ -184,6 +187,37 @@ func Link(target *Target, args util.Object) (Task, error) {
 		err = os.Symlink(source, dest)
 		if err != nil {
 			return fmt.Errorf("linking files: %v", err)
+		}
+		return nil
+	}, nil
+}
+
+func Copy(target *Target, args util.Object) (Task, error) {
+	fields := []string{"copy", "to"}
+	if err := CheckFields(args, fields, fields); err != nil {
+		return nil, err
+	}
+	s, err := args.GetString("copy")
+	if err != nil {
+		return nil, fmt.Errorf("argument copy must be a string")
+	}
+	d, err := args.GetString("to")
+	if err != nil {
+		return nil, fmt.Errorf("argument to of task copy must be a string")
+	}
+	return func() error {
+		source, err := target.Build.Context.ReplaceProperties(s)
+		if err != nil {
+			return fmt.Errorf("processing copy argument: %v", err)
+		}
+		dest, err := target.Build.Context.ReplaceProperties(d)
+		if err != nil {
+			return fmt.Errorf("processing to argument of copy task: %v", err)
+		}
+		fmt.Printf("Copying file '%s' to '%s'\n", source, dest)
+		err = CopyFile(source, dest)
+		if err != nil {
+			return fmt.Errorf("copying files: %v", err)
 		}
 		return nil
 	}, nil
@@ -504,4 +538,26 @@ func ToList(object interface{}) ([]interface{}, error) {
 	} else {
 		return nil, fmt.Errorf("must be a list")
 	}
+}
+
+func CopyFile(source, dest string) error {
+	from, err := os.Open(source)
+	if err != nil {
+		return fmt.Errorf("opening source file '%s': %v", source, err)
+	}
+	defer from.Close()
+	to, err := os.Create(dest)
+	if err != nil {
+		return fmt.Errorf("creating desctination file '%s': %v", dest, err)
+	}
+	defer to.Close()
+	_, err = io.Copy(from, to)
+	if err != nil {
+		return fmt.Errorf("copying file: %v", err)
+	}
+	err = to.Sync()
+	if err != nil {
+		return fmt.Errorf("syncing destination file: %v", err)
+	}
+	return nil
 }
