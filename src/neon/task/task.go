@@ -1,4 +1,4 @@
-package build
+package task
 
 import (
 	"fmt"

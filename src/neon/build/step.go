@@ -2,6 +2,7 @@ package build
 
 import (
 	"fmt"
+	"neon/task"
 	"neon/util"
 	"os"
 	"os/exec"
@@ -64,7 +65,7 @@ func (step ShellStep) Run() error {
 
 type TaskStep struct {
 	Target *Target
-	Task   Task
+	Task   task.Task
 }
 
 func NewTaskStep(target *Target, m map[interface{}]interface{}) (Step, error) {
