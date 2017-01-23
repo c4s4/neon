@@ -15,7 +15,7 @@ const (
 	DEFAULT_BUILD_FILE = "build.yml"
 )
 
-func ParseCommandLine() (string, bool, bool, bool, string, bool, bool, []string) {
+func ParseCommandLine() (string, bool, bool, bool, string, bool, bool, string, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
 	help := flag.Bool("build", false, "Print build help")
 	debug := flag.Bool("debug", false, "Output debugging information")
@@ -23,9 +23,10 @@ func ParseCommandLine() (string, bool, bool, bool, string, bool, bool, []string)
 	task := flag.String("task", "", "Print help on given task")
 	targs := flag.Bool("targets", false, "Print targets list")
 	builtins := flag.Bool("builtins", false, "Print builtins list")
+	builtin := flag.String("builtin", "", "Print help on given builtin")
 	flag.Parse()
 	targets := flag.Args()
-	return *file, *help, *debug, *tasks, *task, *targs, *builtins, targets
+	return *file, *help, *debug, *tasks, *task, *targs, *builtins, *builtin, targets
 }
 
 func FindBuildFile(name string) (string, error) {
@@ -50,7 +51,7 @@ func FindBuildFile(name string) (string, error) {
 }
 
 func main() {
-	file, help, debug, tasks, task, targs, builtins, targets := ParseCommandLine()
+	file, help, debug, tasks, task, targs, builtins, builtin, targets := ParseCommandLine()
 	path, err := FindBuildFile(file)
 	if err != nil {
 		util.PrintError(err.Error())
@@ -71,10 +72,12 @@ func main() {
 		build.PrintTasks()
 	} else if task != "" {
 		build.PrintHelpTask(task)
-	} else if targs {
-		build.PrintTargets()
 	} else if builtins {
 		build.PrintBuiltins()
+	} else if builtin != "" {
+		build.PrintHelpBuiltin(builtin)
+	} else if targs {
+		build.PrintTargets()
 	} else {
 		err = build.Run(targets)
 		if err == nil {

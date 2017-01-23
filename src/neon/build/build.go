@@ -246,6 +246,15 @@ func (build *Build) PrintBuiltins() {
 	fmt.Println(strings.Join(builtins, " "))
 }
 
+func (build *Build) PrintHelpBuiltin(builtin string) {
+	descriptor, ok := BuiltinMap[builtin]
+	if !ok {
+		fmt.Printf("Builtin '%s' was not found\n", builtin)
+	} else {
+		fmt.Println(descriptor.Help)
+	}
+}
+
 func (build *Build) Log(message string, args ...interface{}) {
 	if build.Debug {
 		fmt.Println(fmt.Sprintf(message, args...))
