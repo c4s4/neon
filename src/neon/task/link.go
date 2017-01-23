@@ -2,18 +2,19 @@ package task
 
 import (
 	"fmt"
+	"neon/build"
 	"neon/util"
 	"os"
 )
 
 func init() {
-	TasksMap["link"] = Descriptor{
+	build.TaskMap["link"] = build.TaskDescriptor{
 		Constructor: Link,
 		Help:        "Create a symbolic link",
 	}
 }
 
-func Link(target *Target, args util.Object) (Task, error) {
+func Link(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"link", "to"}
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err

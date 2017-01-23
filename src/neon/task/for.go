@@ -2,17 +2,18 @@ package task
 
 import (
 	"fmt"
+	"neon/build"
 	"neon/util"
 )
 
 func init() {
-	TasksMap["for"] = Descriptor{
+	build.TaskMap["for"] = build.TaskDescriptor{
 		Constructor: For,
 		Help:        "For loop",
 	}
 }
 
-func For(target *Target, args util.Object) (Task, error) {
+func For(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"for", "in", "do"}
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err

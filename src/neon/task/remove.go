@@ -3,19 +3,20 @@ package task
 import (
 	"fmt"
 	zglob "github.com/mattn/go-zglob"
+	"neon/build"
 	"neon/util"
 	"os"
 	"sort"
 )
 
 func init() {
-	TasksMap["remove"] = Descriptor{
+	build.TaskMap["remove"] = build.TaskDescriptor{
 		Constructor: Remove,
 		Help:        "Remove file(s)",
 	}
 }
 
-func Remove(target *Target, args util.Object) (Task, error) {
+func Remove(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"remove"}
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err

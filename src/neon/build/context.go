@@ -5,7 +5,6 @@ import (
 	anko_core "github.com/mattn/anko/builtins"
 	"github.com/mattn/anko/vm"
 	zglob "github.com/mattn/go-zglob"
-	"neon/builtin"
 	"neon/util"
 	"os"
 	"reflect"
@@ -25,7 +24,7 @@ type Context struct {
 func NewContext(build *Build, properties util.Object, env util.Object) (*Context, error) {
 	vm := vm.NewEnv()
 	anko_core.LoadAllBuiltins(vm)
-	builtin.AddBuiltins(vm)
+	LoadBuiltins(vm)
 	environment, err := env.ToMapStringString()
 	if err != nil {
 		return nil, fmt.Errorf("getting environment: %v", err)

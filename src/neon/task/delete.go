@@ -2,18 +2,19 @@ package task
 
 import (
 	"fmt"
+	"neon/build"
 	"neon/util"
 	"os"
 )
 
 func init() {
-	TasksMap["delete"] = Descriptor{
+	build.TaskMap["delete"] = build.TaskDescriptor{
 		Constructor: Delete,
 		Help:        "Delete a directory recursively",
 	}
 }
 
-func Delete(target *Target, args util.Object) (Task, error) {
+func Delete(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"delete"}
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err

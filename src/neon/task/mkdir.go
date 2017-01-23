@@ -2,18 +2,19 @@ package task
 
 import (
 	"fmt"
+	"neon/build"
 	"neon/util"
 	"os"
 )
 
 func init() {
-	TasksMap["mkdir"] = Descriptor{
+	build.TaskMap["mkdir"] = build.TaskDescriptor{
 		Constructor: MkDir,
 		Help:        "Make a directory",
 	}
 }
 
-func MkDir(target *Target, args util.Object) (Task, error) {
+func MkDir(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"mkdir"}
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err

@@ -1,11 +1,12 @@
 package builtin
 
 import (
+	"neon/build"
 	"time"
 )
 
 func init() {
-	Builtins["now"] = BuiltinDescriptor{
+	build.BuiltinMap["now"] = build.BuiltinDescriptor{
 		Function: Now,
 		Help:     "Return current date and time in ISO format",
 	}

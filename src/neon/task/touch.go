@@ -3,19 +3,20 @@ package task
 import (
 	"fmt"
 	"io/ioutil"
+	"neon/build"
 	"neon/util"
 	"os"
 	"time"
 )
 
 func init() {
-	TasksMap["touch"] = Descriptor{
+	build.TaskMap["touch"] = build.TaskDescriptor{
 		Constructor: Touch,
 		Help:        "Touch a file (create it or change its time)",
 	}
 }
 
-func Touch(target *Target, args util.Object) (Task, error) {
+func Touch(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"touch"}
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err

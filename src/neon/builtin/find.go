@@ -2,12 +2,13 @@ package builtin
 
 import (
 	zglob "github.com/mattn/go-zglob"
+	"neon/build"
 	"os"
 	"sort"
 )
 
 func init() {
-	Builtins["find"] = BuiltinDescriptor{
+	build.BuiltinMap["find"] = build.BuiltinDescriptor{
 		Function: Find,
 		Help:     "Find files",
 	}

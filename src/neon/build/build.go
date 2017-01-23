@@ -220,7 +220,7 @@ func (build *Build) PrintTargets() {
 
 func (build *Build) PrintTasks() {
 	var tasks []string
-	for name, _ := range TasksMap {
+	for name, _ := range TaskMap {
 		tasks = append(tasks, name)
 	}
 	sort.Strings(tasks)
@@ -228,7 +228,7 @@ func (build *Build) PrintTasks() {
 }
 
 func (build *Build) PrintHelpTask(task string) {
-	for name, descriptor := range TasksMap {
+	for name, descriptor := range TaskMap {
 		if name == task {
 			fmt.Println(descriptor.Help)
 			return

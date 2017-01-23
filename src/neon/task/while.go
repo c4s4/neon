@@ -2,17 +2,18 @@ package task
 
 import (
 	"fmt"
+	"neon/build"
 	"neon/util"
 )
 
 func init() {
-	TasksMap["while"] = Descriptor{
+	build.TaskMap["while"] = build.TaskDescriptor{
 		Constructor: While,
 		Help:        "While loop",
 	}
 }
 
-func While(target *Target, args util.Object) (Task, error) {
+func While(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"while", "do"}
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err

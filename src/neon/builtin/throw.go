@@ -2,10 +2,11 @@ package builtin
 
 import (
 	"fmt"
+	"neon/build"
 )
 
 func init() {
-	Builtins["throw"] = BuiltinDescriptor{
+	build.BuiltinMap["throw"] = build.BuiltinDescriptor{
 		Function: Throw,
 		Help:     "Throw an error and sets 'error' variable to its value",
 	}

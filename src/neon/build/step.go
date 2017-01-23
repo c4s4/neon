@@ -2,7 +2,6 @@ package build
 
 import (
 	"fmt"
-	"neon/task"
 	"neon/util"
 	"os"
 	"os/exec"
@@ -65,7 +64,7 @@ func (step ShellStep) Run() error {
 
 type TaskStep struct {
 	Target *Target
-	Task   task.Task
+	Task   Task
 }
 
 func NewTaskStep(target *Target, m map[interface{}]interface{}) (Step, error) {
@@ -74,7 +73,7 @@ func NewTaskStep(target *Target, m map[interface{}]interface{}) (Step, error) {
 		return nil, fmt.Errorf("Task must be a map with string keys")
 	}
 	fields := object.Fields()
-	for name, descriptor := range TasksMap {
+	for name, descriptor := range TaskMap {
 		for _, field := range fields {
 			if name == field {
 				task, err := descriptor.Constructor(target, object)

@@ -2,17 +2,18 @@ package task
 
 import (
 	"fmt"
+	"neon/build"
 	"neon/util"
 )
 
 func init() {
-	TasksMap["print"] = Descriptor{
+	build.TaskMap["print"] = build.TaskDescriptor{
 		Constructor: Print,
 		Help:        "Print a message on the console",
 	}
 }
 
-func Print(target *Target, args util.Object) (Task, error) {
+func Print(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"print"}
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err

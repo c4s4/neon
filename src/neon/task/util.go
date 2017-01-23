@@ -2,6 +2,7 @@ package task
 
 import (
 	"fmt"
+	"neon/build"
 	"neon/util"
 	"strings"
 )
@@ -11,16 +12,7 @@ const (
 	DIR_FILE_MODE = 0755
 )
 
-type Task func() error
-
-type Constructor func(target *Target, args util.Object) (Task, error)
-
-type Descriptor struct {
-	Constructor Constructor
-	Help        string
-}
-
-var TasksMap map[string]Descriptor = make(map[string]Descriptor)
+func LoadTasks() {}
 
 func CheckFields(args util.Object, list, mandatory []string) error {
 	task := strings.Join(list, "/")
@@ -76,15 +68,15 @@ func FieldPresent(args util.Object, field string) bool {
 	return false
 }
 
-func ParseSteps(target *Target, object util.Object, field string) ([]Step, error) {
+func ParseSteps(target *build.Target, object util.Object, field string) ([]build.Step, error) {
 	list, err := object.GetList(field)
 	if err != nil {
 		return nil, err
 	}
-	var steps []Step
+	var steps []build.Step
 	for index, element := range list {
 		target.Build.Log("Parsing step %v in %s field", index, field)
-		step, err := NewStep(target, element)
+		step, err := build.NewStep(target, element)
 		if err != nil {
 			return nil, fmt.Errorf("parsing target '%s': %v", target.Name, err)
 		}
@@ -93,7 +85,7 @@ func ParseSteps(target *Target, object util.Object, field string) ([]Step, error
 	return steps, nil
 }
 
-func RunSteps(steps []Step) error {
+func RunSteps(steps []build.Step) error {
 	for _, step := range steps {
 		err := step.Run()
 		if err != nil {

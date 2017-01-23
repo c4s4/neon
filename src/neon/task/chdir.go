@@ -8,13 +8,13 @@ import (
 )
 
 func init() {
-	TasksMap["chdir"] = Descriptor{
+	build.TaskMap["chdir"] = build.TaskDescriptor{
 		Constructor: Chdir,
 		Help:        "Change current working directory",
 	}
 }
 
-func Chdir(target *Target, args util.Object) (Task, error) {
+func Chdir(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"chdir"}
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err

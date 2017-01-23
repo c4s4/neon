@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"neon/build"
+	"neon/builtin"
+	"neon/task"
 	"neon/util"
 	"os"
 	"path/filepath"
@@ -12,6 +14,11 @@ import (
 const (
 	DEFAULT_BUILD_FILE = "build.yml"
 )
+
+func init() {
+	task.LoadTasks()
+	builtin.LoadBuiltins()
+}
 
 func ParseCommandLine() (string, bool, bool, bool, string, bool, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")

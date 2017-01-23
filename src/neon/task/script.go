@@ -2,17 +2,18 @@ package task
 
 import (
 	"fmt"
+	"neon/build"
 	"neon/util"
 )
 
 func init() {
-	TasksMap["script"] = Descriptor{
+	build.TaskMap["script"] = build.TaskDescriptor{
 		Constructor: Script,
 		Help:        "Run an Anko script",
 	}
 }
 
-func Script(target *Target, args util.Object) (Task, error) {
+func Script(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"script"}
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err

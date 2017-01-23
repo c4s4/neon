@@ -1,17 +1,18 @@
 package task
 
 import (
+	"neon/build"
 	"neon/util"
 )
 
 func init() {
-	TasksMap["try"] = Descriptor{
+	build.TaskMap["try"] = build.TaskDescriptor{
 		Constructor: Try,
 		Help:        "Try/catch construct",
 	}
 }
 
-func Try(target *Target, args util.Object) (Task, error) {
+func Try(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"try", "catch"}
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err

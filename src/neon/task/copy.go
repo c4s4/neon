@@ -2,18 +2,19 @@ package task
 
 import (
 	"fmt"
+	"neon/build"
 	"neon/util"
 	"path/filepath"
 )
 
 func init() {
-	TasksMap["copy"] = Descriptor{
+	build.TaskMap["copy"] = build.TaskDescriptor{
 		Constructor: Copy,
 		Help:        "Copy file(s)",
 	}
 }
 
-func Copy(target *Target, args util.Object) (Task, error) {
+func Copy(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"copy", "dir", "to", "todir", "flat"}
 	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err

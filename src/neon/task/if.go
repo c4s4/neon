@@ -2,17 +2,18 @@ package task
 
 import (
 	"fmt"
+	"neon/build"
 	"neon/util"
 )
 
 func init() {
-	TasksMap["if"] = Descriptor{
+	build.TaskMap["if"] = build.TaskDescriptor{
 		Constructor: If,
 		Help:        "If condition",
 	}
 }
 
-func If(target *Target, args util.Object) (Task, error) {
+func If(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"if", "then", "else"}
 	if err := CheckFields(args, fields, fields[:2]); err != nil {
 		return nil, err
@@ -25,7 +26,7 @@ func If(target *Target, args util.Object) (Task, error) {
 	if err != nil {
 		return nil, err
 	}
-	var elseSteps []Step
+	var elseSteps []build.Step
 	if FieldPresent(args, "else") {
 		elseSteps, err = ParseSteps(target, args, "else")
 		if err != nil {
