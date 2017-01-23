@@ -228,7 +228,7 @@ func (build *Build) PrintTasks() {
 }
 
 func (build *Build) PrintHelpTask(task string) {
-	descriptor, found := TaskMap["task"]
+	descriptor, found := TaskMap[task]
 	if found {
 		fmt.Println(descriptor.Help)
 	} else {
