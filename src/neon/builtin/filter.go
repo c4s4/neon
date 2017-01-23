@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	zglob "github.com/mattn/go-zglob"
 	"neon/build"
 )
 
@@ -11,12 +12,19 @@ func init() {
 	}
 }
 
-func Filter(includes, excludes []string) []string {
+func Filter(includes []string, excludes ...string) []string {
 	var filtered []string
 	for _, include := range includes {
 		excluded := false
-		for _, exclude := range excludes {
-			if include == exclude {
+		for _, pattern := range excludes {
+			// DEBUG
+			println("include:", include, "pattern:", pattern)
+			exclude, err := zglob.Match(pattern, include)
+			// DEBUG
+			println("exclude:", exclude, "err:", err)
+			if exclude && err == nil {
+				// DEBUG
+				println("excluded!")
 				excluded = true
 				break
 			}
