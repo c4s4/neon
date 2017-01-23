@@ -237,6 +237,15 @@ func (build *Build) PrintHelpTask(task string) {
 	fmt.Printf("Task '%s' was not found\n", task)
 }
 
+func (build *Build) PrintBuiltins() {
+	var builtins []string
+	for name, _ := range BuiltinMap {
+		builtins = append(builtins, name)
+	}
+	sort.Strings(builtins)
+	fmt.Println(strings.Join(builtins, " "))
+}
+
 func (build *Build) Log(message string, args ...interface{}) {
 	if build.Debug {
 		fmt.Println(fmt.Sprintf(message, args...))
