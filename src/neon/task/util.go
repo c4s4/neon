@@ -12,8 +12,6 @@ const (
 	DIR_FILE_MODE = 0755
 )
 
-func LoadTasks() {}
-
 func CheckFields(args util.Object, list, mandatory []string) error {
 	task := strings.Join(list, "/")
 	fields := args.Fields()
