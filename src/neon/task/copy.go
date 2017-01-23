@@ -15,11 +15,11 @@ func init() {
 }
 
 func Copy(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"copy", "dir", "to", "todir", "flat"}
+	fields := []string{"copy", "dir", "exclude", "to", "todir", "flat"}
 	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err
 	}
-	patterns, err := args.GetListStringsOrString("copy")
+	includes, err := args.GetListStringsOrString("copy")
 	if err != nil {
 		return nil, fmt.Errorf("argument copy must be a string or list of strings")
 	}
@@ -27,7 +27,14 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 	if args.HasField("dir") {
 		dir, err = args.GetString("dir")
 		if err != nil {
-			return nil, fmt.Errorf("argument dir of task copy must be a string", err)
+			return nil, fmt.Errorf("argument dir of task copy must be a string")
+		}
+	}
+	var excludes []string
+	if args.HasField("exclude") {
+		excludes, err = args.GetListStringsOrString("exclude")
+		if err != nil {
+			return nil, fmt.Errorf("argument exclude mus be string or list of strings")
 		}
 	}
 	var to string
@@ -56,12 +63,12 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		// evaluate arguments
-		for index, pattern := range patterns {
+		for index, pattern := range includes {
 			eval, err := target.Build.Context.ReplaceProperties(pattern)
 			if err != nil {
 				return fmt.Errorf("evaluating pattern: %v", err)
 			}
-			patterns[index] = eval
+			includes[index] = eval
 		}
 		eval, err := target.Build.Context.ReplaceProperties(dir)
 		if err != nil {
@@ -79,7 +86,7 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 		}
 		toDir = eval
 		// find source files
-		sources, err := target.Build.Context.FindFiles(dir, patterns)
+		sources, err := target.Build.Context.FindFiles(dir, includes, excludes)
 		if err != nil {
 			return fmt.Errorf("getting source files for copy task: %v", err)
 		}

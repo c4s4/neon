@@ -231,7 +231,7 @@ func (context *Context) GetEnvironment() ([]string, error) {
 	return lines, nil
 }
 
-func (context *Context) FindFiles(dir string, patterns []string) ([]string, error) {
+func (context *Context) FindFiles(dir string, includes, excludes []string) ([]string, error) {
 	oldDir, err := os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("getting working directory: %v", err)
@@ -247,14 +247,38 @@ func (context *Context) FindFiles(dir string, patterns []string) ([]string, erro
 			return nil, nil
 		}
 	}
-	var files []string
-	for _, pattern := range patterns {
-		evaluated, err := context.ReplaceProperties(pattern)
+	var candidates []string
+	for _, include := range includes {
+		pattern, err := context.ReplaceProperties(include)
 		if err != nil {
 			return nil, fmt.Errorf("evaluating pattern: %v", err)
 		}
-		list, _ := zglob.Glob(evaluated)
+		list, _ := zglob.Glob(pattern)
 		for _, file := range list {
+			candidates = append(candidates, file)
+		}
+	}
+	var excluded []string
+	for _, exclude := range excludes {
+		pattern, err := context.ReplaceProperties(exclude)
+		if err != nil {
+			return nil, fmt.Errorf("evaluating pattern: %v", err)
+		}
+		list, _ := zglob.Glob(pattern)
+		for _, file := range list {
+			excluded = append(excluded, file)
+		}
+	}
+	var files []string
+	for _, file := range candidates {
+		filtered := false
+		for _, exclude := range excluded {
+			if file == exclude {
+				filtered = true
+				break
+			}
+		}
+		if !filtered {
 			files = append(files, file)
 		}
 	}
