@@ -43,7 +43,6 @@ targets:
     doc: "Build neon binary"
     steps:
     - print: "Building neon binary in 'bin/neon'"
-    - remove: "bin/neon"
     - "go install #{NAME}"
 
   archive:
