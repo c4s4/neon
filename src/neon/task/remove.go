@@ -38,10 +38,12 @@ func Remove(target *build.Target, args util.Object) (build.Task, error) {
 			}
 		}
 		sort.Strings(files)
-		fmt.Printf("Removing %d file(s)\n", len(files))
-		for _, file := range files {
-			if err = os.Remove(file); err != nil {
-				return fmt.Errorf("removing file '%s': %v", file, err)
+		if len(files) > 0 {
+			fmt.Printf("Removing %d file(s)\n", len(files))
+			for _, file := range files {
+				if err = os.Remove(file); err != nil {
+					return fmt.Errorf("removing file '%s': %v", file, err)
+				}
 			}
 		}
 		return nil
