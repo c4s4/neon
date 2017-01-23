@@ -24,7 +24,12 @@ You shoud start reading [the quick start](doc/quickstart.md), then to get a Neon
 Todo
 ----
 
-- Tasks
-  - copy
+Report bug on zglob :
+
+```go
+zglob.Match("filter/**/bar*", "filter/foo.txt")
+```
+
+Returns `true, nil`!
 
 *Enjoy!*
