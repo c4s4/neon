@@ -4,6 +4,7 @@ default:
 - builtin_find
 - task_touch
 - task_link
+- task_throw
 
 properties:
   BUILD_DIR: "../../build"
@@ -65,4 +66,18 @@ targets:
           throw("ERROR: " + files)
         } else {
           println("Link test success")
-        }        
+        }
+
+  task_throw:
+    doc: Test task throw
+    steps:
+    - script: 'error = ""'
+    - try:
+      - throw: 'This is a test'
+      catch:
+      - if: 'error == "This is a test"'
+        then:
+        - print: 'Task test success'
+        else:
+        - throw: "Throw test failure"
+
