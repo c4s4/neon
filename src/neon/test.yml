@@ -77,7 +77,7 @@ targets:
       catch:
       - if: 'error == "This is a test"'
         then:
-        - print: 'Task test success'
+        - print: 'Throw task test success'
         else:
-        - throw: "Throw test failure"
+        - throw: "Throw task test failure"
 
