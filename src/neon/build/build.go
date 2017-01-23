@@ -228,13 +228,12 @@ func (build *Build) PrintTasks() {
 }
 
 func (build *Build) PrintHelpTask(task string) {
-	for name, descriptor := range TaskMap {
-		if name == task {
-			fmt.Println(descriptor.Help)
-			return
-		}
+	descriptor, found := TaskMap["task"]
+	if found {
+		fmt.Println(descriptor.Help)
+	} else {
+		fmt.Printf("Task '%s' was not found\n", task)
 	}
-	fmt.Printf("Task '%s' was not found\n", task)
 }
 
 func (build *Build) PrintBuiltins() {
@@ -247,11 +246,11 @@ func (build *Build) PrintBuiltins() {
 }
 
 func (build *Build) PrintHelpBuiltin(builtin string) {
-	descriptor, ok := BuiltinMap[builtin]
-	if !ok {
-		fmt.Printf("Builtin '%s' was not found\n", builtin)
-	} else {
+	descriptor, found := BuiltinMap[builtin]
+	if found {
 		fmt.Println(descriptor.Help)
+	} else {
+		fmt.Printf("Builtin '%s' was not found\n", builtin)
 	}
 }
 
