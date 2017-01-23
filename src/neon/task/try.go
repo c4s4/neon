@@ -26,6 +26,7 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, err
 	}
 	return func() error {
+		target.Build.Context.SetProperty("error", "")
 		err := RunSteps(trySteps)
 		if err != nil {
 			target.Build.Context.SetProperty("error", err.Error())
