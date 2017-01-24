@@ -119,18 +119,22 @@ func (build *Build) Run(targets []string) error {
 		}
 		return build.Run(build.Default)
 	} else {
-		for _, name := range targets {
-			target, ok := build.Targets[name]
-			if !ok {
-				return fmt.Errorf("target '%s' not found", name)
-			}
-			err := target.Run()
+		for _, target := range targets {
+			err := build.RunTarget(target, NewStack())
 			if err != nil {
 				return err
 			}
 		}
 		return nil
 	}
+}
+
+func (build *Build) RunTarget(name string, stack *Stack) error {
+	target, ok := build.Targets[name]
+	if !ok {
+		return fmt.Errorf("target '%s' not found", target)
+	}
+	return target.Run(stack)
 }
 
 func (build *Build) Help() error {

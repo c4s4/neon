@@ -52,9 +52,19 @@ func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 	return target, nil
 }
 
-func (target *Target) Run() error {
+func (target *Target) Run(stack *Stack) error {
+	if stack.Contains(target.Name) {
+		stack.Push(target.Name)
+		return fmt.Errorf("target circular dependency: %v", stack.ToString())
+	}
+	stack.Push(target.Name)
 	if len(target.Depends) > 0 {
-		target.Build.Run(target.Depends)
+		for _, name := range target.Depends {
+			err := target.Build.RunTarget(name, stack)
+			if err != nil {
+				return err
+			}
+		}
 	}
 	util.PrintTarget("Running target " + target.Name)
 	err := os.Chdir(target.Build.Dir)
