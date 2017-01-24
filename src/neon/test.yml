@@ -47,8 +47,7 @@ targets:
     - mkdir: "#{BUILD_DIR}/filter"
     - "touch #{BUILD_DIR}/filter/foo.txt #{BUILD_DIR}/filter/bar.txt"
     - script: |
-        files = toString(filter(find(BUILD_DIR, "filter/**/*.txt"),
-                                find(BUILD_DIR, "filter/**/bar*")))
+        files = toString(filter(find(BUILD_DIR, "filter/**/*.txt"), "filter/**/bar*"))
         if files != "[filter/foo.txt]" {
           throw("ERROR: " + files)
         } else {
