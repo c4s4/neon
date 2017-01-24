@@ -17,14 +17,8 @@ func Filter(includes []string, excludes ...string) []string {
 	for _, include := range includes {
 		excluded := false
 		for _, pattern := range excludes {
-			// DEBUG
-			println("include:", include, "pattern:", pattern)
 			exclude, err := zglob.Match(pattern, include)
-			// DEBUG
-			println("exclude:", exclude, "err:", err)
 			if exclude && err == nil {
-				// DEBUG
-				println("excluded!")
 				excluded = true
 				break
 			}
