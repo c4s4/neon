@@ -1,6 +1,6 @@
-name: neon
+name:    neon
 default: [clean, bin, test, integ]
-doc: "Build file to build neon"
+doc:     "Build file to build neon"
 
 properties:
   NAME:         "neon"
@@ -9,10 +9,10 @@ properties:
   ARC_DIR:      "#{BUILD_DIR}/#{NAME}-#{VERSION}"
   DEPENDENCIES:
   - "gopkg.in/yaml.v2"
-  - "github.com/fatih/color"
-  - "github.com/mitchellh/gox"
   - "github.com/mattn/anko"
   - "github.com/mattn/go-zglob"
+  - "github.com/fatih/color"
+  - "github.com/mitchellh/gox"
 
 environment:
   GOPATH: "${BASE}"
