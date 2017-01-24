@@ -26,6 +26,7 @@ targets:
     - for: dependency
       in:  DEPENDENCIES
       do:
+      - print: "Getting dependecy #{dependency}"
       - "go get #{dependency}"
 
   test:
