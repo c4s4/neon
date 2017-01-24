@@ -10,7 +10,14 @@ import (
 func init() {
 	build.TaskMap["chdir"] = build.TaskDescriptor{
 		Constructor: Chdir,
-		Help:        "Change current working directory",
+		Help: `Change current working directory
+
+Arguments:
+- The directory to change to (as a string).
+
+Example:
+# go to build directory
+- chdir: "build"`,
 	}
 }
 

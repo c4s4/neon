@@ -10,7 +10,32 @@ import (
 func init() {
 	build.TaskMap["copy"] = build.TaskDescriptor{
 		Constructor: Copy,
-		Help:        "Copy file(s)",
+		Help: `Copy file(s)
+
+Arguments:
+- The list of globs of files to copy (as a string or list of strings).
+- dir: the root directory for glob (as a string, optional).
+- exclude: globs of files to exclude (as a string or list of strings,
+  optional).
+- to: the file to copy to (as a string, optional, only if glob selects a single
+  file).
+- todir: directory to copy file(s) to (as a string, optional).
+- flat: tells if files should be flatten in destination directory (as a boolean,
+  optional, defaults to true).
+
+Examples:
+# copy file foo to bar
+- copy: "foo"
+  to: "bar"
+# copy text files in directory 'book' (except 'foo.txt') to directory 'text'
+- copy: "**/*.txt"
+  dir: "book"
+  exclude: "**/foo.txt"
+  todir: "text"
+# copy all go sources to directory 'src', preserving directory structure
+- copy: "**/*.go"
+  todir: "src"
+  flat: false`,
 	}
 }
 
