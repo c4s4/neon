@@ -258,28 +258,13 @@ func (context *Context) FindFiles(dir string, includes, excludes []string) ([]st
 			candidates = append(candidates, file)
 		}
 	}
-	var excluded []string
-	for _, exclude := range excludes {
-		pattern, err := context.ReplaceProperties(exclude)
-		if err != nil {
-			return nil, fmt.Errorf("evaluating pattern: %v", err)
-		}
-		list, _ := zglob.Glob(pattern)
-		for _, file := range list {
-			excluded = append(excluded, file)
-		}
-	}
 	var files []string
 	for _, file := range candidates {
-		filtered := false
-		for _, exclude := range excluded {
-			if file == exclude {
-				filtered = true
-				break
+		for _, exclude := range excludes {
+			match, err := zglob.Match(exclude, file)
+			if !match && err == nil {
+				files = append(files, file)
 			}
-		}
-		if !filtered {
-			files = append(files, file)
 		}
 	}
 	sort.Strings(files)
