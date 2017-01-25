@@ -45,17 +45,23 @@ func NewBuild(file string, debug bool) (*Build, error) {
 	if err != nil {
 		return nil, err
 	}
-	str, err := object.GetString("name")
-	if err == nil {
-		build.Name = str
+	if object.HasField("name") {
+		str, err := object.GetString("name")
+		if err == nil {
+			build.Name = str
+		}
 	}
-	list, err := object.GetListStringsOrString("default")
-	if err == nil {
-		build.Default = list
+	if object.HasField("default") {
+		list, err := object.GetListStringsOrString("default")
+		if err == nil {
+			build.Default = list
+		}
 	}
-	str, err = object.GetString("doc")
-	if err == nil {
-		build.Doc = str
+	if object.HasField("doc") {
+		str, err := object.GetString("doc")
+		if err == nil {
+			build.Doc = str
+		}
 	}
 	path, err := filepath.Abs(file)
 	if err != nil {

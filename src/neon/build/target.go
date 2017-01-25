@@ -26,30 +26,36 @@ func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 	if err != nil {
 		return nil, err
 	}
-	doc, err := object.GetString("doc")
-	if err != nil {
-		return nil, fmt.Errorf("parsing target %s: doc field must be a string", name)
-	}
-	target.Doc = doc
-	depends, err := object.GetListStringsOrString("depends")
-	if err != nil {
-		return nil, fmt.Errorf("parsing target %s: depends field must be a string or list of strings", name)
-	}
-	target.Depends = depends
-	list, err := object.GetList("steps")
-	if err != nil {
-		return nil, fmt.Errorf("steps must be a list")
-	}
-	var steps []Step
-	for index, object := range list {
-		build.Log("Parsing step %v in target '%s'", index, name)
-		step, err := NewStep(target, object)
+	if object.HasField("doc") {
+		doc, err := object.GetString("doc")
 		if err != nil {
-			return nil, fmt.Errorf("parsing target '%s': %v", name, err)
+			return nil, fmt.Errorf("parsing target %s: doc field must be a string", name)
 		}
-		steps = append(steps, step)
+		target.Doc = doc
 	}
-	target.Steps = steps
+	if object.HasField("depends") {
+		depends, err := object.GetListStringsOrString("depends")
+		if err != nil {
+			return nil, fmt.Errorf("parsing target %s: depends field must be a string or list of strings", name)
+		}
+		target.Depends = depends
+	}
+	if object.HasField("steps") {
+		list, err := object.GetList("steps")
+		if err != nil {
+			return nil, fmt.Errorf("steps must be a list")
+		}
+		var steps []Step
+		for index, object := range list {
+			build.Log("Parsing step %v in target '%s'", index, name)
+			step, err := NewStep(target, object)
+			if err != nil {
+				return nil, fmt.Errorf("parsing target '%s': %v", name, err)
+			}
+			steps = append(steps, step)
+		}
+		target.Steps = steps
+	}
 	return target, nil
 }
 
