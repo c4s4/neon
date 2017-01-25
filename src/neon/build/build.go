@@ -21,25 +21,25 @@ type Build struct {
 	Doc     string
 	Context *Context
 	Targets map[string]*Target
-	Debug   bool
+	Verbose bool
 }
 
-func NewBuild(file string, debug bool) (*Build, error) {
+func NewBuild(file string, verbose bool) (*Build, error) {
 	build := &Build{}
-	build.Debug = debug
-	build.Log("Loading build file '%s'", file)
+	build.Verbose = verbose
+	build.Debug("Loading build file '%s'", file)
 	source, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, fmt.Errorf("loading build file '%s': %v", file, err)
 	}
-	build.Log("Parsing build file")
+	build.Debug("Parsing build file")
 	var object util.Object
 	err = yaml.Unmarshal(source, &object)
 	if err != nil {
 		return nil, fmt.Errorf("build must be a YAML map with string keys")
 	}
-	build.Log("Build structure: %#v", object)
-	build.Log("Reading build first level fields")
+	build.Debug("Build structure: %#v", object)
+	build.Debug("Reading build first level fields")
 	err = object.CheckFields([]string{"name", "default", "doc", "properties",
 		"environment", "targets"})
 	if err != nil {
@@ -147,7 +147,7 @@ func (build *Build) Help() error {
 	newLine := false
 	// print build documentation
 	if build.Doc != "" {
-		fmt.Println(build.Doc)
+		build.Info(build.Doc)
 		newLine = true
 	}
 	// print build properties
@@ -159,9 +159,9 @@ func (build *Build) Help() error {
 	}
 	if len(build.Context.Properties) > 0 {
 		if newLine {
-			fmt.Println()
+			build.Info("")
 		}
-		fmt.Println("Properties:")
+		build.Info("Properties:")
 		for _, name := range build.Context.Properties {
 			value, err := build.Context.GetProperty(name)
 			if err != nil {
@@ -187,9 +187,9 @@ func (build *Build) Help() error {
 	sort.Strings(names)
 	if len(build.Context.Environment) > 0 {
 		if newLine {
-			fmt.Println()
+			build.Info("")
 		}
-		fmt.Println("Environment:")
+		build.Info("Environment:")
 		for _, name := range names {
 			value := "\"" + build.Context.Environment[name] + "\""
 			util.PrintTargetHelp(name, value, []string{}, length)
@@ -208,9 +208,9 @@ func (build *Build) Help() error {
 	sort.Strings(targets)
 	if len(targets) > 0 {
 		if newLine {
-			fmt.Println()
+			build.Info("")
 		}
-		fmt.Println("Targets:")
+		build.Info("Targets:")
 		for _, name := range targets {
 			target := build.Targets[name]
 			util.PrintTargetHelp(name, target.Doc, target.Depends, length)
@@ -225,7 +225,7 @@ func (build *Build) PrintTargets() {
 		targets = append(targets, name)
 	}
 	sort.Strings(targets)
-	fmt.Println(strings.Join(targets, " "))
+	build.Info(strings.Join(targets, " "))
 }
 
 func (build *Build) PrintTasks() {
@@ -234,15 +234,15 @@ func (build *Build) PrintTasks() {
 		tasks = append(tasks, name)
 	}
 	sort.Strings(tasks)
-	fmt.Println(strings.Join(tasks, " "))
+	build.Info(strings.Join(tasks, " "))
 }
 
 func (build *Build) PrintHelpTask(task string) {
 	descriptor, found := TaskMap[task]
 	if found {
-		fmt.Println(descriptor.Help)
+		build.Info(descriptor.Help)
 	} else {
-		fmt.Printf("Task '%s' was not found\n", task)
+		build.Info("Task '%s' was not found", task)
 	}
 }
 
@@ -252,20 +252,24 @@ func (build *Build) PrintBuiltins() {
 		builtins = append(builtins, name)
 	}
 	sort.Strings(builtins)
-	fmt.Println(strings.Join(builtins, " "))
+	build.Info(strings.Join(builtins, " "))
 }
 
 func (build *Build) PrintHelpBuiltin(builtin string) {
 	descriptor, found := BuiltinMap[builtin]
 	if found {
-		fmt.Println(descriptor.Help)
+		build.Info(descriptor.Help)
 	} else {
-		fmt.Printf("Builtin '%s' was not found\n", builtin)
+		build.Info("Builtin '%s' was not found", builtin)
 	}
 }
 
-func (build *Build) Log(message string, args ...interface{}) {
-	if build.Debug {
+func (build *Build) Info(message string, args ...interface{}) {
+	fmt.Println(fmt.Sprintf(message, args...))
+}
+
+func (build *Build) Debug(message string, args ...interface{}) {
+	if build.Verbose {
 		fmt.Println(fmt.Sprintf(message, args...))
 	}
 }

@@ -32,7 +32,7 @@ func Chdir(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		directory, err := target.Build.Context.ReplaceProperties(dir)
-		fmt.Printf("Changing to directory '%s'\n", directory)
+		target.Build.Info("Changing to directory '%s'", directory)
 		if err != nil {
 			return fmt.Errorf("processing chdir argument: %v", err)
 		}

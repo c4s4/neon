@@ -28,7 +28,7 @@ func MkDir(target *build.Target, args util.Object) (build.Task, error) {
 		if err != nil {
 			return fmt.Errorf("processing mkdir argument: %v", err)
 		}
-		fmt.Printf("Making directory '%s'\n", directory)
+		target.Build.Info("Making directory '%s'", directory)
 		err = os.MkdirAll(directory, DIR_FILE_MODE)
 		if err != nil {
 			return fmt.Errorf("making directory '%s': %s", directory, err)

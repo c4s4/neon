@@ -27,7 +27,7 @@ func Print(target *build.Target, args util.Object) (build.Task, error) {
 		if err != nil {
 			return fmt.Errorf("processing print argument: %v", err)
 		}
-		fmt.Println(evaluated)
+		target.Build.Info(evaluated)
 		return nil
 	}, nil
 }

@@ -30,7 +30,7 @@ func Delete(target *build.Target, args util.Object) (build.Task, error) {
 				return fmt.Errorf("evaluating directory in task delete: %v", err)
 			}
 			if _, err := os.Stat(directory); err == nil {
-				fmt.Printf("Deleting directory '%s'\n", directory)
+				target.Build.Info("Deleting directory '%s'", directory)
 				err = os.RemoveAll(directory)
 				if err != nil {
 					return fmt.Errorf("deleting directory '%s': %v", directory, err)
