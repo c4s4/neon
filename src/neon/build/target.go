@@ -27,12 +27,13 @@ func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 		return nil, err
 	}
 	doc, err := object.GetString("doc")
-	if err == nil {
-		target.Doc = doc
+	if err != nil {
+		return nil, fmt.Errorf("parsing target %s: doc field must be a string", name)
 	}
+	target.Doc = doc
 	depends, err := object.GetListStringsOrString("depends")
 	if err != nil {
-		return nil, fmt.Errorf("depends must be a list of strings")
+		return nil, fmt.Errorf("parsing target %s: depends field must be a string or list of strings", name)
 	}
 	target.Depends = depends
 	list, err := object.GetList("steps")
