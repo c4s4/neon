@@ -25,5 +25,7 @@ Todo
 ----
 
 - Write decent documentation.
+- Print correct step index while in intricated steps (a step in a for loop for
+  instance). This should be printed as: 4.2.
 
 *Enjoy!*
