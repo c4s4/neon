@@ -40,7 +40,7 @@ func NewShellStep(target *Target, shell string) (Step, error) {
 func (step ShellStep) Run() error {
 	cmd, err := step.Target.Build.Context.ReplaceProperties(step.Command)
 	if err != nil {
-		return err
+		return fmt.Errorf("evaluating shell expression: %v", err)
 	}
 	var command *exec.Cmd
 	if runtime.GOOS == "windows" {
@@ -70,7 +70,7 @@ type TaskStep struct {
 func NewTaskStep(target *Target, m map[interface{}]interface{}) (Step, error) {
 	object, err := util.NewObject(m)
 	if err != nil {
-		return nil, fmt.Errorf("Task must be a map with string keys")
+		return nil, fmt.Errorf("a task must be a map with string keys")
 	}
 	fields := object.Fields()
 	for name, descriptor := range TaskMap {
@@ -78,7 +78,7 @@ func NewTaskStep(target *Target, m map[interface{}]interface{}) (Step, error) {
 			if name == field {
 				task, err := descriptor.Constructor(target, object)
 				if err != nil {
-					return nil, err
+					return nil, fmt.Errorf("parsing task '%s': %v", name, err)
 				}
 				step := TaskStep{
 					Target: target,

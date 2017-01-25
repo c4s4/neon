@@ -1,8 +1,10 @@
 doc: Built file to test builds
 default:
-- builtin_throw
-- builtin_find
 - builtin_filter
+- builtin_find
+- builtin_now
+- builtin_throw
+
 - task_touch
 - task_link
 - task_throw
@@ -12,6 +14,45 @@ properties:
   BUILD_DIR: "../../build"
 
 targets:
+
+  builtin_filter:
+    doc: Test the filter builtin function
+    steps:
+    - mkdir: "#{BUILD_DIR}/filter"
+    - touch:
+      - "#{BUILD_DIR}/filter/foo.txt"
+      - "#{BUILD_DIR}/filter/bar.txt"
+    - script: |
+        files = toString(filter(find(BUILD_DIR, "filter/**/*.txt"), "filter/**/bar*"))
+        if files != "[filter/foo.txt]" {
+          throw("ERROR: " + files)
+        } else {
+          println("Filter test success")
+        }
+
+  builtin_find:
+    doc: Test the find builtin function
+    steps:
+    - mkdir: "#{BUILD_DIR}/find/spam"
+    - "touch #{BUILD_DIR}/find/foo #{BUILD_DIR}/find/spam/bar"
+    - script: |
+        files = toString(find(BUILD_DIR+"/find", "**/*"))
+        if files != "[foo spam spam/bar]" {
+          throw("ERROR: " + files)
+        } else {
+          println("Find test success")
+        }
+
+  builtin_now:
+    doc: Test the now builtin function
+    steps:
+    - script: |
+        r = import("regexp")
+        n = now()
+        match, err = r.MatchString(`\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d`, n)
+        if !match || err != nil {
+          throw("ERROR now '"+n+"'")
+        }
 
   builtin_throw:
     doc: Test the throw builtin function
@@ -26,38 +67,9 @@ targets:
             println("Throw test success")
           }
 
-  builtin_find:
-    doc: Test the find builtin function
-    steps:
-    - delete: "#{BUILD_DIR}"
-    - mkdir: "#{BUILD_DIR}/spam"
-    - "touch #{BUILD_DIR}/foo #{BUILD_DIR}/spam/bar"
-    - script: |
-        files = toString(find(BUILD_DIR, "**/*"))
-        if files != "[foo spam spam/bar]" {
-          throw("ERROR: " + files)
-        } else {
-          println("Find test success")
-        }
-
-  builtin_filter:
-    doc: Test the filter builtin function
-    steps:
-    - delete: "#{BUILD_DIR}"
-    - mkdir: "#{BUILD_DIR}/filter"
-    - "touch #{BUILD_DIR}/filter/foo.txt #{BUILD_DIR}/filter/bar.txt"
-    - script: |
-        files = toString(filter(find(BUILD_DIR, "filter/**/*.txt"), "filter/**/bar*"))
-        if files != "[filter/foo.txt]" {
-          throw("ERROR: " + files)
-        } else {
-          println("Filter test success")
-        }
-
   task_touch:
     doc: Test task touch
     steps:
-    - delete: "#{BUILD_DIR}"
     - mkdir: "#{BUILD_DIR}/touch"
     - touch: "#{BUILD_DIR}/touch/foo"
     - script: |
@@ -71,7 +83,6 @@ targets:
   task_link:
     doc: Test task link
     steps:
-    - delete: "#{BUILD_DIR}"
     - mkdir: "#{BUILD_DIR}/link"
     - touch: "#{BUILD_DIR}/link/foo"
     - link: "#{BUILD_DIR}/link/foo"
@@ -100,19 +111,18 @@ targets:
   task_copy:
     doc: Test task copy
     steps:
-    - delete: "#{BUILD_DIR}"
-    - mkdir: "#{BUILD_DIR}/src"
-    - mkdir: "#{BUILD_DIR}/dst"
+    - mkdir: "#{BUILD_DIR}/copy/src"
+    - mkdir: "#{BUILD_DIR}/copy/dst"
     - touch:
-      - "#{BUILD_DIR}/src/foo.txt"
-      - "#{BUILD_DIR}/src/bar.txt"
+      - "#{BUILD_DIR}/copy/src/foo.txt"
+      - "#{BUILD_DIR}/copy/src/bar.txt"
     - copy:    "**/*.txt"
-      dir:     "#{BUILD_DIR}"
+      dir:     "#{BUILD_DIR}/copy/src"
       exclude: "**/bar*"
-      todir:   "#{BUILD_DIR}/dst"
+      todir:   "#{BUILD_DIR}/copy/dst"
     - script: |
-        files = toString(find(BUILD_DIR, "dst/*"))
-        if files != "[dst/foo.txt]" {
+        files = toString(find(BUILD_DIR, "copy/dst/*"))
+        if files != "[copy/dst/foo.txt]" {
           throw("ERROR: " + files)
         } else {
           println("Copy test success")

@@ -24,33 +24,33 @@ func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 	build.Debug("Reading target '%s' first level fields", name)
 	err := object.CheckFields([]string{"doc", "depends", "steps"})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parsing target '%s': %v", name, err)
 	}
 	if object.HasField("doc") {
 		doc, err := object.GetString("doc")
 		if err != nil {
-			return nil, fmt.Errorf("parsing target %s: doc field must be a string", name)
+			return nil, fmt.Errorf("parsing target '%s': doc field must be a string", name)
 		}
 		target.Doc = doc
 	}
 	if object.HasField("depends") {
 		depends, err := object.GetListStringsOrString("depends")
 		if err != nil {
-			return nil, fmt.Errorf("parsing target %s: depends field must be a string or list of strings", name)
+			return nil, fmt.Errorf("parsing target '%s': depends field must be a string or list of strings", name)
 		}
 		target.Depends = depends
 	}
 	if object.HasField("steps") {
 		list, err := object.GetList("steps")
 		if err != nil {
-			return nil, fmt.Errorf("steps must be a list")
+			return nil, fmt.Errorf("parsig target '%s': steps must be a list", name)
 		}
 		var steps []Step
 		for index, object := range list {
 			build.Debug("Parsing step %v in target '%s'", index, name)
 			step, err := NewStep(target, object)
 			if err != nil {
-				return nil, fmt.Errorf("parsing target '%s': %v", name, err)
+				return nil, fmt.Errorf("parsing target '%s' step %d: %v", name, index+1, err)
 			}
 			steps = append(steps, step)
 		}
@@ -81,8 +81,7 @@ func (target *Target) Run(stack *Stack) error {
 	for index, step := range target.Steps {
 		err := step.Run()
 		if err != nil {
-			return fmt.Errorf("running target '%s' step %v: %v",
-				target.Name, index+1, err)
+			return fmt.Errorf("running step %d: %v", index+1, err)
 		}
 	}
 	return nil
