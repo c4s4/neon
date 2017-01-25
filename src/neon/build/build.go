@@ -36,14 +36,14 @@ func NewBuild(file string, verbose bool) (*Build, error) {
 	var object util.Object
 	err = yaml.Unmarshal(source, &object)
 	if err != nil {
-		return nil, fmt.Errorf("build must be a YAML map with string keys")
+		return nil, fmt.Errorf("build must be a map with string keys")
 	}
 	build.Debug("Build structure: %#v", object)
 	build.Debug("Reading build first level fields")
 	err = object.CheckFields([]string{"name", "default", "doc", "properties",
 		"environment", "targets"})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parsing build file: %v", err)
 	}
 	if object.HasField("name") {
 		str, err := object.GetString("name")
@@ -67,51 +67,48 @@ func NewBuild(file string, verbose bool) (*Build, error) {
 	if err != nil {
 		return nil, fmt.Errorf("getting build file path: %v", err)
 	}
-	build.File = path
+	build.File = filepath.Base(path)
 	build.Dir = filepath.Dir(path)
 	here, err := os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("getting current directory: %v", err)
 	}
 	build.Here = here
-	properties, err := object.GetObject("properties")
-	if err != nil {
-		if err.Error() == "field 'properties' not found" {
-			properties = make(map[string]interface{})
-		} else {
-			return nil, err
+	properties := make(map[string]interface{})
+	if object.HasField("properties") {
+		properties, err = object.GetObject("properties")
+		if err != nil {
+			return nil, fmt.Errorf("parsing properties: %v", err)
 		}
 	}
-	environment, err := object.GetObject("environment")
-	if err != nil {
-		if err.Error() == "field 'environment' not found" {
-			environment = make(map[string]interface{})
-		} else {
-			return nil, err
+	environment := make(map[string]interface{})
+	if object.HasField("environment") {
+		environment, err = object.GetObject("environment")
+		if err != nil {
+			return nil, fmt.Errorf("parsing environmen: %v", err)
 		}
 	}
 	context, err := NewContext(build, properties, environment)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("building context: %v", err)
 	}
 	build.Context = context
-	targets, err := object.GetObject("targets")
-	if err != nil {
-		if err.Error() == "field 'targets' not found" {
-			properties = make(map[string]interface{})
-		} else {
-			return nil, err
+	targets := util.Object(make(map[string]interface{}))
+	if object.HasField("targets") {
+		targets, err = object.GetObject("targets")
+		if err != nil {
+			return nil, fmt.Errorf("parsing targets: %v", err)
 		}
 	}
 	build.Targets = make(map[string]*Target)
 	for name, _ := range targets {
 		object, err := targets.GetObject(name)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("parsing target '%s': %v", name, err)
 		}
 		target, err := NewTarget(build, name, object)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("parsing target '%s': %v", name, err)
 		}
 		build.Targets[name] = target
 	}
@@ -123,16 +120,15 @@ func (build *Build) Run(targets []string) error {
 		if len(build.Default) == 0 {
 			return fmt.Errorf("no default target")
 		}
-		return build.Run(build.Default)
-	} else {
-		for _, target := range targets {
-			err := build.RunTarget(target, NewStack())
-			if err != nil {
-				return err
-			}
-		}
-		return nil
+		targets = build.Default
 	}
+	for _, target := range targets {
+		err := build.RunTarget(target, NewStack())
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (build *Build) RunTarget(name string, stack *Stack) error {
@@ -140,7 +136,11 @@ func (build *Build) RunTarget(name string, stack *Stack) error {
 	if !ok {
 		return fmt.Errorf("target '%s' not found", name)
 	}
-	return target.Run(stack)
+	err := target.Run(stack)
+	if err != nil {
+		return fmt.Errorf("running target '%s': %v", name, err)
+	}
+	return nil
 }
 
 func (build *Build) Help() error {
@@ -151,12 +151,7 @@ func (build *Build) Help() error {
 		newLine = true
 	}
 	// print build properties
-	length := 0
-	for _, name := range build.Context.Properties {
-		if utf8.RuneCountInString(name) > length {
-			length = utf8.RuneCountInString(name)
-		}
-	}
+	length := maxLength(build.Context.Properties)
 	if len(build.Context.Properties) > 0 {
 		if newLine {
 			build.Info("")
@@ -176,14 +171,11 @@ func (build *Build) Help() error {
 		newLine = true
 	}
 	// print build environment
-	length = 0
 	var names []string
 	for name, _ := range build.Context.Environment {
-		if utf8.RuneCountInString(name) > length {
-			length = utf8.RuneCountInString(name)
-		}
 		names = append(names, name)
 	}
+	length = maxLength(names)
 	sort.Strings(names)
 	if len(build.Context.Environment) > 0 {
 		if newLine {
@@ -197,21 +189,18 @@ func (build *Build) Help() error {
 		newLine = true
 	}
 	// print targets documentation
-	length = 0
-	var targets []string
+	names = make([]string, 0)
 	for name, _ := range build.Targets {
-		if utf8.RuneCountInString(name) > length {
-			length = utf8.RuneCountInString(name)
-		}
-		targets = append(targets, name)
+		names = append(names, name)
 	}
-	sort.Strings(targets)
-	if len(targets) > 0 {
+	length = maxLength(names)
+	sort.Strings(names)
+	if len(names) > 0 {
 		if newLine {
 			build.Info("")
 		}
 		build.Info("Targets:")
-		for _, name := range targets {
+		for _, name := range names {
 			target := build.Targets[name]
 			build.PrintColorLine(name, target.Doc, target.Depends, length)
 		}
@@ -282,6 +271,16 @@ func (build *Build) PrintColorLine(name, doc string, depends []string, length in
 	if doc != "" {
 		deps = " " + deps
 	}
-	util.PrintColor("%s%s %s%s\n", util.Yellow(name),
+	util.PrintColor("%s%s %s%s", util.Yellow(name),
 		strings.Repeat(" ", length-utf8.RuneCountInString(name)), doc, deps)
+}
+
+func maxLength(lines []string) int {
+	length := 0
+	for _, line := range lines {
+		if utf8.RuneCountInString(line) > length {
+			length = utf8.RuneCountInString(line)
+		}
+	}
+	return length
 }
