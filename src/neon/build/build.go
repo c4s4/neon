@@ -138,7 +138,7 @@ func (build *Build) Run(targets []string) error {
 func (build *Build) RunTarget(name string, stack *Stack) error {
 	target, ok := build.Targets[name]
 	if !ok {
-		return fmt.Errorf("target '%s' not found", target)
+		return fmt.Errorf("target '%s' not found", name)
 	}
 	return target.Run(stack)
 }
