@@ -73,7 +73,7 @@ func (target *Target) Run(stack *Stack) error {
 			}
 		}
 	}
-	util.PrintTarget("Running target " + target.Name)
+	util.PrintColor("%s", util.Yellow("Running target "+target.Name))
 	err := os.Chdir(target.Build.Dir)
 	if err != nil {
 		return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)

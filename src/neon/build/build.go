@@ -171,7 +171,7 @@ func (build *Build) Help() error {
 			if err != nil {
 				return fmt.Errorf("formatting property '%s': %v", name, err)
 			}
-			util.PrintTargetHelp(name, valueStr, []string{}, length)
+			build.PrintColorLine(name, valueStr, []string{}, length)
 		}
 		newLine = true
 	}
@@ -192,7 +192,7 @@ func (build *Build) Help() error {
 		build.Info("Environment:")
 		for _, name := range names {
 			value := "\"" + build.Context.Environment[name] + "\""
-			util.PrintTargetHelp(name, value, []string{}, length)
+			build.PrintColorLine(name, value, []string{}, length)
 		}
 		newLine = true
 	}
@@ -213,7 +213,7 @@ func (build *Build) Help() error {
 		build.Info("Targets:")
 		for _, name := range targets {
 			target := build.Targets[name]
-			util.PrintTargetHelp(name, target.Doc, target.Depends, length)
+			build.PrintColorLine(name, target.Doc, target.Depends, length)
 		}
 	}
 	return nil
@@ -272,4 +272,16 @@ func (build *Build) Debug(message string, args ...interface{}) {
 	if build.Verbose {
 		fmt.Println(fmt.Sprintf(message, args...))
 	}
+}
+
+func (build *Build) PrintColorLine(name, doc string, depends []string, length int) {
+	deps := ""
+	if len(depends) > 0 {
+		deps = "[" + strings.Join(depends, ", ") + "]"
+	}
+	if doc != "" {
+		deps = " " + deps
+	}
+	util.PrintColor("%s%s %s%s\n", util.Yellow(name),
+		strings.Repeat(" ", length-utf8.RuneCountInString(name)), doc, deps)
 }

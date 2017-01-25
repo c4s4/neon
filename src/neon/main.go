@@ -54,18 +54,18 @@ func main() {
 	file, help, verbose, tasks, task, targs, builtins, builtin, targets := ParseCommandLine()
 	path, err := FindBuildFile(file)
 	if err != nil {
-		util.PrintError(err.Error())
+		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
 		os.Exit(1)
 	}
 	build, err := build.NewBuild(path, verbose)
 	if err != nil {
-		util.PrintError(err.Error())
+		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
 		os.Exit(2)
 	}
 	if help {
 		err = build.Help()
 		if err != nil {
-			util.PrintError(err.Error())
+			util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
 			os.Exit(3)
 		}
 	} else if tasks {
@@ -81,9 +81,9 @@ func main() {
 	} else {
 		err = build.Run(targets)
 		if err == nil {
-			util.PrintOK()
+			util.PrintColor("%s", util.Green("OK"))
 		} else {
-			util.PrintError(err.Error())
+			util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
 			os.Exit(4)
 		}
 	}
