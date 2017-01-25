@@ -29,6 +29,11 @@ targets:
       - print: "Getting dependecy #{dependency}"
       - "go get #{dependency}"
 
+  format:
+    doc: "Format Go code"
+    steps:
+    - 'go fmt #{NAME}'
+
   test:
     doc: "Run unit tests"
     steps:
