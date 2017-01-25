@@ -18,7 +18,7 @@ const (
 func ParseCommandLine() (string, bool, bool, bool, string, bool, bool, string, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
 	help := flag.Bool("build", false, "Print build help")
-	debug := flag.Bool("debug", false, "Output debugging information")
+	verbose := flag.Bool("verbose", false, "Verbose build output")
 	tasks := flag.Bool("tasks", false, "Print tasks list")
 	task := flag.String("task", "", "Print help on given task")
 	targs := flag.Bool("targets", false, "Print targets list")
@@ -26,7 +26,7 @@ func ParseCommandLine() (string, bool, bool, bool, string, bool, bool, string, [
 	builtin := flag.String("builtin", "", "Print help on given builtin")
 	flag.Parse()
 	targets := flag.Args()
-	return *file, *help, *debug, *tasks, *task, *targs, *builtins, *builtin, targets
+	return *file, *help, *verbose, *tasks, *task, *targs, *builtins, *builtin, targets
 }
 
 func FindBuildFile(name string) (string, error) {
@@ -51,13 +51,13 @@ func FindBuildFile(name string) (string, error) {
 }
 
 func main() {
-	file, help, debug, tasks, task, targs, builtins, builtin, targets := ParseCommandLine()
+	file, help, verbose, tasks, task, targs, builtins, builtin, targets := ParseCommandLine()
 	path, err := FindBuildFile(file)
 	if err != nil {
 		util.PrintError(err.Error())
 		os.Exit(1)
 	}
-	build, err := build.NewBuild(path, debug)
+	build, err := build.NewBuild(path, verbose)
 	if err != nil {
 		util.PrintError(err.Error())
 		os.Exit(2)
