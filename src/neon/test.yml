@@ -3,8 +3,8 @@ default:
 - builtin_filter
 - builtin_find
 - builtin_now
+- builtin_run
 - builtin_throw
-
 - task_touch
 - task_link
 - task_throw
@@ -52,6 +52,20 @@ targets:
         match, err = r.MatchString(`\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d`, n)
         if !match || err != nil {
           throw("ERROR now '"+n+"'")
+        } else {
+          println("Now test success")
+        }
+
+  builtin_run:
+    doc: Test run builtin function
+    steps:
+    - script: |
+        n = run("date", "--iso-8601")
+        match, err = r.MatchString(`\d\d\d\d-\d\d-\d\d`, n)
+        if !match || err != nil {
+          throw("ERROR run '"+n+"'")
+        } else {
+          println("Run test success")
         }
 
   builtin_throw:
@@ -83,6 +97,7 @@ targets:
   task_link:
     doc: Test task link
     steps:
+    - delete:  "#{BUILD_DIR}/link"
     - mkdir: "#{BUILD_DIR}/link"
     - touch: "#{BUILD_DIR}/link/foo"
     - link: "#{BUILD_DIR}/link/foo"
