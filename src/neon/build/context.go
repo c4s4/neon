@@ -199,13 +199,17 @@ func (context *Context) FindFiles(dir string, includes, excludes []string) ([]st
 		}
 	}
 	var files []string
-	for _, file := range candidates {
-		for _, exclude := range excludes {
-			match, err := zglob.Match(exclude, file)
-			if !match && err == nil {
-				files = append(files, file)
+	if excludes != nil {
+		for _, file := range candidates {
+			for _, exclude := range excludes {
+				match, err := zglob.Match(exclude, file)
+				if !match && err == nil {
+					files = append(files, file)
+				}
 			}
 		}
+	} else {
+		files = candidates
 	}
 	sort.Strings(files)
 	return files, nil
