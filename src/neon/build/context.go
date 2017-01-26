@@ -75,7 +75,7 @@ func (context *Context) SetProperties(object util.Object) error {
 			}
 		}
 		if len(done) == 0 {
-			return fmt.Errorf("evaluating properties: %v", crash)
+			return crash
 		}
 		var next []string
 		for _, name := range todo {
