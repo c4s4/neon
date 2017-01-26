@@ -3,6 +3,7 @@ package builtin
 import (
 	"neon/build"
 	"os/exec"
+	"strings"
 )
 
 func init() {
@@ -18,5 +19,5 @@ func Run(command string, params ...string) string {
 	if err != nil {
 		panic(err.Error())
 	}
-	return string(output)
+	return strings.TrimSpace(string(output))
 }
