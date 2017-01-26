@@ -81,7 +81,7 @@ func (target *Target) Run(stack *Stack) error {
 	for index, step := range target.Steps {
 		err := step.Run()
 		if err != nil {
-			return fmt.Errorf("running step %d: %v", index+1, err)
+			return fmt.Errorf("in step %d: %v", index+1, err)
 		}
 	}
 	return nil
