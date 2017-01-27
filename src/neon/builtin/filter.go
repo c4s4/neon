@@ -8,7 +8,20 @@ import (
 func init() {
 	build.BuiltinMap["filter"] = build.BuiltinDescriptor{
 		Function: Filter,
-		Help:     "Filter a list of files with excludes",
+		Help: `Filter a list of files with excludes.
+
+Arguments:
+- includes: the list of files to filter.
+- excludes: a list of patterns for files to exclude.
+Returns:
+- The list if filtered files as a list of strings.
+
+Examples:
+// filter text files removing those in build directory
+filter(find("**.txt"), "build/**/*")
+
+Notes:
+- Works great with find() builtin.`,
 	}
 }
 

@@ -8,7 +8,16 @@ import (
 func init() {
 	build.BuiltinMap["throw"] = build.BuiltinDescriptor{
 		Function: Throw,
-		Help:     "Throw an error and sets 'error' variable to its value",
+		Help: `Throw an error that will cause script failure.
+
+Arguments:
+- The error message of the failure.
+Returns:
+- Nothing, but sets the variable 'error' with the error message.
+
+Examples:
+// stop the script with an error message
+throw("Some tests failed")`,
 	}
 }
 
