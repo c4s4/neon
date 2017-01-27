@@ -10,7 +10,14 @@ import (
 func init() {
 	build.TaskMap["mkdir"] = build.TaskDescriptor{
 		Constructor: MkDir,
-		Help:        "Make a directory",
+		Help: `Make a directory.
+
+Arguments:
+- mkdir: directory or list of directories to create.
+
+Examples:
+# create a directory 'build'
+- mkdir: "build"`,
 	}
 }
 

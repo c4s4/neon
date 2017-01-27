@@ -10,7 +10,17 @@ import (
 func init() {
 	build.TaskMap["delete"] = build.TaskDescriptor{
 		Constructor: Delete,
-		Help:        "Delete a directory recursively",
+		Help: `Delete a directory recursively.
+
+Arguments:
+- delete: directory or list of directories to delete.
+
+Examples:
+# delete build directory
+- delete: "#{BUILD_DIR}"
+
+Notes:
+- Handle with care, this is recursive!`,
 	}
 }
 

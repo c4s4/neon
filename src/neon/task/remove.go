@@ -12,7 +12,14 @@ import (
 func init() {
 	build.TaskMap["remove"] = build.TaskDescriptor{
 		Constructor: Remove,
-		Help:        "Remove file(s)",
+		Help: `Remove file(s).
+
+Arguments:
+- remove: file or list of files to remove.
+
+Examples:
+# remove all pyc files
+- remove: "**/*.pyc"`,
 	}
 }
 

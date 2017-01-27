@@ -12,7 +12,17 @@ import (
 func init() {
 	build.TaskMap["touch"] = build.TaskDescriptor{
 		Constructor: Touch,
-		Help:        "Touch a file (create it or change its time)",
+		Help: `Touch a file (create it or change its time).
+
+Arguments:
+- touch: the file or files to create.
+
+Examples:
+- touch: "#{BUILD_DIR}/foo"
+
+Notes:
+- If the file already exists it changes it modification time.
+- If the file doesn't exist, it creates an empty file.`,
 	}
 }
 

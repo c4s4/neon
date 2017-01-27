@@ -10,10 +10,10 @@ import (
 func init() {
 	build.TaskMap["copy"] = build.TaskDescriptor{
 		Constructor: Copy,
-		Help: `Copy file(s)
+		Help: `Copy file(s).
 
 Arguments:
-- The list of globs of files to copy (as a string or list of strings).
+- copy: the list of globs of files to copy (as a string or list of strings).
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
   optional).

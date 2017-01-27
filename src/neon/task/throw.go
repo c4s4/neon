@@ -9,7 +9,18 @@ import (
 func init() {
 	build.TaskMap["throw"] = build.TaskDescriptor{
 		Constructor: Throw,
-		Help:        "Throws an error",
+		Help: `Throws an error.
+
+Arguments:
+- throw: the message of the error.
+
+Examples:
+# stop the build because tests don't run
+- throw: "ERROR: tests don't run"
+
+Notes:
+- The error message will be printed on the console as the source of the build
+  failure.`,
 	}
 }
 

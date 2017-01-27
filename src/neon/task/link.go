@@ -10,7 +10,16 @@ import (
 func init() {
 	build.TaskMap["link"] = build.TaskDescriptor{
 		Constructor: Link,
-		Help:        "Create a symbolic link",
+		Help: `Create a symbolic link.
+
+Arguments:
+- link: the source file.
+- to: the destination of the link.
+
+Examples:
+# create a link from file foo to bar
+- link: "foo"
+  to: "bar"`,
 	}
 }
 
