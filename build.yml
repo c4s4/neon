@@ -4,7 +4,7 @@ doc:     "Build file to build neon"
 
 properties:
   NAME:         "neon"
-  VERSION:      '#{run("changelog release version")}'
+  VERSION:      '#{run("changelog", "release", "version")}'
   BUILD_DIR:    "build"
   ARC_DIR:      "#{BUILD_DIR}/#{NAME}-#{VERSION}"
   DEPENDENCIES:
