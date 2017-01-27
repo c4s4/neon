@@ -1,55 +1,61 @@
 package task
 
 import (
-	"archive/zip"
+	"archive/tar"
+	"compress/gzip"
 	"fmt"
 	"io"
 	"neon/build"
 	"neon/util"
 	"os"
+	"strings"
 )
 
 func init() {
-	build.TaskMap["zip"] = build.TaskDescriptor{
-		Constructor: Zip,
-		Help: `Create a Zip archive.
+	build.TaskMap["tar"] = build.TaskDescriptor{
+		Constructor: Tar,
+		Help: `Create a tar archive.
 
 Arguments:
-- zip: the list of globs of files to zip (as a string or list of strings).
+- tar: the list of globs of files to tar (as a string or list of strings).
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
   optional).
-- to: the name of the Zip file to create as a string.
+- to: the name of the tar file to create as a string.
 - prefix: prefix directory in the archive.
 
 Examples:
-# zip files in build directory in file named build.zip
-- zip: "build/**/*"
-  to: "build.zip"`,
+# tar files in build directory in file named build.tar.gz
+- tar: "build/**/*"
+  to: "build.tar.gz"
+
+Notes:
+- If archive filename ends with gz (with a name such as foo.tar.gz or foo.tgz)
+  the tar archive is compressed with gzip.`,
 	}
 }
 
-func Zip(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"zip", "to", "dir", "exclude", "prefix"}
+func Tar(target *build.Target, args util.Object) (build.Task, error) {
+	fields := []string{"tar", "to", "dir", "exclude", "prefix"}
 	if err := CheckFields(args, fields, fields[:2]); err != nil {
 		return nil, err
 	}
-	includes, err := args.GetListStringsOrString("zip")
+	includes, err := args.GetListStringsOrString("tar")
 	if err != nil {
-		return nil, fmt.Errorf("argument zip must be a string or list of strings")
+		return nil, fmt.Errorf("argument tar must be a string or list of strings")
 	}
 	var to string
 	if args.HasField("to") {
 		to, err = args.GetString("to")
 		if err != nil {
-			return nil, fmt.Errorf("argument to of task zip must be a string")
+			return nil, fmt.Errorf("argument to of task tar must be a string")
 		}
 	}
 	var dir string
 	if args.HasField("dir") {
 		dir, err = args.GetString("dir")
 		if err != nil {
-			return nil, fmt.Errorf("argument dir of task zip must be a string")
+			return nil, fmt.Errorf("argument dir of task tar must be a string")
 		}
 	}
 	var excludes []string
@@ -63,7 +69,7 @@ func Zip(target *build.Target, args util.Object) (build.Task, error) {
 	if args.HasField("prefix") {
 		prefix, err = args.GetString("prefix")
 		if err != nil {
-			return nil, fmt.Errorf("argument prefix of task zip must be a string")
+			return nil, fmt.Errorf("argument prefix of task tar must be a string")
 		}
 	}
 	return func() error {
@@ -93,48 +99,49 @@ func Zip(target *build.Target, args util.Object) (build.Task, error) {
 		// find source files
 		files, err := target.Build.Context.FindFiles(dir, includes, excludes)
 		if err != nil {
-			return fmt.Errorf("getting source files for zip task: %v", err)
+			return fmt.Errorf("getting source files for tar task: %v", err)
 		}
 		if len(files) > 0 {
-			target.Build.Info("Zipping %d file(s)", len(files))
-			// zip files
-			err = WriteZip(files, prefix, to)
+			target.Build.Info("tarping %d file(s)", len(files))
+			// tar files
+			err = Writetar(files, prefix, to)
 			if err != nil {
-				return fmt.Errorf("zipping files: %v", err)
+				return fmt.Errorf("tarping files: %v", err)
 			}
 		}
 		return nil
 	}, nil
 }
 
-func WriteZip(files []string, prefix, to string) error {
-	archive, err := os.Create(to)
+func Writetar(files []string, prefix, to string) error {
+	file, err := os.Create(to)
 	if err != nil {
-		return fmt.Errorf("creating zip archive: %v", err)
+		return fmt.Errorf("creating tar archive: %v", err)
 	}
-	defer archive.Close()
-	zipper := zip.NewWriter(archive)
-	defer zipper.Close()
-	for _, file := range files {
-		err := writeFileToZip(zipper, file, prefix)
+	defer file.Close()
+	var fileWriter io.WriteCloser = file
+	if strings.HasSuffix(to, "gz") {
+		fileWriter = gzip.NewWriter(file)
+		defer fileWriter.Close()
+	}
+	writer := tar.NewWriter(fileWriter)
+	defer writer.Close()
+	for _, name := range files {
+		err := writeFileToTar(writer, name, prefix)
 		if err != nil {
-			return fmt.Errorf("writing file to zip archive: %v", err)
+			return fmt.Errorf("writing file to tar archive: %v", err)
 		}
 	}
 	return nil
 }
 
-func writeFileToZip(zipper *zip.Writer, filename, prefix string) error {
+func writeFileToTar(writer *tar.Writer, filename, prefix string) error {
 	file, err := os.Open(filename)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-	info, err := file.Stat()
-	if err != nil {
-		return err
-	}
-	header, err := zip.FileInfoHeader(info)
+	stat, err := file.Stat()
 	if err != nil {
 		return err
 	}
@@ -142,9 +149,15 @@ func writeFileToZip(zipper *zip.Writer, filename, prefix string) error {
 	if prefix != "" {
 		name = prefix + "/" + name
 	}
-	header.Name = name
-	writer, err := zipper.CreateHeader(header)
-	if err != nil {
+	header := &tar.Header{
+		Name:    name,
+		Mode:    int64(stat.Mode()),
+		Uid:     os.Getuid(),
+		Gid:     os.Getgid(),
+		Size:    stat.Size(),
+		ModTime: stat.ModTime(),
+	}
+	if err = writer.WriteHeader(header); err != nil {
 		return err
 	}
 	_, err = io.Copy(writer, file)
