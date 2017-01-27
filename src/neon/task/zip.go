@@ -2,6 +2,7 @@ package task
 
 import (
 	"archive/zip"
+	"compress/flate"
 	"fmt"
 	"io"
 	"neon/build"
@@ -114,6 +115,9 @@ func WriteZip(files []string, prefix, to string) error {
 	}
 	defer archive.Close()
 	zipper := zip.NewWriter(archive)
+	zipper.RegisterCompressor(zip.Deflate, func(out io.Writer) (io.WriteCloser, error) {
+		return flate.NewWriter(out, flate.BestCompression)
+	})
 	defer zipper.Close()
 	for _, file := range files {
 		err := writeFileToZip(zipper, file, prefix)
