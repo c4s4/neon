@@ -9,7 +9,7 @@ import (
 func init() {
 	build.TaskMap["for"] = build.TaskDescriptor{
 		Constructor: For,
-		Help: `For loop
+		Help: `For loop.
 
 Arguments:
 - for: the name of the variable to set at each loop iteration.
