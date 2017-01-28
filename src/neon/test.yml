@@ -1,0 +1,144 @@
+doc: Built file to test builds
+default:
+- builtin_filter
+- builtin_find
+- builtin_now
+- builtin_run
+- builtin_throw
+- task_touch
+- task_link
+- task_throw
+- task_copy
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_filter:
+    doc: Test the filter builtin function
+    steps:
+    - mkdir: "#{BUILD_DIR}/filter"
+    - touch:
+      - "#{BUILD_DIR}/filter/foo.txt"
+      - "#{BUILD_DIR}/filter/bar.txt"
+    - script: |
+        files = toString(filter(find(BUILD_DIR, "filter/**/*.txt"), "filter/**/bar*"))
+        if files != "[filter/foo.txt]" {
+          throw("ERROR: " + files)
+        } else {
+          println("Filter test success")
+        }
+
+  builtin_find:
+    doc: Test the find builtin function
+    steps:
+    - mkdir: "#{BUILD_DIR}/find/spam"
+    - "touch #{BUILD_DIR}/find/foo #{BUILD_DIR}/find/spam/bar"
+    - script: |
+        files = toString(find(BUILD_DIR+"/find", "**/*"))
+        if files != "[foo spam spam/bar]" {
+          throw("ERROR: " + files)
+        } else {
+          println("Find test success")
+        }
+
+  builtin_now:
+    doc: Test the now builtin function
+    steps:
+    - script: |
+        r = import("regexp")
+        n = now()
+        match, err = r.MatchString(`\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d`, n)
+        if !match || err != nil {
+          throw("ERROR now '"+n+"'")
+        } else {
+          println("Now test success")
+        }
+
+  builtin_run:
+    doc: Test run builtin function
+    steps:
+    - script: |
+        n = run("date", "--iso-8601")
+        match, err = r.MatchString(`\d\d\d\d-\d\d-\d\d`, n)
+        if !match || err != nil {
+          throw("ERROR run '"+n+"'")
+        } else {
+          println("Run test success")
+        }
+
+  builtin_throw:
+    doc: Test the throw builtin function
+    steps:
+    - try:
+      - script: 'throw("TEST")'
+      catch:
+      - script: |
+          if error != "evaluating script: TEST" {
+            throw("Throw test failure")
+          } else {
+            println("Throw test success")
+          }
+
+  task_touch:
+    doc: Test task touch
+    steps:
+    - mkdir: "#{BUILD_DIR}/touch"
+    - touch: "#{BUILD_DIR}/touch/foo"
+    - script: |
+        files = toString(find(BUILD_DIR, "touch/*"))
+        if files != "[touch/foo]" {
+          throw("ERROR: " + files)
+        } else {
+          println("Touch test success")
+        }
+
+  task_link:
+    doc: Test task link
+    steps:
+    - delete:  "#{BUILD_DIR}/link"
+    - mkdir: "#{BUILD_DIR}/link"
+    - touch: "#{BUILD_DIR}/link/foo"
+    - link: "#{BUILD_DIR}/link/foo"
+      to:   "#{BUILD_DIR}/link/bar"
+    - script: |
+        files = toString(find(BUILD_DIR, "link/*"))
+        if files != "[link/bar link/foo]" {
+          throw("ERROR: " + files)
+        } else {
+          println("Link test success")
+        }
+
+  task_throw:
+    doc: Test task throw
+    steps:
+    - script: 'error = ""'
+    - try:
+      - throw: 'This is a test'
+      catch:
+      - if: 'error == "This is a test"'
+        then:
+        - print: 'Throw task test success'
+        else:
+        - throw: "Throw task test failure"
+
+  task_copy:
+    doc: Test task copy
+    steps:
+    - mkdir: "#{BUILD_DIR}/copy/src"
+    - mkdir: "#{BUILD_DIR}/copy/dst"
+    - touch:
+      - "#{BUILD_DIR}/copy/src/foo.txt"
+      - "#{BUILD_DIR}/copy/src/bar.txt"
+    - copy:    "**/*.txt"
+      dir:     "#{BUILD_DIR}/copy/src"
+      exclude: "**/bar*"
+      todir:   "#{BUILD_DIR}/copy/dst"
+    - script: |
+        files = toString(find(BUILD_DIR, "copy/dst/*"))
+        if files != "[copy/dst/foo.txt]" {
+          throw("ERROR: " + files)
+        } else {
+          println("Copy test success")
+        }

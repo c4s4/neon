@@ -1,1 +1,6 @@
-build/
+/build/
+/bin/
+/lib/
+/pkg/
+/src/github.com/
+/src/gopkg.in/
