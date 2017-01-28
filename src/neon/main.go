@@ -52,6 +52,7 @@ func FindBuildFile(name string) (string, error) {
 }
 
 func main() {
+	start := time.Now()
 	file, help, verbose, tasks, task, targs, builtins, builtin, targets := ParseCommandLine()
 	path, err := FindBuildFile(file)
 	if err != nil {
@@ -80,7 +81,6 @@ func main() {
 	} else if targs {
 		build.PrintTargets()
 	} else {
-		start := time.Now()
 		err = build.Run(targets)
 		duration := time.Now().Sub(start)
 		if duration.Seconds() > 10 {
