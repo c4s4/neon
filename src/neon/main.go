@@ -9,6 +9,7 @@ import (
 	"neon/util"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 const (
@@ -79,7 +80,12 @@ func main() {
 	} else if targs {
 		build.PrintTargets()
 	} else {
+		start := time.Now()
 		err = build.Run(targets)
+		duration := time.Now().Sub(start)
+		if duration.Seconds() > 10 {
+			build.Info("Build duration: %s", duration.String())
+		}
 		if err == nil {
 			util.PrintColor("%s", util.Green("OK"))
 		} else {
