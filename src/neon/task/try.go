@@ -41,10 +41,10 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		target.Build.Context.SetProperty("error", "")
-		err := RunSteps(trySteps)
+		err := RunSteps(target.Build, trySteps)
 		if err != nil {
 			target.Build.Context.SetProperty("error", err.Error())
-			err = RunSteps(catchSteps)
+			err = RunSteps(target.Build, catchSteps)
 			if err != nil {
 				return err
 			}

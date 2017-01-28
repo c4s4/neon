@@ -22,6 +22,7 @@ type Build struct {
 	Context *Context
 	Targets map[string]*Target
 	Verbose bool
+	Index   *Index
 }
 
 func NewBuild(file string, verbose bool) (*Build, error) {
@@ -132,6 +133,7 @@ func (build *Build) Run(targets []string) error {
 }
 
 func (build *Build) RunTarget(name string, stack *Stack) error {
+	build.Index = NewIndex()
 	target, ok := build.Targets[name]
 	if !ok {
 		return fmt.Errorf("target '%s' not found", name)

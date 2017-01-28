@@ -49,7 +49,7 @@ func While(target *build.Target, args util.Object) (build.Task, error) {
 			if !loop {
 				break
 			}
-			err = RunSteps(steps)
+			err = RunSteps(target.Build, steps)
 			if err != nil {
 				return err
 			}

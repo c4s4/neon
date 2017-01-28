@@ -75,8 +75,10 @@ func ParseSteps(target *build.Target, object util.Object, field string) ([]build
 	return steps, nil
 }
 
-func RunSteps(steps []build.Step) error {
-	for _, step := range steps {
+func RunSteps(build *build.Build, steps []build.Step) error {
+	build.Index.Expand()
+	for index, step := range steps {
+		build.Index.Set(index)
 		err := step.Run()
 		if err != nil {
 			return err

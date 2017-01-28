@@ -79,9 +79,10 @@ func (target *Target) Run(stack *Stack) error {
 		return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
 	}
 	for index, step := range target.Steps {
+		target.Build.Index.Set(index)
 		err := step.Run()
 		if err != nil {
-			return fmt.Errorf("in step %d: %v", index+1, err)
+			return fmt.Errorf("in step %s: %v", target.Build.Index.String(), err)
 		}
 	}
 	return nil
