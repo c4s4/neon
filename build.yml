@@ -67,6 +67,8 @@ targets:
     - chdir: "#{BUILD_DIR}"
     - tar: "#{NAME}-#{VERSION}/**/*"
       to: "#{NAME}-#{VERSION}.tar.gz"
+    - zip: "#{NAME}-#{VERSION}/**/*"
+      to: "#{NAME}-#{VERSION}.zip"
 
   release:
     depends: [clean, test, archive]
