@@ -51,6 +51,14 @@ func (context *Context) SetProperty(name string, value interface{}) {
 	context.VM.Define(name, value)
 }
 
+func (context *Context) GetProperty(name string) (interface{}, error) {
+	value, err := context.VM.Get(name)
+	if err != nil {
+		return nil, err
+	}
+	return value.Interface(), nil
+}
+
 func (context *Context) SetProperties(object util.Object) error {
 	context.SetProperty("BASE", context.Build.Dir)
 	context.SetProperty("HERE", context.Build.Here)
@@ -92,14 +100,6 @@ func (context *Context) SetProperties(object util.Object) error {
 		todo = next
 	}
 	return nil
-}
-
-func (context *Context) GetProperty(name string) (interface{}, error) {
-	value, err := context.VM.Get(name)
-	if err != nil {
-		return nil, err
-	}
-	return value.Interface(), nil
 }
 
 func (context *Context) ReplaceProperties(text string) (string, error) {
