@@ -40,7 +40,7 @@ func If(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, err
 	}
 	var elseSteps []build.Step
-	if FieldPresent(args, "else") {
+	if args.HasField("else") {
 		elseSteps, err = ParseSteps(target, args, "else")
 		if err != nil {
 			return nil, err

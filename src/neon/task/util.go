@@ -58,16 +58,6 @@ func fieldsMandatory(fields, mandatory []string) error {
 	return nil
 }
 
-func FieldPresent(args util.Object, field string) bool {
-	fields := args.Fields()
-	for _, f := range fields {
-		if f == field {
-			return true
-		}
-	}
-	return false
-}
-
 func ParseSteps(target *build.Target, object util.Object, field string) ([]build.Step, error) {
 	list, err := object.GetList(field)
 	if err != nil {
