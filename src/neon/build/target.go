@@ -60,16 +60,14 @@ func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 }
 
 func (target *Target) Run(stack *Stack) error {
-	if stack.Contains(target.Name) {
-		stack.Push(target.Name)
-		return fmt.Errorf("target circular dependency: %v", stack.ToString())
-	}
 	stack.Push(target.Name)
 	if len(target.Depends) > 0 {
 		for _, name := range target.Depends {
-			err := target.Build.RunTarget(name, stack)
-			if err != nil {
-				return err
+			if !stack.Contains(name) {
+				err := target.Build.RunTarget(name, stack)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
