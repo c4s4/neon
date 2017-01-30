@@ -25,6 +25,7 @@ default:
 - task_touch
 - task_try
 - task_while
+- task_zip
 
 properties:
   BUILD_DIR: "#{BASE}/../../build"
@@ -339,4 +340,15 @@ targets:
           println("While test success")
         }
 
-
+  task_zip:
+    doc: Tast task zip
+    steps:
+    - mkdir: "#{BUILD_DIR}/zip/foo"
+    - touch:
+      - "#{BUILD_DIR}/zip/foo/spam.txt"
+      - "#{BUILD_DIR}/zip/foo/eggs.txt"
+    - zip: "**/*.txt"
+      dir: "#{BUILD_DIR}/zip"
+      prefix: "bar"
+      to: "#{BUILD_DIR}/zip/test.zip"
+    - print: "Zip test success"
