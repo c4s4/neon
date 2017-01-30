@@ -21,6 +21,7 @@ default:
 - task_sleep
 - task_tar
 - task_throw
+- task_time
 - task_touch
 
 properties:
@@ -288,6 +289,13 @@ targets:
         - print: 'Throw task test success'
         else:
         - throw: "Throw task test failure"
+
+  task_time:
+    doc: Test task time
+    steps:
+    - time:
+      - pass:
+    - print: "Time test success"
 
   task_touch:
     doc: Test task touch
