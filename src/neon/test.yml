@@ -13,6 +13,7 @@ default:
 - task_for
 - task_if
 - task_link
+- task_mkdir
 - task_throw
 - task_touch
 
@@ -199,6 +200,23 @@ targets:
           throw("ERROR: " + files)
         } else {
           println("Link test success")
+        }
+
+  task_mkdir:
+    doc: Test task mkdir
+    steps:
+    - mkdir: "#{BUILD_DIR}/mkdir"
+    - script: |
+        os = import("os")
+        filepath = import("path/filepath")
+        dir = filepath.Join(BUILD_DIR, "mkdir")
+        stat, err = os.Stat(dir)
+        if err != nil {
+          throw("Mkdir test failure")
+        } else if !stat.IsDir() {
+          throw("Mkdir task failure")
+        } else {
+          println("Mkdir test success")
         }
 
   task_throw:
