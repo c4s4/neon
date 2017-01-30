@@ -16,6 +16,7 @@ default:
 - task_mkdir
 - task_pass
 - task_print
+- task_remove
 - task_throw
 - task_touch
 
@@ -231,6 +232,23 @@ targets:
     doc: Test task print
     steps:
     - print: "Print test success"
+
+  task_remove:
+    doc: Test task remove
+    steps:
+    - mkdir: "#{BUILD_DIR}/remove"
+    - touch: "#{BUILD_DIR}/remove/test.txt"
+    - remove: "#{BUILD_DIR}/remove/test.txt"
+    - script: |
+        os = import("os")
+        filepath = import("path/filepath")
+        file = filepath.Join(BUILD_DIR, "remove", "test.txt")
+        _, err = os.Stat(file)
+        if err == nil {
+          throw("Remove test failure")
+        } else {
+          println("Remove test success")
+        }
 
   task_throw:
     doc: Test task throw
