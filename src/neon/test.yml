@@ -5,10 +5,10 @@ default:
 - builtin_now
 - builtin_run
 - builtin_throw
-- task_touch
+- task_copy
 - task_link
 - task_throw
-- task_copy
+- task_touch
 
 properties:
   BUILD_DIR: "../../build"
@@ -81,17 +81,24 @@ targets:
             println("Throw test success")
           }
 
-  task_touch:
-    doc: Test task touch
+  task_copy:
+    doc: Test task copy
     steps:
-    - mkdir: "#{BUILD_DIR}/touch"
-    - touch: "#{BUILD_DIR}/touch/foo"
+    - mkdir: "#{BUILD_DIR}/copy/src"
+    - mkdir: "#{BUILD_DIR}/copy/dst"
+    - touch:
+      - "#{BUILD_DIR}/copy/src/foo.txt"
+      - "#{BUILD_DIR}/copy/src/bar.txt"
+    - copy:    "**/*.txt"
+      dir:     "#{BUILD_DIR}/copy/src"
+      exclude: "**/bar*"
+      todir:   "#{BUILD_DIR}/copy/dst"
     - script: |
-        files = toString(find(BUILD_DIR, "touch/*"))
-        if files != "[touch/foo]" {
+        files = toString(find(BUILD_DIR, "copy/dst/*"))
+        if files != "[copy/dst/foo.txt]" {
           throw("ERROR: " + files)
         } else {
-          println("Touch test success")
+          println("Copy test success")
         }
 
   task_link:
@@ -123,22 +130,15 @@ targets:
         else:
         - throw: "Throw task test failure"
 
-  task_copy:
-    doc: Test task copy
+  task_touch:
+    doc: Test task touch
     steps:
-    - mkdir: "#{BUILD_DIR}/copy/src"
-    - mkdir: "#{BUILD_DIR}/copy/dst"
-    - touch:
-      - "#{BUILD_DIR}/copy/src/foo.txt"
-      - "#{BUILD_DIR}/copy/src/bar.txt"
-    - copy:    "**/*.txt"
-      dir:     "#{BUILD_DIR}/copy/src"
-      exclude: "**/bar*"
-      todir:   "#{BUILD_DIR}/copy/dst"
+    - mkdir: "#{BUILD_DIR}/touch"
+    - touch: "#{BUILD_DIR}/touch/foo"
     - script: |
-        files = toString(find(BUILD_DIR, "copy/dst/*"))
-        if files != "[copy/dst/foo.txt]" {
+        files = toString(find(BUILD_DIR, "touch/*"))
+        if files != "[touch/foo]" {
           throw("ERROR: " + files)
         } else {
-          println("Copy test success")
+          println("Touch test success")
         }
