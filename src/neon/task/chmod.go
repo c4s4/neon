@@ -5,6 +5,7 @@ import (
 	"neon/build"
 	"neon/util"
 	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -60,7 +61,12 @@ func Chmod(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		// evaluate arguments
-		eval, err := target.Build.Context.ReplaceProperties(mode)
+		eval, err := target.Build.Context.ReplaceProperties(dir)
+		if err != nil {
+			return fmt.Errorf("evaluating directory: %v", err)
+		}
+		dir = eval
+		eval, err = target.Build.Context.ReplaceProperties(mode)
 		if err != nil {
 			return fmt.Errorf("evaluating mode: %v", err)
 		}
@@ -79,6 +85,9 @@ func Chmod(target *build.Target, args util.Object) (build.Task, error) {
 		}
 		target.Build.Info("Changing %d file(s) mode to %s", len(files), mode)
 		for _, file := range files {
+			if dir != "" {
+				file = filepath.Join(dir, file)
+			}
 			err := os.Chmod(file, os.FileMode(modeBase8))
 			if err != nil {
 				return fmt.Errorf("changing mode of file '%s' to %s: %v", file, mode, err)

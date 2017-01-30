@@ -7,6 +7,7 @@ default:
 - builtin_throw
 - task_cat
 - task_chdir
+- task_chmod
 - task_copy
 - task_link
 - task_throw
@@ -93,6 +94,7 @@ targets:
   task_chdir:
     doc: Test task chdir
     steps:
+    - mkdir: "#{BUILD_DIR}"
     - chdir: "#{BUILD_DIR}"
     - script: |
         os = import("os")
@@ -104,6 +106,15 @@ targets:
         } else {
           println("Chdir test success")
         }
+
+  task_chmod:
+    doc: Test task chmod
+    steps:
+    - mkdir: "#{BUILD_DIR}/chmod"
+    - touch: "#{BUILD_DIR}/chmod/test.txt"
+    - chmod: "test.txt"
+      dir: "#{BUILD_DIR}/chmod"
+      mode: "0755"
 
   task_copy:
     doc: Test task copy
