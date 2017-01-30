@@ -18,6 +18,7 @@ default:
 - task_print
 - task_remove
 - task_script
+- task_sleep
 - task_throw
 - task_touch
 
@@ -255,6 +256,11 @@ targets:
     doc: Test task script
     steps:
     - script: 'println("Script test success")'
+
+  task_sleep:
+    doc: Test task sleep
+    steps:
+    - sleep: 1
 
   task_throw:
     doc: Test task throw
