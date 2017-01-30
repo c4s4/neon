@@ -5,6 +5,7 @@ default:
 - builtin_now
 - builtin_run
 - builtin_throw
+- task_cat
 - task_copy
 - task_link
 - task_throw
@@ -80,6 +81,13 @@ targets:
           } else {
             println("Throw test success")
           }
+
+  task_cat:
+    doc: Test task cat
+    steps:
+    - mkdir: "#{BUILD_DIR}/cat"
+    - touch: "#{BUILD_DIR}/cat/test.txt"
+    - cat: "#{BUILD_DIR}/cat/test.txt"
 
   task_copy:
     doc: Test task copy
