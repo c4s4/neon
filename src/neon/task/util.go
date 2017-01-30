@@ -84,6 +84,7 @@ func RunSteps(build *build.Build, steps []build.Step) error {
 			return err
 		}
 	}
+	build.Index.Shrink()
 	return nil
 }
 
