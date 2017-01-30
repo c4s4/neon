@@ -16,6 +16,7 @@ default:
 - task_mkdir
 - task_pass
 - task_print
+- task_read
 - task_remove
 - task_script
 - task_sleep
@@ -239,6 +240,24 @@ targets:
     doc: Test task print
     steps:
     - print: "Print test success"
+
+  task_read:
+    doc: Test task read
+    steps:
+    - mkdir: "#{BUILD_DIR}/read"
+    - script: |
+        ioutil = import("io/ioutil")
+        filepath = import("path/filepath")
+        file = filepath.Join(BUILD_DIR, "read", "test.txt")
+        ioutil.WriteFile(file, toByteSlice("TEST"), 420)
+    - read: "#{BUILD_DIR}/read/test.txt"
+      to: "read"
+    - script: |
+        if read != "TEST" {
+          throw("Read test failure")
+        } else {
+          println("Read test success")
+        }
 
   task_remove:
     doc: Test task remove
