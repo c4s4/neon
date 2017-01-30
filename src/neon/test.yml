@@ -26,6 +26,7 @@ default:
 - task_touch
 - task_try
 - task_while
+- task_write
 - task_zip
 
 properties:
@@ -359,8 +360,27 @@ targets:
           println("While test success")
         }
 
+  task_write:
+    doc: Test task write
+    steps:
+    - mkdir: "#{BUILD_DIR}/write"
+    - write: "#{BUILD_DIR}/write/test.txt"
+      text: "Hello World!"
+    - script: |
+        ioutil = import("io/ioutil")
+        filepath = import("path/filepath")
+        file = filepath.Join(BUILD_DIR, "write", "test.txt")
+        content, err = ioutil.ReadFile(file)
+        if err != nil {
+          throw("Write test failure")
+        }
+        if toString(content) != "Hello World!" {
+          throw("Write test failure")
+        }
+        println("Write test sucess")
+
   task_zip:
-    doc: Tast task zip
+    doc: Test task zip
     steps:
     - mkdir: "#{BUILD_DIR}/zip/foo"
     - touch:
