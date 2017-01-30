@@ -19,6 +19,7 @@ default:
 - task_remove
 - task_script
 - task_sleep
+- task_tar
 - task_throw
 - task_touch
 
@@ -261,6 +262,19 @@ targets:
     doc: Test task sleep
     steps:
     - sleep: 1
+
+  task_tar:
+    doc: Tast task tar
+    steps:
+    - mkdir: "#{BUILD_DIR}/tar/foo"
+    - touch:
+      - "#{BUILD_DIR}/tar/foo/spam.txt"
+      - "#{BUILD_DIR}/tar/foo/eggs.txt"
+    - tar: "**/*.txt"
+      dir: "#{BUILD_DIR}/tar"
+      prefix: "bar"
+      to: "#{BUILD_DIR}/tar/test.tar.gz"
+    - print: "Tar test success"
 
   task_throw:
     doc: Test task throw
