@@ -10,6 +10,8 @@ default:
 - task_chmod
 - task_copy
 - task_delete
+- task_for
+- task_if
 - task_link
 - task_throw
 - task_touch
@@ -152,6 +154,35 @@ targets:
           throw("Delete test failure")
         } else {
           println("Delete test success")
+        }
+
+  task_for:
+    doc: Test doc task
+    steps:
+    - script: 'sum = 0'
+    - for: i
+      in: [1, 2, 3]
+      do:
+      - script: 'sum = sum + i'
+    - script: |
+        if sum != 6 {
+          throw("For test failure")
+        } else {
+          println("For test success")
+        }
+
+  task_if:
+    doc: If task success
+    steps:
+    - script: 'failure = true'
+    - if: failure
+      then:
+      - script: 'failure = false'
+    - script: |
+        if failure {
+          throw("If test failure")
+        } else {
+          println("If test success")
         }
 
   task_link:
