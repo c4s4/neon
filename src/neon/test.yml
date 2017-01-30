@@ -6,13 +6,14 @@ default:
 - builtin_run
 - builtin_throw
 - task_cat
+- task_chdir
 - task_copy
 - task_link
 - task_throw
 - task_touch
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: "#{BASE}/../../build"
 
 targets:
 
@@ -88,6 +89,21 @@ targets:
     - mkdir: "#{BUILD_DIR}/cat"
     - touch: "#{BUILD_DIR}/cat/test.txt"
     - cat: "#{BUILD_DIR}/cat/test.txt"
+
+  task_chdir:
+    doc: Test task chdir
+    steps:
+    - chdir: "#{BUILD_DIR}"
+    - script: |
+        os = import("os")
+        filepath = import("path/filepath")
+        dir = os.Getwd()
+        buildDir = filepath.Abs(BUILD_DIR)
+        if dir != buildDir {
+          throw("Chdir test failure")
+        } else {
+          println("Chdir test success")
+        }
 
   task_copy:
     doc: Test task copy
