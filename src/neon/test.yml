@@ -14,6 +14,7 @@ default:
 - task_if
 - task_link
 - task_mkdir
+- task_pass
 - task_throw
 - task_touch
 
@@ -218,6 +219,12 @@ targets:
         } else {
           println("Mkdir test success")
         }
+
+  task_pass:
+    doc: Test task pass
+    steps:
+    - pass:
+    - print: "Pass test success"
 
   task_throw:
     doc: Test task throw
