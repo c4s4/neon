@@ -172,28 +172,39 @@ func (context *Context) GetEnvironment() ([]string, error) {
 }
 
 func (context *Context) FindFiles(dir string, includes, excludes []string) ([]string, error) {
-	oldDir, err := os.Getwd()
+	eval, err := context.ReplaceProperties(dir)
 	if err != nil {
-		return nil, fmt.Errorf("getting working directory: %v", err)
+		return nil, fmt.Errorf("evaluating source directory: %v", err)
 	}
-	defer os.Chdir(oldDir)
+	dir = eval
 	if dir != "" {
-		eval, err := context.ReplaceProperties(dir)
+		oldDir, err := os.Getwd()
 		if err != nil {
-			return nil, fmt.Errorf("evaluating source directory: %v", err)
+			return nil, fmt.Errorf("getting working directory: %v", err)
 		}
-		err = os.Chdir(eval)
+		defer os.Chdir(oldDir)
+		err = os.Chdir(dir)
 		if err != nil {
 			return nil, nil
 		}
 	}
-	var candidates []string
-	for _, include := range includes {
+	for index, include := range includes {
 		pattern, err := context.ReplaceProperties(include)
 		if err != nil {
 			return nil, fmt.Errorf("evaluating pattern: %v", err)
 		}
-		list, _ := zglob.Glob(pattern)
+		includes[index] = pattern
+	}
+	for index, exclude := range excludes {
+		pattern, err := context.ReplaceProperties(exclude)
+		if err != nil {
+			return nil, fmt.Errorf("evaluating pattern: %v", err)
+		}
+		excludes[index] = pattern
+	}
+	var candidates []string
+	for _, include := range includes {
+		list, _ := zglob.Glob(include)
 		for _, file := range list {
 			stat, err := os.Stat(file)
 			if err != nil {

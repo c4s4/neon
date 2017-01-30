@@ -88,16 +88,9 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		// evaluate arguments
-		for index, pattern := range includes {
-			eval, err := target.Build.Context.ReplaceProperties(pattern)
-			if err != nil {
-				return fmt.Errorf("evaluating pattern: %v", err)
-			}
-			includes[index] = eval
-		}
 		eval, err := target.Build.Context.ReplaceProperties(dir)
 		if err != nil {
-			return fmt.Errorf("evaluating source directory: %v", err)
+			return fmt.Errorf("evaluating destination directory: %v", err)
 		}
 		dir = eval
 		eval, err = target.Build.Context.ReplaceProperties(to)
