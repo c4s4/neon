@@ -9,6 +9,7 @@ default:
 - task_chdir
 - task_chmod
 - task_copy
+- task_delete
 - task_link
 - task_throw
 - task_touch
@@ -134,6 +135,23 @@ targets:
           throw("ERROR: " + files)
         } else {
           println("Copy test success")
+        }
+
+  task_delete:
+    doc: Test task delete
+    steps:
+    - mkdir: "#{BUILD_DIR}/delete/foo"
+    - touch: "#{BUILD_DIR}/delete/foo/test.txt"
+    - delete: "#{BUILD_DIR}/delete/foo"
+    - script: |
+        os = import("os")
+        filepath = import("path/filepath")
+        file = filepath.Join(BUILD_DIR, "delete", "foo")
+        _, err = os.Stat(file)
+        if err == nil {
+          throw("Delete test failure")
+        } else {
+          println("Delete test success")
         }
 
   task_link:
