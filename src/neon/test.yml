@@ -23,6 +23,7 @@ default:
 - task_throw
 - task_time
 - task_touch
+- task_try
 
 properties:
   BUILD_DIR: "#{BASE}/../../build"
@@ -309,3 +310,18 @@ targets:
         } else {
           println("Touch test success")
         }
+
+  task_try:
+    doc: Test task try
+    steps:
+    - try:
+      - throw: "Test"
+      catch:
+      - script: |
+          if error != "Test" {
+            throw("Try test failure")
+          } else {
+            println("Try test success")
+          }
+
+
