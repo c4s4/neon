@@ -24,6 +24,7 @@ default:
 - task_time
 - task_touch
 - task_try
+- task_while
 
 properties:
   BUILD_DIR: "#{BASE}/../../build"
@@ -323,5 +324,19 @@ targets:
           } else {
             println("Try test success")
           }
+
+  task_while:
+    doc: Test while task
+    steps:
+    - script: 'i = 0'
+    - while: 'i < 10'
+      do:
+      - script: 'i++'
+    - script: |
+        if i != 10 {
+          throw("While test failure")
+        } else {
+          println("While test success")
+        }
 
 
