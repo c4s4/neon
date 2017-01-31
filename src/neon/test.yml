@@ -15,6 +15,7 @@ default:
 - task_link
 - task_mkdir
 - task_pass
+- task_path
 - task_print
 - task_read
 - task_remove
@@ -239,6 +240,23 @@ targets:
     steps:
     - pass:
     - print: "Pass test success"
+
+  task_path:
+    doc: Test task path
+    steps:
+    - mkdir: "#{BUILD_DIR}/path/lib"
+    - touch:
+      - "#{BUILD_DIR}/path/lib/foo.jar"
+      - "#{BUILD_DIR}/path/lib/bar.jar"
+    - path: "lib/*.jar"
+      dir: "#{BUILD_DIR}/path"
+      to: "classpath"
+    - script: |
+        if classpath != "lib/bar.jar:lib/foo.jar" {
+          throw("Path test failure: "+classpath)
+        } else {
+          println("Path test success")
+        }
 
   task_print:
     doc: Test task print
