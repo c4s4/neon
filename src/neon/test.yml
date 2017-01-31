@@ -18,6 +18,7 @@ default:
 - task_print
 - task_read
 - task_remove
+- task_replace
 - task_script
 - task_sleep
 - task_tar
@@ -278,6 +279,30 @@ targets:
         } else {
           println("Remove test success")
         }
+
+  task_replace:
+    doc: Test task replace
+    steps:
+    - mkdir: "#{BUILD_DIR}/replace"
+    - write: "#{BUILD_DIR}/replace/test.txt"
+      text: "Hello World!"
+    - replace: "#{BUILD_DIR}/replace/test.txt"
+      pattern: "World"
+      with: "You"
+    - script: |
+        ioutil = import("io/ioutil")
+        filepath = import("path/filepath")
+        file = filepath.Join(BUILD_DIR, "replace", "test.txt")
+        content, err = ioutil.ReadFile(file)
+        if err != nil {
+          throw("Write test failure")
+        }
+        if toString(content) != "Hello You!" {
+          throw("Write test failure")
+        }
+        println("Write test sucess")
+
+
 
   task_script:
     doc: Test task script
