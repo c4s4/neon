@@ -28,6 +28,5 @@ Todo
 ----
 
 - Write decent documentation.
-- Test under windows.
 
 *Enjoy!*
