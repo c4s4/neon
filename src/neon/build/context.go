@@ -9,6 +9,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -60,6 +61,8 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 }
 
 func (context *Context) SetProperties(object util.Object) error {
+	context.SetProperty("OS", runtime.GOOS)
+	context.SetProperty("ARCH", runtime.GOARCH)
 	context.SetProperty("BASE", context.Build.Dir)
 	context.SetProperty("HERE", context.Build.Here)
 	todo := object.Fields()
