@@ -7,6 +7,7 @@ properties:
   VERSION:      '#{run("changelog", "release", "version")}'
   BUILD_DIR:    "build"
   ARC_DIR:      "#{BUILD_DIR}/#{NAME}-#{VERSION}"
+  WIN_SHARE:    "/home/casa/misc/shared"
   DEPENDENCIES:
   - "gopkg.in/yaml.v2"
   - "github.com/mattn/anko"
@@ -80,3 +81,13 @@ targets:
     doc: "Clean generated files"
     steps:
     - delete: "#{BUILD_DIR}"
+
+  win:
+    doc: "Test integration build file on Windows"
+    steps:
+    - copy: "src/neon/test.yml"
+      to:   "/home/casa/misc/shared/build.yml"
+    - replace: "/home/casa/misc/shared/build.yml"
+      pattern: '../../build'
+      with:    "build"
+    - "gox -output=#{WIN_SHARE}/#{NAME} -osarch=windows/386 #{NAME}"
