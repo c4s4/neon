@@ -34,7 +34,7 @@ default:
 - task_zip
 
 properties:
-  BUILD_DIR: "#{BASE}/../../build"
+  BUILD_DIR: "../../build"
 
 targets:
 
@@ -96,12 +96,14 @@ targets:
     doc: Test run builtin function
     steps:
     - script: |
-        n = run("date", "--iso-8601")
-        match, err = r.MatchString(`\d\d\d\d-\d\d-\d\d`, n)
-        if !match || err != nil {
-          throw("ERROR run '"+n+"'")
-        } else {
-          println("Run test success")
+        if OS != "windows" {
+          n = run("date", "--iso-8601")
+          match, err = r.MatchString(`\d\d\d\d-\d\d-\d\d`, n)
+          if !match || err != nil {
+            throw("ERROR run '"+n+"'")
+          } else {
+            println("Run test success")
+          }
         }
 
   builtin_throw:
