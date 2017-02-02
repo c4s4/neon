@@ -4,6 +4,7 @@ default:
 - builtin_filename
 - builtin_filter
 - builtin_find
+- builtin_join
 - builtin_lowercase
 - builtin_now
 - builtin_run
@@ -90,6 +91,17 @@ targets:
           throw("ERROR: " + files)
         } else {
           println("Find test success")
+        }
+
+  builtin_join:
+    doc: Test the join builtin function
+    steps:
+    - script: |
+        s = join(["foo", "bar"], " ")
+        if s != "foo bar" {
+          throw("Join test failure")
+        } else {
+          println("Join test success")
         }
 
   builtin_lowercase:
