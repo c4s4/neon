@@ -1,5 +1,7 @@
 doc: Built file to test builds
 default:
+- builtin_directory
+- builtin_filename
 - builtin_filter
 - builtin_find
 - builtin_lowercase
@@ -37,6 +39,28 @@ properties:
   BUILD_DIR: "../../build"
 
 targets:
+
+  builtin_directory:
+    doc: Test the directory builtin function
+    steps:
+    - script: |
+        dir = directory("/foo/bar/spam.txt")
+        if dir != "/foo/bar" {
+          throw("Directory test failure")
+        } else {
+          println("Directory test success")
+        }
+
+  builtin_filename:
+    doc: Test the filename builtin function
+    steps:
+    - script: |
+        file = filename("/foo/bar/spam.txt")
+        if file != "spam.txt" {
+          throw("Filename test failure")
+        } else {
+          println("Filename test success")
+        }
 
   builtin_filter:
     doc: Test the filter builtin function
