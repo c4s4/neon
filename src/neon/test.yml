@@ -1,6 +1,7 @@
 doc: Built file to test builds
 default:
 - builtin_directory
+- builtin_exists
 - builtin_filename
 - builtin_filter
 - builtin_find
@@ -51,6 +52,17 @@ targets:
           throw("Directory test failure")
         } else {
           println("Directory test success")
+        }
+
+  builtin_exists:
+    doc: Test exists builtin function
+    steps:
+    - mkdir: "#{BUILD_DIR}/exists"
+    - script: |
+        if !exists(joinpath(BUILD_DIR, "exists")) {
+          throw("Exists test failure")
+        } else {
+          println("Exists test success")
         }
 
   builtin_filename:
