@@ -5,6 +5,7 @@ default:
 - builtin_filter
 - builtin_find
 - builtin_join
+- builtin_joinpath
 - builtin_lowercase
 - builtin_now
 - builtin_run
@@ -102,6 +103,19 @@ targets:
           throw("Join test failure")
         } else {
           println("Join test success")
+        }
+
+  builtin_joinpath:
+    doc: Test the joinpath builtin function
+    steps:
+    - script: |
+        if OS != "windows" {
+          p = joinpath("/foo", "bar", "spam.txt")
+          if p != "/foo/bar/spam.txt" {
+            throw("Joinpath test failure")
+          } else {
+            println("Joinpath test success")
+          }
         }
 
   builtin_lowercase:
