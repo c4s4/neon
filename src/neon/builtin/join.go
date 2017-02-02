@@ -18,7 +18,7 @@ Returns:
 
 Examples:
 // join "foo" and "bar" with a space
-find(["foo", "bar"], " ")`,
+join(["foo", "bar"], " ")`,
 	}
 }
 
