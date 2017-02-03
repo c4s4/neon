@@ -259,7 +259,7 @@ func PropertyToString(object interface{}, quotes bool) (string, error) {
 		return strconv.FormatFloat(value, 'g', -1, 64), nil
 	default:
 		if value == nil {
-			return "~", nil
+			return "null", nil
 		}
 		switch reflect.TypeOf(object).Kind() {
 		case reflect.Slice:
