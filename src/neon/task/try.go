@@ -40,9 +40,13 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, err
 	}
 	return func() error {
+		depth := target.Build.Index.Len()
 		target.Build.Context.SetProperty("error", "")
 		err := RunSteps(target.Build, trySteps)
 		if err != nil {
+			for target.Build.Index.Len() > depth {
+				target.Build.Index.Shrink()
+			}
 			target.Build.Context.SetProperty("error", err.Error())
 			err = RunSteps(target.Build, catchSteps)
 			if err != nil {

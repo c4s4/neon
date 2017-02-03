@@ -76,6 +76,7 @@ func (target *Target) Run(stack *Stack) error {
 	if err != nil {
 		return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
 	}
+	target.Build.Index = NewIndex()
 	for index, step := range target.Steps {
 		target.Build.Index.Set(index)
 		err := step.Run()

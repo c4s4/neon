@@ -133,7 +133,6 @@ func (build *Build) Run(targets []string) error {
 }
 
 func (build *Build) RunTarget(name string, stack *Stack) error {
-	build.Index = NewIndex()
 	target, ok := build.Targets[name]
 	if !ok {
 		return fmt.Errorf("target '%s' not found", name)
