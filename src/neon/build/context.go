@@ -57,7 +57,11 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return value.Interface(), nil
+	if value.IsValid() {
+		return value.Interface(), nil
+	} else {
+		return nil, nil
+	}
 }
 
 func (context *Context) SetProperties(object util.Object) error {
@@ -254,6 +258,9 @@ func PropertyToString(object interface{}, quotes bool) (string, error) {
 	case float64:
 		return strconv.FormatFloat(value, 'g', -1, 64), nil
 	default:
+		if value == nil {
+			return "~", nil
+		}
 		switch reflect.TypeOf(object).Kind() {
 		case reflect.Slice:
 			slice := reflect.ValueOf(object)
