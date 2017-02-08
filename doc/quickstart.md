@@ -55,7 +55,7 @@ VM. Thus the content of `#{...}` is evaluated as an Anko expression, and you
 can write Anko expressions, such as `#{uppercase(USER_NAME)}`.
 
 Properties may also have integer, list or hash values. You must then use a YAML
-syntax to write them:</p>
+syntax to write them:
 
 ```yaml
 properties:
