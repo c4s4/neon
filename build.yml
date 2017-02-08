@@ -65,11 +65,12 @@ targets:
     - "changelog to markdown > #{BUILD_DIR}/CHANGELOG.md"
     - "md2pdf -o #{ARC_DIR}/CHANGELOG.pdf #{BUILD_DIR}/CHANGELOG.md"
     - remove: "#{BUILD_DIR}/CHANGELOG.md"
-    - chdir: "#{BUILD_DIR}"
+    - mkdir: "#{ARC_DIR}/doc"
+    - 'md2pdf -o #{ARC_DIR}/doc/quickstart.pdf doc/quickstart.md'
+    - 'md2pdf -o #{ARC_DIR}/doc/reference.pdf doc/reference.md'
     - tar: "#{NAME}-#{VERSION}/**/*"
-      to: "#{NAME}-#{VERSION}.tar.gz"
-    - zip: "#{NAME}-#{VERSION}/**/*"
-      to: "#{NAME}-#{VERSION}.zip"
+      dir: "#{BUILD_DIR}"
+      to: "#{BUILD_DIR}/#{NAME}-#{VERSION}.tar.gz"
 
   release:
     depends: [clean, test, archive]
