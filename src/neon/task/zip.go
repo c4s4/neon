@@ -17,6 +17,7 @@ func init() {
 		Help: `Create a Zip archive.
 
 Arguments:
+
 - zip: the list of globs of files to zip (as a string or list of strings).
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
@@ -25,9 +26,10 @@ Arguments:
 - prefix: prefix directory in the archive.
 
 Examples:
-# zip files in build directory in file named build.zip
-- zip: "build/**/*"
-  to: "build.zip"`,
+
+    # zip files in build directory in file named build.zip
+    - zip: "build/**/*"
+      to: "build.zip"`,
 	}
 }
 

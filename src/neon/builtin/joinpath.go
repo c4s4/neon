@@ -11,13 +11,17 @@ func init() {
 		Help: `Join file paths.
 
 Arguments:
+
 - The paths to join as a list of strings.
+
 Returns:
+
 - Joined path as a string.
 
 Examples:
-// join paths "/foo", "bar" and "spam.txt"
-joinpath("foo", "bar", "spam.txt")`,
+
+    // join paths "/foo", "bar" and "spam.txt"
+    joinpath("foo", "bar", "spam.txt")`,
 	}
 }
 

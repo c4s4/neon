@@ -11,14 +11,18 @@ func init() {
 		Help: `Join strings.
 
 Arguments:
+
 - The strings to join as a list of strings.
 - The separator as a string.
+
 Returns:
+
 - Joined strings as a string.
 
 Examples:
-// join "foo" and "bar" with a space
-join(["foo", "bar"], " ")`,
+
+    // join "foo" and "bar" with a space
+    join(["foo", "bar"], " ")`,
 	}
 }
 

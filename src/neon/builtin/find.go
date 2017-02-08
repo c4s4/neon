@@ -13,18 +13,23 @@ func init() {
 		Help: `Find files.
 
 Arguments:
+
 - The directory of files to find.
 - The list of pattern for files to find.
+
 Returns:
+
 - Files as a list of strings.
 
 Examples:
-// find all text files in book directory
-find("book", "**/*.txt")
-// find all xml and yml files in src directory
-find("src", "**/*.xml", "**/*.yml")
+
+    // find all text files in book directory
+    find("book", "**/*.txt")
+    // find all xml and yml files in src directory
+    find("src", "**/*.xml", "**/*.yml")
 
 Notes:
+
 - Files may be filtered with filter() builtin.`,
 	}
 }

@@ -18,6 +18,7 @@ func init() {
 		Help: `Create a tar archive.
 
 Arguments:
+
 - tar: the list of globs of files to tar (as a string or list of strings).
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
@@ -26,11 +27,13 @@ Arguments:
 - prefix: prefix directory in the archive.
 
 Examples:
-# tar files in build directory in file named build.tar.gz
-- tar: "build/**/*"
-  to: "build.tar.gz"
+
+    # tar files in build directory in file named build.tar.gz
+    - tar: "build/**/*"
+      to: "build.tar.gz"
 
 Notes:
+
 - If archive filename ends with gz (with a name such as foo.tar.gz or foo.tgz)
   the tar archive is compressed with gzip.`,
 	}

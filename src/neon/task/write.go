@@ -13,14 +13,16 @@ func init() {
 		Help: `Write text into a given file.
 
 Arguments:
+
 - write: the file to wrinte into as a string.
 - from: the name of the variable with the text to write (optional).
 - text: the text to write into the file (optional).
 
 Examples:
-# write 'Hello World!' in file greetings.txt
-- write: "greetings.txt"
-  text: "Hello World!"`,
+
+    # write 'Hello World!' in file greetings.txt
+    - write: "greetings.txt"
+      text: "Hello World!"`,
 	}
 }
 

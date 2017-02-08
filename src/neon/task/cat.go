@@ -13,11 +13,13 @@ func init() {
 		Help: `Print the content of e given file on the console.
 
 Arguments:
+
 - cat: the file to print on console as a string.
 
 Examples:
-# print content of LICENSE file on the console
-- cat: "LICENSE"`,
+
+    # print content of LICENSE file on the console
+    - cat: "LICENSE"`,
 	}
 }
 

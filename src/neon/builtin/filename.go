@@ -11,13 +11,17 @@ func init() {
 		Help: `Return filename of a given path.
 
 Arguments:
+
 - The path to get filename for as a string.
+
 Returns:
+
 - The filename of the path as a string.
 
 Examples:
-// get filename of path "/foo/bar/spam.txt"
-file = filename("/foo/bar/spam.txt")`,
+
+    // get filename of path "/foo/bar/spam.txt"
+    file = filename("/foo/bar/spam.txt")`,
 	}
 }
 

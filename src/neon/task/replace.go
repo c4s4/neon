@@ -15,6 +15,7 @@ func init() {
 		Help: `Replace pattern in text files.
 
 Arguments:
+
 - replace: the list of globs of files to work with (as a string or list of strings).
 - pattern: the text to replace.
 - with: the replacement text.
@@ -23,10 +24,11 @@ Arguments:
   optional).
 
 Examples:
-# replace foo with bar in file test.txt
-- replace: "test.txt"
-  pattern: "foo"
-  with: "bar"`,
+
+    # replace foo with bar in file test.txt
+    - replace: "test.txt"
+      pattern: "foo"
+      with: "bar"`,
 	}
 }
 

@@ -13,13 +13,17 @@ func init() {
 		Help: `Exapand file name by replace ~/ with home directory.
 
 Arguments:
+
 - The path to expand as a string.
+
 Returns:
+
 - The expanded path as a string.
 
 Examples:
-// expand path ~/.profile
-profile = expand("~/.profile")`,
+
+    // expand path ~/.profile
+    profile = expand("~/.profile")`,
 	}
 }
 

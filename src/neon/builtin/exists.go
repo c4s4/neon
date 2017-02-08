@@ -11,13 +11,17 @@ func init() {
 		Help: `Tells if a given pat exists.
 
 Arguments:
+
 - The path to test as a string.
+
 Returns:
+
 - A boolean telling if path exists.
 
 Examples:
-// test if given path exists
-if exists("/foo/bar") { ...`,
+
+    // test if given path exists
+    if exists("/foo/bar") { ...`,
 	}
 }
 

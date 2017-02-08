@@ -15,20 +15,23 @@ func init() {
 		Help: `Changes mode of files.
 
 Arguments:
-- chmod: the list of globs of files to change mode (as a string or list of strings).
+
+- chmod: the list of globs of files to change mode (as a string or list of
+  strings).
 - mode: the mode in octal form (such as '0755') as a string
 - dir: the root directory for glob (as a string, optional, defaults to '.').
 - exclude: globs of files to exclude (as a string or list of strings,
   optional).
 
 Examples:
-# make foo.sh executable for all users
-- chmod: "foo.sh"
-  mod: "0755"
-# make all sh files in foo directory executable, except for bar.sh
-- chmod: "**/*.sh"
-  mode: "0755"
-  exclude: "**/bar.sh"`,
+
+    # make foo.sh executable for all users
+    - chmod: "foo.sh"
+      mod: "0755"
+    # make all sh files in foo directory executable, except for bar.sh
+    - chmod: "**/*.sh"
+      mode: "0755"
+      exclude: "**/bar.sh"`,
 	}
 }
 

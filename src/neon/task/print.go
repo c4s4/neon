@@ -12,11 +12,13 @@ func init() {
 		Help: `Print a message on the console.
 
 Arguments:
+
 - print: the text to print as a string.
 
 Examples:
-# say hello
-- print: "Hello World!"`,
+
+    # say hello
+    - print: "Hello World!"`,
 	}
 }
 

@@ -13,6 +13,7 @@ func init() {
 		Help: `Copy file(s).
 
 Arguments:
+
 - copy: the list of globs of files to copy (as a string or list of strings).
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
@@ -24,18 +25,19 @@ Arguments:
   optional, defaults to true).
 
 Examples:
-# copy file foo to bar
-- copy: "foo"
-  to: "bar"
-# copy text files in directory 'book' (except 'foo.txt') to directory 'text'
-- copy: "**/*.txt"
-  dir: "book"
-  exclude: "**/foo.txt"
-  todir: "text"
-# copy all go sources to directory 'src', preserving directory structure
-- copy: "**/*.go"
-  todir: "src"
-  flat: false`,
+
+    # copy file foo to bar
+    - copy: "foo"
+      to: "bar"
+    # copy text files in directory 'book' (except 'foo.txt') to directory 'text'
+    - copy: "**/*.txt"
+      dir: "book"
+      exclude: "**/foo.txt"
+      todir: "text"
+    # copy all go sources to directory 'src', preserving directory structure
+    - copy: "**/*.go"
+      todir: "src"
+      flat: false`,
 	}
 }
 

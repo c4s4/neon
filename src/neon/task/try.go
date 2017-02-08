@@ -11,17 +11,20 @@ func init() {
 		Help: `Try/catch construct.
 
 Arguments:
+
 - try: steps to execute.
 - catch: executed if an error occurs.
 
 Examples:
-# execute a system command and continue even if it fails
-- try:
-  - "command-that-doesnt-exist"
-  catch:
-  - print: "command failed!"
+
+    # execute a system command and continue even if it fails
+    - try:
+      - "command-that-doesnt-exist"
+      catch:
+     - print: "command failed!"
 
 Notes:
+
 - The error message for the failure is stored in 'error' variable as text.`,
 	}
 }

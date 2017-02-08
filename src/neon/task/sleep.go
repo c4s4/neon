@@ -13,11 +13,13 @@ func init() {
 		Help: `Sleep a given number of seconds.
 		
 Arguments:
+
 - sleep: the duration to sleep in seconds as an integer.
 
 Examples:
-# sleep for 10 seconds
-- sleep: 10`,
+
+    # sleep for 10 seconds
+    - sleep: 10`,
 	}
 }
 

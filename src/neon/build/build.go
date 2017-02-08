@@ -254,6 +254,9 @@ func (build *Build) PrintHelpBuiltin(builtin string) {
 	}
 }
 
+func PrintReference() {
+}
+
 func (build *Build) Info(message string, args ...interface{}) {
 	fmt.Println(fmt.Sprintf(message, args...))
 }

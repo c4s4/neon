@@ -13,13 +13,15 @@ func init() {
 		Help: `Read given file as text and put its content in a variable.
 
 Arguments:
+
 - read: the file to read as a string.
 - to: the name of the variable to set with the content.
 
 Examples:
-# put content of LICENSE file on license variable
-- read: "LICENSE"
-  to: license`,
+
+    # put content of LICENSE file on license variable
+    - read: "LICENSE"
+      to: license`,
 	}
 }
 

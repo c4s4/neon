@@ -12,12 +12,14 @@ func init() {
 		Help: `Print duration to run a block of steps.
 
 Arguments:
+
 - time: the steps to measure execution duration.
 
 Examples:
-# measure duration to say hello
-- time:
-  - print: "Hello World!"`,
+
+    # measure duration to say hello
+    - time:
+      - print: "Hello World!"`,
 	}
 }
 

@@ -13,13 +13,15 @@ func init() {
 		Help: `Create a symbolic link.
 
 Arguments:
+
 - link: the source file.
 - to: the destination of the link.
 
 Examples:
-# create a link from file foo to bar
-- link: "foo"
-  to: "bar"`,
+
+    # create a link from file foo to bar
+    - link: "foo"
+      to: "bar"`,
 	}
 }
 

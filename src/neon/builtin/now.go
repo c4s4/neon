@@ -11,13 +11,17 @@ func init() {
 		Help: `Return current date and time in ISO format.
 
 Arguments:
+
 - none
+
 Returns:
+
 - ISO date ans time as a string.
 
 Examples:
-// put current date and time in dt variable
-dt = now()`,
+
+    // put current date and time in dt variable
+    dt = now()`,
 	}
 }
 
