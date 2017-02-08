@@ -199,6 +199,76 @@ targets:
       echo "More than one line"
 ```
 
+### Neon tasks
+
+You could perform most of common build tasks with shell ones, but this would
+bind your build to a given platform. To develop platform independant builds,
+you should use Neon tasks. For instance, to copy all XML files to *build*
+directory, you could call `cp` system command, but you should instead use
+copy Neon task as follows:
+
+```yaml
+targets:
+
+  copy:
+    steps:
+    - copy: "**/*.xml"
+      todir: "build"
+```
+
+This will run on all platforms (Unices and Windows) provided you use slashes
+as path separator instead of platform dependent ones. Furthermore, in most
+file related tasks, you can use extended globs where `**` replaces any
+number of directories, see [zglob documentation](http://github.com/mattn/zglob)
+for more information.
+
+To list all available Neon tasks, type `neon -tasks` and to get help on a given
+one, type `neon -task copy` for instance.
+
+There are special Neon tasks that make it possible to control the execution
+flow of your build:
+
+- **for/in/do**: to make a loop on a list and store value in a variable.
+- **if/then/else**: to control execution flow depending on a test.
+- **while/do**: too loop while a given condition is met.
+
+For instance, to validate all XML files in *data* directory, you could write:
+
+```yaml
+targets:
+
+  validate:
+    steps:
+    - for: file
+      in:  find("data", "*.xml")
+      do:
+      - print: "Validating #{file}..."
+      - 'xmllint --noout --valid data/#{file}'
+```
+
+There are also tasks to manage errors:
+
+- **throw**: to interrupt the build with an error.
+- **try/catch**: to prevent build failure even on step execution error.
+
+For instance, if you don't want to interrupt validation on error, you could
+write:
+
+```yaml
+targets:
+
+  validate:
+    steps:
+    - for: file
+      in:  find("data", "*.xml")
+      do:
+      - print: "Validating #{file}..."
+      - try:
+        - 'xmllint --noout --valid data/#{file}'
+        catch:
+        - print: "ERROR!"
+```
+
 ### Anko scripts
 
 An Anko script is indicated with `script` instruction as follows:
@@ -224,3 +294,40 @@ targets:
         }
 ```
 
+In addition to Anko builtin functions, Neon adds handy builtins to perform
+common build tasks. For instance, function `exists(file)` tells if given file
+exists.
+
+To list all Neon buitins, type `neon -builtins` and to get help on a given
+function, type `neon -builtin function`.
+
+Getting help
+------------
+
+You can print help on build file typing `neon -build`. You will get help on
+build properties, environment variables and targets. This will be useful if
+you have documented your build file. To document a given property, you would
+write:
+
+```yaml
+targets:
+
+  validate:
+    doc: Validate all XML files in data directory
+    steps:
+    - for: file
+      in:  find("data", "*.xml")
+      do:
+      - print: "Validating #{file}..."
+      - 'xmllint --noout --valid data/#{file}'
+```
+
+You can also document the whole build putting a `doc` entry at the root of the
+build file.
+
+Go further
+----------
+
+Neon as much more to offer, see [user guide](userguide.md) for more information.
+
+*Enjoy!*
