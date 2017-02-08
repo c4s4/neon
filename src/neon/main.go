@@ -16,7 +16,7 @@ const (
 	DEFAULT_BUILD_FILE = "build.yml"
 )
 
-func ParseCommandLine() (string, bool, bool, bool, bool, string, bool, bool, bool, string, []string) {
+func ParseCommandLine() (string, bool, bool, bool, bool, string, bool, bool, string, bool, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
 	help := flag.Bool("build", false, "Print build help")
 	verbose := flag.Bool("verbose", false, "Verbose build output")
@@ -26,7 +26,7 @@ func ParseCommandLine() (string, bool, bool, bool, bool, string, bool, bool, boo
 	targs := flag.Bool("targets", false, "Print targets list")
 	builtins := flag.Bool("builtins", false, "Print builtins list")
 	builtin := flag.String("builtin", "", "Print help on given builtin")
-	refs := flag.String("refs", false, "Print tasks and builtins reference")
+	refs := flag.Bool("refs", false, "Print tasks and builtins reference")
 	flag.Parse()
 	targets := flag.Args()
 	return *file, *help, *verbose, *timeit, *tasks, *task, *targs, *builtins, *builtin, *refs, targets

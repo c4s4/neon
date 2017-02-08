@@ -25,10 +25,10 @@ Notes:
   instruction for instance). For instance, to run a command and don't stop the
   build even if it fails, we could write:
 
-    - try:
-	  - "command-that-doesnt-exist"
-	  catch:
-	  - pass:
+        - try:
+          - "command-that-doesnt-exist"
+          catch:
+          - pass:
 
 - This implementation is super optimized for speed.`,
 	}

@@ -254,7 +254,38 @@ func (build *Build) PrintHelpBuiltin(builtin string) {
 	}
 }
 
-func PrintReference() {
+func (build *Build) PrintReference() {
+	fmt.Println("Tasks Reference")
+	fmt.Println("===============")
+	fmt.Println()
+	var tasks []string
+	for name, _ := range TaskMap {
+		tasks = append(tasks, name)
+	}
+	sort.Strings(tasks)
+	for _, task := range tasks {
+		fmt.Println(task)
+		fmt.Println(strings.Repeat("-", len(task)))
+		fmt.Println()
+		fmt.Println(TaskMap[task].Help)
+		fmt.Println()
+	}
+	fmt.Println()
+	fmt.Println("Builtins Reference")
+	fmt.Println("==================")
+	fmt.Println()
+	var builtins []string
+	for name, _ := range BuiltinMap {
+		builtins = append(builtins, name)
+	}
+	sort.Strings(builtins)
+	for _, builtin := range builtins {
+		fmt.Println(builtin)
+		fmt.Println(strings.Repeat("-", len(builtin)))
+		fmt.Println()
+		fmt.Println(BuiltinMap[builtin].Help)
+		fmt.Println()
+	}
 }
 
 func (build *Build) Info(message string, args ...interface{}) {
