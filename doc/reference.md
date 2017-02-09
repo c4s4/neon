@@ -1,7 +1,6 @@
 Tasks Reference
 ===============
 
-
 cat
 ---
 
