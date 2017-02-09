@@ -12,21 +12,23 @@ func init() {
 		Help: `For loop.
 
 Arguments:
+
 - for: the name of the variable to set at each loop iteration.
 - in: the list of values or expression that generates this list.
 - do: the block of steps to execute at each loop iteration.
 
 Examples:
-# create empty files
-- for: file
-  in:  ["foo", "bar"]
-  do:
-  - touch: "#{file}"
-# print first 10 integers
-- for: i
-  in: range(10)
-  do:
-  - print: "#{i}"`,
+
+    # create empty files
+    - for: file
+      in:  ["foo", "bar"]
+      do:
+    - touch: "#{file}"
+    # print first 10 integers
+    - for: i
+      in: range(10)
+      do:
+      - print: "#{i}"`,
 	}
 }
 

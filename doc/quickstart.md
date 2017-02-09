@@ -1,62 +1,333 @@
 Neon Quick Start
 ================
 
-Neon is a build tool.
+Neon is a build tool. This means that its purpose is to automate a build
+process. Its design goals are:
 
-Installation
-------------
+- **Clean and simple build file syntax**: While XML is too verbose and
+  a programming language too complicated, [YAML](http://www.yaml.org/) is
+  perfect with its simple yet powerful syntax.
+- **Speed**: Slow startup are irritating while working with a build tool the
+  whole day. Neon happens to be as fast as Make, according to my tests on Make
+  builds ported to Neon.
+- **System and language independent**: Neon is written in Go, which run on most
+  platforms, and is not limited to building Go projects. Furthermore, using
+  Neon tasks you can write platform independent builds.
+- **Scriptable**: when a task is complicated, it is very handy to script it
+  with a real programming language. Neon build files can embed Anko scripts.
+  [Anko](http://github.com/mattn/anko) is an interpreted Go.
 
-Download latest binary archive at <https://github.com/c4s4/neon/releases>. Unzip the archive, put the binary of your platform somewhere in your *PATH* and rename it *neon*.
+To demonstrate these features, let's see what *Hello World!* looks like using
+Neon:
 
-Usage
+```yaml
+targets:
+
+  hello:
+    steps:
+    - print: "Hello World!"
+```
+
+This is that simple!
+
+Build properties
+----------------
+
+A build file can embed properties that are like variables. For instance, we can
+put user name in a property named *USER_NAME* like this:
+
+```yaml
+properties:
+  USER_NAME: "World"
+
+targets:
+
+  hello:
+    steps:
+    - print: "Hello #{USER_NAME}!"
+```
+
+We access the value of this property with `#{PROP_NAME}` syntax. Thus, to get
+value for property `USER_NAME`, we must write `#{USER_NAME}`.
+
+These properties live as variables defined in the context of the embedded Anko
+VM. Thus the content of `#{...}` is evaluated as an Anko expression, and you
+can write Anko expressions, such as `#{uppercase(USER_NAME)}`.
+
+Properties may also have integer, list or hash values. You must then use a YAML
+syntax to write them:
+
+```yaml
+properties:
+  STRING:  "string"
+  INTEGER: 1
+  LIST:    [1, "two"]
+  HASH:    {one: 1, two: 2}
+
+targets:
+
+  hello:
+    steps:
+    - print: "string:  #{STRING}"
+    - print: "integer: #{INTEGER}"
+    - print: "list:    #{LIST}"
+    - print: "hash:    #{HASH}"
+```
+
+Which will output:
+
+```
+$ n hello
+Running target hello
+string:  string
+integer: 1
+list:    [1, two]
+ahash:   [one: 1, two: 2]
+OK
+```
+
+Targets
+-------
+
+If we see build files as programs, we could see targets as functions that you
+can call to achieve a given goal. A build file can define more that one target
+that may depend on each other. For instance:
+
+```yaml
+properties:
+  USER_NAME: "World"
+
+targets:
+
+  hello:
+    depends: upper
+    steps:
+    - print: "Hello #{USER_NAME}!"
+
+  upper:
+    steps:
+    - script: 'USER_NAME = uppercase(USER_NAME)'
+```
+
+Which produces following output:
+
+```
+$ neon hello
+Running target upper
+Running target hello
+Hello WORLD!
+OK
+```
+
+Target *hello* now depends on target *upper* which puts `USER_NAME` in upper
+case. Thus, Neon runs first target *upper*, then target *hello*.
+
+When you don't pass any target on command line, Neon selects default one that
+you can set with `default` field in the build file:
+
+```yaml
+default: hello
+
+targets:
+
+  hello:
+    steps:
+    - print: "Hello World!"
+```
+
+You can run more than one default target by settings `default` to a list of
+targets to run:
+
+```yaml
+default: [foo, bar]
+```
+
+Tasks
 -----
 
-To run a build, type on command line:
+If targets are functions, tasks are instructions. They can be shell scripts,
+Anko code or Neon tasks:
 
-```bash
-$ neon
+#### Shell scripts
+
+To run a shell script, you just have to put it in a string. Thus, to print the
+user's name, we could write:
+
+```yaml
+- 'echo "Hello $USER!"'
 ```
 
-This will launch default target for this build. To run target *foo*, you should type:
+Note that we can surround YAML strings with simple or double quotes. We choose
+simple ones here so that we can use double for the Shell string. We could also
+escape double quotes inside YAML string as follows:
 
-```bash
-$ neon foo
+```yaml
+- "echo \"Hello $USER!\""
 ```
 
-You may pass more than one target on the command line.
+If return value of the script is not *0*, which denotes an error running the
+script, the build is interrupted and an error message is printed on the
+console. For instance, this script:
 
-To get help on current build file, you can type:
+```yaml
+targets:
 
-```bash
-$ neon -build
-Build file to build neon
-
-Properties:
-arc_dir   "build/neon-0.1.0" 
-build_dir "build" 
-name      "neon" 
-version   "0.1.0" 
-
-Targets:
-archive Generate distribution archive [clean]
-build   Build neon binary 
-clean   Clean generated files 
-deps    Install libraries 
-release Perform a release [clean, test, archive]
-test    Run unit tests
+  broken:
+    steps:
+    - 'command-that-doesnt-exist'
 ```
 
-To get help on *neon* usage, you can type:
+Will produce this output on the console:
 
-```bash
-$ neon -help
-Usage of neon:
-  -build
-    	Print build help
-  -debug
-    	Output debugging information
-  -file string
-    	Build file to run (default "build.yml")
 ```
+$ n broken
+Running target broken
+sh: 1: command-that-doesnt-exist: not found
+ERROR running target 'broken': in step 1: exit status 127
+```
+
+A multi line shell scripts can be written using pipe character `|`:
+
+```yaml
+targets:
+
+  shell:
+    steps:
+    - |
+      echo "This is a long"
+      echo "Shell script on"
+      echo "More than one line"
+```
+
+### Neon tasks
+
+You could perform most of common build tasks with shell ones, but this would
+bind your build to a given platform. To develop platform independant builds,
+you should use Neon tasks. For instance, to copy all XML files to *build*
+directory, you could call `cp` system command, but you should instead use
+copy Neon task as follows:
+
+```yaml
+targets:
+
+  copy:
+    steps:
+    - copy: "**/*.xml"
+      todir: "build"
+```
+
+This will run on all platforms (Unices and Windows) provided you use slashes
+as path separator instead of platform dependent ones. Furthermore, in most
+file related tasks, you can use extended globs where `**` replaces any
+number of directories, see [zglob documentation](http://github.com/mattn/zglob)
+for more information.
+
+To list all available Neon tasks, type `neon -tasks` and to get help on a given
+one, type `neon -task copy` for instance.
+
+There are special Neon tasks that make it possible to control the execution
+flow of your build:
+
+- **for/in/do**: to make a loop on a list and store value in a variable.
+- **if/then/else**: to control execution flow depending on a test.
+- **while/do**: too loop while a given condition is met.
+
+For instance, to validate all XML files in *data* directory, you could write:
+
+```yaml
+targets:
+
+  validate:
+    steps:
+    - for: file
+      in:  find("data", "*.xml")
+      do:
+      - print: "Validating #{file}..."
+      - 'xmllint --noout --valid data/#{file}'
+```
+
+There are also tasks to manage errors:
+
+- **throw**: to interrupt the build with an error.
+- **try/catch**: to prevent build failure even on step execution error.
+
+For instance, if you don't want to interrupt validation on error, you could
+write:
+
+```yaml
+targets:
+
+  validate:
+    steps:
+    - for: file
+      in:  find("data", "*.xml")
+      do:
+      - print: "Validating #{file}..."
+      - try:
+        - 'xmllint --noout --valid data/#{file}'
+        catch:
+        - print: "ERROR!"
+```
+
+### Anko scripts
+
+An Anko script is indicated with `script` instruction as follows:
+
+```yaml
+targets:
+
+  script:
+    steps:
+    - script: 'println("Hello World!")'
+```
+
+You can also write a long Anko script with the pipe notation:
+
+```yaml
+targets:
+
+  script:
+    steps:
+    - script: |
+        for i in range(10) {
+          println(i)
+        }
+```
+
+In addition to Anko builtin functions, Neon adds handy builtins to perform
+common build tasks. For instance, function `exists(file)` tells if given file
+exists.
+
+To list all Neon buitins, type `neon -builtins` and to get help on a given
+function, type `neon -builtin function`.
+
+Getting help
+------------
+
+You can print help on build file typing `neon -build`. You will get help on
+build properties, environment variables and targets. This will be useful if
+you have documented your build file. To document a given property, you would
+write:
+
+```yaml
+targets:
+
+  validate:
+    doc: Validate all XML files in data directory
+    steps:
+    - for: file
+      in:  find("data", "*.xml")
+      do:
+      - print: "Validating #{file}..."
+      - 'xmllint --noout --valid data/#{file}'
+```
+
+You can also document the whole build putting a `doc` entry at the root of the
+build file.
+
+Go further
+----------
+
+Neon as much more to offer, see [user guide](userguide.md) for more information.
 
 *Enjoy!*

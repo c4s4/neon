@@ -13,13 +13,16 @@ func init() {
 		Help: `Delete a directory recursively.
 
 Arguments:
+
 - delete: directory or list of directories to delete.
 
 Examples:
-# delete build directory
-- delete: "#{BUILD_DIR}"
+
+    # delete build directory
+    - delete: "#{BUILD_DIR}"
 
 Notes:
+
 - Handle with care, this is recursive!`,
 	}
 }

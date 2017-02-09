@@ -8,6 +8,7 @@ import (
 	"neon/build"
 	"neon/util"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -17,6 +18,7 @@ func init() {
 		Help: `Create a tar archive.
 
 Arguments:
+
 - tar: the list of globs of files to tar (as a string or list of strings).
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
@@ -25,11 +27,13 @@ Arguments:
 - prefix: prefix directory in the archive.
 
 Examples:
-# tar files in build directory in file named build.tar.gz
-- tar: "build/**/*"
-  to: "build.tar.gz"
+
+    # tar files in build directory in file named build.tar.gz
+    - tar: "build/**/*"
+      to: "build.tar.gz"
 
 Notes:
+
 - If archive filename ends with gz (with a name such as foo.tar.gz or foo.tgz)
   the tar archive is compressed with gzip.`,
 	}
@@ -104,7 +108,7 @@ func Tar(target *build.Target, args util.Object) (build.Task, error) {
 		if len(files) > 0 {
 			target.Build.Info("Tarring %d file(s)", len(files))
 			// tar files
-			err = Writetar(files, prefix, to)
+			err = Writetar(dir, files, prefix, to)
 			if err != nil {
 				return fmt.Errorf("tarring files: %v", err)
 			}
@@ -113,7 +117,7 @@ func Tar(target *build.Target, args util.Object) (build.Task, error) {
 	}, nil
 }
 
-func Writetar(files []string, prefix, to string) error {
+func Writetar(dir string, files []string, prefix, to string) error {
 	file, err := os.Create(to)
 	if err != nil {
 		return fmt.Errorf("creating tar archive: %v", err)
@@ -127,7 +131,13 @@ func Writetar(files []string, prefix, to string) error {
 	writer := tar.NewWriter(fileWriter)
 	defer writer.Close()
 	for _, name := range files {
-		err := writeFileToTar(writer, name, prefix)
+		var path string
+		if dir != "" {
+			path = filepath.Join(dir, name)
+		} else {
+			path = name
+		}
+		err := writeFileToTar(writer, path, name, prefix)
 		if err != nil {
 			return fmt.Errorf("writing file to tar archive: %v", err)
 		}
@@ -135,8 +145,8 @@ func Writetar(files []string, prefix, to string) error {
 	return nil
 }
 
-func writeFileToTar(writer *tar.Writer, filename, prefix string) error {
-	file, err := os.Open(filename)
+func writeFileToTar(writer *tar.Writer, path, name, prefix string) error {
+	file, err := os.Open(path)
 	if err != nil {
 		return err
 	}
@@ -145,7 +155,7 @@ func writeFileToTar(writer *tar.Writer, filename, prefix string) error {
 	if err != nil {
 		return err
 	}
-	name := sanitizedName(filename)
+	name = sanitizedName(name)
 	if prefix != "" {
 		name = prefix + "/" + name
 	}

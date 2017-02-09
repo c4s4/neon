@@ -13,11 +13,13 @@ func init() {
 		Help: `Make a directory.
 
 Arguments:
+
 - mkdir: directory or list of directories to create.
 
 Examples:
-# create a directory 'build'
-- mkdir: "build"`,
+
+    # create a directory 'build'
+    - mkdir: "build"`,
 	}
 }
 

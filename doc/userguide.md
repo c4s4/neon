@@ -1,2 +1,0 @@
-Neon User Guide
-===============

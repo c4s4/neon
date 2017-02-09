@@ -12,16 +12,19 @@ func init() {
 		Help: `Run an Anko script.
 
 Arguments:
+
 - script: the source of the script to run.
 
 Examples:
-# build a classpath with all jar files in lib directory
-- script: |
-	strings = import("strings")
-    jars = find("lib", "*.jar")
-	classpath = strings.Join(jars, ":")
+
+    # build a classpath with all jar files in lib directory
+    - script: |
+        strings = import("strings")
+        jars = find("lib", "*.jar")
+        classpath = strings.Join(jars, ":")
 
 Notes:
+
 - The scripting language is Anko, which is a scriptable Go. For more information
   please refer to Anko site at http://github.com/mattn/anko. Thanks Mattn!
 - Buitlin functions are functions you can access in scripts. To list them, you
@@ -29,7 +32,7 @@ Notes:
   'neon -builtin find'.
 - Properties can be accessed and set in scripts. Variables you define in scripts
   are readable as properties. In other words, scripts and properties share the
-  same context.`,
+  same context.`,
 	}
 }
 

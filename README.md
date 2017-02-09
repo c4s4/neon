@@ -1,15 +1,10 @@
 NEON
 ====
 
-- Project : <https://github.com/c4s4/changelog>.
+- Project :   <https://github.com/c4s4/changelog>.
 - Downloads : <https://github.com/c4s4/changelog/releases>.
 
-Neon is a build tool the way it should be:
-
-- Fast (*very fast* in fact).
-- Multi-platform (with *Neon tasks*).
-- Scriptable (with [the Anko script language](http://github.com/mattn/anko).
-- Extensible (with *plugins*).
+Neon is a build tool the way it should be.
 
 Installation
 ------------
@@ -21,13 +16,9 @@ it *neon*.
 Documentation
 -------------
 
-You shoud start reading [the quick start](doc/quickstart.md), then to get a Neon
-expert, you can read [the user guide](doc/userguide.md).
+There are two sources of documentation:
 
-Todo
-----
-
-- Write decent documentation.
-- Test under windows.
+- [The quick start guide](doc/quickstart.md).
+- [The reference guide](doc/reference.md).
 
 *Enjoy!*

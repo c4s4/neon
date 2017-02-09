@@ -133,7 +133,6 @@ func (build *Build) Run(targets []string) error {
 }
 
 func (build *Build) RunTarget(name string, stack *Stack) error {
-	build.Index = NewIndex()
 	target, ok := build.Targets[name]
 	if !ok {
 		return fmt.Errorf("target '%s' not found", name)
@@ -252,6 +251,40 @@ func (build *Build) PrintHelpBuiltin(builtin string) {
 		build.Info(descriptor.Help)
 	} else {
 		build.Info("Builtin '%s' was not found", builtin)
+	}
+}
+
+func (build *Build) PrintReference() {
+	fmt.Println("Tasks Reference")
+	fmt.Println("===============")
+	fmt.Println()
+	var tasks []string
+	for name, _ := range TaskMap {
+		tasks = append(tasks, name)
+	}
+	sort.Strings(tasks)
+	for _, task := range tasks {
+		fmt.Println(task)
+		fmt.Println(strings.Repeat("-", len(task)))
+		fmt.Println()
+		fmt.Println(TaskMap[task].Help)
+		fmt.Println()
+	}
+	fmt.Println()
+	fmt.Println("Builtins Reference")
+	fmt.Println("==================")
+	fmt.Println()
+	var builtins []string
+	for name, _ := range BuiltinMap {
+		builtins = append(builtins, name)
+	}
+	sort.Strings(builtins)
+	for _, builtin := range builtins {
+		fmt.Println(builtin)
+		fmt.Println(strings.Repeat("-", len(builtin)))
+		fmt.Println()
+		fmt.Println(BuiltinMap[builtin].Help)
+		fmt.Println()
 	}
 }
 

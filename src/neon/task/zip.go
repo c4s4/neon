@@ -8,6 +8,7 @@ import (
 	"neon/build"
 	"neon/util"
 	"os"
+	"path/filepath"
 )
 
 func init() {
@@ -16,6 +17,7 @@ func init() {
 		Help: `Create a Zip archive.
 
 Arguments:
+
 - zip: the list of globs of files to zip (as a string or list of strings).
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
@@ -24,9 +26,10 @@ Arguments:
 - prefix: prefix directory in the archive.
 
 Examples:
-# zip files in build directory in file named build.zip
-- zip: "build/**/*"
-  to: "build.zip"`,
+
+    # zip files in build directory in file named build.zip
+    - zip: "build/**/*"
+      to: "build.zip"`,
 	}
 }
 
@@ -99,7 +102,7 @@ func Zip(target *build.Target, args util.Object) (build.Task, error) {
 		if len(files) > 0 {
 			target.Build.Info("Zipping %d file(s)", len(files))
 			// zip files
-			err = WriteZip(files, prefix, to)
+			err = WriteZip(dir, files, prefix, to)
 			if err != nil {
 				return fmt.Errorf("zipping files: %v", err)
 			}
@@ -108,7 +111,7 @@ func Zip(target *build.Target, args util.Object) (build.Task, error) {
 	}, nil
 }
 
-func WriteZip(files []string, prefix, to string) error {
+func WriteZip(dir string, files []string, prefix, to string) error {
 	archive, err := os.Create(to)
 	if err != nil {
 		return fmt.Errorf("creating zip archive: %v", err)
@@ -120,7 +123,13 @@ func WriteZip(files []string, prefix, to string) error {
 	})
 	defer zipper.Close()
 	for _, file := range files {
-		err := writeFileToZip(zipper, file, prefix)
+		var path string
+		if dir != "" {
+			path = filepath.Join(dir, file)
+		} else {
+			path = file
+		}
+		err := writeFileToZip(zipper, path, file, prefix)
 		if err != nil {
 			return fmt.Errorf("writing file to zip archive: %v", err)
 		}
@@ -128,8 +137,8 @@ func WriteZip(files []string, prefix, to string) error {
 	return nil
 }
 
-func writeFileToZip(zipper *zip.Writer, filename, prefix string) error {
-	file, err := os.Open(filename)
+func writeFileToZip(zipper *zip.Writer, path, name, prefix string) error {
+	file, err := os.Open(path)
 	if err != nil {
 		return err
 	}
@@ -142,7 +151,7 @@ func writeFileToZip(zipper *zip.Writer, filename, prefix string) error {
 	if err != nil {
 		return err
 	}
-	name := sanitizedName(filename)
+	name = sanitizedName(name)
 	if prefix != "" {
 		name = prefix + "/" + name
 	}

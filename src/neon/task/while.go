@@ -12,14 +12,16 @@ func init() {
 		Help: `While loop.
 
 Arguments:
+
 - while: the condition that is evaluated at each loop.
 - do: steps that run while condition is true.
 
 Examples:
-# loop until i >= 10
-- while: 'i < 10'
-  do:
-  - script: 'println(i++)'`,
+
+    # loop until i >= 10
+    - while: 'i < 10'
+      do:
+      - script: 'println(i++)'`,
 	}
 }
 

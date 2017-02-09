@@ -12,17 +12,19 @@ func init() {
 		Help: `If condition.
 
 Arguments:
+
 - if: the condition.
 - then: the steps to execute if the condition is true.
 - else: the steps to execute if the condition is false.
 
 Examples:
-#	print hello if x > 10 else print world
-- if: x > 10
-  then:
-  - print: "hello"
-  else:
-  - print: "world"`,
+
+    # print hello if x > 10 else print world
+    - if: x > 10
+      then:
+      - print: "hello"
+      else:
+      - print: "world"`,
 	}
 }
 

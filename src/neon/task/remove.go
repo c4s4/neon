@@ -15,11 +15,13 @@ func init() {
 		Help: `Remove file(s).
 
 Arguments:
+
 - remove: file or list of files to remove.
 
 Examples:
-# remove all pyc files
-- remove: "**/*.pyc"`,
+
+    # remove all pyc files
+    - remove: "**/*.pyc"`,
 	}
 }
 

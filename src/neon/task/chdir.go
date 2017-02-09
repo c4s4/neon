@@ -13,13 +13,16 @@ func init() {
 		Help: `Change current working directory.
 
 Arguments:
+
 - chdir: the directory to change to (as a string).
 
 Examples:
-# go to build directory
-- chdir: "build"
+
+    # go to build directory
+    - chdir: "build"
 
 Notes:
+
 - Working directory is set to the build file directory before each target.`,
 	}
 }

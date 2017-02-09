@@ -9,7 +9,16 @@ import (
 func init() {
 	build.TaskMap["print"] = build.TaskDescriptor{
 		Constructor: Print,
-		Help:        "Print a message on the console",
+		Help: `Print a message on the console.
+
+Arguments:
+
+- print: the text to print as a string.
+
+Examples:
+
+    # say hello
+    - print: "Hello World!"`,
 	}
 }
 

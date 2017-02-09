@@ -1,82 +1,105 @@
 name:    neon
 default: [clean, bin, test, integ]
-doc:     "Build file to build neon"
+doc:     'Build file to build neon'
 
 properties:
-  NAME:         "neon"
+  NAME:         'neon'
   VERSION:      '#{run("changelog", "release", "version")}'
-  BUILD_DIR:    "build"
-  ARC_DIR:      "#{BUILD_DIR}/#{NAME}-#{VERSION}"
+  BUILD_DIR:    'build'
+  ARC_DIR:      '#{BUILD_DIR}/#{NAME}-#{VERSION}'
+  REFERENCE:    'doc/reference.md'
+  WIN_SHARE:    '/home/casa/misc/shared'
   DEPENDENCIES:
-  - "gopkg.in/yaml.v2"
-  - "github.com/mattn/anko"
-  - "github.com/mattn/go-zglob"
-  - "github.com/fatih/color"
-  - "github.com/mitchellh/gox"
+  - 'gopkg.in/yaml.v2'
+  - 'github.com/mattn/anko'
+  - 'github.com/mattn/go-zglob'
+  - 'github.com/fatih/color'
+  - 'github.com/mitchellh/gox'
 
 environment:
-  GOPATH: "${BASE}"
-  PATH:   "${BASE}/bin:${PATH}"
+  GOPATH: '${BASE}'
+  PATH:   '${BASE}/bin:${PATH}'
 
 targets:
 
   deps:
-    doc: "Install libraries"
+    doc: 'Install libraries'
     steps:
-    - for: dependency
-      in:  DEPENDENCIES
+    - for: 'dependency'
+      in:  'DEPENDENCIES'
       do:
-      - print: "Getting dependecy #{dependency}"
-      - "go get #{dependency}"
+      - print: 'Getting dependecy #{dependency}'
+      - 'go get #{dependency}'
 
   format:
-    doc: "Format Go code"
+    doc: 'Format Go code'
     steps:
     - 'go fmt #{NAME}'
 
   test:
-    doc: "Run unit tests"
+    doc: 'Run unit tests'
     steps:
-    - "go test #{NAME}/..."
+    - 'go test #{NAME}/...'
 
   integ:
-    doc: "Run an integration test on a build file"
+    doc: 'Run an integration test on a build file'
     steps:
     - print: "Running integration test in build file 'src/neon/test.yml'"
-    - "bin/neon -file src/neon/test.yml"
+    - 'bin/neon -file src/neon/test.yml'
 
   bin:
-    doc: "Build neon binary"
+    doc: 'Build neon binary'
     steps:
     - print: "Building neon binary in 'bin/neon'"
-    - remove: "bin/neon"
-    - "go install #{NAME}"
+    - remove: 'bin/neon'
+    - 'go install #{NAME}'
+
+  refs:
+    doc: 'Generate reference documentation for tasks and builtins'
+    steps:
+    - 'go run src/neon/main.go -refs > #{REFERENCE}'
+    # we add and commit reference if it was modified
+    - try:
+      - 'git diff --quiet --exit-code #{REFERENCE}'
+      catch:
+      - 'git add "#{REFERENCE}"'
+      - 'git commit -m "Updated reference" "#{REFERENCE}"'
 
   archive:
-    depends: clean
-    doc: "Generate distribution archive"
+    doc: 'Generate distribution archive'
     steps:
-    - mkdir: "#{ARC_DIR}/bin/"
-    - "gox -output=#{ARC_DIR}/bin/{{.Dir}}_{{.OS}}_{{.Arch}} #{NAME}"
-    - copy: "LICENSE.txt"
-      todir: "#{ARC_DIR}/"
-    - "md2pdf -o #{ARC_DIR}/README.pdf README.md"
-    - "changelog to markdown > #{BUILD_DIR}/CHANGELOG.md"
-    - "md2pdf -o #{ARC_DIR}/CHANGELOG.pdf #{BUILD_DIR}/CHANGELOG.md"
-    - remove: "#{BUILD_DIR}/CHANGELOG.md"
-    - chdir: "#{BUILD_DIR}"
-    - tar: "#{NAME}-#{VERSION}/**/*"
-      to: "#{NAME}-#{VERSION}.tar.gz"
-    - zip: "#{NAME}-#{VERSION}/**/*"
-      to: "#{NAME}-#{VERSION}.zip"
+    - mkdir: '#{ARC_DIR}/bin/'
+    - 'gox -output=#{ARC_DIR}/bin/{{.Dir}}_{{.OS}}_{{.Arch}} #{NAME}'
+    - copy: 'LICENSE.txt'
+      todir: '#{ARC_DIR}/'
+    - 'md2pdf -o #{ARC_DIR}/README.pdf README.md'
+    - 'changelog to markdown > #{BUILD_DIR}/CHANGELOG.md'
+    - 'md2pdf -o #{ARC_DIR}/CHANGELOG.pdf #{BUILD_DIR}/CHANGELOG.md'
+    - remove: '#{BUILD_DIR}/CHANGELOG.md'
+    - mkdir: '#{ARC_DIR}/doc'
+    - 'md2pdf -o #{ARC_DIR}/doc/quickstart.pdf doc/quickstart.md'
+    - 'md2pdf -o #{ARC_DIR}/doc/reference.pdf doc/reference.md'
+    - tar: '#{NAME}-#{VERSION}/**/*'
+      dir: '#{BUILD_DIR}'
+      to: '#{BUILD_DIR}/#{NAME}-#{VERSION}.tar.gz'
 
   release:
-    depends: [clean, test, archive]
-    doc: "Perform a release"
+    depends: [clean, test, refs, archive]
+    doc: 'Perform a release'
     steps:
-    - "release"
+    - 'release'
 
   clean:
-    doc: "Clean generated files"
+    doc: 'Clean generated files'
     steps:
-    - delete: "#{BUILD_DIR}"
+    - delete: '#{BUILD_DIR}'
+
+  win:
+    doc: 'Test integration build file on Windows'
+    steps:
+    - copy: 'src/neon/test.yml'
+      to:   '/home/casa/misc/shared/build.yml'
+    - replace: '/home/casa/misc/shared/build.yml'
+      pattern: '../../build'
+      with:    'build'
+    - 'gox -output=#{WIN_SHARE}/#{NAME} -osarch=windows/386 #{NAME}'
