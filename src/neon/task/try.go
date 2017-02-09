@@ -13,15 +13,19 @@ func init() {
 Arguments:
 
 - try: steps to execute.
-- catch: executed if an error occurs.
+- catch: executed if an error occurs (optional).
 
 Examples:
 
-    # execute a system command and continue even if it fails
+    # execute a command and continue even if it fails
     - try:
       - "command-that-doesnt-exist"
-      catch:
-     - print: "command failed!"
+	- print: "Continue even if command fails"
+	# execute a command and print a message if it fails
+	- try:
+	  - "command-that-doesnt-exist"
+	  catch:
+	  - print: "There was an error!"
 
 Notes:
 
@@ -31,7 +35,7 @@ Notes:
 
 func Try(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"try", "catch"}
-	if err := CheckFields(args, fields, fields); err != nil {
+	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err
 	}
 	trySteps, err := ParseSteps(target, args, "try")

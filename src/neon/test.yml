@@ -503,6 +503,8 @@ targets:
           } else {
             println("Try test success")
           }
+    - try:
+      - throw: "Try test failure"
 
   task_while:
     doc: Test while task
