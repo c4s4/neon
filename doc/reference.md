@@ -197,15 +197,6 @@ Examples:
 
 Notes:
 
-- Useful when an instruction is mandatory but we want to do nothing (in a catch
-  instruction for instance). For instance, to run a command and don't stop the
-  build even if it fails, we could write:
-
-        - try:
-          - "command-that-doesnt-exist"
-          catch:
-          - pass:
-
 - This implementation is super optimized for speed.
 
 path
@@ -421,15 +412,19 @@ Try/catch construct.
 Arguments:
 
 - try: steps to execute.
-- catch: executed if an error occurs.
+- catch: executed if an error occurs (optional).
 
 Examples:
 
-    # execute a system command and continue even if it fails
+    # execute a command and continue even if it fails
     - try:
       - "command-that-doesnt-exist"
-      catch:
-     - print: "command failed!"
+	- print: "Continue even if command fails"
+	# execute a command and print a message if it fails
+	- try:
+	  - "command-that-doesnt-exist"
+	  catch:
+	  - print: "There was an error!"
 
 Notes:
 
