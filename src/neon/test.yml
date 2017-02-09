@@ -48,8 +48,12 @@ targets:
     doc: Test the directory builtin function
     steps:
     - script: |
-        dir = directory("/foo/bar/spam.txt")
-        if dir != "/foo/bar" {
+        actual = directory("/foo/bar/spam.txt")
+        expected = "/foo/bar"
+        if OS == "windows" {
+          expected = `\foo\bar`
+        }
+        if actual != expected {
           throw("Directory test failure")
         } else {
           println("Directory test success")
@@ -69,7 +73,7 @@ targets:
   builtin_expand:
     doc: Test expand builtin function
     steps:
-    - if: 'OS != "Windows"'
+    - if: 'OS != "windows"'
       then:
       - script: |
           os = import("os")
@@ -137,13 +141,15 @@ targets:
     doc: Test the joinpath builtin function
     steps:
     - script: |
-        if OS != "windows" {
-          p = joinpath("/foo", "bar", "spam.txt")
-          if p != "/foo/bar/spam.txt" {
-            throw("Joinpath test failure")
-          } else {
-            println("Joinpath test success")
-          }
+        path = joinpath("/foo", "bar", "spam.txt")
+        expected = "/foo/bar/spam.txt"
+        if OS == "windows" {
+          expected = `\foo\bar\spam.txt`
+        }
+        if path != expected {
+          throw("Joinpath test failure")
+        } else {
+          println("Joinpath test success")
         }
 
   builtin_lowercase:
