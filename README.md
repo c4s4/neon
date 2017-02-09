@@ -16,8 +16,9 @@ it *neon*.
 Documentation
 -------------
 
-You should start reading [the quick start](doc/quickstart.md) document, then to
-become a Neon expert, you can read [the user guide](doc/userguide.md). To get
-help on tasks and builtins, you should read [the reference](doc/reference.md).
+There are two sources of documentation:
+
+- [The quick start guide](doc/quickstart.md).
+- [The reference guide](doc/reference.md).
 
 *Enjoy!*
