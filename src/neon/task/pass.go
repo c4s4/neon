@@ -21,15 +21,6 @@ Examples:
 
 Notes:
 
-- Useful when an instruction is mandatory but we want to do nothing (in a catch
-  instruction for instance). For instance, to run a command and don't stop the
-  build even if it fails, we could write:
-
-        - try:
-          - "command-that-doesnt-exist"
-          catch:
-          - pass:
-
 - This implementation is super optimized for speed.`,
 	}
 }
