@@ -66,7 +66,6 @@ targets:
       - 'git commit -m "Updated reference" "#{REFERENCE}"'
 
   archive:
-    depends: [clean, refs]
     doc: 'Generate distribution archive'
     steps:
     - mkdir: '#{ARC_DIR}/bin/'
@@ -85,7 +84,7 @@ targets:
       to: '#{BUILD_DIR}/#{NAME}-#{VERSION}.tar.gz'
 
   release:
-    depends: [clean, test, archive]
+    depends: [clean, test, refs, archive]
     doc: 'Perform a release'
     steps:
     - 'release'
