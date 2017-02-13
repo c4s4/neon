@@ -66,13 +66,7 @@ func main() {
 		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
 		os.Exit(2)
 	}
-	if help {
-		err = build.Help()
-		if err != nil {
-			util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
-			os.Exit(3)
-		}
-	} else if tasks {
+	if tasks {
 		build.PrintTasks()
 	} else if task != "" {
 		build.PrintHelpTask(task)
@@ -84,8 +78,20 @@ func main() {
 		build.PrintTargets()
 	} else if refs {
 		build.PrintReference()
+	} else if help {
+		err = build.Init()
+		if err == nil {
+			err = build.Help()
+		}
+		if err != nil {
+			util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
+			os.Exit(3)
+		}
 	} else {
-		err = build.Run(targets)
+		err = build.Init()
+		if err == nil {
+			err = build.Run(targets)
+		}
 		duration := time.Now().Sub(start)
 		if timeit || duration.Seconds() > 10 {
 			build.Info("Build duration: %s", duration.String())

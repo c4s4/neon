@@ -22,21 +22,17 @@ type Context struct {
 	Environment map[string]string
 }
 
-func NewContext(build *Build, properties util.Object, env util.Object) (*Context, error) {
+func NewContext(build *Build) (*Context, error) {
 	vm := vm.NewEnv()
 	anko_core.LoadAllBuiltins(vm)
 	LoadBuiltins(vm)
-	environment, err := env.ToMapStringString()
-	if err != nil {
-		return nil, fmt.Errorf("getting environment: %v", err)
-	}
 	context := &Context{
 		VM:          vm,
 		Build:       build,
-		Properties:  properties.Fields(),
-		Environment: environment,
+		Properties:  build.Properties.Fields(),
+		Environment: build.Environment,
 	}
-	err = context.SetProperties(properties)
+	err := context.SetProperties(build.Properties)
 	if err != nil {
 		return nil, fmt.Errorf("evaluating properties: %v", err)
 	}

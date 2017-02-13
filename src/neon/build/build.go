@@ -13,16 +13,18 @@ import (
 )
 
 type Build struct {
-	File    string
-	Dir     string
-	Here    string
-	Name    string
-	Default []string
-	Doc     string
-	Context *Context
-	Targets map[string]*Target
-	Verbose bool
-	Index   *Index
+	File        string
+	Dir         string
+	Here        string
+	Name        string
+	Default     []string
+	Doc         string
+	Verbose     bool
+	Properties  util.Object
+	Environment map[string]string
+	Targets     map[string]*Target
+	Context     *Context
+	Index       *Index
 }
 
 func NewBuild(file string, verbose bool) (*Build, error) {
@@ -82,18 +84,19 @@ func NewBuild(file string, verbose bool) (*Build, error) {
 			return nil, fmt.Errorf("parsing properties: %v", err)
 		}
 	}
-	environment := make(map[string]interface{})
+	build.Properties = properties
+	environment := make(map[string]string)
 	if object.HasField("environment") {
-		environment, err = object.GetObject("environment")
+		env, err := object.GetObject("environment")
 		if err != nil {
 			return nil, fmt.Errorf("parsing environmen: %v", err)
 		}
+		environment, err = env.ToMapStringString()
+		if err != nil {
+			return nil, fmt.Errorf("getting environment: %v", err)
+		}
 	}
-	context, err := NewContext(build, properties, environment)
-	if err != nil {
-		return nil, fmt.Errorf("building context: %v", err)
-	}
-	build.Context = context
+	build.Environment = environment
 	targets := util.Object(make(map[string]interface{}))
 	if object.HasField("targets") {
 		targets, err = object.GetObject("targets")
@@ -114,6 +117,15 @@ func NewBuild(file string, verbose bool) (*Build, error) {
 		build.Targets[name] = target
 	}
 	return build, nil
+}
+
+func (build *Build) Init() error {
+	context, err := NewContext(build)
+	if err != nil {
+		return fmt.Errorf("evaluating context: %v", err)
+	}
+	build.Context = context
+	return nil
 }
 
 func (build *Build) Run(targets []string) error {
