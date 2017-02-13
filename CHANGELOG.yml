@@ -1,5 +1,11 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 0.3.0
+  date:    2017-02-00
+  summary: New features
+  added:
+  - "Context for build (Anko scripts evaluated in the context)."
+
 - version: 0.2.0
   date:    2017-02-09
   summary: Second release

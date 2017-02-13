@@ -5,6 +5,7 @@ import (
 	anko_core "github.com/mattn/anko/builtins"
 	"github.com/mattn/anko/vm"
 	zglob "github.com/mattn/go-zglob"
+	"io/ioutil"
 	"neon/util"
 	"os"
 	"reflect"
@@ -31,6 +32,16 @@ func NewContext(build *Build) (*Context, error) {
 		Build:       build,
 		Properties:  build.Properties.Fields(),
 		Environment: build.Environment,
+	}
+	for _, script := range build.Scripts {
+		source, err := ioutil.ReadFile(script)
+		if err != nil {
+			return nil, fmt.Errorf("reading script '%s': %v", script, err)
+		}
+		_, err = vm.Execute(string(source))
+		if err != nil {
+			return nil, fmt.Errorf("evaluating script '%s': %v", script, err)
+		}
 	}
 	err := context.SetProperties(build.Properties)
 	if err != nil {

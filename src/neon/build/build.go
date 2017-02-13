@@ -19,6 +19,7 @@ type Build struct {
 	Name        string
 	Default     []string
 	Doc         string
+	Scripts     []string
 	Verbose     bool
 	Properties  util.Object
 	Environment map[string]string
@@ -43,28 +44,38 @@ func NewBuild(file string, verbose bool) (*Build, error) {
 	}
 	build.Debug("Build structure: %#v", object)
 	build.Debug("Reading build first level fields")
-	err = object.CheckFields([]string{"name", "default", "doc", "properties",
-		"environment", "targets"})
+	err = object.CheckFields([]string{"name", "doc", "default", "context",
+		"properties", "environment", "targets"})
 	if err != nil {
 		return nil, fmt.Errorf("parsing build file: %v", err)
 	}
 	if object.HasField("name") {
-		str, err := object.GetString("name")
-		if err == nil {
-			build.Name = str
+		name, err := object.GetString("name")
+		if err != nil {
+			return nil, fmt.Errorf("getting build name: %v", err)
 		}
+		build.Name = name
 	}
 	if object.HasField("default") {
 		list, err := object.GetListStringsOrString("default")
-		if err == nil {
-			build.Default = list
+		if err != nil {
+			return nil, fmt.Errorf("getting default targets: %v", err)
 		}
+		build.Default = list
 	}
 	if object.HasField("doc") {
-		str, err := object.GetString("doc")
-		if err == nil {
-			build.Doc = str
+		doc, err := object.GetString("doc")
+		if err != nil {
+			return nil, fmt.Errorf("getting build doc: %v", err)
 		}
+		build.Doc = doc
+	}
+	if object.HasField("context") {
+		scripts, err := object.GetListStringsOrString("context")
+		if err != nil {
+			return nil, fmt.Errorf("getting context: %v", err)
+		}
+		build.Scripts = scripts
 	}
 	path, err := filepath.Abs(file)
 	if err != nil {
