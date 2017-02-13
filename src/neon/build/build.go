@@ -25,6 +25,7 @@ type Build struct {
 	Environment map[string]string
 	Targets     map[string]*Target
 	Context     *Context
+	Parents     []*Build
 	Index       *Index
 }
 
@@ -45,7 +46,7 @@ func NewBuild(file string, verbose bool) (*Build, error) {
 	build.Debug("Build structure: %#v", object)
 	build.Debug("Reading build first level fields")
 	err = object.CheckFields([]string{"name", "doc", "default", "context",
-		"properties", "environment", "targets"})
+		"extends", "properties", "environment", "targets"})
 	if err != nil {
 		return nil, fmt.Errorf("parsing build file: %v", err)
 	}
@@ -76,6 +77,21 @@ func NewBuild(file string, verbose bool) (*Build, error) {
 			return nil, fmt.Errorf("getting context: %v", err)
 		}
 		build.Scripts = scripts
+	}
+	if object.HasField("extends") {
+		parents, err := object.GetListStringsOrString("extends")
+		if err != nil {
+			return nil, fmt.Errorf("parsing parents: %v", err)
+		}
+		var extends []*Build
+		for _, parent := range parents {
+			extend, err := NewBuild(parent, verbose)
+			if err != nil {
+				return nil, fmt.Errorf("parsing parent '%s': %v", parent, err)
+			}
+			extends = append(extends, extend)
+		}
+		build.Parents = extends
 	}
 	path, err := filepath.Abs(file)
 	if err != nil {
@@ -130,21 +146,73 @@ func NewBuild(file string, verbose bool) (*Build, error) {
 	return build, nil
 }
 
+func (build *Build) GetProperties() util.Object {
+	var properties = make(map[string]interface{})
+	for _, parent := range build.Parents {
+		for name, value := range parent.GetProperties() {
+			properties[name] = value
+		}
+	}
+	for name, value := range build.Properties {
+		properties[name] = value
+	}
+	return properties
+}
+
+func (build *Build) GetEnvironment() map[string]string {
+	var environment = make(map[string]string)
+	for _, parent := range build.Parents {
+		for name, value := range parent.GetEnvironment() {
+			environment[name] = value
+		}
+	}
+	for name, value := range build.Environment {
+		environment[name] = value
+	}
+	return environment
+}
+
+func (build *Build) SetContext(context *Context) {
+	build.Context = context
+	for _, parent := range build.Parents {
+		parent.SetContext(context)
+	}
+}
+
 func (build *Build) Init() error {
 	context, err := NewContext(build)
 	if err != nil {
 		return fmt.Errorf("evaluating context: %v", err)
 	}
-	build.Context = context
+	build.SetContext(context)
 	return nil
+}
+
+func (build *Build) GetDefault() []string {
+	if len(build.Default) > 0 {
+		return build.Default
+	} else {
+		for _, parent := range build.Parents {
+			if len(parent.Default) > 0 {
+				return parent.Default
+			}
+		}
+		for _, parent := range build.Parents {
+			parentDefault := parent.GetDefault()
+			if len(parentDefault) > 0 {
+				return parentDefault
+			}
+		}
+	}
+	return build.Default
 }
 
 func (build *Build) Run(targets []string) error {
 	if len(targets) == 0 {
-		if len(build.Default) == 0 {
+		targets = build.GetDefault()
+		if len(targets) == 0 {
 			return fmt.Errorf("no default target")
 		}
-		targets = build.Default
 	}
 	for _, target := range targets {
 		err := build.RunTarget(target, NewStack())
@@ -155,9 +223,24 @@ func (build *Build) Run(targets []string) error {
 	return nil
 }
 
+func (build *Build) GetTarget(name string) *Target {
+	target, found := build.Targets[name]
+	if found {
+		return target
+	} else {
+		for _, parent := range build.Parents {
+			target = parent.GetTarget(name)
+			if target != nil {
+				return target
+			}
+		}
+	}
+	return nil
+}
+
 func (build *Build) RunTarget(name string, stack *Stack) error {
-	target, ok := build.Targets[name]
-	if !ok {
+	target := build.GetTarget(name)
+	if target == nil {
 		return fmt.Errorf("target '%s' not found", name)
 	}
 	err := target.Run(stack)

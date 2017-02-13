@@ -27,11 +27,13 @@ func NewContext(build *Build) (*Context, error) {
 	vm := vm.NewEnv()
 	anko_core.LoadAllBuiltins(vm)
 	LoadBuiltins(vm)
+	properties := build.GetProperties()
+	environment := build.GetEnvironment()
 	context := &Context{
 		VM:          vm,
 		Build:       build,
-		Properties:  build.Properties.Fields(),
-		Environment: build.Environment,
+		Properties:  properties.Fields(),
+		Environment: environment,
 	}
 	for _, script := range build.Scripts {
 		source, err := ioutil.ReadFile(script)
@@ -43,7 +45,7 @@ func NewContext(build *Build) (*Context, error) {
 			return nil, fmt.Errorf("evaluating script '%s': %v", script, err)
 		}
 	}
-	err := context.SetProperties(build.Properties)
+	err := context.SetProperties(properties)
 	if err != nil {
 		return nil, fmt.Errorf("evaluating properties: %v", err)
 	}
