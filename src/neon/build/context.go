@@ -204,22 +204,24 @@ func (context *Context) FindFiles(dir string, includes, excludes []string) ([]st
 			return nil, nil
 		}
 	}
-	for index, include := range includes {
+	var included []string
+	for _, include := range includes {
 		pattern, err := context.ReplaceProperties(include)
 		if err != nil {
 			return nil, fmt.Errorf("evaluating pattern: %v", err)
 		}
-		includes[index] = pattern
+		included = append(included, pattern)
 	}
-	for index, exclude := range excludes {
+	var excluded []string
+	for _, exclude := range excludes {
 		pattern, err := context.ReplaceProperties(exclude)
 		if err != nil {
 			return nil, fmt.Errorf("evaluating pattern: %v", err)
 		}
-		excludes[index] = pattern
+		excluded = append(excluded, pattern)
 	}
 	var candidates []string
-	for _, include := range includes {
+	for _, include := range included {
 		list, _ := zglob.Glob(include)
 		for _, file := range list {
 			stat, err := os.Stat(file)
@@ -232,9 +234,9 @@ func (context *Context) FindFiles(dir string, includes, excludes []string) ([]st
 		}
 	}
 	var files []string
-	if excludes != nil {
+	if excluded != nil {
 		for _, file := range candidates {
-			for _, exclude := range excludes {
+			for _, exclude := range excluded {
 				match, err := zglob.Match(exclude, file)
 				if !match && err == nil {
 					files = append(files, file)
