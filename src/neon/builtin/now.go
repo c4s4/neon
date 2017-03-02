@@ -16,7 +16,7 @@ Arguments:
 
 Returns:
 
-- ISO date ans time as a string.
+- ISO date and time as a string.
 
 Examples:
 
