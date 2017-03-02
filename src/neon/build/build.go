@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"neon/util"
 	"os"
+	"os/user"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -33,6 +34,11 @@ func NewBuild(file string, verbose bool) (*Build, error) {
 	build := &Build{}
 	build.Verbose = verbose
 	build.Debug("Loading build file '%s'", file)
+	if strings.HasPrefix(file, "~/") {
+		user, _ := user.Current()
+		home := user.HomeDir
+		file = filepath.Join(home, file[2:])
+	}
 	source, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, fmt.Errorf("loading build file '%s': %v", file, err)
@@ -85,6 +91,10 @@ func NewBuild(file string, verbose bool) (*Build, error) {
 		}
 		var extends []*Build
 		for _, parent := range parents {
+			parent, err = ExpandNeonPath(parent)
+			if err != nil {
+				return nil, fmt.Errorf("expanding neon path: %v", err)
+			}
 			extend, err := NewBuild(parent, verbose)
 			if err != nil {
 				return nil, fmt.Errorf("parsing parent '%s': %v", parent, err)
@@ -172,10 +182,30 @@ func (build *Build) GetEnvironment() map[string]string {
 	return environment
 }
 
+func (build *Build) GetTargets() map[string]*Target {
+	var targets = make(map[string]*Target)
+	for _, parent := range build.Parents {
+		for name, target := range parent.GetTargets() {
+			targets[name] = target
+		}
+	}
+	for name, target := range build.Targets {
+		targets[name] = target
+	}
+	return targets
+}
+
 func (build *Build) SetContext(context *Context) {
 	build.Context = context
 	for _, parent := range build.Parents {
 		parent.SetContext(context)
+	}
+}
+
+func (build *Build) SetDir(dir string) {
+	build.Dir = dir
+	for _, parent := range build.Parents {
+		parent.SetDir(dir)
 	}
 }
 
@@ -184,6 +214,7 @@ func (build *Build) Init() error {
 	if err != nil {
 		return fmt.Errorf("evaluating context: %v", err)
 	}
+	build.SetDir(build.Dir)
 	build.SetContext(context)
 	return nil
 }
@@ -296,8 +327,9 @@ func (build *Build) Help() error {
 		newLine = true
 	}
 	// print targets documentation
+	targets := build.GetTargets()
 	names = make([]string, 0)
-	for name, _ := range build.Targets {
+	for name, _ := range targets {
 		names = append(names, name)
 	}
 	length = maxLength(names)
@@ -308,7 +340,7 @@ func (build *Build) Help() error {
 		}
 		build.Info("Targets:")
 		for _, name := range names {
-			target := build.Targets[name]
+			target := targets[name]
 			build.PrintColorLine(name, target.Doc, target.Depends, length)
 		}
 	}
@@ -317,7 +349,7 @@ func (build *Build) Help() error {
 
 func (build *Build) PrintTargets() {
 	var targets []string
-	for name, _ := range build.Targets {
+	for name, _ := range build.GetTargets() {
 		targets = append(targets, name)
 	}
 	sort.Strings(targets)
@@ -424,4 +456,19 @@ func maxLength(lines []string) int {
 		}
 	}
 	return length
+}
+
+func ExpandNeonPath(path string) (string, error) {
+	if strings.HasPrefix(path, ":") {
+		parts := strings.Split(path[1:], "/")
+		if len(parts) < 2 || len(parts) > 3 {
+			return "", fmt.Errorf("Bad Neon path '%s'", path)
+		}
+		if len(parts) == 2 {
+			parts = []string{parts[0], "latest", parts[1]}
+		}
+		return fmt.Sprintf("~/.neon/%s/%s/%s", parts[0], parts[1], parts[2]), nil
+	} else {
+		return path, nil
+	}
 }
