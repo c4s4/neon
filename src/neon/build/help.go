@@ -2,9 +2,9 @@ package build
 
 import (
 	"fmt"
+	"neon/util"
 	"sort"
 	"strings"
-	"unicode/utf8"
 )
 
 func (build *Build) Help() error {
@@ -15,7 +15,7 @@ func (build *Build) Help() error {
 		newLine = true
 	}
 	// print build properties
-	length := maxLength(build.Context.Properties)
+	length := util.MaxLength(build.Context.Properties)
 	if len(build.Context.Properties) > 0 {
 		if newLine {
 			Info("")
@@ -39,7 +39,7 @@ func (build *Build) Help() error {
 	for name, _ := range build.Context.Environment {
 		names = append(names, name)
 	}
-	length = maxLength(names)
+	length = util.MaxLength(names)
 	sort.Strings(names)
 	if len(build.Context.Environment) > 0 {
 		if newLine {
@@ -58,7 +58,7 @@ func (build *Build) Help() error {
 	for name, _ := range targets {
 		names = append(names, name)
 	}
-	length = maxLength(names)
+	length = util.MaxLength(names)
 	sort.Strings(names)
 	if len(names) > 0 {
 		if newLine {
@@ -82,7 +82,7 @@ func (build *Build) PrintTargets() {
 	Info(strings.Join(targets, " "))
 }
 
-func (build *Build) PrintTasks() {
+func PrintTasks() {
 	var tasks []string
 	for name, _ := range TaskMap {
 		tasks = append(tasks, name)
@@ -91,7 +91,7 @@ func (build *Build) PrintTasks() {
 	Info(strings.Join(tasks, " "))
 }
 
-func (build *Build) PrintHelpTask(task string) {
+func PrintHelpTask(task string) {
 	descriptor, found := TaskMap[task]
 	if found {
 		Info(descriptor.Help)
@@ -149,30 +149,5 @@ func PrintReference() {
 		fmt.Println()
 		fmt.Println(BuiltinMap[builtin].Help)
 		fmt.Println()
-	}
-}
-
-func maxLength(lines []string) int {
-	length := 0
-	for _, line := range lines {
-		if utf8.RuneCountInString(line) > length {
-			length = utf8.RuneCountInString(line)
-		}
-	}
-	return length
-}
-
-func ExpandNeonPath(path string) (string, error) {
-	if strings.HasPrefix(path, ":") {
-		parts := strings.Split(path[1:], "/")
-		if len(parts) < 2 || len(parts) > 3 {
-			return "", fmt.Errorf("Bad Neon path '%s'", path)
-		}
-		if len(parts) == 2 {
-			parts = []string{parts[0], "latest", parts[1]}
-		}
-		return fmt.Sprintf("~/.neon/%s/%s/%s", parts[0], parts[1], parts[2]), nil
-	} else {
-		return path, nil
 	}
 }

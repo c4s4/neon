@@ -55,6 +55,17 @@ func FindBuildFile(name string) (string, error) {
 func main() {
 	start := time.Now()
 	file, help, timeit, tasks, task, targs, builtins, builtin, refs, targets := ParseCommandLine()
+	if tasks {
+		_build.PrintTasks()
+	} else if task != "" {
+		_build.PrintHelpTask(task)
+	} else if builtins {
+		_build.PrintBuiltins()
+	} else if builtin != "" {
+		_build.PrintHelpBuiltin(builtin)
+	} else if refs {
+		_build.PrintReference()
+	}
 	path, err := FindBuildFile(file)
 	if err != nil {
 		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
@@ -65,18 +76,8 @@ func main() {
 		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
 		os.Exit(2)
 	}
-	if tasks {
-		build.PrintTasks()
-	} else if task != "" {
-		build.PrintHelpTask(task)
-	} else if builtins {
-		_build.PrintBuiltins()
-	} else if builtin != "" {
-		_build.PrintHelpBuiltin(builtin)
-	} else if targs {
+	if targs {
 		build.PrintTargets()
-	} else if refs {
-		_build.PrintReference()
 	} else if help {
 		err = build.Init()
 		if err == nil {

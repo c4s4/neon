@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"strings"
 	"unicode/utf8"
 )
 
@@ -93,7 +92,7 @@ func ToList(object interface{}) ([]interface{}, error) {
 	}
 }
 
-func maxLength(lines []string) int {
+func MaxLength(lines []string) int {
 	length := 0
 	for _, line := range lines {
 		if utf8.RuneCountInString(line) > length {
@@ -101,19 +100,4 @@ func maxLength(lines []string) int {
 		}
 	}
 	return length
-}
-
-func ExpandNeonPath(path string) (string, error) {
-	if strings.HasPrefix(path, ":") {
-		parts := strings.Split(path[1:], "/")
-		if len(parts) < 2 || len(parts) > 3 {
-			return "", fmt.Errorf("Bad Neon path '%s'", path)
-		}
-		if len(parts) == 2 {
-			parts = []string{parts[0], "latest", parts[1]}
-		}
-		return fmt.Sprintf("~/.neon/%s/%s/%s", parts[0], parts[1], parts[2]), nil
-	} else {
-		return path, nil
-	}
 }
