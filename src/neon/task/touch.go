@@ -40,7 +40,7 @@ func Touch(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument to task touch must be a string or list of strings")
 	}
 	return func() error {
-		target.Build.Info("Touching %d file(s)", len(files))
+		build.Info("Touching %d file(s)", len(files))
 		for _, file := range files {
 			path, err := target.Build.Context.ReplaceProperties(file)
 			if err != nil {

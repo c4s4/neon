@@ -15,13 +15,10 @@ type Target struct {
 }
 
 func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
-	build.Debug("Parsing target '%s'", name)
-	build.Debug("Target structure: %#v", object)
 	target := &Target{
 		Build: build,
 		Name:  name,
 	}
-	build.Debug("Reading target '%s' first level fields", name)
 	err := object.CheckFields([]string{"doc", "depends", "steps"})
 	if err != nil {
 		return nil, fmt.Errorf("parsing target '%s': %v", name, err)
@@ -47,7 +44,6 @@ func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 		}
 		var steps []Step
 		for index, object := range list {
-			build.Debug("Parsing step %v in target '%s'", index, name)
 			step, err := NewStep(target, object)
 			if err != nil {
 				return nil, fmt.Errorf("in step %d: %v", index+1, err)

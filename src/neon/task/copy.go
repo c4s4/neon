@@ -116,7 +116,7 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 		if len(sources) < 1 {
 			return nil
 		}
-		target.Build.Info("Copying %d file(s)", len(sources))
+		build.Info("Copying %d file(s)", len(sources))
 		if to != "" {
 			file := filepath.Join(dir, sources[0])
 			err = util.CopyFile(file, to)

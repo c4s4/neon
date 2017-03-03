@@ -48,7 +48,7 @@ func Remove(target *build.Target, args util.Object) (build.Task, error) {
 		}
 		sort.Strings(files)
 		if len(files) > 0 {
-			target.Build.Info("Removing %d file(s)", len(files))
+			build.Info("Removing %d file(s)", len(files))
 			for _, file := range files {
 				if err = os.Remove(file); err != nil {
 					return fmt.Errorf("removing file '%s': %v", file, err)

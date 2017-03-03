@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"neon/build"
+	_build "neon/build"
 	_ "neon/builtin"
 	_ "neon/task"
 	"neon/util"
@@ -16,10 +16,9 @@ const (
 	DEFAULT_BUILD_FILE = "build.yml"
 )
 
-func ParseCommandLine() (string, bool, bool, bool, bool, string, bool, bool, string, bool, []string) {
+func ParseCommandLine() (string, bool, bool, bool, string, bool, bool, string, bool, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
 	help := flag.Bool("build", false, "Print build help")
-	verbose := flag.Bool("verbose", false, "Verbose build output")
 	timeit := flag.Bool("time", false, "Print build duration")
 	tasks := flag.Bool("tasks", false, "Print tasks list")
 	task := flag.String("task", "", "Print help on given task")
@@ -29,7 +28,7 @@ func ParseCommandLine() (string, bool, bool, bool, bool, string, bool, bool, str
 	refs := flag.Bool("refs", false, "Print tasks and builtins reference")
 	flag.Parse()
 	targets := flag.Args()
-	return *file, *help, *verbose, *timeit, *tasks, *task, *targs, *builtins, *builtin, *refs, targets
+	return *file, *help, *timeit, *tasks, *task, *targs, *builtins, *builtin, *refs, targets
 }
 
 func FindBuildFile(name string) (string, error) {
@@ -55,13 +54,13 @@ func FindBuildFile(name string) (string, error) {
 
 func main() {
 	start := time.Now()
-	file, help, verbose, timeit, tasks, task, targs, builtins, builtin, refs, targets := ParseCommandLine()
+	file, help, timeit, tasks, task, targs, builtins, builtin, refs, targets := ParseCommandLine()
 	path, err := FindBuildFile(file)
 	if err != nil {
 		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
 		os.Exit(1)
 	}
-	build, err := build.NewBuild(path, verbose)
+	build, err := _build.NewBuild(path)
 	if err != nil {
 		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
 		os.Exit(2)
@@ -71,13 +70,13 @@ func main() {
 	} else if task != "" {
 		build.PrintHelpTask(task)
 	} else if builtins {
-		build.PrintBuiltins()
+		_build.PrintBuiltins()
 	} else if builtin != "" {
-		build.PrintHelpBuiltin(builtin)
+		_build.PrintHelpBuiltin(builtin)
 	} else if targs {
 		build.PrintTargets()
 	} else if refs {
-		build.PrintReference()
+		_build.PrintReference()
 	} else if help {
 		err = build.Init()
 		if err == nil {
@@ -94,7 +93,7 @@ func main() {
 		}
 		duration := time.Now().Sub(start)
 		if timeit || duration.Seconds() > 10 {
-			build.Info("Build duration: %s", duration.String())
+			_build.Info("Build duration: %s", duration.String())
 		}
 		if err == nil {
 			util.PrintColor("%s", util.Green("OK"))

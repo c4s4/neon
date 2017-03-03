@@ -33,7 +33,7 @@ func Sleep(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument of task sleep must be an integer")
 	}
 	return func() error {
-		target.Build.Info("Sleeping for %d seconds...", duration)
+		build.Info("Sleeping for %d seconds...", duration)
 		time.Sleep(time.Duration(duration) * time.Second)
 		return nil
 	}, nil

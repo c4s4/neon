@@ -100,7 +100,7 @@ func Zip(target *build.Target, args util.Object) (build.Task, error) {
 			return fmt.Errorf("getting source files for zip task: %v", err)
 		}
 		if len(files) > 0 {
-			target.Build.Info("Zipping %d file(s)", len(files))
+			build.Info("Zipping %d file(s)", len(files))
 			// zip files
 			err = WriteZip(dir, files, prefix, to)
 			if err != nil {

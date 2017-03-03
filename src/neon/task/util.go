@@ -64,8 +64,7 @@ func ParseSteps(target *build.Target, object util.Object, field string) ([]build
 		return nil, err
 	}
 	var steps []build.Step
-	for index, element := range list {
-		target.Build.Debug("Parsing step %v in %s field", index, field)
+	for _, element := range list {
 		step, err := build.NewStep(target, element)
 		if err != nil {
 			return nil, fmt.Errorf("parsing target '%s': %v", target.Name, err)
