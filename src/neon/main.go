@@ -57,14 +57,19 @@ func main() {
 	file, help, timeit, tasks, task, targs, builtins, builtin, refs, targets := ParseCommandLine()
 	if tasks {
 		_build.PrintTasks()
+		os.Exit(0)
 	} else if task != "" {
 		_build.PrintHelpTask(task)
+		os.Exit(0)
 	} else if builtins {
 		_build.PrintBuiltins()
+		os.Exit(0)
 	} else if builtin != "" {
 		_build.PrintHelpBuiltin(builtin)
+		os.Exit(0)
 	} else if refs {
 		_build.PrintReference()
+		os.Exit(0)
 	}
 	path, err := FindBuildFile(file)
 	if err != nil {
