@@ -55,6 +55,7 @@ func FindBuildFile(name string) (string, error) {
 func main() {
 	start := time.Now()
 	file, help, timeit, tasks, task, targs, builtins, builtin, refs, targets := ParseCommandLine()
+	// options that do not require we load build file
 	if tasks {
 		_build.PrintTasks()
 		os.Exit(0)
@@ -71,6 +72,7 @@ func main() {
 		_build.PrintReference()
 		os.Exit(0)
 	}
+	// options that do require we load build file
 	path, err := FindBuildFile(file)
 	if err != nil {
 		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
