@@ -6,6 +6,7 @@
   added:
   - "Context for build (Anko scripts evaluated in the context)."
   - "Build inheritance (with 'extends' key at the root of the build)."
+  - "New task 'execute' to run command and get output."
 
 - version: 0.2.0
   date:    2017-02-09

@@ -18,6 +18,7 @@ default:
 - task_chmod
 - task_copy
 - task_delete
+- task_execute
 - task_for
 - task_if
 - task_link
@@ -286,6 +287,20 @@ targets:
           println("Delete test success")
         }
 
+  task_execute:
+    doc: Test task execute
+    steps:
+    - if: 'OS != "windows"'
+      then:
+      - execute: 'echo "TEST"'
+        output:  'result'
+      - script: |
+          if result != "TEST" {
+            throw("Execute test failure")
+          } else {
+            println("Execute test success")
+          }
+  
   task_for:
     doc: Test doc task
     steps:
