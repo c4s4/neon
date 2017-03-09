@@ -14,7 +14,7 @@ func init() {
 
 Arguments:
 
-- write: the file to wrinte into as a string.
+- write: the file to write into as a string.
 - from: the name of the variable with the text to write (optional).
 - text: the text to write into the file (optional).
 
