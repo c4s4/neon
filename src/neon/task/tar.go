@@ -106,7 +106,7 @@ func Tar(target *build.Target, args util.Object) (build.Task, error) {
 			return fmt.Errorf("getting source files for tar task: %v", err)
 		}
 		if len(files) > 0 {
-			build.Info("Tarring %d file(s)", len(files))
+			build.Info("Tarring %d file(s) into '%s'", len(files), to)
 			// tar files
 			err = Writetar(dir, files, prefix, to)
 			if err != nil {
