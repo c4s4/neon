@@ -3,15 +3,27 @@ package util
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
+	"os/user"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"unicode/utf8"
 )
 
 const (
 	DIR_FILE_MODE = 0755
 )
+
+func ReadFile(file string) ([]byte, error) {
+	path := ExpandUserHome(file)
+	bytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("reading file '%s': %v", file, err)
+	}
+	return bytes, nil
+}
 
 func FileExists(file string) bool {
 	if _, err := os.Stat(file); err == nil {
@@ -77,6 +89,15 @@ func CopyFilesToDir(dir string, files []string, toDir string, flatten bool) erro
 		}
 	}
 	return nil
+}
+
+func ExpandUserHome(path string) string {
+	if strings.HasPrefix(path, "~/") {
+		user, _ := user.Current()
+		home := user.HomeDir
+		path = filepath.Join(home, path[2:])
+	}
+	return path
 }
 
 func ToList(object interface{}) ([]interface{}, error) {

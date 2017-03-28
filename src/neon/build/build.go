@@ -3,38 +3,32 @@ package build
 import (
 	"fmt"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 	"neon/util"
 	"os"
-	"os/user"
 	"path/filepath"
-	"strings"
 )
 
 type Build struct {
-	File        string
-	Dir         string
-	Here        string
-	Name        string
-	Default     []string
-	Doc         string
-	Scripts     []string
-	Properties  util.Object
-	Environment map[string]string
-	Targets     map[string]*Target
-	Context     *Context
-	Parents     []*Build
-	Index       *Index
+	File         string
+	Dir          string
+	Here         string
+	Name         string
+	Default      []string
+	Doc          string
+	Scripts      []string
+	Properties   util.Object
+	Environment  map[string]string
+	Targets      map[string]*Target
+	Context      *Context
+	Parents      []*Build
+	Index        *Index
+	Repositories Repositories
 }
 
 func NewBuild(file string) (*Build, error) {
 	build := &Build{}
-	if strings.HasPrefix(file, "~/") {
-		user, _ := user.Current()
-		home := user.HomeDir
-		file = filepath.Join(home, file[2:])
-	}
-	source, err := ioutil.ReadFile(file)
+	build.Repositories = NewRepositories()
+	source, err := build.Repositories.GetResource(file)
 	if err != nil {
 		return nil, fmt.Errorf("loading build file '%s': %v", file, err)
 	}
@@ -83,10 +77,6 @@ func NewBuild(file string) (*Build, error) {
 		}
 		var extends []*Build
 		for _, parent := range parents {
-			parent, err = ExpandNeonPath(parent)
-			if err != nil {
-				return nil, fmt.Errorf("expanding neon path: %v", err)
-			}
 			extend, err := NewBuild(parent)
 			if err != nil {
 				return nil, fmt.Errorf("parsing parent '%s': %v", parent, err)
