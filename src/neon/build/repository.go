@@ -39,7 +39,7 @@ func (repo LocalRepository) GetResource(path string) ([]byte, error) {
 
 func SplitRepositoryPath(path string) (string, string, string, error) {
 	if IsRepositoryPath(path) {
-		parts := strings.Split(path[1:], "/")
+		parts := strings.Split(path[1:], ":")
 		if len(parts) < 2 || len(parts) > 3 {
 			return "", "", "", fmt.Errorf("Bad Neon path '%s'", path)
 		}
