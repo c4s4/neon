@@ -54,7 +54,14 @@ func NewContext(build *Build) (*Context, error) {
 
 func (context *Context) Evaluate(source string) (interface{}, error) {
 	value, err := context.VM.Execute(source)
-	return value.Interface(), err
+	if err != nil {
+		return nil, err
+	}
+	if value.IsValid() {
+		return value.Interface(), nil
+	} else {
+		return nil, nil
+	}
 }
 
 func (context *Context) SetProperty(name string, value interface{}) {
