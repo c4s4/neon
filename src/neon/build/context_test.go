@@ -61,6 +61,14 @@ func TestPropertyToStringCompositeMap(t *testing.T) {
 	}
 }
 
+func TestPropertyToStringNull(t *testing.T) {
+	expected := `null`
+	actual, err := PropertyToString(nil, true)
+	if err != nil || actual != expected {
+		t.Error("Error serializing null", err)
+	}
+}
+
 func TestGetEnvironmentSimple(t *testing.T) {
 	context := &Context{
 		Environment: map[string]string{
