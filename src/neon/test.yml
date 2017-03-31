@@ -195,10 +195,12 @@ targets:
     doc: Test the throw builtin function
     steps:
     - try:
-      - script: 'throw("TEST")'
+      - script: 'catched = false; throw("TEST")'
       catch:
+      - script: 'catched = true'
+      finally:
       - script: |
-          if error != "evaluating script: TEST" {
+          if error != "evaluating script: TEST" || !catched {
             throw("Throw test failure")
           } else {
             println("Throw test success")
