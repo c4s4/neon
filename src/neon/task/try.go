@@ -8,12 +8,13 @@ import (
 func init() {
 	build.TaskMap["try"] = build.TaskDescriptor{
 		Constructor: Try,
-		Help: `Try/catch construct.
+		Help: `Try/catch/finally construct.
 
 Arguments:
 
 - try: steps to execute.
 - catch: executed if an error occurs (optional).
+- finally: executed in all cases (optional).
 
 Examples:
 
@@ -26,6 +27,11 @@ Examples:
 	  - "command-that-doesnt-exist"
 	  catch:
 	  - print: "There was an error!"
+	# execute a command a print message in all cases
+	- try:
+	  - "command-that-doesnt-exist"
+	  finally:
+	  - print: "Print whatever happens"
 
 Notes:
 
@@ -34,7 +40,7 @@ Notes:
 }
 
 func Try(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"try", "catch"}
+	fields := []string{"try", "catch", "finally"}
 	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err
 	}
@@ -43,6 +49,10 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, err
 	}
 	catchSteps, err := ParseSteps(target, args, "catch")
+	if err != nil {
+		return nil, err
+	}
+	finallySteps, err := ParseSteps(target, args, "finally")
 	if err != nil {
 		return nil, err
 	}
@@ -59,6 +69,10 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 			if err != nil {
 				return err
 			}
+		}
+		err = RunSteps(target.Build, finallySteps)
+		if err != nil {
+			return err
 		}
 		return nil
 	}, nil
