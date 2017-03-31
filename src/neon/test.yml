@@ -195,12 +195,10 @@ targets:
     doc: Test the throw builtin function
     steps:
     - try:
-      - script: 'catched = false; throw("TEST")'
+      - script: 'throw("TEST")'
       catch:
-      - script: 'catched = true'
-      finally:
       - script: |
-          if error != "evaluating script: TEST" || !catched {
+          if error != "evaluating script: TEST" {
             throw("Throw test failure")
           } else {
             println("Throw test success")
@@ -517,6 +515,7 @@ targets:
   task_try:
     doc: Test task try
     steps:
+    # simple try/catch: error is trapped in catch clause
     - try:
       - throw: "Test"
       catch:
@@ -526,8 +525,21 @@ targets:
           } else {
             println("Try test success")
           }
+    # single try: execution continue, even if an error occurs
     - try:
       - throw: "Try test failure"
+    # try/catch/finally: finally run whatever happens
+    - try:
+      - throw: "Test"
+      catch:
+      - script: 'error = "catched"'
+      finally:
+      - script: |
+          if error != "catched" {
+            throw("Try test failure")
+          } else {
+            println("Try test success")
+          }
 
   task_while:
     doc: Test while task
