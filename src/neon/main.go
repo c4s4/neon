@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"gopkg.in/yaml.v2"
 	_build "neon/build"
 	_ "neon/builtin"
 	_ "neon/task"
@@ -16,9 +17,10 @@ const (
 	DEFAULT_BUILD_FILE = "build.yml"
 )
 
-func ParseCommandLine() (string, bool, bool, bool, string, bool, bool, string, bool, []string) {
+func ParseCommandLine() (string, bool, string, bool, bool, string, bool, bool, string, bool, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
 	help := flag.Bool("build", false, "Print build help")
+	props := flag.String("props", "", "Build properties")
 	timeit := flag.Bool("time", false, "Print build duration")
 	tasks := flag.Bool("tasks", false, "Print tasks list")
 	task := flag.String("task", "", "Print help on given task")
@@ -28,7 +30,8 @@ func ParseCommandLine() (string, bool, bool, bool, string, bool, bool, string, b
 	refs := flag.Bool("refs", false, "Print tasks and builtins reference")
 	flag.Parse()
 	targets := flag.Args()
-	return *file, *help, *timeit, *tasks, *task, *targs, *builtins, *builtin, *refs, targets
+	return *file, *help, *props, *timeit, *tasks, *task, *targs, *builtins, *builtin,
+		*refs, targets
 }
 
 func FindBuildFile(name string) (string, error) {
@@ -54,7 +57,7 @@ func FindBuildFile(name string) (string, error) {
 
 func main() {
 	start := time.Now()
-	file, help, timeit, tasks, task, targs, builtins, builtin, refs, targets := ParseCommandLine()
+	file, help, props, timeit, tasks, task, targs, builtins, builtin, refs, targets := ParseCommandLine()
 	// options that do not require we load build file
 	if tasks {
 		_build.PrintTasks()
@@ -83,22 +86,28 @@ func main() {
 		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
 		os.Exit(2)
 	}
+	err = build.Init()
+	if err != nil {
+		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
+		os.Exit(3)
+	}
+	if props != "" {
+		var object util.Object
+		err = yaml.Unmarshal([]byte(props), &object)
+		if err != nil {
+			util.PrintColor("%s %s", util.Red("ERROR"), "properties must be a map with string keys")
+			os.Exit(4)
+		}
+		for name, value := range object {
+			build.Context.SetProperty(name, value)
+		}
+	}
 	if targs {
 		build.PrintTargets()
 	} else if help {
-		err = build.Init()
-		if err == nil {
-			err = build.Help()
-		}
-		if err != nil {
-			util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
-			os.Exit(3)
-		}
+		err = build.Help()
 	} else {
-		err = build.Init()
-		if err == nil {
-			err = build.Run(targets)
-		}
+		err = build.Run(targets)
 		duration := time.Now().Sub(start)
 		if timeit || duration.Seconds() > 10 {
 			_build.Info("Build duration: %s", duration.String())
@@ -107,7 +116,7 @@ func main() {
 			util.PrintColor("%s", util.Green("OK"))
 		} else {
 			util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
-			os.Exit(4)
+			os.Exit(5)
 		}
 	}
 }
