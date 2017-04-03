@@ -76,9 +76,11 @@ func Write(target *build.Target, args util.Object) (build.Task, error) {
 				return fmt.Errorf("variable in argument from of task write must be of type string")
 			}
 		}
-		mode := os.O_CREATE | os.O_WRONLY
+		var mode int
 		if append {
-			mode |= os.O_APPEND
+			mode = os.O_CREATE | os.O_WRONLY | os.O_APPEND
+		} else {
+			mode = os.O_CREATE | os.O_WRONLY | os.O_TRUNC
 		}
 		file, err := os.OpenFile(eval, mode, FILE_MODE)
 		if err != nil {
