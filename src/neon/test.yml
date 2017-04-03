@@ -560,7 +560,7 @@ targets:
     steps:
     - mkdir: "#{BUILD_DIR}/write"
     - write: "#{BUILD_DIR}/write/test.txt"
-      text: "Hello World!"
+      text:  "Hello World!"
     - script: |
         ioutil = import("io/ioutil")
         filepath = import("path/filepath")
@@ -570,6 +570,21 @@ targets:
           throw("Write test failure")
         }
         if toString(content) != "Hello World!" {
+          throw("Write test failure")
+        }
+        println("Write test sucess")
+    - write:  "#{BUILD_DIR}/write/test.txt"
+      text:   " And you too!"
+      append: true
+    - script: |
+        ioutil = import("io/ioutil")
+        filepath = import("path/filepath")
+        file = filepath.Join(BUILD_DIR, "write", "test.txt")
+        content, err = ioutil.ReadFile(file)
+        if err != nil {
+          throw("Write test failure")
+        }
+        if toString(content) != "Hello World! And you too!" {
           throw("Write test failure")
         }
         println("Write test sucess")

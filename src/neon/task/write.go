@@ -2,9 +2,9 @@ package task
 
 import (
 	"fmt"
-	"io/ioutil"
 	"neon/build"
 	"neon/util"
+	"os"
 )
 
 func init() {
@@ -17,6 +17,7 @@ Arguments:
 - write: the file to write into as a string.
 - from: the name of the variable with the text to write (optional).
 - text: the text to write into the file (optional).
+- append: tells if we should append content to file (defaults to false).
 
 Examples:
 
@@ -27,7 +28,7 @@ Examples:
 }
 
 func Write(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"write", "from", "text"}
+	fields := []string{"write", "from", "text", "append"}
 	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err
 	}
@@ -49,6 +50,13 @@ func Write(target *build.Target, args util.Object) (build.Task, error) {
 			return nil, fmt.Errorf("argument text of task write must be a string")
 		}
 	}
+	append := false
+	if args.HasField("append") {
+		append, err = args.GetBoolean("append")
+		if err != nil {
+			return nil, fmt.Errorf("argument append of task write must be a boolean")
+		}
+	}
 	if from != "" && text != "" {
 		return nil, fmt.Errorf("you can't set both from and test arguments for task write")
 	}
@@ -68,9 +76,22 @@ func Write(target *build.Target, args util.Object) (build.Task, error) {
 				return fmt.Errorf("variable in argument from of task write must be of type string")
 			}
 		}
-		err = ioutil.WriteFile(eval, []byte(text), FILE_MODE)
+		mode := os.O_CREATE | os.O_WRONLY
+		if append {
+			mode |= os.O_APPEND
+		}
+		file, err := os.OpenFile(eval, mode, FILE_MODE)
+		if err != nil {
+			return fmt.Errorf("opening file '%s': %v", eval, err)
+		}
+		defer file.Close()
+		_, err = file.WriteString(text)
 		if err != nil {
 			return fmt.Errorf("writing content to file '%s': %v", eval, err)
+		}
+		err = file.Sync()
+		if err != nil {
+			return fmt.Errorf("syncing content to file '%s': %v", eval, err)
 		}
 		return nil
 	}, nil
