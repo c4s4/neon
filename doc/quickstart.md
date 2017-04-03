@@ -86,6 +86,11 @@ ahash:   [one: 1, two: 2]
 OK
 ```
 
+You can pass properties on command line with `-props` option. For instance, to
+define property *foo* with value *"bar"*, you would add on command line:
+`-props='foo: "bar"'`. These properties with overwrite those defined in the
+build file.
+
 Targets
 -------
 
