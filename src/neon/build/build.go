@@ -191,6 +191,18 @@ func (build *Build) SetDir(dir string) {
 	}
 }
 
+func (build *Build) SetProperties(props string) error {
+	var object util.Object
+	err := yaml.Unmarshal([]byte(props), &object)
+	if err != nil {
+		return fmt.Errorf("parsing command line properties: properties must be a map with string keys")
+	}
+	for name, value := range object {
+		build.Properties[name] = value
+	}
+	return nil
+}
+
 func (build *Build) Init() error {
 	context, err := NewContext(build)
 	if err != nil {

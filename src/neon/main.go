@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	_build "neon/build"
 	_ "neon/builtin"
 	_ "neon/task"
@@ -77,31 +76,15 @@ func main() {
 	}
 	// options that do require we load build file
 	path, err := FindBuildFile(file)
-	if err != nil {
-		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
-		os.Exit(1)
-	}
+	PrintError(err, 1)
 	build, err := _build.NewBuild(path)
-	if err != nil {
-		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
-		os.Exit(2)
+	PrintError(err, 2)
+	if props != "" {
+		err = build.SetProperties(props)
+		PrintError(err, 3)
 	}
 	err = build.Init()
-	if err != nil {
-		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
-		os.Exit(3)
-	}
-	if props != "" {
-		var object util.Object
-		err = yaml.Unmarshal([]byte(props), &object)
-		if err != nil {
-			util.PrintColor("%s %s", util.Red("ERROR"), "properties must be a map with string keys")
-			os.Exit(4)
-		}
-		for name, value := range object {
-			build.Context.SetProperty(name, value)
-		}
-	}
+	PrintError(err, 4)
 	if targs {
 		build.PrintTargets()
 	} else if help {
@@ -115,8 +98,14 @@ func main() {
 		if err == nil {
 			util.PrintColor("%s", util.Green("OK"))
 		} else {
-			util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
-			os.Exit(5)
+			PrintError(err, 5)
 		}
+	}
+}
+
+func PrintError(err error, code int) {
+	if err != nil {
+		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
+		os.Exit(code)
 	}
 }
