@@ -38,7 +38,7 @@ func NewBuild(file string) (*Build, error) {
 		return nil, fmt.Errorf("build must be a map with string keys")
 	}
 	err = object.CheckFields([]string{"name", "doc", "default", "context",
-		"extends", "properties", "environment", "targets"})
+		"extends", "properties", "configuration", "environment", "targets"})
 	if err != nil {
 		return nil, fmt.Errorf("parsing build file: %v", err)
 	}
@@ -104,6 +104,25 @@ func NewBuild(file string) (*Build, error) {
 		}
 	}
 	build.Properties = properties
+	if object.HasField("configuration") {
+		var config util.Object
+		file, err := object.GetString("configuration")
+		if err != nil {
+			return nil, fmt.Errorf("getting configuration file: %v", err)
+		}
+		file = util.ExpandUserHome(file)
+		source, err := util.ReadFile(file)
+		if err != nil {
+			return nil, fmt.Errorf("reading configuration file: %v", err)
+		}
+		err = yaml.Unmarshal(source, &config)
+		if err != nil {
+			return nil, fmt.Errorf("configuration must be a map with string keys")
+		}
+		for name, value := range config {
+			build.Properties[name] = value
+		}
+	}
 	environment := make(map[string]string)
 	if object.HasField("environment") {
 		env, err := object.GetObject("environment")
