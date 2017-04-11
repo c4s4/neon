@@ -57,11 +57,7 @@ func (context *Context) Evaluate(source string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	if value.IsValid() {
-		return value.Interface(), nil
-	} else {
-		return nil, nil
-	}
+	return util.ValueToInterface(value), nil
 }
 
 func (context *Context) SetProperty(name string, value interface{}) {
@@ -73,11 +69,7 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	if value.IsValid() {
-		return value.Interface(), nil
-	} else {
-		return nil, nil
-	}
+	return util.ValueToInterface(value), nil
 }
 
 func (context *Context) SetProperties(object util.Object) error {

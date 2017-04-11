@@ -113,6 +113,31 @@ func ToList(object interface{}) ([]interface{}, error) {
 	}
 }
 
+func ValueToInterface(value reflect.Value) interface{} {
+	if value.IsValid() {
+		kind := value.Kind()
+		if kind == reflect.Slice {
+			result := make([]interface{}, value.Len())
+			for i := 0; i < value.Len(); i++ {
+				result[i] = ValueToInterface(value.Index(i))
+			}
+			return result
+		} else if kind == reflect.Map {
+			result := make(map[interface{}]interface{})
+			for _, key := range value.MapKeys() {
+				keyInterface := ValueToInterface(key)
+				valueInterface := ValueToInterface(value.MapIndex(key))
+				result[keyInterface] = valueInterface
+			}
+			return result
+		} else {
+			return value.Interface()
+		}
+	} else {
+		return nil
+	}
+}
+
 func MaxLength(lines []string) int {
 	length := 0
 	for _, line := range lines {
