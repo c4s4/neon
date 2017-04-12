@@ -97,7 +97,7 @@ func Tar(target *build.Target, args util.Object) (build.Task, error) {
 		dir = eval
 		eval, err = target.Build.Context.ReplaceProperties(prefix)
 		if err != nil {
-			return fmt.Errorf("evaluating destination file: %v", err)
+			return fmt.Errorf("evaluating prefix: %v", err)
 		}
 		prefix = eval
 		// find source files
