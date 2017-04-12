@@ -177,6 +177,20 @@ targets:
           println("Now test success")
         }
 
+  builtin_read:
+    doc: Test read builtin function
+    steps:
+    - mkdir: "#{BUILD_DIR}/read"
+    - write: "#{BUILD_DIR}/read/test.txt"
+      text:  "Hello World!"
+    - script: |
+        text := read(joinpath(BUILD_DIR, "read", "test.txt"))
+        if text != "Hello World!" {
+          throw("Read test failure")
+        } else {
+          println("Read test success")
+        }
+
   builtin_run:
     doc: Test run builtin function
     steps:
