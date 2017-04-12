@@ -3,6 +3,7 @@ package builtin
 import (
 	"io/ioutil"
 	"neon/build"
+	"strings"
 )
 
 func init() {
@@ -30,5 +31,5 @@ func Read(file string) string {
 	if err != nil {
 		panic(err.Error())
 	}
-	return string(content)
+	return strings.TrimSpace(string(content))
 }
