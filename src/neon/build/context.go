@@ -74,9 +74,13 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 
 func (context *Context) SetProperties(object util.Object) error {
 	context.SetProperty("OS", runtime.GOOS)
+	context.Properties = append(context.Properties, "OS")
 	context.SetProperty("ARCH", runtime.GOARCH)
+	context.Properties = append(context.Properties, "ARCH")
 	context.SetProperty("BASE", context.Build.Dir)
+	context.Properties = append(context.Properties, "BASE")
 	context.SetProperty("HERE", context.Build.Here)
+	context.Properties = append(context.Properties, "HERE")
 	todo := object.Fields()
 	var crash error
 	for len(todo) > 0 {
