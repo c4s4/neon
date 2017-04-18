@@ -38,9 +38,20 @@ func NewBuild(file string) (*Build, error) {
 		return nil, fmt.Errorf("build must be a map with string keys")
 	}
 	err = object.CheckFields([]string{"name", "doc", "default", "context",
-		"extends", "properties", "configuration", "environment", "targets"})
+		"extends", "singleton", "properties", "configuration", "environment",
+		"targets"})
 	if err != nil {
 		return nil, fmt.Errorf("parsing build file: %v", err)
+	}
+	if object.HasField("singleton") {
+		port, err := object.GetInteger("singleton")
+		if err != nil {
+			return nil, fmt.Errorf("getting singleton port: %v", err)
+		}
+		err = util.Singleton(port)
+		if err != nil {
+			return nil, fmt.Errorf("another instance of the build is already running")
+		}
 	}
 	if object.HasField("name") {
 		name, err := object.GetString("name")

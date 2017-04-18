@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"os"
 	"os/user"
 	"path/filepath"
 	"reflect"
 	"strings"
+	"time"
 	"unicode/utf8"
 )
 
@@ -146,4 +148,18 @@ func MaxLength(lines []string) int {
 		}
 	}
 	return length
+}
+
+func Singleton(port int) error {
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		return err
+	}
+	go func() {
+		for {
+			listener.Accept()
+			time.Sleep(100 * time.Millisecond)
+		}
+	}()
+	return nil
 }
