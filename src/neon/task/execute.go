@@ -24,7 +24,7 @@ Examples:
 
     # execute ls command and get result in 'files' variable
     - execute: 'ls'
-	  output:  'files'`,
+      output:  'files'`,
 	}
 }
 
