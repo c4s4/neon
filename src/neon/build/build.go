@@ -121,7 +121,7 @@ func NewBuild(file string) (*Build, error) {
 		if err != nil {
 			return nil, fmt.Errorf("getting configuration file: %v", err)
 		}
-		file = util.ExpandUserHome(file)
+		file = util.FilePath(build.Dir, file)
 		source, err := util.ReadFile(file)
 		if err != nil {
 			return nil, fmt.Errorf("reading configuration file: %v", err)

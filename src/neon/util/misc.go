@@ -102,6 +102,15 @@ func ExpandUserHome(path string) string {
 	return path
 }
 
+func FilePath(root, path string) string {
+	path = ExpandUserHome(path)
+	if filepath.IsAbs(path) {
+		return path
+	} else {
+		return filepath.Join(root, path)
+	}
+}
+
 func ToList(object interface{}) ([]interface{}, error) {
 	slice := reflect.ValueOf(object)
 	if slice.Kind() == reflect.Slice {
