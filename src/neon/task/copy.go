@@ -104,7 +104,7 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 		if err != nil {
 			return fmt.Errorf("evaluating destination directory: %v", err)
 		}
-		toDir = eval
+		toDir = util.ExpandUserHome(eval)
 		// find source files
 		sources, err := target.Build.Context.FindFiles(dir, includes, excludes)
 		if err != nil {
