@@ -234,6 +234,7 @@ func (build *Build) SetProperties(props string) error {
 }
 
 func (build *Build) Init() error {
+	os.Chdir(build.Dir)
 	context, err := NewContext(build)
 	if err != nil {
 		return fmt.Errorf("evaluating context: %v", err)
