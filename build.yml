@@ -17,8 +17,8 @@ properties:
   - 'github.com/mitchellh/gox'
 
 environment:
-  GOPATH: '${BASE}'
-  PATH:   '${BASE}/bin:${PATH}'
+  GOPATH: '#{_BASE}'
+  PATH:   '#{_BASE}/bin:${PATH}'
 
 targets:
 
