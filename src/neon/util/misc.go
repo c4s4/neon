@@ -101,6 +101,34 @@ func CopyFilesToDir(dir string, files []string, toDir string, flatten bool) erro
 	return nil
 }
 
+func MoveFilesToDir(dir string, files []string, toDir string, flatten bool) error {
+	if stat, err := os.Stat(toDir); err != nil || !stat.IsDir() {
+		return fmt.Errorf("destination directory doesn't exist")
+	}
+	for _, file := range files {
+		source := filepath.Join(dir, file)
+		var dest string
+		if flatten {
+			base := filepath.Base(file)
+			dest = filepath.Join(toDir, base)
+		} else {
+			dest = filepath.Join(toDir, file)
+			destDir := filepath.Dir(dest)
+			if !DirExists(destDir) {
+				err := os.MkdirAll(destDir, DIR_FILE_MODE)
+				if err != nil {
+					return fmt.Errorf("creating directory for destination file: %v", err)
+				}
+			}
+		}
+		err := os.Rename(source, dest)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func ExpandUserHome(path string) string {
 	if strings.HasPrefix(path, "~/") {
 		user, _ := user.Current()
