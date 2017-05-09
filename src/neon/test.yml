@@ -212,7 +212,7 @@ targets:
       - script: 'throw("TEST")'
       catch:
       - script: |
-          if error != "evaluating script: TEST" {
+          if _error != "evaluating script: TEST" {
             throw("Throw test failure")
           } else {
             println("Throw test success")
@@ -500,7 +500,7 @@ targets:
     - try:
       - throw: 'This is a test'
       catch:
-      - if: 'error == "This is a test"'
+      - if: '_error == "This is a test"'
         then:
         - print: 'Throw task test success'
         else:
@@ -534,7 +534,7 @@ targets:
       - throw: "Test"
       catch:
       - script: |
-          if error != "Test" {
+          if _error != "Test" {
             throw("Try test failure")
           } else {
             println("Try test success")

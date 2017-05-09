@@ -35,7 +35,7 @@ Examples:
 
 Notes:
 
-- The error message for the failure is stored in 'error' variable as text.`,
+- The error message for the failure is stored in '_error' variable as text.`,
 	}
 }
 
@@ -58,7 +58,7 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		depth := target.Build.Index.Len()
-		target.Build.Context.SetProperty("error", "")
+		target.Build.Context.SetProperty("_error", "")
 		var tryError error
 		var catchError error
 		var finallyError error
@@ -68,7 +68,7 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 				target.Build.Index.Shrink()
 			}
 			if len(catchSteps) > 0 || (len(catchSteps) == 0 && len(finallySteps) == 0) {
-				target.Build.Context.SetProperty("error", tryError.Error())
+				target.Build.Context.SetProperty("_error", tryError.Error())
 				tryError = nil
 				catchError = RunSteps(target.Build, catchSteps)
 				if catchError != nil {
@@ -83,15 +83,15 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 			for target.Build.Index.Len() > depth {
 				target.Build.Index.Shrink()
 			}
-			target.Build.Context.SetProperty("error", finallyError.Error())
+			target.Build.Context.SetProperty("_error", finallyError.Error())
 			return finallyError
 		}
 		if catchError != nil {
-			target.Build.Context.SetProperty("error", catchError.Error())
+			target.Build.Context.SetProperty("_error", catchError.Error())
 			return catchError
 		}
 		if tryError != nil {
-			target.Build.Context.SetProperty("error", tryError.Error())
+			target.Build.Context.SetProperty("_error", tryError.Error())
 			return tryError
 		}
 		return nil
