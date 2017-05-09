@@ -48,6 +48,10 @@ func CopyFile(source, dest string) error {
 	if err != nil {
 		return fmt.Errorf("opening source file '%s': %v", source, err)
 	}
+	info, err := from.Stat()
+	if err != nil {
+		return fmt.Errorf("getting mode of source file '%s': %v", source, err)
+	}
 	defer from.Close()
 	to, err := os.Create(dest)
 	if err != nil {
@@ -61,6 +65,10 @@ func CopyFile(source, dest string) error {
 	err = to.Sync()
 	if err != nil {
 		return fmt.Errorf("syncing destination file: %v", err)
+	}
+	err = to.Chmod(info.Mode())
+	if err != nil {
+		return fmt.Errorf("changing mode of destination file '%s': %v", dest, err)
 	}
 	return nil
 }

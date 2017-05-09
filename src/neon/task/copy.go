@@ -18,8 +18,8 @@ Arguments:
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
   optional).
-- to: the file to copy to (as a string, optional, only if glob selects a single
-  file).
+- tofile: the file to copy to (as a string, optional, only if glob selects a
+  single file).
 - todir: directory to copy file(s) to (as a string, optional).
 - flat: tells if files should be flatten in destination directory (as a boolean,
   optional, defaults to true).
@@ -27,8 +27,8 @@ Arguments:
 Examples:
 
     # copy file foo to bar
-    - copy: "foo"
-      to: "bar"
+    - copy:   "foo"
+      tofile: "bar"
     # copy text files in directory 'book' (except 'foo.txt') to directory 'text'
     - copy: "**/*.txt"
       dir: "book"
@@ -42,7 +42,7 @@ Examples:
 }
 
 func Copy(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"copy", "dir", "exclude", "to", "todir", "flat"}
+	fields := []string{"copy", "dir", "exclude", "tofile", "todir", "flat"}
 	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err
 	}
@@ -64,11 +64,11 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 			return nil, fmt.Errorf("argument exclude mus be string or list of strings")
 		}
 	}
-	var to string
-	if args.HasField("to") {
-		to, err = args.GetString("to")
+	var tofile string
+	if args.HasField("tofile") {
+		tofile, err = args.GetString("tofile")
 		if err != nil {
-			return nil, fmt.Errorf("argument to of task copy must be a string")
+			return nil, fmt.Errorf("argument tofile of task copy must be a string")
 		}
 	}
 	var toDir string
@@ -85,7 +85,7 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 			return nil, fmt.Errorf("argument flat of task copy must be a boolean")
 		}
 	}
-	if (to == "" && toDir == "") || (to != "" && toDir != "") {
+	if (tofile == "" && toDir == "") || (tofile != "" && toDir != "") {
 		return nil, fmt.Errorf("copy task must have one of 'to' or 'toDir' argument")
 	}
 	return func() error {
@@ -95,11 +95,11 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 			return fmt.Errorf("evaluating destination directory: %v", err)
 		}
 		dir = eval
-		eval, err = target.Build.Context.ReplaceProperties(to)
+		eval, err = target.Build.Context.ReplaceProperties(tofile)
 		if err != nil {
 			return fmt.Errorf("evaluating destination file: %v", err)
 		}
-		to = eval
+		tofile = eval
 		eval, err = target.Build.Context.ReplaceProperties(toDir)
 		if err != nil {
 			return fmt.Errorf("evaluating destination directory: %v", err)
@@ -110,16 +110,16 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 		if err != nil {
 			return fmt.Errorf("getting source files for copy task: %v", err)
 		}
-		if to != "" && len(sources) > 1 {
+		if tofile != "" && len(sources) > 1 {
 			return fmt.Errorf("can't copy more than one file to a given file, use todir instead")
 		}
 		if len(sources) < 1 {
 			return nil
 		}
 		build.Info("Copying %d file(s)", len(sources))
-		if to != "" {
+		if tofile != "" {
 			file := filepath.Join(dir, sources[0])
-			err = util.CopyFile(file, to)
+			err = util.CopyFile(file, tofile)
 			if err != nil {
 				return fmt.Errorf("copying file: %v", err)
 			}
