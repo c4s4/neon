@@ -51,7 +51,7 @@ targets:
     - script: |
         actual = directory("/foo/bar/spam.txt")
         expected = "/foo/bar"
-        if OS == "windows" {
+        if _OS == "windows" {
           expected = `\foo\bar`
         }
         if actual != expected {
@@ -74,7 +74,7 @@ targets:
   builtin_expand:
     doc: Test expand builtin function
     steps:
-    - if: 'OS != "windows"'
+    - if: '_OS != "windows"'
       then:
       - script: |
           os = import("os")
@@ -144,7 +144,7 @@ targets:
     - script: |
         path = joinpath("/foo", "bar", "spam.txt")
         expected = "/foo/bar/spam.txt"
-        if OS == "windows" {
+        if _OS == "windows" {
           expected = `\foo\bar\spam.txt`
         }
         if path != expected {
@@ -194,7 +194,7 @@ targets:
   builtin_run:
     doc: Test run builtin function
     steps:
-    - if: 'OS != "windows"'
+    - if: '_OS != "windows"'
       then:
       - script: |
           n = run("date", "--iso-8601")
@@ -304,7 +304,7 @@ targets:
   task_execute:
     doc: Test task execute
     steps:
-    - if: 'OS != "windows"'
+    - if: '_OS != "windows"'
       then:
       - execute: 'echo "TEST"'
         output:  'result'
@@ -347,7 +347,7 @@ targets:
   task_link:
     doc: Test task link
     steps:
-    - if: 'OS != "windows"'
+    - if: '_OS != "windows"'
       then:
       - delete:  "#{BUILD_DIR}/link"
       - mkdir: "#{BUILD_DIR}/link"
@@ -397,7 +397,7 @@ targets:
       to: "classpath"
     - script: |
         path = "lib/bar.jar:lib/foo.jar"
-        if OS == "windows" {
+        if _OS == "windows" {
           path = "lib/bar.jar;lib/foo.jar"
         }
         if classpath != path {

@@ -73,14 +73,10 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 }
 
 func (context *Context) SetProperties(object util.Object) error {
-	context.SetProperty("OS", runtime.GOOS)
-	context.Properties = append(context.Properties, "OS")
-	context.SetProperty("ARCH", runtime.GOARCH)
-	context.Properties = append(context.Properties, "ARCH")
-	context.SetProperty("BASE", context.Build.Dir)
-	context.Properties = append(context.Properties, "BASE")
-	context.SetProperty("HERE", context.Build.Here)
-	context.Properties = append(context.Properties, "HERE")
+	context.addProperty("_OS", runtime.GOOS)
+	context.addProperty("_ARCH", runtime.GOARCH)
+	context.addProperty("_BASE", context.Build.Dir)
+	context.addProperty("_HERE", context.Build.Here)
 	todo := object.Fields()
 	var crash error
 	for len(todo) > 0 {
@@ -119,6 +115,11 @@ func (context *Context) SetProperties(object util.Object) error {
 		todo = next
 	}
 	return nil
+}
+
+func (context *Context) addProperty(name, value string) {
+	context.SetProperty(name, value)
+	context.Properties = append(context.Properties, name)
 }
 
 func (context *Context) ReplaceProperties(text string) (string, error) {
