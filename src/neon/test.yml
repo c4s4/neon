@@ -490,7 +490,7 @@ targets:
     - tar: "**/*.txt"
       dir: "#{BUILD_DIR}/tar"
       prefix: "bar"
-      to: "#{BUILD_DIR}/tar/test.tar.gz"
+      tofile: "#{BUILD_DIR}/tar/test.tar.gz"
     - print: "Tar test success"
 
   task_throw:
@@ -613,5 +613,5 @@ targets:
     - zip: "**/*.txt"
       dir: "#{BUILD_DIR}/zip"
       prefix: "bar"
-      to: "#{BUILD_DIR}/zip/test.zip"
+      tofile: "#{BUILD_DIR}/zip/test.zip"
     - print: "Zip test success"

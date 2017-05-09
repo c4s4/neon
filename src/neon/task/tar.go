@@ -23,14 +23,14 @@ Arguments:
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
   optional).
-- to: the name of the tar file to create as a string.
+- tofile: the name of the tar file to create as a string.
 - prefix: prefix directory in the archive.
 
 Examples:
 
     # tar files in build directory in file named build.tar.gz
     - tar: "build/**/*"
-      to: "build.tar.gz"
+      tofile: "build.tar.gz"
 
 Notes:
 
@@ -40,7 +40,7 @@ Notes:
 }
 
 func Tar(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"tar", "to", "dir", "exclude", "prefix"}
+	fields := []string{"tar", "tofile", "dir", "exclude", "prefix"}
 	if err := CheckFields(args, fields, fields[:2]); err != nil {
 		return nil, err
 	}
@@ -48,9 +48,9 @@ func Tar(target *build.Target, args util.Object) (build.Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("argument tar must be a string or list of strings")
 	}
-	var to string
-	if args.HasField("to") {
-		to, err = args.GetString("to")
+	var tofile string
+	if args.HasField("tofile") {
+		tofile, err = args.GetString("tofile")
 		if err != nil {
 			return nil, fmt.Errorf("argument to of task tar must be a string")
 		}
@@ -85,11 +85,11 @@ func Tar(target *build.Target, args util.Object) (build.Task, error) {
 			}
 			includes[index] = eval
 		}
-		eval, err := target.Build.Context.ReplaceProperties(to)
+		eval, err := target.Build.Context.ReplaceProperties(tofile)
 		if err != nil {
 			return fmt.Errorf("evaluating destination file: %v", err)
 		}
-		to = eval
+		tofile = eval
 		eval, err = target.Build.Context.ReplaceProperties(dir)
 		if err != nil {
 			return fmt.Errorf("evaluating source directory: %v", err)
@@ -106,9 +106,9 @@ func Tar(target *build.Target, args util.Object) (build.Task, error) {
 			return fmt.Errorf("getting source files for tar task: %v", err)
 		}
 		if len(files) > 0 {
-			build.Info("Tarring %d file(s) into '%s'", len(files), to)
+			build.Info("Tarring %d file(s) into '%s'", len(files), tofile)
 			// tar files
-			err = Writetar(dir, files, prefix, to)
+			err = Writetar(dir, files, prefix, tofile)
 			if err != nil {
 				return fmt.Errorf("tarring files: %v", err)
 			}
