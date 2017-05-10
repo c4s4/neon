@@ -39,7 +39,7 @@ func Read(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument to of task read must be a string")
 	}
 	return func() error {
-		eval, err := target.Build.Context.ReplaceProperties(file)
+		eval, err := target.Build.Context.EvaluateString(file)
 		if err != nil {
 			return fmt.Errorf("processing read argument: %v", err)
 		}

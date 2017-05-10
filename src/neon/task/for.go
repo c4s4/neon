@@ -55,7 +55,7 @@ func For(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		if expression != "" {
-			result, err := target.Build.Context.Evaluate(expression)
+			result, err := target.Build.Context.EvaluateExpression(expression)
 			if err != nil {
 				return fmt.Errorf("evaluating in field of for loop: %v", err)
 			}

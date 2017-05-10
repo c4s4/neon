@@ -33,7 +33,7 @@ func MkDir(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument to task mkdir must be a string")
 	}
 	return func() error {
-		directory, err := target.Build.Context.ReplaceProperties(dir)
+		directory, err := target.Build.Context.EvaluateString(dir)
 		if err != nil {
 			return fmt.Errorf("processing mkdir argument: %v", err)
 		}

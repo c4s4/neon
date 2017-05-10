@@ -90,17 +90,17 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		// evaluate arguments
-		eval, err := target.Build.Context.ReplaceProperties(dir)
+		eval, err := target.Build.Context.EvaluateString(dir)
 		if err != nil {
 			return fmt.Errorf("evaluating destination directory: %v", err)
 		}
 		dir = eval
-		eval, err = target.Build.Context.ReplaceProperties(tofile)
+		eval, err = target.Build.Context.EvaluateString(tofile)
 		if err != nil {
 			return fmt.Errorf("evaluating destination file: %v", err)
 		}
 		tofile = eval
-		eval, err = target.Build.Context.ReplaceProperties(toDir)
+		eval, err = target.Build.Context.EvaluateString(toDir)
 		if err != nil {
 			return fmt.Errorf("evaluating destination directory: %v", err)
 		}

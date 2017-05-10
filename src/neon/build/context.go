@@ -52,14 +52,6 @@ func NewContext(build *Build) (*Context, error) {
 	return context, nil
 }
 
-func (context *Context) Evaluate(source string) (interface{}, error) {
-	value, err := context.VM.Execute(source)
-	if err != nil {
-		return nil, err
-	}
-	return util.ValueToInterface(value), nil
-}
-
 func (context *Context) SetProperty(name string, value interface{}) {
 	context.VM.Define(name, value)
 }
@@ -73,10 +65,10 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 }
 
 func (context *Context) SetProperties(object util.Object) error {
-	context.addProperty("_OS", runtime.GOOS)
-	context.addProperty("_ARCH", runtime.GOARCH)
-	context.addProperty("_BASE", context.Build.Dir)
-	context.addProperty("_HERE", context.Build.Here)
+	context.SetProperty("_OS", runtime.GOOS)
+	context.SetProperty("_ARCH", runtime.GOARCH)
+	context.SetProperty("_BASE", context.Build.Dir)
+	context.SetProperty("_HERE", context.Build.Here)
 	todo := object.Fields()
 	var crash error
 	for len(todo) > 0 {
@@ -85,7 +77,7 @@ func (context *Context) SetProperties(object util.Object) error {
 			value := object[name]
 			str, ok := value.(string)
 			if ok {
-				eval, err := context.ReplaceProperties(str)
+				eval, err := context.EvaluateString(str)
 				if err == nil {
 					context.SetProperty(name, eval)
 					done = append(done, name)
@@ -117,18 +109,21 @@ func (context *Context) SetProperties(object util.Object) error {
 	return nil
 }
 
-func (context *Context) addProperty(name, value string) {
-	context.SetProperty(name, value)
-	context.Properties = append(context.Properties, name)
+func (context *Context) EvaluateExpression(source string) (interface{}, error) {
+	value, err := context.VM.Execute(source)
+	if err != nil {
+		return nil, err
+	}
+	return util.ValueToInterface(value), nil
 }
 
-func (context *Context) ReplaceProperties(text string) (string, error) {
-	r := regexp.MustCompile("#{.*?}")
+func (context *Context) EvaluateString(text string) (string, error) {
+	r := regexp.MustCompile(`#{.*?}`)
 	var err error
 	replaced := r.ReplaceAllStringFunc(text, func(expression string) string {
 		name := expression[2 : len(expression)-1]
 		var value interface{}
-		value, err = context.Evaluate(name)
+		value, err = context.EvaluateExpression(name)
 		if err != nil {
 			return ""
 		} else {
@@ -192,7 +187,7 @@ func (context *Context) GetEnvironment() ([]string, error) {
 }
 
 func (context *Context) FindFiles(dir string, includes, excludes []string) ([]string, error) {
-	eval, err := context.ReplaceProperties(dir)
+	eval, err := context.EvaluateString(dir)
 	if err != nil {
 		return nil, fmt.Errorf("evaluating source directory: %v", err)
 	}
@@ -210,7 +205,7 @@ func (context *Context) FindFiles(dir string, includes, excludes []string) ([]st
 	}
 	var included []string
 	for _, include := range includes {
-		pattern, err := context.ReplaceProperties(include)
+		pattern, err := context.EvaluateString(include)
 		if err != nil {
 			return nil, fmt.Errorf("evaluating pattern: %v", err)
 		}
@@ -218,7 +213,7 @@ func (context *Context) FindFiles(dir string, includes, excludes []string) ([]st
 	}
 	var excluded []string
 	for _, exclude := range excludes {
-		pattern, err := context.ReplaceProperties(exclude)
+		pattern, err := context.EvaluateString(exclude)
 		if err != nil {
 			return nil, fmt.Errorf("evaluating pattern: %v", err)
 		}

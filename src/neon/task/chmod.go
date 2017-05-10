@@ -64,12 +64,12 @@ func Chmod(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		// evaluate arguments
-		eval, err := target.Build.Context.ReplaceProperties(dir)
+		eval, err := target.Build.Context.EvaluateString(dir)
 		if err != nil {
 			return fmt.Errorf("evaluating directory: %v", err)
 		}
 		dir = eval
-		eval, err = target.Build.Context.ReplaceProperties(mode)
+		eval, err = target.Build.Context.EvaluateString(mode)
 		if err != nil {
 			return fmt.Errorf("evaluating mode: %v", err)
 		}

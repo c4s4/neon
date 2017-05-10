@@ -42,7 +42,7 @@ func Touch(target *build.Target, args util.Object) (build.Task, error) {
 	return func() error {
 		build.Info("Touching %d file(s)", len(files))
 		for _, file := range files {
-			path, err := target.Build.Context.ReplaceProperties(file)
+			path, err := target.Build.Context.EvaluateString(file)
 			if err != nil {
 				return fmt.Errorf("processing touch argument: %v", err)
 			}

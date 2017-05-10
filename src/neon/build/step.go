@@ -38,7 +38,7 @@ func NewShellStep(target *Target, shell string) (Step, error) {
 }
 
 func (step ShellStep) Run() error {
-	cmd, err := step.Target.Build.Context.ReplaceProperties(step.Command)
+	cmd, err := step.Target.Build.Context.EvaluateString(step.Command)
 	if err != nil {
 		return fmt.Errorf("evaluating shell expression: %v", err)
 	}

@@ -42,7 +42,7 @@ func Execute(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument output of task execute must be a string")
 	}
 	return func() error {
-		cmd, err := target.Build.Context.ReplaceProperties(execute)
+		cmd, err := target.Build.Context.EvaluateString(execute)
 		if err != nil {
 			return fmt.Errorf("processing execute argument: %v", err)
 		}

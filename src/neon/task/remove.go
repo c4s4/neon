@@ -37,7 +37,7 @@ func Remove(target *build.Target, args util.Object) (build.Task, error) {
 	return func() error {
 		var files []string
 		for _, patt := range patterns {
-			pattern, err := target.Build.Context.ReplaceProperties(patt)
+			pattern, err := target.Build.Context.EvaluateString(patt)
 			if err != nil {
 				return fmt.Errorf("evaluating argument in task remove: %v", err)
 			}

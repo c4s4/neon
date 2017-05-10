@@ -65,17 +65,17 @@ func Replace(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		// evaluate arguments
-		eval, err := target.Build.Context.ReplaceProperties(pattern)
+		eval, err := target.Build.Context.EvaluateString(pattern)
 		if err != nil {
 			return fmt.Errorf("evaluating pattern: %v", err)
 		}
 		pattern = eval
-		eval, err = target.Build.Context.ReplaceProperties(with)
+		eval, err = target.Build.Context.EvaluateString(with)
 		if err != nil {
 			return fmt.Errorf("evaluating with: %v", err)
 		}
 		with = eval
-		eval, err = target.Build.Context.ReplaceProperties(dir)
+		eval, err = target.Build.Context.EvaluateString(dir)
 		if err != nil {
 			return fmt.Errorf("evaluating destination directory: %v", err)
 		}

@@ -38,7 +38,7 @@ func Delete(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		for _, dir := range directories {
-			directory, err := target.Build.Context.ReplaceProperties(dir)
+			directory, err := target.Build.Context.EvaluateString(dir)
 			if err != nil {
 				return fmt.Errorf("evaluating directory in task delete: %v", err)
 			}

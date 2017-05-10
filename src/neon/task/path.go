@@ -59,7 +59,7 @@ func Path(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		// evaluate arguments
-		eval, err := target.Build.Context.ReplaceProperties(dir)
+		eval, err := target.Build.Context.EvaluateString(dir)
 		if err != nil {
 			return fmt.Errorf("evaluating destination directory: %v", err)
 		}

@@ -32,7 +32,7 @@ func Print(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument of task print must be a string")
 	}
 	return func() error {
-		evaluated, err := target.Build.Context.ReplaceProperties(message)
+		evaluated, err := target.Build.Context.EvaluateString(message)
 		if err != nil {
 			return fmt.Errorf("processing print argument: %v", err)
 		}

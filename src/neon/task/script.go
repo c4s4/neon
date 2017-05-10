@@ -46,7 +46,7 @@ func Script(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("parsing script task: %v", err)
 	}
 	return func() error {
-		_, err := target.Build.Context.Evaluate(source)
+		_, err := target.Build.Context.EvaluateExpression(source)
 		if err != nil {
 			return fmt.Errorf("evaluating script: %v", err)
 		}

@@ -49,7 +49,7 @@ func If(target *build.Target, args util.Object) (build.Task, error) {
 		}
 	}
 	return func() error {
-		result, err := target.Build.Context.Evaluate(condition)
+		result, err := target.Build.Context.EvaluateExpression(condition)
 		if err != nil {
 			return fmt.Errorf("evaluating 'if' condition: %v", err)
 		}

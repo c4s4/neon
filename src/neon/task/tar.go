@@ -79,23 +79,23 @@ func Tar(target *build.Target, args util.Object) (build.Task, error) {
 	return func() error {
 		// evaluate arguments
 		for index, pattern := range includes {
-			eval, err := target.Build.Context.ReplaceProperties(pattern)
+			eval, err := target.Build.Context.EvaluateString(pattern)
 			if err != nil {
 				return fmt.Errorf("evaluating pattern: %v", err)
 			}
 			includes[index] = eval
 		}
-		eval, err := target.Build.Context.ReplaceProperties(tofile)
+		eval, err := target.Build.Context.EvaluateString(tofile)
 		if err != nil {
 			return fmt.Errorf("evaluating destination file: %v", err)
 		}
 		tofile = eval
-		eval, err = target.Build.Context.ReplaceProperties(dir)
+		eval, err = target.Build.Context.EvaluateString(dir)
 		if err != nil {
 			return fmt.Errorf("evaluating source directory: %v", err)
 		}
 		dir = eval
-		eval, err = target.Build.Context.ReplaceProperties(prefix)
+		eval, err = target.Build.Context.EvaluateString(prefix)
 		if err != nil {
 			return fmt.Errorf("evaluating prefix: %v", err)
 		}

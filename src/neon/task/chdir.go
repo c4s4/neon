@@ -37,7 +37,7 @@ func Chdir(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument to task chdir must be a string")
 	}
 	return func() error {
-		directory, err := target.Build.Context.ReplaceProperties(dir)
+		directory, err := target.Build.Context.EvaluateString(dir)
 		build.Info("Changing to directory '%s'", directory)
 		if err != nil {
 			return fmt.Errorf("processing chdir argument: %v", err)
