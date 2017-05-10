@@ -21,7 +21,8 @@ Returns:
 Examples:
 
     // get directory of path "/foo/bar/spam.txt"
-    dir = directory("/foo/bar/spam.txt")`,
+    dir = directory("/foo/bar/spam.txt")
+    // returns: "/foo/bar"`,
 	}
 }
 

@@ -20,8 +20,9 @@ Returns:
 
 Examples:
 
-    // set greetings in lower case
-    greetings = lowercase(greetings)`,
+    // set string in lower case
+    lowercase("FooBAR")
+    // returns: "foobar"`,
 	}
 }
 

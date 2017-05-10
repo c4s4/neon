@@ -22,7 +22,8 @@ Returns:
 Examples:
 
     // read VERSION file and set variable version with ots content
-    version = read("VERSION")`,
+    read("VERSION")
+    // returns: the contents of "VERSION" file`,
 	}
 }
 

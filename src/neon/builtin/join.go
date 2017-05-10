@@ -22,7 +22,8 @@ Returns:
 Examples:
 
     // join "foo" and "bar" with a space
-    join(["foo", "bar"], " ")`,
+    join(["foo", "bar"], " ")
+    // returns: "foo bar"`,
 	}
 }
 

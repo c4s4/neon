@@ -21,7 +21,8 @@ Returns:
 Examples:
 
     // stop the script with an error message
-    throw("Some tests failed")`,
+    throw("Some tests failed")
+    // returns: nothing, the script is interrupted on error`,
 	}
 }
 

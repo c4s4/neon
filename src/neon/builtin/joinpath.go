@@ -21,7 +21,9 @@ Returns:
 Examples:
 
     // join paths "/foo", "bar" and "spam.txt"
-    joinpath("foo", "bar", "spam.txt")`,
+    joinpath("foo", "bar", "spam.txt")
+    // returns: "foo/bar/spam.txt" on a Linux box and "foo\bar\spam.txt" on
+    // Windows`,
 	}
 }
 
