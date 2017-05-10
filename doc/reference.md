@@ -68,8 +68,8 @@ Arguments:
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
   optional).
-- to: the file to copy to (as a string, optional, only if glob selects a single
-  file).
+- tofile: the file to copy to (as a string, optional, only if glob selects a
+  single file).
 - todir: directory to copy file(s) to (as a string, optional).
 - flat: tells if files should be flatten in destination directory (as a boolean,
   optional, defaults to true).
@@ -77,8 +77,8 @@ Arguments:
 Examples:
 
     # copy file foo to bar
-    - copy: "foo"
-      to: "bar"
+    - copy:   "foo"
+      tofile: "bar"
     # copy text files in directory 'book' (except 'foo.txt') to directory 'text'
     - copy: "**/*.txt"
       dir: "book"
@@ -106,6 +106,22 @@ Examples:
 Notes:
 
 - Handle with care, this is recursive!
+
+execute
+-------
+
+Execute a command and return output and value.
+
+Arguments:
+
+- execute: command to run.
+- output: name of the variable to store trimed output into.
+
+Examples:
+
+    # execute ls command and get result in 'files' variable
+    - execute: 'ls'
+      output:  'files'
 
 for
 ---
@@ -180,6 +196,38 @@ Examples:
 
     # create a directory 'build'
     - mkdir: "build"
+
+move
+----
+
+Move file(s).
+
+Arguments:
+
+- move: the list of globs of files to move (as a string or list of strings).
+- dir: the root directory for glob (as a string, optional).
+- exclude: globs of files to exclude (as a string or list of strings,
+  optional).
+- tofile: the file to move to (as a string, optional, only if glob selects a
+  single file).
+- todir: directory to move file(s) to (as a string, optional).
+- flat: tells if files should be flatten in destination directory (as a boolean,
+  optional, defaults to true).
+
+Examples:
+
+    # move file foo to bar
+    - move:   "foo"
+      tofile: "bar"
+    # move text files in directory 'book' (except 'foo.txt') to directory 'text'
+    - move: "**/*.txt"
+      dir: "book"
+      exclude: "**/foo.txt"
+      todir: "text"
+    # move all go sources to directory 'src', preserving directory structure
+    - move: "**/*.go"
+      todir: "src"
+      flat: false
 
 pass
 ----
@@ -337,14 +385,14 @@ Arguments:
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
   optional).
-- to: the name of the tar file to create as a string.
+- tofile: the name of the tar file to create as a string.
 - prefix: prefix directory in the archive.
 
 Examples:
 
     # tar files in build directory in file named build.tar.gz
     - tar: "build/**/*"
-      to: "build.tar.gz"
+      tofile: "build.tar.gz"
 
 Notes:
 
@@ -407,12 +455,13 @@ Notes:
 try
 ---
 
-Try/catch construct.
+Try/catch/finally construct.
 
 Arguments:
 
 - try: steps to execute.
 - catch: executed if an error occurs (optional).
+- finally: executed in all cases (optional).
 
 Examples:
 
@@ -425,10 +474,15 @@ Examples:
 	  - "command-that-doesnt-exist"
 	  catch:
 	  - print: "There was an error!"
+	# execute a command a print message in all cases
+	- try:
+	  - "command-that-doesnt-exist"
+	  finally:
+	  - print: "Print whatever happens"
 
 Notes:
 
-- The error message for the failure is stored in 'error' variable as text.
+- The error message for the failure is stored in '_error' variable as text.
 
 while
 -----
@@ -454,9 +508,9 @@ Write text into a given file.
 
 Arguments:
 
-- write: the file to wrinte into as a string.
-- from: the name of the variable with the text to write (optional).
-- text: the text to write into the file (optional).
+- write: the file to write into as a string.
+- text: the text to write into the file.
+- append: tells if we should append content to file (defaults to false).
 
 Examples:
 
@@ -475,14 +529,14 @@ Arguments:
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
   optional).
-- to: the name of the Zip file to create as a string.
+- tofile: the name of the Zip file to create as a string.
 - prefix: prefix directory in the archive.
 
 Examples:
 
     # zip files in build directory in file named build.zip
     - zip: "build/**/*"
-      to: "build.zip"
+      tofile: "build.zip"
 
 
 Builtins Reference
@@ -509,7 +563,7 @@ Examples:
 exists
 ------
 
-Tells if a given pat exists.
+Tells if a given path exists.
 
 Arguments:
 
@@ -674,12 +728,30 @@ Arguments:
 
 Returns:
 
-- ISO date ans time as a string.
+- ISO date and time as a string.
 
 Examples:
 
     // put current date and time in dt variable
     dt = now()
+
+read
+----
+
+Read given file and return its content as a string.
+
+Arguments:
+
+- The file name to read.
+
+Returns:
+
+- The file content as a string.
+
+Examples:
+
+    // read VERSION file and set variable version with ots content
+    version = read("VERSION")
 
 run
 ---
