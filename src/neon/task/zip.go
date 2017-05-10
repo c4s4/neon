@@ -22,19 +22,19 @@ Arguments:
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
   optional).
-- to: the name of the Zip file to create as a string.
+- tofile: the name of the Zip file to create as a string.
 - prefix: prefix directory in the archive.
 
 Examples:
 
     # zip files in build directory in file named build.zip
     - zip: "build/**/*"
-      to: "build.zip"`,
+      tofile: "build.zip"`,
 	}
 }
 
 func Zip(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"zip", "to", "dir", "exclude", "prefix"}
+	fields := []string{"zip", "tofile", "dir", "exclude", "prefix"}
 	if err := CheckFields(args, fields, fields[:2]); err != nil {
 		return nil, err
 	}
@@ -42,9 +42,9 @@ func Zip(target *build.Target, args util.Object) (build.Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("argument zip must be a string or list of strings")
 	}
-	var to string
-	if args.HasField("to") {
-		to, err = args.GetString("to")
+	var tofile string
+	if args.HasField("tofile") {
+		tofile, err = args.GetString("tofile")
 		if err != nil {
 			return nil, fmt.Errorf("argument to of task zip must be a string")
 		}
@@ -79,11 +79,11 @@ func Zip(target *build.Target, args util.Object) (build.Task, error) {
 			}
 			includes[index] = eval
 		}
-		eval, err := target.Build.Context.ReplaceProperties(to)
+		eval, err := target.Build.Context.ReplaceProperties(tofile)
 		if err != nil {
 			return fmt.Errorf("evaluating destination file: %v", err)
 		}
-		to = eval
+		tofile = eval
 		eval, err = target.Build.Context.ReplaceProperties(dir)
 		if err != nil {
 			return fmt.Errorf("evaluating source directory: %v", err)
@@ -100,9 +100,9 @@ func Zip(target *build.Target, args util.Object) (build.Task, error) {
 			return fmt.Errorf("getting source files for zip task: %v", err)
 		}
 		if len(files) > 0 {
-			target.Build.Info("Zipping %d file(s)", len(files))
+			build.Info("Zipping %d file(s) in '%s'", len(files), tofile)
 			// zip files
-			err = WriteZip(dir, files, prefix, to)
+			err = WriteZip(dir, files, prefix, tofile)
 			if err != nil {
 				return fmt.Errorf("zipping files: %v", err)
 			}

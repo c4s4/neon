@@ -50,6 +50,18 @@ func (object Object) GetBoolean(field string) (bool, error) {
 	return boolean, nil
 }
 
+func (object Object) GetInteger(field string) (int, error) {
+	value, ok := object[field]
+	if !ok {
+		return 0, fmt.Errorf("field '%s' not found", field)
+	}
+	integer, ok := value.(int)
+	if !ok {
+		return 0, fmt.Errorf("field '%s' must be an integer", field)
+	}
+	return integer, nil
+}
+
 func (object Object) GetList(field string) ([]interface{}, error) {
 	thing, ok := object[field]
 	if !ok {

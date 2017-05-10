@@ -8,7 +8,7 @@ import (
 func init() {
 	build.BuiltinMap["exists"] = build.BuiltinDescriptor{
 		Function: Exists,
-		Help: `Tells if a given pat exists.
+		Help: `Tells if a given path exists.
 
 Arguments:
 

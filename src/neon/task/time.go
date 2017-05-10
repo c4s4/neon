@@ -34,13 +34,13 @@ func Time(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		start := time.Now()
-		target.Build.Info("Starting timer...")
+		build.Info("Starting timer...")
 		err := RunSteps(target.Build, steps)
 		if err != nil {
 			return err
 		}
 		duration := time.Now().Sub(start)
-		target.Build.Info("Duration: %s", duration)
+		build.Info("Duration: %s", duration)
 		return nil
 	}, nil
 }

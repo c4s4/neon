@@ -1,22 +1,23 @@
-#
+#!/usr/bin/env bash
+# 
 # Bash completion script for Neon.
 # 
 # To enable bash completion for neon, copy this file in directory 
 # /etc/bash_completion.d/. Next time you open a terminal, neon completion
 # on targets should work:
-#
+# 
 # Completion on targets :
-#
+# 
 #   $ neon t[TAB]
 #   tag test
 # 
 # Completion on tasks :
-#
+# 
 #   $ neon -task c[TAB]
 #   chdir copy
 # 
 # Completion on builtins :
-#
+# 
 #   $ neon -builtin f[TAB]
 #   find
 # 
@@ -47,4 +48,3 @@ _neon()
 }
 
 complete -F _neon neon
-complete -F _neon n

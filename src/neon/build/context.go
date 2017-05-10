@@ -5,6 +5,7 @@ import (
 	anko_core "github.com/mattn/anko/builtins"
 	"github.com/mattn/anko/vm"
 	zglob "github.com/mattn/go-zglob"
+	"io/ioutil"
 	"neon/util"
 	"os"
 	"reflect"
@@ -22,21 +23,29 @@ type Context struct {
 	Environment map[string]string
 }
 
-func NewContext(build *Build, properties util.Object, env util.Object) (*Context, error) {
+func NewContext(build *Build) (*Context, error) {
 	vm := vm.NewEnv()
 	anko_core.LoadAllBuiltins(vm)
 	LoadBuiltins(vm)
-	environment, err := env.ToMapStringString()
-	if err != nil {
-		return nil, fmt.Errorf("getting environment: %v", err)
-	}
+	properties := build.GetProperties()
+	environment := build.GetEnvironment()
 	context := &Context{
 		VM:          vm,
 		Build:       build,
 		Properties:  properties.Fields(),
 		Environment: environment,
 	}
-	err = context.SetProperties(properties)
+	for _, script := range build.Scripts {
+		source, err := ioutil.ReadFile(script)
+		if err != nil {
+			return nil, fmt.Errorf("reading script '%s': %v", script, err)
+		}
+		_, err = vm.Execute(string(source))
+		if err != nil {
+			return nil, fmt.Errorf("evaluating script '%s': %v", script, err)
+		}
+	}
+	err := context.SetProperties(properties)
 	if err != nil {
 		return nil, fmt.Errorf("evaluating properties: %v", err)
 	}
@@ -45,7 +54,10 @@ func NewContext(build *Build, properties util.Object, env util.Object) (*Context
 
 func (context *Context) Evaluate(source string) (interface{}, error) {
 	value, err := context.VM.Execute(source)
-	return value.Interface(), err
+	if err != nil {
+		return nil, err
+	}
+	return util.ValueToInterface(value), nil
 }
 
 func (context *Context) SetProperty(name string, value interface{}) {
@@ -57,18 +69,14 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	if value.IsValid() {
-		return value.Interface(), nil
-	} else {
-		return nil, nil
-	}
+	return util.ValueToInterface(value), nil
 }
 
 func (context *Context) SetProperties(object util.Object) error {
-	context.SetProperty("OS", runtime.GOOS)
-	context.SetProperty("ARCH", runtime.GOARCH)
-	context.SetProperty("BASE", context.Build.Dir)
-	context.SetProperty("HERE", context.Build.Here)
+	context.addProperty("_OS", runtime.GOOS)
+	context.addProperty("_ARCH", runtime.GOARCH)
+	context.addProperty("_BASE", context.Build.Dir)
+	context.addProperty("_HERE", context.Build.Here)
 	todo := object.Fields()
 	var crash error
 	for len(todo) > 0 {
@@ -107,6 +115,11 @@ func (context *Context) SetProperties(object util.Object) error {
 		todo = next
 	}
 	return nil
+}
+
+func (context *Context) addProperty(name, value string) {
+	context.SetProperty(name, value)
+	context.Properties = append(context.Properties, name)
 }
 
 func (context *Context) ReplaceProperties(text string) (string, error) {
@@ -195,22 +208,24 @@ func (context *Context) FindFiles(dir string, includes, excludes []string) ([]st
 			return nil, nil
 		}
 	}
-	for index, include := range includes {
+	var included []string
+	for _, include := range includes {
 		pattern, err := context.ReplaceProperties(include)
 		if err != nil {
 			return nil, fmt.Errorf("evaluating pattern: %v", err)
 		}
-		includes[index] = pattern
+		included = append(included, pattern)
 	}
-	for index, exclude := range excludes {
+	var excluded []string
+	for _, exclude := range excludes {
 		pattern, err := context.ReplaceProperties(exclude)
 		if err != nil {
 			return nil, fmt.Errorf("evaluating pattern: %v", err)
 		}
-		excludes[index] = pattern
+		excluded = append(excluded, pattern)
 	}
 	var candidates []string
-	for _, include := range includes {
+	for _, include := range included {
 		list, _ := zglob.Glob(include)
 		for _, file := range list {
 			stat, err := os.Stat(file)
@@ -223,13 +238,18 @@ func (context *Context) FindFiles(dir string, includes, excludes []string) ([]st
 		}
 	}
 	var files []string
-	if excludes != nil {
-		for _, file := range candidates {
-			for _, exclude := range excludes {
+	if excluded != nil {
+		for index, file := range candidates {
+			for _, exclude := range excluded {
 				match, err := zglob.Match(exclude, file)
-				if !match && err == nil {
-					files = append(files, file)
+				if match || err != nil {
+					candidates[index] = ""
 				}
+			}
+		}
+		for _, file := range candidates {
+			if file != "" {
+				files = append(files, file)
 			}
 		}
 	} else {

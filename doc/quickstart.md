@@ -86,6 +86,11 @@ ahash:   [one: 1, two: 2]
 OK
 ```
 
+You can pass properties on command line with `-props` option. For instance, to
+define property *foo* with value *"bar"*, you would add on command line:
+`-props='foo: "bar"'`. These properties with overwrite those defined in the
+build file.
+
 Targets
 -------
 
@@ -301,6 +306,58 @@ exists.
 To list all Neon buitins, type `neon -builtins` and to get help on a given
 function, type `neon -builtin function`.
 
+Example
+-------
+
+Here is an example of what you can do with neon. This task validates generated
+files against a schematron and produces an HTML report:
+
+```yaml
+  schematron:
+    doc: Validate geenrated files with schematron
+    steps:
+    - for: 'encyclo'
+      in:  'find(DEST_DIR, "*")'
+      do:
+      - print: "Validating #{encyclo}:"
+      - script: 'errors = {}'
+      - for: 'file'
+        in:  'find(joinpath(DEST_DIR, encyclo), "**/*.xml")'
+        do:
+        - try:
+          - print: "- #{file}"
+          - execute: 'jing -C "#{CATALOG}" "src/sch/Ouvrages_v1.sch" "#{DEST_DIR}/#{encyclo}/#{file}"'
+            output:  'output'
+          catch:
+          - script: 'errors[file] = output'
+      - if: 'len(keys(errors)) > 0'
+        then:
+        - script: |
+            sort = import("sort")
+            report = "# Validation Schematron des Encyclopedies\n\n"
+            files = sort.Strings(keys(errors))
+            for file in files {
+              report += "### " + file + "\n\n```\n"
+              report += errors[file]
+              report += "\n```\n\n"
+            }
+        - write: '#{BUILD_DIR}/#{encyclo}.md'
+          from:  'report'
+        - 'pandoc -f markdown -t html "#{BUILD_DIR}/#{encyclo}.md" > "#{BUILD_DIR}/#{encyclo}.html"'
+
+```
+
+This task:
+
+- Iterates books in directories.
+- It validates each file with *jing*.
+- When validation fails, it fills a map with errors for a given file.
+- When a book is done, it generates a *markdown* report with errors.
+- Then it converts this report to HTML with *pandoc*.
+
+This illustrates how to combine *for* tasks to crawl directories, shell commands
+to validate files and *anko* script to generate a report from tool output.
+
 Getting help
 ------------
 
@@ -324,6 +381,13 @@ targets:
 
 You can also document the whole build putting a `doc` entry at the root of the
 build file.
+
+To get help about neon itself, you can:
+
+- List all tasks with `neon -tasks`.
+- Get help on a given task with `neon -task copy`.
+- List all builtins with `neon -builtins`.
+- Get help on a given builtin with `neon -builtin find`.
 
 Go further
 ----------

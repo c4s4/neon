@@ -18,10 +18,12 @@ default:
 - task_chmod
 - task_copy
 - task_delete
+- task_execute
 - task_for
 - task_if
 - task_link
 - task_mkdir
+- task_move
 - task_pass
 - task_path
 - task_print
@@ -50,7 +52,7 @@ targets:
     - script: |
         actual = directory("/foo/bar/spam.txt")
         expected = "/foo/bar"
-        if OS == "windows" {
+        if _OS == "windows" {
           expected = `\foo\bar`
         }
         if actual != expected {
@@ -73,7 +75,7 @@ targets:
   builtin_expand:
     doc: Test expand builtin function
     steps:
-    - if: 'OS != "windows"'
+    - if: '_OS != "windows"'
       then:
       - script: |
           os = import("os")
@@ -143,7 +145,7 @@ targets:
     - script: |
         path = joinpath("/foo", "bar", "spam.txt")
         expected = "/foo/bar/spam.txt"
-        if OS == "windows" {
+        if _OS == "windows" {
           expected = `\foo\bar\spam.txt`
         }
         if path != expected {
@@ -176,10 +178,24 @@ targets:
           println("Now test success")
         }
 
+  builtin_read:
+    doc: Test read builtin function
+    steps:
+    - mkdir: "#{BUILD_DIR}/read"
+    - write: "#{BUILD_DIR}/read/test.txt"
+      text:  "Hello World!"
+    - script: |
+        text := read(joinpath(BUILD_DIR, "read", "test.txt"))
+        if text != "Hello World!" {
+          throw("Read test failure")
+        } else {
+          println("Read test success")
+        }
+
   builtin_run:
     doc: Test run builtin function
     steps:
-    - if: 'OS != "windows"'
+    - if: '_OS != "windows"'
       then:
       - script: |
           n = run("date", "--iso-8601")
@@ -197,7 +213,7 @@ targets:
       - script: 'throw("TEST")'
       catch:
       - script: |
-          if error != "evaluating script: TEST" {
+          if _error != "evaluating script: TEST" {
             throw("Throw test failure")
           } else {
             println("Throw test success")
@@ -286,6 +302,20 @@ targets:
           println("Delete test success")
         }
 
+  task_execute:
+    doc: Test task execute
+    steps:
+    - if: '_OS != "windows"'
+      then:
+      - execute: 'echo "TEST"'
+        output:  'result'
+      - script: |
+          if result != "TEST" {
+            throw("Execute test failure")
+          } else {
+            println("Execute test success")
+          }
+  
   task_for:
     doc: Test doc task
     steps:
@@ -318,7 +348,7 @@ targets:
   task_link:
     doc: Test task link
     steps:
-    - if: 'OS != "windows"'
+    - if: '_OS != "windows"'
       then:
       - delete:  "#{BUILD_DIR}/link"
       - mkdir: "#{BUILD_DIR}/link"
@@ -350,6 +380,27 @@ targets:
           println("Mkdir test success")
         }
 
+  task_move:
+    doc: Test task move
+    steps:
+    - mkdir: "#{BUILD_DIR}/move/src"
+    - mkdir: "#{BUILD_DIR}/move/dst"
+    - touch:
+      - "#{BUILD_DIR}/move/src/foo.txt"
+      - "#{BUILD_DIR}/move/src/bar.txt"
+    - move:    "**/*.txt"
+      dir:     "#{BUILD_DIR}/move/src"
+      exclude: "**/bar*"
+      todir:   "#{BUILD_DIR}/move/dst"
+    - script: |
+        files_dst = toString(find(BUILD_DIR, "move/dst/*"))
+        files_src = toString(find(BUILD_DIR, "move/src/*"))
+        if files_dst != "[move/dst/foo.txt]" || files_src != "[move/src/bar.txt]" {
+          throw("ERROR: " + files_dst + " + " + files_src)
+        } else {
+          println("Move test success")
+        }
+
   task_pass:
     doc: Test task pass
     steps:
@@ -368,7 +419,7 @@ targets:
       to: "classpath"
     - script: |
         path = "lib/bar.jar:lib/foo.jar"
-        if OS == "windows" {
+        if _OS == "windows" {
           path = "lib/bar.jar;lib/foo.jar"
         }
         if classpath != path {
@@ -461,7 +512,7 @@ targets:
     - tar: "**/*.txt"
       dir: "#{BUILD_DIR}/tar"
       prefix: "bar"
-      to: "#{BUILD_DIR}/tar/test.tar.gz"
+      tofile: "#{BUILD_DIR}/tar/test.tar.gz"
     - print: "Tar test success"
 
   task_throw:
@@ -471,7 +522,7 @@ targets:
     - try:
       - throw: 'This is a test'
       catch:
-      - if: 'error == "This is a test"'
+      - if: '_error == "This is a test"'
         then:
         - print: 'Throw task test success'
         else:
@@ -500,17 +551,31 @@ targets:
   task_try:
     doc: Test task try
     steps:
+    # simple try/catch: error is trapped in catch clause
     - try:
       - throw: "Test"
       catch:
       - script: |
-          if error != "Test" {
+          if _error != "Test" {
             throw("Try test failure")
           } else {
             println("Try test success")
           }
+    # single try: execution continue, even if an error occurs
     - try:
       - throw: "Try test failure"
+    # try/catch/finally: finally run whatever happens
+    - try:
+      - throw: "Test"
+      catch:
+      - script: 'error = "catched"'
+      finally:
+      - script: |
+          if error != "catched" {
+            throw("Try test failure")
+          } else {
+            println("Try test success")
+          }
 
   task_while:
     doc: Test while task
@@ -531,7 +596,7 @@ targets:
     steps:
     - mkdir: "#{BUILD_DIR}/write"
     - write: "#{BUILD_DIR}/write/test.txt"
-      text: "Hello World!"
+      text:  "Hello World!"
     - script: |
         ioutil = import("io/ioutil")
         filepath = import("path/filepath")
@@ -541,6 +606,21 @@ targets:
           throw("Write test failure")
         }
         if toString(content) != "Hello World!" {
+          throw("Write test failure")
+        }
+        println("Write test sucess")
+    - write:  "#{BUILD_DIR}/write/test.txt"
+      text:   " And you too!"
+      append: true
+    - script: |
+        ioutil = import("io/ioutil")
+        filepath = import("path/filepath")
+        file = filepath.Join(BUILD_DIR, "write", "test.txt")
+        content, err = ioutil.ReadFile(file)
+        if err != nil {
+          throw("Write test failure")
+        }
+        if toString(content) != "Hello World! And you too!" {
           throw("Write test failure")
         }
         println("Write test sucess")
@@ -555,5 +635,5 @@ targets:
     - zip: "**/*.txt"
       dir: "#{BUILD_DIR}/zip"
       prefix: "bar"
-      to: "#{BUILD_DIR}/zip/test.zip"
+      tofile: "#{BUILD_DIR}/zip/test.zip"
     - print: "Zip test success"

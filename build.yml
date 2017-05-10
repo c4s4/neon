@@ -17,8 +17,8 @@ properties:
   - 'github.com/mitchellh/gox'
 
 environment:
-  GOPATH: '${BASE}'
-  PATH:   '${BASE}/bin:${PATH}'
+  GOPATH: '#{_BASE}'
+  PATH:   '#{_BASE}/bin:${PATH}'
 
 targets:
 
@@ -79,9 +79,9 @@ targets:
     - mkdir: '#{ARC_DIR}/doc'
     - 'md2pdf -o #{ARC_DIR}/doc/quickstart.pdf doc/quickstart.md'
     - 'md2pdf -o #{ARC_DIR}/doc/reference.pdf doc/reference.md'
-    - tar: '#{NAME}-#{VERSION}/**/*'
-      dir: '#{BUILD_DIR}'
-      to: '#{BUILD_DIR}/#{NAME}-#{VERSION}.tar.gz'
+    - tar:    '#{NAME}-#{VERSION}/**/*'
+      dir:    '#{BUILD_DIR}'
+      tofile: '#{BUILD_DIR}/#{NAME}-#{VERSION}.tar.gz'
 
   release:
     depends: [clean, test, refs, archive]
@@ -97,8 +97,8 @@ targets:
   win:
     doc: 'Test integration build file on Windows'
     steps:
-    - copy: 'src/neon/test.yml'
-      to:   '/home/casa/misc/shared/build.yml'
+    - copy:   'src/neon/test.yml'
+      tofile: '/home/casa/misc/shared/build.yml'
     - replace: '/home/casa/misc/shared/build.yml'
       pattern: '../../build'
       with:    'build'
