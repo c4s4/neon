@@ -94,38 +94,38 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 		if err != nil {
 			return fmt.Errorf("evaluating destination directory: %v", err)
 		}
-		dir = eval
+		_dir := eval
 		eval, err = target.Build.Context.EvaluateString(tofile)
 		if err != nil {
 			return fmt.Errorf("evaluating destination file: %v", err)
 		}
-		tofile = eval
+		_tofile := eval
 		eval, err = target.Build.Context.EvaluateString(toDir)
 		if err != nil {
 			return fmt.Errorf("evaluating destination directory: %v", err)
 		}
-		toDir = util.ExpandUserHome(eval)
+		_toDir := util.ExpandUserHome(eval)
 		// find source files
-		sources, err := target.Build.Context.FindFiles(dir, includes, excludes)
+		sources, err := target.Build.Context.FindFiles(_dir, includes, excludes)
 		if err != nil {
 			return fmt.Errorf("getting source files for copy task: %v", err)
 		}
-		if tofile != "" && len(sources) > 1 {
+		if _tofile != "" && len(sources) > 1 {
 			return fmt.Errorf("can't copy more than one file to a given file, use todir instead")
 		}
 		if len(sources) < 1 {
 			return nil
 		}
 		build.Info("Copying %d file(s)", len(sources))
-		if tofile != "" {
-			file := filepath.Join(dir, sources[0])
-			err = util.CopyFile(file, tofile)
+		if _tofile != "" {
+			file := filepath.Join(_dir, sources[0])
+			err = util.CopyFile(file, _tofile)
 			if err != nil {
 				return fmt.Errorf("copying file: %v", err)
 			}
 		}
-		if toDir != "" {
-			err = util.CopyFilesToDir(dir, sources, toDir, flat)
+		if _toDir != "" {
+			err = util.CopyFilesToDir(_dir, sources, _toDir, flat)
 			if err != nil {
 				return fmt.Errorf("copying file: %v", err)
 			}
