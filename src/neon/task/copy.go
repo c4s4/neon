@@ -90,42 +90,56 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		// evaluate arguments
-		eval, err := target.Build.Context.EvaluateString(dir)
+		_eval, err := target.Build.Context.EvaluateString(dir)
 		if err != nil {
 			return fmt.Errorf("evaluating destination directory: %v", err)
 		}
-		_dir := eval
-		eval, err = target.Build.Context.EvaluateString(tofile)
+		_dir := _eval
+		_eval, err = target.Build.Context.EvaluateString(tofile)
 		if err != nil {
 			return fmt.Errorf("evaluating destination file: %v", err)
 		}
-		_tofile := eval
-		eval, err = target.Build.Context.EvaluateString(toDir)
+		_tofile := _eval
+		_eval, err = target.Build.Context.EvaluateString(toDir)
 		if err != nil {
 			return fmt.Errorf("evaluating destination directory: %v", err)
 		}
-		_toDir := util.ExpandUserHome(eval)
+		_toDir := util.ExpandUserHome(_eval)
+		_includes := make([]string, len(includes))
+		for index, _include := range includes {
+			_includes[index], err = target.Build.Context.EvaluateString(_include)
+			if err != nil {
+				return fmt.Errorf("evaluating includes: %v", err)
+			}
+		}
+		_excludes := make([]string, len(excludes))
+		for index, _exclude := range excludes {
+			_excludes[index], err = target.Build.Context.EvaluateString(_exclude)
+			if err != nil {
+				return fmt.Errorf("evaluating excludes: %v", err)
+			}
+		}
 		// find source files
-		sources, err := target.Build.Context.FindFiles(_dir, includes, excludes)
+		_sources, err := target.Build.Context.FindFiles(_dir, _includes, _excludes)
 		if err != nil {
 			return fmt.Errorf("getting source files for copy task: %v", err)
 		}
-		if _tofile != "" && len(sources) > 1 {
+		if _tofile != "" && len(_sources) > 1 {
 			return fmt.Errorf("can't copy more than one file to a given file, use todir instead")
 		}
-		if len(sources) < 1 {
+		if len(_sources) < 1 {
 			return nil
 		}
-		build.Info("Copying %d file(s)", len(sources))
+		build.Info("Copying %d file(s)", len(_sources))
 		if _tofile != "" {
-			file := filepath.Join(_dir, sources[0])
+			file := filepath.Join(_dir, _sources[0])
 			err = util.CopyFile(file, _tofile)
 			if err != nil {
 				return fmt.Errorf("copying file: %v", err)
 			}
 		}
 		if _toDir != "" {
-			err = util.CopyFilesToDir(_dir, sources, _toDir, flat)
+			err = util.CopyFilesToDir(_dir, _sources, _toDir, flat)
 			if err != nil {
 				return fmt.Errorf("copying file: %v", err)
 			}
