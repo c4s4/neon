@@ -90,39 +90,39 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		// evaluate arguments
-		_eval, err := target.Build.Context.EvaluateString(dir)
-		if err != nil {
-			return fmt.Errorf("evaluating destination directory: %v", err)
+		_eval, _err := target.Build.Context.EvaluateString(dir)
+		if _err != nil {
+			return fmt.Errorf("evaluating destination directory: %v", _err)
 		}
 		_dir := _eval
-		_eval, err = target.Build.Context.EvaluateString(tofile)
-		if err != nil {
-			return fmt.Errorf("evaluating destination file: %v", err)
+		_eval, _err = target.Build.Context.EvaluateString(tofile)
+		if _err != nil {
+			return fmt.Errorf("evaluating destination file: %v", _err)
 		}
 		_tofile := _eval
-		_eval, err = target.Build.Context.EvaluateString(toDir)
-		if err != nil {
-			return fmt.Errorf("evaluating destination directory: %v", err)
+		_eval, _err = target.Build.Context.EvaluateString(toDir)
+		if _err != nil {
+			return fmt.Errorf("evaluating destination directory: %v", _err)
 		}
 		_toDir := util.ExpandUserHome(_eval)
 		_includes := make([]string, len(includes))
-		for index, _include := range includes {
-			_includes[index], err = target.Build.Context.EvaluateString(_include)
-			if err != nil {
-				return fmt.Errorf("evaluating includes: %v", err)
+		for _index, _include := range includes {
+			_includes[_index], _err = target.Build.Context.EvaluateString(_include)
+			if _err != nil {
+				return fmt.Errorf("evaluating includes: %v", _err)
 			}
 		}
 		_excludes := make([]string, len(excludes))
-		for index, _exclude := range excludes {
-			_excludes[index], err = target.Build.Context.EvaluateString(_exclude)
-			if err != nil {
-				return fmt.Errorf("evaluating excludes: %v", err)
+		for _index, _exclude := range excludes {
+			_excludes[_index], _err = target.Build.Context.EvaluateString(_exclude)
+			if _err != nil {
+				return fmt.Errorf("evaluating excludes: %v", _err)
 			}
 		}
 		// find source files
-		_sources, err := target.Build.Context.FindFiles(_dir, _includes, _excludes)
-		if err != nil {
-			return fmt.Errorf("getting source files for copy task: %v", err)
+		_sources, _err := target.Build.Context.FindFiles(_dir, _includes, _excludes)
+		if _err != nil {
+			return fmt.Errorf("getting source files for copy task: %v", _err)
 		}
 		if _tofile != "" && len(_sources) > 1 {
 			return fmt.Errorf("can't copy more than one file to a given file, use todir instead")
@@ -133,15 +133,15 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 		build.Info("Copying %d file(s)", len(_sources))
 		if _tofile != "" {
 			file := filepath.Join(_dir, _sources[0])
-			err = util.CopyFile(file, _tofile)
-			if err != nil {
-				return fmt.Errorf("copying file: %v", err)
+		 	_err = util.CopyFile(file, _tofile)
+			if _err != nil {
+				return fmt.Errorf("copying file: %v", _err)
 			}
 		}
 		if _toDir != "" {
-			err = util.CopyFilesToDir(_dir, _sources, _toDir, flat)
-			if err != nil {
-				return fmt.Errorf("copying file: %v", err)
+		 	_err = util.CopyFilesToDir(_dir, _sources, _toDir, flat)
+			if _err != nil {
+				return fmt.Errorf("copying file: %v", _err)
 			}
 		}
 		return nil

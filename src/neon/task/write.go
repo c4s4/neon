@@ -50,32 +50,32 @@ func Write(target *build.Target, args util.Object) (build.Task, error) {
 		}
 	}
 	return func() error {
-		filename, err := target.Build.Context.EvaluateString(file)
-		if err != nil {
-			return fmt.Errorf("processing write argument: %v", err)
+		_filename, _err := target.Build.Context.EvaluateString(file)
+		if _err != nil {
+			return fmt.Errorf("processing write argument: %v", _err)
 		}
-		text, err := target.Build.Context.EvaluateString(source)
-		if err != nil {
-			return fmt.Errorf("processing text argument: %v", err)
+		_text, _err := target.Build.Context.EvaluateString(source)
+		if _err != nil {
+			return fmt.Errorf("processing text argument: %v", _err)
 		}
-		var mode int
+		var _mode int
 		if append {
-			mode = os.O_CREATE | os.O_WRONLY | os.O_APPEND
+			_mode = os.O_CREATE | os.O_WRONLY | os.O_APPEND
 		} else {
-			mode = os.O_CREATE | os.O_WRONLY | os.O_TRUNC
+			_mode = os.O_CREATE | os.O_WRONLY | os.O_TRUNC
 		}
-		file, err := os.OpenFile(filename, mode, FILE_MODE)
-		if err != nil {
-			return fmt.Errorf("opening file '%s': %v", filename, err)
+		_file, _err := os.OpenFile(_filename, _mode, FILE_MODE)
+		if _err != nil {
+			return fmt.Errorf("opening file '%s': %v", _filename, _err)
 		}
-		defer file.Close()
-		_, err = file.WriteString(text)
-		if err != nil {
-			return fmt.Errorf("writing content to file '%s': %v", filename, err)
+		defer _file.Close()
+		_, _err = _file.WriteString(_text)
+		if _err != nil {
+			return fmt.Errorf("writing content to file '%s': %v", _filename, _err)
 		}
-		err = file.Sync()
-		if err != nil {
-			return fmt.Errorf("syncing content to file '%s': %v", filename, err)
+		_err = _file.Sync()
+		if _err != nil {
+			return fmt.Errorf("syncing content to file '%s': %v", _filename, _err)
 		}
 		return nil
 	}, nil

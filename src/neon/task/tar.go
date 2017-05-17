@@ -78,39 +78,44 @@ func Tar(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		// evaluate arguments
-		for index, pattern := range includes {
-			eval, err := target.Build.Context.EvaluateString(pattern)
-			if err != nil {
-				return fmt.Errorf("evaluating pattern: %v", err)
+		var _err error
+		_includes := make([]string, len(includes))
+		for _index, _include := range includes {
+			_includes[_index], _err = target.Build.Context.EvaluateString(_include)
+			if _err != nil {
+				return fmt.Errorf("evaluating includes: %v", _err)
 			}
-			includes[index] = eval
 		}
-		eval, err := target.Build.Context.EvaluateString(tofile)
-		if err != nil {
-			return fmt.Errorf("evaluating destination file: %v", err)
+		_excludes := make([]string, len(excludes))
+		for _index, _exclude := range excludes {
+			_excludes[_index], _err = target.Build.Context.EvaluateString(_exclude)
+			if _err != nil {
+				return fmt.Errorf("evaluating excludes: %v", _err)
+			}
 		}
-		tofile = eval
-		eval, err = target.Build.Context.EvaluateString(dir)
-		if err != nil {
-			return fmt.Errorf("evaluating source directory: %v", err)
+		_tofile, _err := target.Build.Context.EvaluateString(tofile)
+		if _err != nil {
+			return fmt.Errorf("evaluating destination file: %v", _err)
 		}
-		dir = eval
-		eval, err = target.Build.Context.EvaluateString(prefix)
-		if err != nil {
-			return fmt.Errorf("evaluating prefix: %v", err)
+		_dir, _err := target.Build.Context.EvaluateString(dir)
+		if _err != nil {
+			return fmt.Errorf("evaluating source directory: %v", _err)
 		}
-		prefix = eval
+		_prefix, _err := target.Build.Context.EvaluateString(prefix)
+		if _err != nil {
+			return fmt.Errorf("evaluating prefix: %v", _err)
+		}
 		// find source files
-		files, err := target.Build.Context.FindFiles(dir, includes, excludes)
-		if err != nil {
-			return fmt.Errorf("getting source files for tar task: %v", err)
+		_files, _err := target.Build.Context.FindFiles(_dir, _includes, _excludes)
+		if _err != nil {
+			return fmt.Errorf("getting source files for tar task: %v", _err)
 		}
-		if len(files) > 0 {
-			build.Info("Tarring %d file(s) into '%s'", len(files), tofile)
+		if len(_files) > 0 {
+			build.Info("Tarring %d file(s) into '%s'", len(_files), _tofile)
 			// tar files
-			err = Writetar(dir, files, prefix, tofile)
-			if err != nil {
-				return fmt.Errorf("tarring files: %v", err)
+			err = Writetar(_dir, _files, _prefix, _tofile)
+			if _err != nil {
+				return fmt.Errorf("tarring files: %v", _err)
 			}
 		}
 		return nil

@@ -41,21 +41,21 @@ func Touch(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		build.Info("Touching %d file(s)", len(files))
-		for _, file := range files {
-			path, err := target.Build.Context.EvaluateString(file)
-			if err != nil {
-				return fmt.Errorf("processing touch argument: %v", err)
+		for _, _file := range files {
+			_path, _err := target.Build.Context.EvaluateString(_file)
+			if _err != nil {
+				return fmt.Errorf("processing touch argument: %v", _err)
 			}
-			if util.FileExists(path) {
-				time := time.Now()
-				err = os.Chtimes(path, time, time)
-				if err != nil {
-					return fmt.Errorf("changing times of file '%s': %v", path, err)
+			if util.FileExists(_path) {
+				_time := time.Now()
+				_err = os.Chtimes(_path, _time, _time)
+				if _err != nil {
+					return fmt.Errorf("changing times of file '%s': %v", _path, _err)
 				}
 			} else {
-				err := ioutil.WriteFile(path, []byte{}, FILE_MODE)
-				if err != nil {
-					return fmt.Errorf("creating file '%s': %v", path, err)
+				_err := ioutil.WriteFile(_path, []byte{}, FILE_MODE)
+				if _err != nil {
+					return fmt.Errorf("creating file '%s': %v", _path, _err)
 				}
 			}
 		}
