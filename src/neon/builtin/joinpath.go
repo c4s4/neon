@@ -3,6 +3,7 @@ package builtin
 import (
 	"neon/build"
 	"path/filepath"
+	"reflect"
 )
 
 func init() {
@@ -27,6 +28,10 @@ Examples:
 	}
 }
 
-func Joinpath(paths ...string) string {
-	return filepath.Join(paths...)
+func Joinpath(paths ...interface{}) string {
+	s := make([]string, len(paths))
+	for i, e := range paths {
+		s[i] = reflect.ValueOf(e).String()
+	}
+	return filepath.Join(s...)
 }
