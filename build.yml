@@ -67,6 +67,7 @@ targets:
 
   refs:
     doc: 'Generate reference documentation for tasks and builtins'
+    depends: version
     steps:
     - 'go run src/neon/main.go -refs > #{REFERENCE}'
     # we add and commit reference if it was modified
