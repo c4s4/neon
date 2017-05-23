@@ -23,7 +23,6 @@ type Build struct {
 	Context      *Context
 	Parents      []*Build
 	Index        *Index
-	Repositories Repositories
 }
 
 // Possible fields for a build file
