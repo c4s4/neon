@@ -9,10 +9,7 @@ func TestKeys(t *testing.T) {
 	if len(keys) != 2 {
 		t.Errorf("Error builtin keys")
 	}
-	if keys[0] != "foo" {
-		t.Errorf("Error builtin keys")
-	}
-	if keys[1] != "bar" {
+	if keys[0] != "foo" && keys[0] != "bar" {
 		t.Errorf("Error builtin keys")
 	}
 }
