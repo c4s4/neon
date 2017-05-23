@@ -4,4 +4,5 @@
 /pkg/
 /src/github.com/
 /src/gopkg.in/
+/src/neon/version.go
 /.idea/
