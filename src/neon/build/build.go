@@ -192,7 +192,7 @@ func ParseConfiguration(object util.Object, build *Build) error {
 		if err != nil {
 			return fmt.Errorf("getting configuration file: %v", err)
 		}
-		file = util.FilePath(build.Dir, file)
+		file = util.ExpandAndJoinToRoot(build.Dir, file)
 		source, err := util.ReadFile(file)
 		if err != nil {
 			return fmt.Errorf("reading configuration file: %v", err)
