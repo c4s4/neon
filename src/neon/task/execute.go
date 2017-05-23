@@ -57,7 +57,7 @@ func Execute(target *build.Target, args util.Object) (build.Task, error) {
 			return fmt.Errorf("getting current working directory: %v", _err)
 		}
 		_command.Dir = _dir
-		_command.Env, _err = target.Build.Context.GetEnvironment()
+		_command.Env, _err = target.Build.Context.EvaluateEnvironment()
 		if _err != nil {
 			return fmt.Errorf("building environment: %v", _err)
 		}

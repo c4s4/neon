@@ -78,7 +78,7 @@ func TestGetEnvironmentSimple(t *testing.T) {
 			Dir: "dir",
 		},
 	}
-	env, err := context.GetEnvironment()
+	env, err := context.EvaluateEnvironment()
 	if err != nil {
 		t.Errorf("Error getting environment: %v", err)
 	}
@@ -99,7 +99,7 @@ func TestGetEnvironmentComplex(t *testing.T) {
 			Dir: "dir",
 		},
 	}
-	env, err := context.GetEnvironment()
+	env, err := context.EvaluateEnvironment()
 	if err != nil {
 		t.Errorf("Error getting environment: %v", err)
 	}
