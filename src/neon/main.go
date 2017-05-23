@@ -80,7 +80,7 @@ func main() {
 	build, err := _build.NewBuild(path)
 	PrintError(err, 2)
 	if props != "" {
-		err = build.SetProperties(props)
+		err = build.SetCommandLineProperties(props)
 		PrintError(err, 3)
 	}
 	err = build.Init()
