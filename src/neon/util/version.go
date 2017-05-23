@@ -6,13 +6,16 @@ import (
 	"strings"
 )
 
+// A version contains its string value and its numbers
 type Version struct {
 	Name    string
 	Numbers []int
 }
 
+// Versions is a list of versions
 type Versions []Version
 
+// Make a version from its string representation
 func NewVersion(name string) (Version, error) {
 	version := Version{Name: name}
 	strs := strings.Split(name, ".")
@@ -28,6 +31,7 @@ func NewVersion(name string) (Version, error) {
 	return version, nil
 }
 
+// Tells if version is less that other version
 func (version Version) Less(other Version) bool {
 	maxLen := len(version.Numbers)
 	if len(other.Numbers) > len(version.Numbers) {
@@ -48,14 +52,17 @@ func (version Version) Less(other Version) bool {
 	}
 }
 
+// Return numbers of numbers of the version
 func (versions Versions) Len() int {
 	return len(versions)
 }
 
+// Swap two version numbers
 func (versions Versions) Swap(i, j int) {
 	versions[i], versions[j] = versions[j], versions[i]
 }
 
+// Tells if a number is less that the other
 func (versions Versions) Less(i, j int) bool {
 	return versions[i].Less(versions[j])
 }
