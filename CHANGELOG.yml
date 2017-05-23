@@ -1,5 +1,9 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 0.3.1-SNAPSHOT
+  date:    2017-05-23
+  summary: Bug fix and code cleaning
+
 - version: 0.3.0
   date:    2017-05-10
   summary: New features
