@@ -9,10 +9,12 @@ import (
 	"strings"
 )
 
+// A step has a Run() method
 type Step interface {
 	Run() error
 }
 
+// Make a step inside given target
 func NewStep(target *Target, step interface{}) (Step, error) {
 	switch step := step.(type) {
 	case string:
@@ -24,11 +26,13 @@ func NewStep(target *Target, step interface{}) (Step, error) {
 	}
 }
 
+// A shell step
 type ShellStep struct {
 	Target  *Target
 	Command string
 }
 
+// Make a shell step
 func NewShellStep(target *Target, shell string) (Step, error) {
 	step := ShellStep{
 		Target:  target,
@@ -37,6 +41,9 @@ func NewShellStep(target *Target, shell string) (Step, error) {
 	return step, nil
 }
 
+// Run a shell step:
+// - If running on windows, run shell with "cmd.exe"
+// - Otherwise, run shell with "sh"
 func (step ShellStep) Run() error {
 	cmd, err := step.Target.Build.Context.EvaluateString(step.Command)
 	if err != nil {
@@ -62,11 +69,13 @@ func (step ShellStep) Run() error {
 	return command.Run()
 }
 
+// Structure for a task step
 type TaskStep struct {
 	Target *Target
 	Task   Task
 }
 
+// Make a task step
 func NewTaskStep(target *Target, m map[interface{}]interface{}) (Step, error) {
 	object, err := util.NewObject(m)
 	if err != nil {
@@ -91,6 +100,7 @@ func NewTaskStep(target *Target, m map[interface{}]interface{}) (Step, error) {
 	return nil, fmt.Errorf("unknown task '%s'", strings.Join(fields, "/"))
 }
 
+// Run a task step, calling the function for the step
 func (step TaskStep) Run() error {
 	return step.Task()
 }
