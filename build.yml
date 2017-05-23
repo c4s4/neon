@@ -47,8 +47,19 @@ targets:
     - print: "Running integration test in build file 'test.yml'"
     - 'bin/neon -file test.yml'
 
+  version:
+    doc: 'Generate version file'
+    steps:
+    - print: 'Generating version source file'
+    - write: 'src/neon/version.go'
+      text:  |
+        package main
+
+        var VERSION = "#{VERSION}"
+
   bin:
     doc: 'Build neon binary'
+    depends: version
     steps:
     - print: "Building neon binary in 'bin/neon'"
     - remove: 'bin/neon'
@@ -67,6 +78,7 @@ targets:
 
   archive:
     doc: 'Generate distribution archive'
+    depends: version
     steps:
     - mkdir: '#{ARC_DIR}/bin/'
     - 'gox -output=#{ARC_DIR}/bin/{{.Dir}}_{{.OS}}_{{.Arch}} #{NAME}'
