@@ -40,20 +40,20 @@ func While(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		for {
-			result, err := target.Build.Context.Evaluate(condition)
-			if err != nil {
-				return fmt.Errorf("evaluating 'while' field of 'while' loop: %v", err)
+			_result, _err := target.Build.Context.EvaluateExpression(condition)
+			if _err != nil {
+				return fmt.Errorf("evaluating 'while' field of 'while' loop: %v", _err)
 			}
-			loop, ok := result.(bool)
-			if !ok {
+			_loop, _ok := _result.(bool)
+			if !_ok {
 				return fmt.Errorf("evaluating 'while' condition: must return a bool")
 			}
-			if !loop {
+			if !_loop {
 				break
 			}
-			err = RunSteps(target.Build, steps)
-			if err != nil {
-				return err
+			_err = RunSteps(target.Build, steps)
+			if _err != nil {
+				return _err
 			}
 		}
 		return nil

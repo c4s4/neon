@@ -3,6 +3,7 @@ package builtin
 import (
 	"neon/build"
 	"path/filepath"
+	"reflect"
 )
 
 func init() {
@@ -21,10 +22,16 @@ Returns:
 Examples:
 
     // join paths "/foo", "bar" and "spam.txt"
-    joinpath("foo", "bar", "spam.txt")`,
+    joinpath("foo", "bar", "spam.txt")
+    // returns: "foo/bar/spam.txt" on a Linux box and "foo\bar\spam.txt" on
+    // Windows`,
 	}
 }
 
-func Joinpath(paths ...string) string {
-	return filepath.Join(paths...)
+func Joinpath(paths ...interface{}) string {
+	s := make([]string, len(paths))
+	for i, e := range paths {
+		s[i] = reflect.ValueOf(e).String()
+	}
+	return filepath.Join(s...)
 }

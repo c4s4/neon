@@ -41,7 +41,7 @@ func For(target *build.Target, args util.Object) (build.Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("'for' field of a 'for' loop must be a string")
 	}
-	list, err := args.GetList("in")
+	_list, err := args.GetList("in")
 	expression := ""
 	if err != nil {
 		expression, err = args.GetString("in")
@@ -55,23 +55,20 @@ func For(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		if expression != "" {
-			result, err := target.Build.Context.Evaluate(expression)
-			if err != nil {
-				return fmt.Errorf("evaluating in field of for loop: %v", err)
+			_result, _err := target.Build.Context.EvaluateExpression(expression)
+			if _err != nil {
+				return fmt.Errorf("evaluating in field of for loop: %v", _err)
 			}
-			list, err = util.ToList(result)
-			if err != nil {
+			_list, _err = util.ToList(_result)
+			if _err != nil {
 				return fmt.Errorf("'in' field of 'for' loop must be an expression that returns a list")
 			}
 		}
-		for _, value := range list {
-			target.Build.Context.SetProperty(variable, value)
-			if err != nil {
-				return err
-			}
-			err := RunSteps(target.Build, steps)
-			if err != nil {
-				return err
+		for _, _value := range _list {
+			target.Build.Context.SetProperty(variable, _value)
+			_err := RunSteps(target.Build, steps)
+			if _err != nil {
+				return _err
 			}
 		}
 		return nil

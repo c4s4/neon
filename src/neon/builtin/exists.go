@@ -21,7 +21,8 @@ Returns:
 Examples:
 
     // test if given path exists
-    if exists("/foo/bar") { ...`,
+    exists("/foo/bar")
+    // returns: true if file "/foo/bar" exists`,
 	}
 }
 

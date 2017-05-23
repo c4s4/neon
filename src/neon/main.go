@@ -16,9 +16,10 @@ const (
 	DEFAULT_BUILD_FILE = "build.yml"
 )
 
-func ParseCommandLine() (string, bool, string, bool, bool, string, bool, bool, string, bool, []string) {
+func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
 	help := flag.Bool("build", false, "Print build help")
+	version := flag.Bool("version", false, "Print neon version")
 	props := flag.String("props", "", "Build properties")
 	timeit := flag.Bool("time", false, "Print build duration")
 	tasks := flag.Bool("tasks", false, "Print tasks list")
@@ -29,8 +30,8 @@ func ParseCommandLine() (string, bool, string, bool, bool, string, bool, bool, s
 	refs := flag.Bool("refs", false, "Print tasks and builtins reference")
 	flag.Parse()
 	targets := flag.Args()
-	return *file, *help, *props, *timeit, *tasks, *task, *targs, *builtins, *builtin,
-		*refs, targets
+	return *file, *help, *version, *props, *timeit, *tasks, *task, *targs, *builtins,
+		*builtin, *refs, targets
 }
 
 func FindBuildFile(name string) (string, error) {
@@ -56,7 +57,7 @@ func FindBuildFile(name string) (string, error) {
 
 func main() {
 	start := time.Now()
-	file, help, props, timeit, tasks, task, targs, builtins, builtin, refs, targets := ParseCommandLine()
+	file, help, version, props, timeit, tasks, task, targs, builtins, builtin, refs, targets := ParseCommandLine()
 	// options that do not require we load build file
 	if tasks {
 		_build.PrintTasks()
@@ -73,6 +74,9 @@ func main() {
 	} else if refs {
 		_build.PrintReference()
 		os.Exit(0)
+	} else if version {
+		fmt.Println(VERSION)
+		os.Exit(0)
 	}
 	// options that do require we load build file
 	path, err := FindBuildFile(file)
@@ -80,7 +84,7 @@ func main() {
 	build, err := _build.NewBuild(path)
 	PrintError(err, 2)
 	if props != "" {
-		err = build.SetProperties(props)
+		err = build.SetCommandLineProperties(props)
 		PrintError(err, 3)
 	}
 	err = build.Init()

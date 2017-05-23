@@ -22,7 +22,9 @@ Returns:
 Examples:
 
     // filter text files removing those in build directory
-    filter(find("**.txt"), "build/**/*")
+    filter(find(".", "**/*.txt"), "build/**/*")
+    // returns: files with extension "txt" in current directory and
+    // subdirectories, except those in "build" directory
 
 Notes:
 

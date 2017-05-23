@@ -11,6 +11,7 @@ default:
 - builtin_lowercase
 - builtin_now
 - builtin_run
+- builtin_split
 - builtin_throw
 - builtin_uppercase
 - task_cat
@@ -205,6 +206,17 @@ targets:
           } else {
             println("Run test success")
           }
+
+  builtin_split:
+    doc: Test split builtin function
+    steps:
+    - script: |
+        s = split("foo bar", " ")
+        if len(s) != 2 || s[0] != "foo" || s[1] != "bar" {
+          throw("ERROR split '"+s+"'")
+        } else {
+          println("Split test success")
+        }
 
   builtin_throw:
     doc: Test the throw builtin function

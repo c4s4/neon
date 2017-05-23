@@ -33,15 +33,15 @@ func Cat(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument of task cat must be a string")
 	}
 	return func() error {
-		eval, err := target.Build.Context.ReplaceProperties(file)
-		if err != nil {
-			return fmt.Errorf("processing cat argument: %v", err)
+		_eval, _err := target.Build.Context.EvaluateString(file)
+		if _err != nil {
+			return fmt.Errorf("processing cat argument: %v", _err)
 		}
-		content, err := ioutil.ReadFile(eval)
-		if err != nil {
-			return fmt.Errorf("printing content of file '%s': %v", eval, err)
+		_content, _err := ioutil.ReadFile(_eval)
+		if _err != nil {
+			return fmt.Errorf("printing _content of file '%s': %v", _eval, _err)
 		}
-		build.Info(string(content))
+		build.Info(string(_content))
 		return nil
 	}, nil
 }

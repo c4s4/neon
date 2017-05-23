@@ -21,7 +21,8 @@ Returns:
 Examples:
 
     // get filename of path "/foo/bar/spam.txt"
-    file = filename("/foo/bar/spam.txt")`,
+    filename("/foo/bar/spam.txt")
+    // returns: "spam.txt"`,
 	}
 }
 

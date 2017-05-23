@@ -42,29 +42,29 @@ func Execute(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument output of task execute must be a string")
 	}
 	return func() error {
-		cmd, err := target.Build.Context.ReplaceProperties(execute)
-		if err != nil {
-			return fmt.Errorf("processing execute argument: %v", err)
+		_cmd, _err := target.Build.Context.EvaluateString(execute)
+		if _err != nil {
+			return fmt.Errorf("processing execute argument: %v", _err)
 		}
-		var command *exec.Cmd
+		var _command *exec.Cmd
 		if runtime.GOOS == "windows" {
-			command = exec.Command("cmd.exe", "/C", cmd)
+			_command = exec.Command("cmd.exe", "/C", _cmd)
 		} else {
-			command = exec.Command("sh", "-c", cmd)
+			_command = exec.Command("sh", "-c", _cmd)
 		}
-		dir, err := os.Getwd()
-		if err != nil {
-			return fmt.Errorf("getting current working directory: %v", err)
+		_dir, _err := os.Getwd()
+		if _err != nil {
+			return fmt.Errorf("getting current working directory: %v", _err)
 		}
-		command.Dir = dir
-		command.Env, err = target.Build.Context.GetEnvironment()
-		if err != nil {
-			return fmt.Errorf("building environment: %v", err)
+		_command.Dir = _dir
+		_command.Env, _err = target.Build.Context.EvaluateEnvironment()
+		if _err != nil {
+			return fmt.Errorf("building environment: %v", _err)
 		}
-		bytes, err := command.CombinedOutput()
-		target.Build.Context.SetProperty(output, strings.TrimSpace(string(bytes)))
-		if err != nil {
-			return fmt.Errorf("executing command: %v", err)
+		_bytes, _err := _command.CombinedOutput()
+		target.Build.Context.SetProperty(output, strings.TrimSpace(string(_bytes)))
+		if _err != nil {
+			return fmt.Errorf("executing command: %v", _err)
 		}
 		return nil
 	}, nil

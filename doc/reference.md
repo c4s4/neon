@@ -559,6 +559,7 @@ Examples:
 
     // get directory of path "/foo/bar/spam.txt"
     dir = directory("/foo/bar/spam.txt")
+    // returns: "/foo/bar"
 
 exists
 ------
@@ -576,12 +577,13 @@ Returns:
 Examples:
 
     // test if given path exists
-    if exists("/foo/bar") { ...
+    exists("/foo/bar")
+    // returns: true if file "/foo/bar" exists
 
 expand
 ------
 
-Exapand file name by replace ~/ with home directory.
+Expand file name replacing ~/ with home directory.
 
 Arguments:
 
@@ -595,6 +597,7 @@ Examples:
 
     // expand path ~/.profile
     profile = expand("~/.profile")
+    // returns: "/home/casa/.profile" on my machine
 
 filename
 --------
@@ -612,7 +615,8 @@ Returns:
 Examples:
 
     // get filename of path "/foo/bar/spam.txt"
-    file = filename("/foo/bar/spam.txt")
+    filename("/foo/bar/spam.txt")
+    // returns: "spam.txt"
 
 filter
 ------
@@ -631,7 +635,9 @@ Returns:
 Examples:
 
     // filter text files removing those in build directory
-    filter(find("**.txt"), "build/**/*")
+    filter(find(".", "**/*.txt"), "build/**/*")
+    // returns: files with extension "txt" in current directory and
+    // subdirectories, except those in "build" directory
 
 Notes:
 
@@ -655,8 +661,10 @@ Examples:
 
     // find all text files in book directory
     find("book", "**/*.txt")
+    // returns: list of files with extension "txt"
     // find all xml and yml files in src directory
     find("src", "**/*.xml", "**/*.yml")
+    // returns: list of "xml" and "yml" files
 
 Notes:
 
@@ -680,6 +688,7 @@ Examples:
 
     // join "foo" and "bar" with a space
     join(["foo", "bar"], " ")
+    // returns: "foo bar"
 
 joinpath
 --------
@@ -698,6 +707,27 @@ Examples:
 
     // join paths "/foo", "bar" and "spam.txt"
     joinpath("foo", "bar", "spam.txt")
+    // returns: "foo/bar/spam.txt" on a Linux box and "foo\bar\spam.txt" on
+    // Windows
+
+keys
+----
+
+Return keys of gien map.
+
+Arguments:
+
+- The map to get keys for.
+
+Returns:
+
+- A list of keys.
+
+Examples:
+
+    // get keys of a map
+    keys({"foo": 1, "bar": 2})
+    // returns: ["foo", "bar"]
 
 lowercase
 ---------
@@ -714,8 +744,9 @@ Returns:
 
 Examples:
 
-    // set greetings in lower case
-    greetings = lowercase(greetings)
+    // set string in lower case
+    lowercase("FooBAR")
+    // returns: "foobar"
 
 now
 ---
@@ -733,7 +764,11 @@ Returns:
 Examples:
 
     // put current date and time in dt variable
-    dt = now()
+    now()
+    // returns: "2006-01-02 15:04:05"
+    // to get date in ISO format
+    now()[0:10]
+    // returns: "2006-01-02"
 
 read
 ----
@@ -751,7 +786,8 @@ Returns:
 Examples:
 
     // read VERSION file and set variable version with ots content
-    version = read("VERSION")
+    read("VERSION")
+    // returns: the contents of "VERSION" file
 
 run
 ---
@@ -771,7 +807,28 @@ Returns:
 Examples:
 
     // zip files of foo directory in bar.zip file
-    files = run("zip", "-r", "bar.zip", "foo")
+    run("zip", "-r", "bar.zip", "foo")
+    // returns: the trimed output of the command
+
+split
+-----
+
+Split strings.
+
+Arguments:
+
+- The strings to split.
+- The separator for splitting.
+
+Returns:
+
+- A list of strings.
+
+Examples:
+
+    // split "foo bar" with space
+    split("foo bar", " ")
+    // returns: ["foo"," "bar"]
 
 throw
 -----
@@ -790,6 +847,7 @@ Examples:
 
     // stop the script with an error message
     throw("Some tests failed")
+    // returns: nothing, the script is interrupted on error
 
 uppercase
 ---------
@@ -806,6 +864,7 @@ Returns:
 
 Examples:
 
-    // set greetings in upper case
-    greetings = uppercase(greetings)
+    // set string in upper case
+    uppercase("FooBAR")
+    // returns: "FOOBAR"
 

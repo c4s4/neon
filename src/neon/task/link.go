@@ -39,18 +39,18 @@ func Link(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument to of task link must be a string")
 	}
 	return func() error {
-		source, err := target.Build.Context.ReplaceProperties(s)
-		if err != nil {
-			return fmt.Errorf("processing link argument: %v", err)
+		_source, _err := target.Build.Context.EvaluateString(s)
+		if _err != nil {
+			return fmt.Errorf("processing link argument: %v", _err)
 		}
-		dest, err := target.Build.Context.ReplaceProperties(d)
-		if err != nil {
-			return fmt.Errorf("processing to argument of link task: %v", err)
+		_dest, _err := target.Build.Context.EvaluateString(d)
+		if _err != nil {
+			return fmt.Errorf("processing to argument of link task: %v", _err)
 		}
-		build.Info("Linking file '%s' to '%s'", source, dest)
-		err = os.Symlink(source, dest)
-		if err != nil {
-			return fmt.Errorf("linking files: %v", err)
+		build.Info("Linking file '%s' to '%s'", _source, _dest)
+		_err = os.Symlink(_source, _dest)
+		if _err != nil {
+			return fmt.Errorf("linking files: %v", _err)
 		}
 		return nil
 	}, nil

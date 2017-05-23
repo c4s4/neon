@@ -65,42 +65,53 @@ func Replace(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		// evaluate arguments
-		eval, err := target.Build.Context.ReplaceProperties(pattern)
-		if err != nil {
-			return fmt.Errorf("evaluating pattern: %v", err)
+		_pattern, _err := target.Build.Context.EvaluateString(pattern)
+		if _err != nil {
+			return fmt.Errorf("evaluating pattern: %v", _err)
 		}
-		pattern = eval
-		eval, err = target.Build.Context.ReplaceProperties(with)
-		if err != nil {
-			return fmt.Errorf("evaluating with: %v", err)
+		_with, _err := target.Build.Context.EvaluateString(with)
+		if _err != nil {
+			return fmt.Errorf("evaluating with: %v", _err)
 		}
-		with = eval
-		eval, err = target.Build.Context.ReplaceProperties(dir)
-		if err != nil {
-			return fmt.Errorf("evaluating destination directory: %v", err)
+		_dir, _err := target.Build.Context.EvaluateString(dir)
+		if _err != nil {
+			return fmt.Errorf("evaluating destination directory: %v", _err)
 		}
-		dir = eval
+		_includes := make([]string, len(includes))
+		for _index, _include := range includes {
+			_includes[_index], _err = target.Build.Context.EvaluateString(_include)
+			if _err != nil {
+				return fmt.Errorf("evaluating includes: %v", _err)
+			}
+		}
+		_excludes := make([]string, len(excludes))
+		for _index, _exclude := range excludes {
+			_excludes[_index], _err = target.Build.Context.EvaluateString(_exclude)
+			if _err != nil {
+				return fmt.Errorf("evaluating excludes: %v", _err)
+			}
+		}
 		// find source files
-		files, err := target.Build.Context.FindFiles(dir, includes, excludes)
-		if err != nil {
-			return fmt.Errorf("getting source files for copy task: %v", err)
+		_files, _err := target.Build.Context.FindFiles(_dir, _includes, _excludes)
+		if _err != nil {
+			return fmt.Errorf("getting source files for copy task: %v", _err)
 		}
-		if len(files) < 1 {
+		if len(_files) < 1 {
 			return nil
 		}
-		build.Info("Replacing text in %d file(s)", len(files))
-		for _, file := range files {
-			if dir != "" {
-				file = filepath.Join(dir, file)
+		build.Info("Replacing text in %d file(s)", len(_files))
+		for _, _file := range _files {
+			if _dir != "" {
+				_file = filepath.Join(_dir, _file)
 			}
-			content, err := ioutil.ReadFile(file)
-			if err != nil {
-				return fmt.Errorf("reading file '%s': %v", file, err)
+			_content, _err := ioutil.ReadFile(_file)
+			if _err != nil {
+				return fmt.Errorf("reading file '%s': %v", _file, _err)
 			}
-			replaced := strings.Replace(string(content), pattern, with, -1)
-			err = ioutil.WriteFile(file, []byte(replaced), FILE_MODE)
-			if err != nil {
-				return fmt.Errorf("writing file '%s': %v", file, err)
+			_replaced := strings.Replace(string(_content), _pattern, _with, -1)
+			_err = ioutil.WriteFile(_file, []byte(_replaced), FILE_MODE)
+			if _err != nil {
+				return fmt.Errorf("writing file '%s': %v", _file, _err)
 			}
 		}
 		return nil

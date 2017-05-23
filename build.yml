@@ -44,11 +44,22 @@ targets:
   integ:
     doc: 'Run an integration test on a build file'
     steps:
-    - print: "Running integration test in build file 'src/neon/test.yml'"
-    - 'bin/neon -file src/neon/test.yml'
+    - print: "Running integration test in build file 'test.yml'"
+    - 'bin/neon -file test.yml'
+
+  version:
+    doc: 'Generate version file'
+    steps:
+    - print: 'Generating version source file'
+    - write: 'src/neon/version.go'
+      text:  |
+        package main
+
+        var VERSION = "#{VERSION}"
 
   bin:
     doc: 'Build neon binary'
+    depends: version
     steps:
     - print: "Building neon binary in 'bin/neon'"
     - remove: 'bin/neon'
@@ -56,9 +67,10 @@ targets:
 
   refs:
     doc: 'Generate reference documentation for tasks and builtins'
+    depends: bin
     steps:
-    - 'go run src/neon/main.go -refs > #{REFERENCE}'
-    # we add and commit reference if it was modified
+    - 'bin/neon -refs > #{REFERENCE}'
+    # we add and commit reference if modified
     - try:
       - 'git diff --quiet --exit-code #{REFERENCE}'
       catch:
@@ -67,6 +79,7 @@ targets:
 
   archive:
     doc: 'Generate distribution archive'
+    depends: version
     steps:
     - mkdir: '#{ARC_DIR}/bin/'
     - 'gox -output=#{ARC_DIR}/bin/{{.Dir}}_{{.OS}}_{{.Arch}} #{NAME}'

@@ -20,8 +20,9 @@ Returns:
 
 Examples:
 
-    // set greetings in upper case
-    greetings = uppercase(greetings)`,
+    // set string in upper case
+    uppercase("FooBAR")
+    // returns: "FOOBAR"`,
 	}
 }
 

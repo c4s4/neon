@@ -10,7 +10,7 @@ import (
 func init() {
 	build.BuiltinMap["expand"] = build.BuiltinDescriptor{
 		Function: Expand,
-		Help: `Exapand file name by replace ~/ with home directory.
+		Help: `Expand file name replacing ~/ with home directory.
 
 Arguments:
 
@@ -23,7 +23,8 @@ Returns:
 Examples:
 
     // expand path ~/.profile
-    profile = expand("~/.profile")`,
+    profile = expand("~/.profile")
+    // returns: "/home/casa/.profile" on my machine`,
 	}
 }
 

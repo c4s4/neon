@@ -24,7 +24,8 @@ Returns:
 Examples:
 
     // zip files of foo directory in bar.zip file
-    files = run("zip", "-r", "bar.zip", "foo")`,
+    run("zip", "-r", "bar.zip", "foo")
+    // returns: the trimed output of the command`,
 	}
 }
 

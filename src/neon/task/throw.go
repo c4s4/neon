@@ -37,10 +37,10 @@ func Throw(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument of throw print must be a string")
 	}
 	return func() error {
-		eval, err := target.Build.Context.ReplaceProperties(message)
-		if err != nil {
-			return fmt.Errorf("processing thow argument: %v", err)
+		_message, _err := target.Build.Context.EvaluateString(message)
+		if _err != nil {
+			return fmt.Errorf("processing thow argument: %v", _err)
 		}
-		return fmt.Errorf(eval)
+		return fmt.Errorf(_message)
 	}, nil
 }

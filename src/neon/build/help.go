@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// Print help on build
 func (build *Build) Help() error {
 	newLine := false
 	// print build documentation
@@ -73,6 +74,7 @@ func (build *Build) Help() error {
 	return nil
 }
 
+// Print build targets
 func (build *Build) PrintTargets() {
 	var targets []string
 	for name, _ := range build.GetTargets() {
@@ -82,6 +84,7 @@ func (build *Build) PrintTargets() {
 	Info(strings.Join(targets, " "))
 }
 
+// Print tasks
 func PrintTasks() {
 	var tasks []string
 	for name, _ := range TaskMap {
@@ -91,6 +94,7 @@ func PrintTasks() {
 	Info(strings.Join(tasks, " "))
 }
 
+// Print help on tasks
 func PrintHelpTask(task string) {
 	descriptor, found := TaskMap[task]
 	if found {
@@ -100,6 +104,7 @@ func PrintHelpTask(task string) {
 	}
 }
 
+// Print builtins
 func PrintBuiltins() {
 	var builtins []string
 	for name, _ := range BuiltinMap {
@@ -109,6 +114,7 @@ func PrintBuiltins() {
 	Info(strings.Join(builtins, " "))
 }
 
+// Print help on builtins
 func PrintHelpBuiltin(builtin string) {
 	descriptor, found := BuiltinMap[builtin]
 	if found {
@@ -118,12 +124,13 @@ func PrintHelpBuiltin(builtin string) {
 	}
 }
 
+// Print markdown reference for tasks and builtins
 func PrintReference() {
 	fmt.Println("Tasks Reference")
 	fmt.Println("===============")
 	fmt.Println()
 	var tasks []string
-	for name, _ := range TaskMap {
+	for name := range TaskMap {
 		tasks = append(tasks, name)
 	}
 	sort.Strings(tasks)
@@ -139,7 +146,7 @@ func PrintReference() {
 	fmt.Println("==================")
 	fmt.Println()
 	var builtins []string
-	for name, _ := range BuiltinMap {
+	for name := range BuiltinMap {
 		builtins = append(builtins, name)
 	}
 	sort.Strings(builtins)

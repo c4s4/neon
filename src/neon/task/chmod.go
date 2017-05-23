@@ -64,36 +64,48 @@ func Chmod(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		// evaluate arguments
-		eval, err := target.Build.Context.ReplaceProperties(dir)
-		if err != nil {
-			return fmt.Errorf("evaluating directory: %v", err)
+		_dir, _err := target.Build.Context.EvaluateString(dir)
+		if _err != nil {
+			return fmt.Errorf("evaluating directory: %v", _err)
 		}
-		dir = eval
-		eval, err = target.Build.Context.ReplaceProperties(mode)
-		if err != nil {
-			return fmt.Errorf("evaluating mode: %v", err)
+		_mode, _err := target.Build.Context.EvaluateString(mode)
+		if _err != nil {
+			return fmt.Errorf("evaluating _mode: %v", _err)
 		}
-		mode = eval
+		_includes := make([]string, len(includes))
+		for index, _include := range includes {
+			_includes[index], err = target.Build.Context.EvaluateString(_include)
+			if err != nil {
+				return fmt.Errorf("evaluating includes: %v", err)
+			}
+		}
+		_excludes := make([]string, len(excludes))
+		for index, _exclude := range excludes {
+			_excludes[index], err = target.Build.Context.EvaluateString(_exclude)
+			if err != nil {
+				return fmt.Errorf("evaluating excludes: %v", err)
+			}
+		}
 		// find source files
-		files, err := target.Build.Context.FindFiles(dir, includes, excludes)
-		if err != nil {
-			return fmt.Errorf("getting source files for chmod task: %v", err)
+		_files, _err := target.Build.Context.FindFiles(_dir, _includes, _excludes)
+		if _err != nil {
+			return fmt.Errorf("getting source files for chmod task: %v", _err)
 		}
-		modeBase8, err := strconv.ParseUint(mode, 8, 32)
-		if err != nil {
-			return fmt.Errorf("converting mode '%s' in octal: %v", mode, err)
+		_modeBase8, _err := strconv.ParseUint(_mode, 8, 32)
+		if _err != nil {
+			return fmt.Errorf("converting mode '%s' in octal: %v", _mode, _err)
 		}
-		if len(files) < 1 {
+		if len(_files) < 1 {
 			return nil
 		}
-		build.Info("Changing %d file(s) mode to %s", len(files), mode)
-		for _, file := range files {
-			if dir != "" {
-				file = filepath.Join(dir, file)
+		build.Info("Changing %d file(s) mode to %s", len(_files), _mode)
+		for _, _file := range _files {
+			if _dir != "" {
+				_file = filepath.Join(_dir, _file)
 			}
-			err := os.Chmod(file, os.FileMode(modeBase8))
-			if err != nil {
-				return fmt.Errorf("changing mode of file '%s' to %s: %v", file, mode, err)
+			_err := os.Chmod(_file, os.FileMode(_modeBase8))
+			if _err != nil {
+				return fmt.Errorf("changing mode of file '%s' to %s: %v", _file, _mode, _err)
 			}
 		}
 		return nil

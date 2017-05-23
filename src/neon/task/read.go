@@ -39,15 +39,15 @@ func Read(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument to of task read must be a string")
 	}
 	return func() error {
-		eval, err := target.Build.Context.ReplaceProperties(file)
-		if err != nil {
-			return fmt.Errorf("processing read argument: %v", err)
+		_file, _err := target.Build.Context.EvaluateString(file)
+		if _err != nil {
+			return fmt.Errorf("processing read argument: %v", _err)
 		}
-		content, err := ioutil.ReadFile(eval)
-		if err != nil {
-			return fmt.Errorf("reading content of file '%s': %v", eval, err)
+		_content, _err := ioutil.ReadFile(_file)
+		if _err != nil {
+			return fmt.Errorf("reading content of file '%s': %v", _file, _err)
 		}
-		target.Build.Context.SetProperty(to, string(content))
+		target.Build.Context.SetProperty(to, string(_content))
 		return nil
 	}, nil
 }

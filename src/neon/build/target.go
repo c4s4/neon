@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// Structure for a target
 type Target struct {
 	Build   *Build
 	Name    string
@@ -14,6 +15,7 @@ type Target struct {
 	Steps   []Step
 }
 
+// Make a target
 func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 	target := &Target{
 		Build: build,
@@ -55,6 +57,7 @@ func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 	return target, nil
 }
 
+// Run target
 func (target *Target) Run(stack *Stack) error {
 	stack.Push(target.Name)
 	if len(target.Depends) > 0 {

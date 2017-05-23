@@ -37,16 +37,16 @@ func Delete(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("delete argument must be string or list of strings")
 	}
 	return func() error {
-		for _, dir := range directories {
-			directory, err := target.Build.Context.ReplaceProperties(dir)
-			if err != nil {
-				return fmt.Errorf("evaluating directory in task delete: %v", err)
+		for _, _dir := range directories {
+			_directory, _err := target.Build.Context.EvaluateString(_dir)
+			if _err != nil {
+				return fmt.Errorf("evaluating directory in task delete: %v", _err)
 			}
-			if _, err := os.Stat(directory); err == nil {
-				build.Info("Deleting directory '%s'", directory)
-				err = os.RemoveAll(directory)
-				if err != nil {
-					return fmt.Errorf("deleting directory '%s': %v", directory, err)
+			if _, _err := os.Stat(_directory); _err == nil {
+				build.Info("Deleting directory '%s'", _directory)
+				_err = os.RemoveAll(_directory)
+				if _err != nil {
+					return fmt.Errorf("deleting directory '%s': %v", _directory, _err)
 				}
 			}
 		}

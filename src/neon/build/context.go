@@ -8,14 +8,13 @@ import (
 	"io/ioutil"
 	"neon/util"
 	"os"
-	"reflect"
 	"regexp"
 	"runtime"
 	"sort"
-	"strconv"
 	"strings"
 )
 
+// Build context
 type Context struct {
 	VM          *vm.Env
 	Build       *Build
@@ -23,6 +22,7 @@ type Context struct {
 	Environment map[string]string
 }
 
+// Make a context for given build
 func NewContext(build *Build) (*Context, error) {
 	vm := vm.NewEnv()
 	anko_core.LoadAllBuiltins(vm)
@@ -45,38 +45,19 @@ func NewContext(build *Build) (*Context, error) {
 			return nil, fmt.Errorf("evaluating script '%s': %v", script, err)
 		}
 	}
-	err := context.SetProperties(properties)
+	err := context.SetInitialProperties(properties)
 	if err != nil {
 		return nil, fmt.Errorf("evaluating properties: %v", err)
 	}
 	return context, nil
 }
 
-func (context *Context) Evaluate(source string) (interface{}, error) {
-	value, err := context.VM.Execute(source)
-	if err != nil {
-		return nil, err
-	}
-	return util.ValueToInterface(value), nil
-}
-
-func (context *Context) SetProperty(name string, value interface{}) {
-	context.VM.Define(name, value)
-}
-
-func (context *Context) GetProperty(name string) (interface{}, error) {
-	value, err := context.VM.Get(name)
-	if err != nil {
-		return nil, err
-	}
-	return util.ValueToInterface(value), nil
-}
-
-func (context *Context) SetProperties(object util.Object) error {
-	context.addProperty("_OS", runtime.GOOS)
-	context.addProperty("_ARCH", runtime.GOARCH)
-	context.addProperty("_BASE", context.Build.Dir)
-	context.addProperty("_HERE", context.Build.Here)
+// Set initial build properties
+func (context *Context) SetInitialProperties(object util.Object) error {
+	context.SetProperty("_OS", runtime.GOOS)
+	context.SetProperty("_ARCH", runtime.GOARCH)
+	context.SetProperty("_BASE", context.Build.Dir)
+	context.SetProperty("_HERE", context.Build.Here)
 	todo := object.Fields()
 	var crash error
 	for len(todo) > 0 {
@@ -85,7 +66,7 @@ func (context *Context) SetProperties(object util.Object) error {
 			value := object[name]
 			str, ok := value.(string)
 			if ok {
-				eval, err := context.ReplaceProperties(str)
+				eval, err := context.EvaluateString(str)
 				if err == nil {
 					context.SetProperty(name, eval)
 					done = append(done, name)
@@ -117,18 +98,37 @@ func (context *Context) SetProperties(object util.Object) error {
 	return nil
 }
 
-func (context *Context) addProperty(name, value string) {
-	context.SetProperty(name, value)
-	context.Properties = append(context.Properties, name)
+// Set property with given to given value
+func (context *Context) SetProperty(name string, value interface{}) {
+	context.VM.Define(name, value)
 }
 
-func (context *Context) ReplaceProperties(text string) (string, error) {
-	r := regexp.MustCompile("#{.*?}")
+// Get property value with given name
+func (context *Context) GetProperty(name string) (interface{}, error) {
+	value, err := context.VM.Get(name)
+	if err != nil {
+		return nil, err
+	}
+	return util.ValueToInterface(value), nil
+}
+
+// Evaluate given expression in context and return its value
+func (context *Context) EvaluateExpression(source string) (interface{}, error) {
+	value, err := context.VM.Execute(source)
+	if err != nil {
+		return nil, err
+	}
+	return util.ValueToInterface(value), nil
+}
+
+// Evaluate a string by replacing '#{foo}' with value of property foo
+func (context *Context) EvaluateString(text string) (string, error) {
+	r := regexp.MustCompile(`#{.*?}`)
 	var err error
 	replaced := r.ReplaceAllStringFunc(text, func(expression string) string {
 		name := expression[2 : len(expression)-1]
 		var value interface{}
-		value, err = context.Evaluate(name)
+		value, err = context.EvaluateExpression(name)
 		if err != nil {
 			return ""
 		} else {
@@ -144,7 +144,8 @@ func (context *Context) ReplaceProperties(text string) (string, error) {
 	return replaced, err
 }
 
-func (context *Context) GetEnvironment() ([]string, error) {
+// Evaluate environment in context and return it as a slice of strings
+func (context *Context) EvaluateEnvironment() ([]string, error) {
 	environment := make(map[string]string)
 	for _, line := range os.Environ() {
 		index := strings.Index(line, "=")
@@ -191,8 +192,13 @@ func (context *Context) GetEnvironment() ([]string, error) {
 	return lines, nil
 }
 
+// Find files in the context:
+// - dir: the search root directory
+// - includes: the list of globs to include
+// - excludes: the list of globs to exclude
+// Return the list of files as a slice of strings
 func (context *Context) FindFiles(dir string, includes, excludes []string) ([]string, error) {
-	eval, err := context.ReplaceProperties(dir)
+	eval, err := context.EvaluateString(dir)
 	if err != nil {
 		return nil, fmt.Errorf("evaluating source directory: %v", err)
 	}
@@ -210,7 +216,7 @@ func (context *Context) FindFiles(dir string, includes, excludes []string) ([]st
 	}
 	var included []string
 	for _, include := range includes {
-		pattern, err := context.ReplaceProperties(include)
+		pattern, err := context.EvaluateString(include)
 		if err != nil {
 			return nil, fmt.Errorf("evaluating pattern: %v", err)
 		}
@@ -218,7 +224,7 @@ func (context *Context) FindFiles(dir string, includes, excludes []string) ([]st
 	}
 	var excluded []string
 	for _, exclude := range excludes {
-		pattern, err := context.ReplaceProperties(exclude)
+		pattern, err := context.EvaluateString(exclude)
 		if err != nil {
 			return nil, fmt.Errorf("evaluating pattern: %v", err)
 		}
@@ -257,67 +263,4 @@ func (context *Context) FindFiles(dir string, includes, excludes []string) ([]st
 	}
 	sort.Strings(files)
 	return files, nil
-}
-
-func PropertyToString(object interface{}, quotes bool) (string, error) {
-	switch value := object.(type) {
-	case bool:
-		return strconv.FormatBool(value), nil
-	case string:
-		if quotes {
-			return "\"" + value + "\"", nil
-		} else {
-			return value, nil
-		}
-	case int:
-		return strconv.Itoa(value), nil
-	case int32:
-		return strconv.Itoa(int(value)), nil
-	case int64:
-		return strconv.Itoa(int(value)), nil
-	case float64:
-		return strconv.FormatFloat(value, 'g', -1, 64), nil
-	default:
-		if value == nil {
-			return "null", nil
-		}
-		switch reflect.TypeOf(object).Kind() {
-		case reflect.Slice:
-			slice := reflect.ValueOf(object)
-			elements := make([]string, slice.Len())
-			for index := 0; index < slice.Len(); index++ {
-				str, err := PropertyToString(slice.Index(index).Interface(), quotes)
-				if err != nil {
-					return "", err
-				}
-				elements[index] = str
-			}
-			return "[" + strings.Join(elements, ", ") + "]", nil
-		case reflect.Map:
-			dict := reflect.ValueOf(object)
-			elements := make(map[string]string)
-			var keys []string
-			for _, key := range dict.MapKeys() {
-				value := dict.MapIndex(key)
-				keyStr, err := PropertyToString(key.Interface(), quotes)
-				if err != nil {
-					return "", err
-				}
-				keys = append(keys, keyStr)
-				valueStr, err := PropertyToString(value.Interface(), quotes)
-				if err != nil {
-					return "", err
-				}
-				elements[keyStr] = valueStr
-			}
-			sort.Strings(keys)
-			pairs := make([]string, len(keys))
-			for index, key := range keys {
-				pairs[index] = key + ": " + elements[key]
-			}
-			return "[" + strings.Join(pairs, ", ") + "]", nil
-		default:
-			return "", fmt.Errorf("no serializer for type '%T'", object)
-		}
-	}
 }
