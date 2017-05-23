@@ -44,8 +44,8 @@ targets:
   integ:
     doc: 'Run an integration test on a build file'
     steps:
-    - print: "Running integration test in build file 'src/neon/test.yml'"
-    - 'bin/neon -file src/neon/test.yml'
+    - print: "Running integration test in build file 'test.yml'"
+    - 'bin/neon -file test.yml'
 
   bin:
     doc: 'Build neon binary'
