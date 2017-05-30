@@ -16,6 +16,7 @@ const (
 	DEFAULT_BUILD_FILE = "build.yml"
 )
 
+// Parse command line and return parsed options
 func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
 	help := flag.Bool("build", false, "Print build help")
@@ -34,6 +35,7 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 		*builtin, *refs, targets
 }
 
+// Find build file and return its path
 func FindBuildFile(name string) (string, error) {
 	absolute, err := filepath.Abs(name)
 	if err != nil {
@@ -55,6 +57,7 @@ func FindBuildFile(name string) (string, error) {
 	}
 }
 
+// Program entry point
 func main() {
 	start := time.Now()
 	file, help, version, props, timeit, tasks, task, targs, builtins, builtin, refs, targets := ParseCommandLine()
@@ -107,6 +110,7 @@ func main() {
 	}
 }
 
+// Print an error and exit if any
 func PrintError(err error, code int) {
 	if err != nil {
 		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
