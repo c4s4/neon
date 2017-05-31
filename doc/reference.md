@@ -374,6 +374,24 @@ Examples:
     # sleep for 10 seconds
     - sleep: 10
 
+super
+-----
+
+Call target with same name in parent build file.
+
+Arguments:
+
+- none
+
+Examples:
+
+    # call parent target
+    - super:
+
+Notes:
+
+- This will raise en error if parent build files have no target with same name.
+
 tar
 ---
 
