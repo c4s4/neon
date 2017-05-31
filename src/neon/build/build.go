@@ -23,6 +23,7 @@ type Build struct {
 	Context      *Context
 	Parents      []*Build
 	Index        *Index
+	Stack        *Stack
 }
 
 // Possible fields for a build file
@@ -32,16 +33,17 @@ var FIELDS = []string{"name", "doc", "default", "context", "extends",
 // Make a build from a build file
 func NewBuild(file string) (*Build, error) {
 	build := &Build{}
-	path, err := filepath.Abs(file)
+	path := util.ExpandUserHome(file)
+	build.File = filepath.Base(path)
+	base, err := filepath.Abs(filepath.Dir(path))
 	if err != nil {
-		return nil, fmt.Errorf("getting build file path: %v", err)
+		return nil, fmt.Errorf("getting build file directory: %v", err)
 	}
+	build.Dir = base
 	here, err := os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("getting current directory: %v", err)
 	}
-	build.File = filepath.Base(path)
-	build.Dir = filepath.Dir(path)
 	build.Here = here
 	source, err := util.ReadFile(path)
 	if err != nil {
@@ -161,7 +163,7 @@ func ParseExtends(object util.Object, build *Build) error {
 		for _, parent := range parents {
 			extend, err := NewBuild(parent)
 			if err != nil {
-				return fmt.Errorf("parsing parent '%s': %v", parent, err)
+				return fmt.Errorf("laoding parent '%s': %v", parent, err)
 			}
 			extends = append(extends, extend)
 		}
@@ -320,6 +322,7 @@ func (build *Build) Init() error {
 	}
 	build.SetDir(build.Dir)
 	build.SetContext(context)
+	build.SetStack(NewStack())
 	return nil
 }
 
@@ -336,6 +339,14 @@ func (build *Build) SetContext(context *Context) {
 	build.Context = context
 	for _, parent := range build.Parents {
 		parent.SetContext(context)
+	}
+}
+
+// Set the build stack, propagating to parents
+func (build *Build) SetStack(stack *Stack) {
+	build.Stack = stack
+	for _, parent := range build.Parents {
+		parent.SetStack(stack)
 	}
 }
 
@@ -382,7 +393,7 @@ func (build *Build) Run(targets []string) error {
 		}
 	}
 	for _, target := range targets {
-		err := build.RunTarget(target, NewStack())
+		err := build.RunTarget(target)
 		if err != nil {
 			return err
 		}
@@ -390,15 +401,42 @@ func (build *Build) Run(targets []string) error {
 	return nil
 }
 
-// Run given target with stack
-func (build *Build) RunTarget(name string, stack *Stack) error {
+// Run given target
+func (build *Build) RunTarget(name string) error {
 	target := build.GetTargetByName(name)
 	if target == nil {
 		return fmt.Errorf("target '%s' not found", name)
 	}
-	err := target.Run(stack)
+	err := target.Run()
 	if err != nil {
 		return fmt.Errorf("running target '%s': %v", name, err)
 	}
 	return nil
+}
+
+// Run parent target
+func (build *Build) RunParentTarget(name string) (bool, error) {
+	for _, parent := range build.Parents {
+		ok, err := parent.RunTargetRecursive(name)
+		if err != nil {
+			return ok, fmt.Errorf("running target '%s': %v", name, err)
+		}
+		if ok {
+			return ok, nil
+		}
+	}
+	return false, nil
+}
+
+// Run given target recursively
+func (build *Build) RunTargetRecursive(name string) (bool, error) {
+	target := build.GetTargetByName(name)
+	if target == nil {
+		return build.RunParentTarget(name)
+	}
+	err := target.RunSteps()
+	if err != nil {
+		return true, fmt.Errorf("running target '%s': %v", name, err)
+	}
+	return false, nil
 }
