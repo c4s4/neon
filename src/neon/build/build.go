@@ -10,20 +10,20 @@ import (
 
 // Build structure
 type Build struct {
-	File         string
-	Dir          string
-	Here         string
-	Name         string
-	Default      []string
-	Doc          string
-	Scripts      []string
-	Properties   util.Object
-	Environment  map[string]string
-	Targets      map[string]*Target
-	Context      *Context
-	Parents      []*Build
-	Index        *Index
-	Stack        *Stack
+	File        string
+	Dir         string
+	Here        string
+	Name        string
+	Default     []string
+	Doc         string
+	Scripts     []string
+	Properties  util.Object
+	Environment map[string]string
+	Targets     map[string]*Target
+	Context     *Context
+	Parents     []*Build
+	Index       *Index
+	Stack       *Stack
 }
 
 // Possible fields for a build file
@@ -190,21 +190,23 @@ func ParseProperties(object util.Object, build *Build) error {
 func ParseConfiguration(object util.Object, build *Build) error {
 	if object.HasField("configuration") {
 		var config util.Object
-		file, err := object.GetString("configuration")
+		files, err := object.GetListStrings("configuration")
 		if err != nil {
 			return fmt.Errorf("getting configuration file: %v", err)
 		}
-		file = util.ExpandAndJoinToRoot(build.Dir, file)
-		source, err := util.ReadFile(file)
-		if err != nil {
-			return fmt.Errorf("reading configuration file: %v", err)
-		}
-		err = yaml.Unmarshal(source, &config)
-		if err != nil {
-			return fmt.Errorf("configuration must be a map with string keys")
-		}
-		for name, value := range config {
-			build.Properties[name] = value
+		for _, file := range files {
+			file = util.ExpandAndJoinToRoot(build.Dir, file)
+			source, err := util.ReadFile(file)
+			if err != nil {
+				return fmt.Errorf("reading configuration file: %v", err)
+			}
+			err = yaml.Unmarshal(source, &config)
+			if err != nil {
+				return fmt.Errorf("configuration must be a map with string keys")
+			}
+			for name, value := range config {
+				build.Properties[name] = value
+			}
 		}
 	}
 	return nil
