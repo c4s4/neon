@@ -196,8 +196,9 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 // - dir: the search root directory
 // - includes: the list of globs to include
 // - excludes: the list of globs to exclude
+// - folder: tells if we should include folders
 // Return the list of files as a slice of strings
-func (context *Context) FindFiles(dir string, includes, excludes []string) ([]string, error) {
+func (context *Context) FindFiles(dir string, includes, excludes []string, folder bool) ([]string, error) {
 	eval, err := context.EvaluateString(dir)
 	if err != nil {
 		return nil, fmt.Errorf("evaluating source directory: %v", err)
@@ -234,7 +235,13 @@ func (context *Context) FindFiles(dir string, includes, excludes []string) ([]st
 	for _, include := range included {
 		list, _ := zglob.Glob(include)
 		for _, file := range list {
-			candidates = append(candidates, file)
+			stat, err := os.Stat(file)
+			if err != nil {
+				return nil, fmt.Errorf("stating file: %v", err)
+			}
+			if stat.Mode().IsRegular() || folder {
+				candidates = append(candidates, file)
+			}
 		}
 	}
 	var files []string

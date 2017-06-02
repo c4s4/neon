@@ -100,7 +100,7 @@ func Zip(target *build.Target, args util.Object) (build.Task, error) {
 			return fmt.Errorf("evaluating destination file: %v", _err)
 		}
 		// find source files
-		_files, _err := target.Build.Context.FindFiles(_dir, _includes, _excludes)
+		_files, _err := target.Build.Context.FindFiles(_dir, _includes, _excludes, false)
 		if _err != nil {
 			return fmt.Errorf("getting source files for zip task: %v", _err)
 		}
