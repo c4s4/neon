@@ -203,7 +203,7 @@ func (context *Context) FindFiles(dir string, includes, excludes []string, folde
 	if err != nil {
 		return nil, fmt.Errorf("evaluating source directory: %v", err)
 	}
-	dir = eval
+	dir = util.ExpandUserHome(eval)
 	if dir != "" {
 		oldDir, err := os.Getwd()
 		if err != nil {
@@ -229,11 +229,12 @@ func (context *Context) FindFiles(dir string, includes, excludes []string, folde
 		if err != nil {
 			return nil, fmt.Errorf("evaluating pattern: %v", err)
 		}
+		pattern = util.ExpandUserHome(pattern)
 		excluded = append(excluded, pattern)
 	}
 	var candidates []string
 	for _, include := range included {
-		list, _ := zglob.Glob(include)
+		list, _ := zglob.Glob(util.ExpandUserHome(include))
 		for _, file := range list {
 			stat, err := os.Stat(file)
 			if err != nil {
