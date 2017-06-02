@@ -234,13 +234,7 @@ func (context *Context) FindFiles(dir string, includes, excludes []string) ([]st
 	for _, include := range included {
 		list, _ := zglob.Glob(include)
 		for _, file := range list {
-			stat, err := os.Stat(file)
-			if err != nil {
-				return nil, fmt.Errorf("stating file: %v", err)
-			}
-			if stat.Mode().IsRegular() {
-				candidates = append(candidates, file)
-			}
+			candidates = append(candidates, file)
 		}
 	}
 	var files []string
