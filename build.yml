@@ -2,8 +2,7 @@ name:    neon
 default: [clean, bin, test, integ]
 doc:     'Build file to build neon'
 extends:
-- ~/.neon/c4s4/build/last/changelog.yml
-- ~/.neon/c4s4/build/last/version.yml
+- ~/.neon/c4s4/build/latest/go-project.yml
 
 properties:
   NAME:         'neon'
@@ -18,30 +17,7 @@ properties:
   - 'github.com/fatih/color'
   - 'github.com/mitchellh/gox'
 
-environment:
-  GOPATH: '#{_BASE}'
-  PATH:   '#{_BASE}/bin:${PATH}'
-
 targets:
-
-  deps:
-    doc: 'Install libraries'
-    steps:
-    - for: 'dependency'
-      in:  'DEPENDENCIES'
-      do:
-      - print: 'Getting dependecy #{dependency}'
-      - 'go get #{dependency}'
-
-  format:
-    doc: 'Format Go code'
-    steps:
-    - 'go fmt #{NAME}'
-
-  test:
-    doc: 'Run unit tests'
-    steps:
-    - 'go test #{NAME}/...'
 
   integ:
     doc: 'Run an integration test on a build file'
@@ -102,11 +78,6 @@ targets:
     depends: [clean, test, refs, archive]
     steps:
     - super:
-
-  clean:
-    doc: 'Clean generated files'
-    steps:
-    - delete: '#{BUILD_DIR}'
 
   win:
     doc: 'Test integration build file on Windows'
