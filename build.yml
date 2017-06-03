@@ -1,8 +1,7 @@
 name:    neon
 default: [clean, bin, test, integ]
 doc:     'Build file to build neon'
-extends:
-- ~/.neon/c4s4/go/application.yml
+extends: ~/.neon/c4s4/go/application.yml
 
 properties:
   NAME:         'neon'
@@ -10,7 +9,7 @@ properties:
   ARC_DIR:      '#{BUILD_DIR}/#{NAME}-#{VERSION}'
   REFERENCE:    'doc/reference.md'
   WIN_SHARE:    '/home/casa/misc/shared'
-  DEPENDENCIES:
+  LIBRARIES:
   - 'gopkg.in/yaml.v2'
   - 'github.com/mattn/anko'
   - 'github.com/mattn/go-zglob'
