@@ -81,9 +81,6 @@ targets:
   win:
     doc: 'Test integration build file on Windows'
     steps:
-    - copy:   'src/neon/test.yml'
+    - copy:   'test.yml'
       tofile: '/home/casa/misc/shared/build.yml'
-    - replace: '/home/casa/misc/shared/build.yml'
-      pattern: '../../build'
-      with:    'build'
     - 'gox -output=#{WIN_SHARE}/#{NAME} -osarch=windows/386 #{NAME}'
