@@ -82,5 +82,5 @@ targets:
     doc: 'Test integration build file on Windows'
     steps:
     - copy:   'test.yml'
-      tofile: '/home/casa/misc/shared/build.yml'
+      tofile: '~/misc/shared/build.yml'
     - 'gox -output=#{WIN_SHARE}/#{NAME} -osarch=windows/386 #{NAME}'
