@@ -190,7 +190,7 @@ func ParseProperties(object util.Object, build *Build) error {
 func ParseConfiguration(object util.Object, build *Build) error {
 	if object.HasField("configuration") {
 		var config util.Object
-		files, err := object.GetListStrings("configuration")
+		files, err := object.GetListStringsOrString("configuration")
 		if err != nil {
 			return fmt.Errorf("getting configuration file: %v", err)
 		}
