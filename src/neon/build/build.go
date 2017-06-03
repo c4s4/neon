@@ -434,7 +434,7 @@ func (build *Build) RunParentTarget(name string) (bool, error) {
 func (build *Build) RunTargetRecursive(name string) (bool, error) {
 	target := build.GetTargetByName(name)
 	if target == nil {
-		return build.RunParentTarget(name)
+		return build.RunTargetRecursive(name)
 	}
 	err := target.RunSteps()
 	if err != nil {
