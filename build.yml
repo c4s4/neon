@@ -2,7 +2,7 @@ name:    neon
 default: [clean, bin, test, integ]
 doc:     'Build file to build neon'
 extends:
-- ~/.neon/c4s4/build/latest/go-project.yml
+- ~/.neon/c4s4/go/application.yml
 
 properties:
   NAME:         'neon'
