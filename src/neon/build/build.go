@@ -417,28 +417,18 @@ func (build *Build) RunTarget(name string) error {
 }
 
 // Run parent target
-func (build *Build) RunParentTarget(name string) (bool, error) {
+func RunParentTarget(build *Build, name string) (bool, error) {
 	for _, parent := range build.Parents {
-		ok, err := parent.RunTargetRecursive(name)
-		if err != nil {
-			return ok, fmt.Errorf("running target '%s': %v", name, err)
+		target := parent.GetTargetByName(name)
+		if target != nil {
+			err := target.RunSteps()
+			if err != nil {
+				return true, fmt.Errorf("running target '%s': %v", name, err)
+			}
+			return true, nil
+		} else {
+			return RunParentTarget(parent, name)
 		}
-		if ok {
-			return ok, nil
-		}
-	}
-	return false, nil
-}
-
-// Run given target recursively
-func (build *Build) RunTargetRecursive(name string) (bool, error) {
-	target := build.GetTargetByName(name)
-	if target == nil {
-		return build.RunTargetRecursive(name)
-	}
-	err := target.RunSteps()
-	if err != nil {
-		return true, fmt.Errorf("running target '%s': %v", name, err)
 	}
 	return false, nil
 }

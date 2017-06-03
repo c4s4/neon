@@ -32,7 +32,7 @@ func Super(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, err
 	}
 	return func() error {
-		ok, err := target.Build.RunParentTarget(target.Name)
+		ok, err := build.RunParentTarget(target.Build, target.Name)
 		if err != nil {
 			return err
 		}
