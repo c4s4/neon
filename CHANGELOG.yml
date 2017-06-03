@@ -1,7 +1,7 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 0.5.0-SNAPSHOT
-  date:    2017-06-00
+- version: 0.5.0
+  date:    2017-06-03
   summary: Bug fix
 
 - version: 0.4.0
