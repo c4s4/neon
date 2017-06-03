@@ -1,45 +1,22 @@
 name:    neon
 default: [clean, bin, test, integ]
 doc:     'Build file to build neon'
+extends: ~/.neon/c4s4/go/application.yml
 
 properties:
   NAME:         'neon'
-  VERSION:      '#{run("changelog", "release", "version")}'
   BUILD_DIR:    'build'
   ARC_DIR:      '#{BUILD_DIR}/#{NAME}-#{VERSION}'
   REFERENCE:    'doc/reference.md'
   WIN_SHARE:    '/home/casa/misc/shared'
-  DEPENDENCIES:
+  LIBRARIES:
   - 'gopkg.in/yaml.v2'
   - 'github.com/mattn/anko'
   - 'github.com/mattn/go-zglob'
   - 'github.com/fatih/color'
   - 'github.com/mitchellh/gox'
 
-environment:
-  GOPATH: '#{_BASE}'
-  PATH:   '#{_BASE}/bin:${PATH}'
-
 targets:
-
-  deps:
-    doc: 'Install libraries'
-    steps:
-    - for: 'dependency'
-      in:  'DEPENDENCIES'
-      do:
-      - print: 'Getting dependecy #{dependency}'
-      - 'go get #{dependency}'
-
-  format:
-    doc: 'Format Go code'
-    steps:
-    - 'go fmt #{NAME}'
-
-  test:
-    doc: 'Run unit tests'
-    steps:
-    - 'go test #{NAME}/...'
 
   integ:
     doc: 'Run an integration test on a build file'
@@ -98,21 +75,12 @@ targets:
 
   release:
     depends: [clean, test, refs, archive]
-    doc: 'Perform a release'
     steps:
-    - 'release'
-
-  clean:
-    doc: 'Clean generated files'
-    steps:
-    - delete: '#{BUILD_DIR}'
+    - super:
 
   win:
     doc: 'Test integration build file on Windows'
     steps:
-    - copy:   'src/neon/test.yml'
-      tofile: '/home/casa/misc/shared/build.yml'
-    - replace: '/home/casa/misc/shared/build.yml'
-      pattern: '../../build'
-      with:    'build'
+    - copy:   'test.yml'
+      tofile: '~/misc/shared/build.yml'
     - 'gox -output=#{WIN_SHARE}/#{NAME} -osarch=windows/386 #{NAME}'

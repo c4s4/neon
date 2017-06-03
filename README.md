@@ -21,4 +21,23 @@ There are two sources of documentation:
 - [The quick start guide](doc/quickstart.md).
 - [The reference guide](doc/reference.md).
 
+Build
+-----
+
+To build the project without *neon* already installed, follow these steps:
+
+- Define `GOPATH` environment variable on the directory of the project.
+- Write *src/neon/version.go* file with following content :
+
+```go
+package main
+
+var VERSION = "UNKNOWN"
+```
+
+- Go to the project directory and type command `go build neon`.
+
+This will product the *neon* binary for your platform and OS in the project
+directory.
+
 *Enjoy!*

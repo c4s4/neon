@@ -119,7 +119,7 @@ func Move(target *build.Target, args util.Object) (build.Task, error) {
 			}
 		}
 		// find source files
-		_sources, _err := target.Build.Context.FindFiles(_dir, _includes, _excludes)
+		_sources, _err := target.Build.Context.FindFiles(_dir, _includes, _excludes, true)
 		if _err != nil {
 			return fmt.Errorf("getting source files for move task: %v", _err)
 		}
@@ -132,9 +132,11 @@ func Move(target *build.Target, args util.Object) (build.Task, error) {
 		build.Info("Moving %d file(s)", len(_sources))
 		if _tofile != "" {
 			_file := filepath.Join(_dir, _sources[0])
-			_err = os.Rename(_file, _tofile)
-			if _err != nil {
-				return fmt.Errorf("moving file: %v", _err)
+			if _file != _tofile {
+				_err = os.Rename(_file, _tofile)
+				if _err != nil {
+					return fmt.Errorf("moving file: %v", _err)
+				}
 			}
 		}
 		if _toDir != "" {

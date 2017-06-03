@@ -26,6 +26,7 @@ func ReadFile(file string) ([]byte, error) {
 
 // Tells if file exists
 func FileExists(file string) bool {
+	file = ExpandUserHome(file)
 	if stat, err := os.Stat(file); err == nil && !stat.IsDir() {
 		return true
 	} else {
@@ -35,6 +36,7 @@ func FileExists(file string) bool {
 
 // Tells if directory exists
 func DirExists(dir string) bool {
+	dir = ExpandUserHome(dir)
 	if stat, err := os.Stat(dir); err == nil && stat.IsDir() {
 		return true
 	} else {
@@ -44,6 +46,8 @@ func DirExists(dir string) bool {
 
 // Copy source file to destination, preserving mode
 func CopyFile(source, dest string) error {
+	source = ExpandUserHome(source)
+	dest = ExpandUserHome(dest)
 	from, err := os.Open(source)
 	if err != nil {
 		return fmt.Errorf("opening source file '%s': %v", source, err)
@@ -66,9 +70,11 @@ func CopyFile(source, dest string) error {
 	if err != nil {
 		return fmt.Errorf("syncing destination file: %v", err)
 	}
-	err = to.Chmod(info.Mode())
-	if err != nil {
-		return fmt.Errorf("changing mode of destination file '%s': %v", dest, err)
+	if !Windows() {
+		err = to.Chmod(info.Mode())
+		if err != nil {
+			return fmt.Errorf("changing mode of destination file '%s': %v", dest, err)
+		}
 	}
 	return nil
 }
@@ -76,10 +82,13 @@ func CopyFile(source, dest string) error {
 // Copy files in root directory to destination directory. If flatten, all files
 // are copied in destination directory, even if in source subdirectories
 func CopyFilesToDir(dir string, files []string, toDir string, flatten bool) error {
+	dir = ExpandUserHome(dir)
+	toDir = ExpandUserHome(toDir)
 	if stat, err := os.Stat(toDir); err != nil || !stat.IsDir() {
 		return fmt.Errorf("destination directory doesn't exist")
 	}
 	for _, file := range files {
+		file = ExpandUserHome(file)
 		source := filepath.Join(dir, file)
 		var dest string
 		if flatten {
@@ -106,10 +115,13 @@ func CopyFilesToDir(dir string, files []string, toDir string, flatten bool) erro
 // Move files in source directory to destination. If flatten is set to true, all
 // files are moved in the root of destination directory.
 func MoveFilesToDir(dir string, files []string, toDir string, flatten bool) error {
+	dir = ExpandUserHome(dir)
+	toDir = ExpandUserHome(toDir)
 	if stat, err := os.Stat(toDir); err != nil || !stat.IsDir() {
 		return fmt.Errorf("destination directory doesn't exist")
 	}
 	for _, file := range files {
+		file = ExpandUserHome(file)
 		source := filepath.Join(dir, file)
 		var dest string
 		if flatten {

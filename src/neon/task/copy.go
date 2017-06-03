@@ -120,7 +120,7 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 			}
 		}
 		// find source files
-		_sources, _err := target.Build.Context.FindFiles(_dir, _includes, _excludes)
+		_sources, _err := target.Build.Context.FindFiles(_dir, _includes, _excludes, false)
 		if _err != nil {
 			return fmt.Errorf("getting source files for copy task: %v", _err)
 		}

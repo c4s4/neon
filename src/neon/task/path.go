@@ -78,7 +78,7 @@ func Path(target *build.Target, args util.Object) (build.Task, error) {
 			}
 		}
 		// find source files
-		_files, _err := target.Build.Context.FindFiles(_dir, _includes, _excludes)
+		_files, _err := target.Build.Context.FindFiles(_dir, _includes, _excludes, true)
 		if _err != nil {
 			return fmt.Errorf("getting source files for path task: %v", _err)
 		}

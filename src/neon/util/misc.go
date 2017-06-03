@@ -6,8 +6,10 @@ import (
 	"reflect"
 	"time"
 	"unicode/utf8"
+	"runtime"
 )
 
+// Return interface as a list of interfaces
 func ToList(object interface{}) ([]interface{}, error) {
 	slice := reflect.ValueOf(object)
 	if slice.Kind() == reflect.Slice {
@@ -21,6 +23,7 @@ func ToList(object interface{}) ([]interface{}, error) {
 	}
 }
 
+// Return a reflect.Value as an interface
 func ValueToInterface(value reflect.Value) interface{} {
 	if value.IsValid() {
 		kind := value.Kind()
@@ -46,6 +49,7 @@ func ValueToInterface(value reflect.Value) interface{} {
 	}
 }
 
+// Return the maximum length of given lines
 func MaxLength(lines []string) int {
 	length := 0
 	for _, line := range lines {
@@ -56,6 +60,8 @@ func MaxLength(lines []string) int {
 	return length
 }
 
+// Run a TCP server on given port to ensure that a single instance is running
+// on a machine. Fails if another instance is already running.
 func Singleton(port int) error {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
@@ -68,4 +74,9 @@ func Singleton(port int) error {
 		}
 	}()
 	return nil
+}
+
+// Tells if we are running on windows
+func Windows() bool {
+	return 	runtime.GOOS == "windows"
 }
