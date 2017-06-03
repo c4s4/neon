@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"time"
 	"unicode/utf8"
+	"runtime"
 )
 
 // Return interface as a list of interfaces
@@ -73,4 +74,9 @@ func Singleton(port int) error {
 		}
 	}()
 	return nil
+}
+
+// Tells if we are running on windows
+func Windows() bool {
+	return 	runtime.GOOS == "windows"
 }

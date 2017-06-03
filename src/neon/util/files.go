@@ -66,9 +66,11 @@ func CopyFile(source, dest string) error {
 	if err != nil {
 		return fmt.Errorf("syncing destination file: %v", err)
 	}
-	err = to.Chmod(info.Mode())
-	if err != nil {
-		return fmt.Errorf("changing mode of destination file '%s': %v", dest, err)
+	if !Windows() {
+		err = to.Chmod(info.Mode())
+		if err != nil {
+			return fmt.Errorf("changing mode of destination file '%s': %v", dest, err)
+		}
 	}
 	return nil
 }
