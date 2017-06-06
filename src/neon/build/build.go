@@ -8,6 +8,11 @@ import (
 	"path/filepath"
 )
 
+const (
+	// location of the repository root
+	REPO_ROOT = "~/.neon"
+)
+
 // Build structure
 type Build struct {
 	File        string
@@ -161,9 +166,10 @@ func ParseExtends(object util.Object, build *Build) error {
 		}
 		var extends []*Build
 		for _, parent := range parents {
-			extend, err := NewBuild(parent)
+			file := filepath.Join(REPO_ROOT, parent)
+			extend, err := NewBuild(file)
 			if err != nil {
-				return fmt.Errorf("laoding parent '%s': %v", parent, err)
+				return fmt.Errorf("loading parent '%s': %v", parent, err)
 			}
 			extends = append(extends, extend)
 		}
