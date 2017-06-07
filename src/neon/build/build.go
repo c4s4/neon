@@ -433,7 +433,10 @@ func RunParentTarget(build *Build, name string) (bool, error) {
 			}
 			return true, nil
 		} else {
-			return RunParentTarget(parent, name)
+			ok, err := RunParentTarget(parent, name)
+			if ok || err != nil {
+				return ok, err
+			}
 		}
 	}
 	return false, nil
