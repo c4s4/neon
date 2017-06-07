@@ -149,6 +149,29 @@ func (object Object) GetObject(field string) (Object, error) {
 	return object, nil
 }
 
+// Get an object field as a map string string
+func (object Object) GetMapStringString(field string) (map[string]string, error) {
+	err := fmt.Errorf("field must be a map string string")
+	value, ok := object[field]
+	if !ok {
+		return nil, fmt.Errorf("field '%s' not found", field)
+	}
+	v := reflect.ValueOf(value)
+	if v.Kind() == reflect.Map {
+		result := make(map[string]string)
+		for _, key := range v.MapKeys() {
+			str, ok := key.Interface().(string)
+			if !ok {
+				return nil, err
+			}
+			result[str] = v.MapIndex(key).String()
+		}
+		return result, nil
+	} else {
+		return nil, err
+	}
+}
+
 // Check that object has no field whose name is not in given list
 func (object Object) CheckFields(fields []string) error {
 	for entry := range object {
