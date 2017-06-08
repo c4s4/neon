@@ -6,9 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["json"] = build.BuiltinDescriptor{
-		Function: Json,
-		Help: `Json encodin.
+	build.BuiltinMap["jsonencode"] = build.BuiltinDescriptor{
+		Function: JsonEncode,
+		Help: `Encode given variable in Json format.
 
 Arguments:
 
@@ -21,12 +21,12 @@ Returns:
 Examples:
 
     // encode given list
-    json(["foo", "bar"])
+    jsonencode(["foo", "bar"])
     // returns: "['foo', 'bar']"`,
 	}
 }
 
-func Json(object []interface{}) string {
+func JsonEncode(object interface{}) string {
 	bytes, err := json.Marshal(object)
 	if err != nil {
 		panic(err)
