@@ -123,10 +123,11 @@ func Request(target *build.Target, args util.Object) (build.Task, error) {
 			}
 			_headers[_name] = _value
 		}
-		_body, _err := target.Build.Context.EvaluateString(body)
+		_str, _err := target.Build.Context.EvaluateString(body)
 		if _err != nil {
 			return fmt.Errorf("evaluating body: %v", _err)
 		}
+		_body := []byte(_str)
 		_file, _err := target.Build.Context.EvaluateString(file)
 		if _err != nil {
 			return fmt.Errorf("evaluating file: %v", _err)
@@ -151,11 +152,10 @@ func Request(target *build.Target, args util.Object) (build.Task, error) {
 		}
 		// perform request
 		if _file != "" {
-			_bytes, _err := util.ReadFile(_file)
+			_body, _err = ioutil.ReadFile(_file)
 			if _err != nil {
 				return _err
 			}
-			_body = string(_bytes)
 		}
 		_request, _err := http.NewRequest(_method, _url, bytes.NewBuffer([]byte(_body)))
 		if _err != nil {
@@ -175,12 +175,12 @@ func Request(target *build.Target, args util.Object) (build.Task, error) {
 		defer _response.Body.Close()
 		_response_status := strconv.Itoa(_response.StatusCode)
 		target.Build.Context.SetProperty("_status", _response_status)
+		target.Build.Context.SetProperty("_headers", _response.Header)
 		_response_body, _err := ioutil.ReadAll(_response.Body)
 		if _err != nil {
 			return fmt.Errorf("reading response body: %v", _err)
 		}
 		target.Build.Context.SetProperty("_body", string(_response_body))
-		target.Build.Context.SetProperty("_headers", _response.Header)
 		if _response_status != _status {
 			return fmt.Errorf("bad response status: %s", _response_status)
 		}
