@@ -25,7 +25,6 @@ Arguments:
 - method: the request method (GET, POST, etc), defaults to "GET".
 - headers: request headers as a map
 - body: the request body as a string.
-- json: the request body to send as Json.
 - file: the request body as a file.
 - status: expected status code, on error if different (defaults to 200).
 - username: user name for authentication.
@@ -42,7 +41,7 @@ Examples:
 }
 
 func Request(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"request", "method", "headers", "body", "json", "file", "status", "username", "password"}
+	fields := []string{"request", "method", "headers", "body", "file", "status", "username", "password"}
 	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err
 	}
@@ -70,10 +69,6 @@ func Request(target *build.Target, args util.Object) (build.Task, error) {
 		if err != nil {
 			return nil, fmt.Errorf("argument body of task request must be a string")
 		}
-	}
-	var json interface{}
-	if args.HasField("json") {
-		json = args["json"]
 	}
 	var file string
 	if args.HasField("file") {
@@ -132,13 +127,6 @@ func Request(target *build.Target, args util.Object) (build.Task, error) {
 		if _err != nil {
 			return fmt.Errorf("evaluating body: %v", _err)
 		}
-		var _json = ""
-		if json != nil {
-			_json, _err = build.PropertyToString(json, true)
-			if err != nil {
-				return fmt.Errorf("serializing json argument: %v", err)
-			}
-		}
 		_file, _err := target.Build.Context.EvaluateString(file)
 		if _err != nil {
 			return fmt.Errorf("evaluating file: %v", _err)
@@ -162,9 +150,6 @@ func Request(target *build.Target, args util.Object) (build.Task, error) {
 			return fmt.Errorf("evaluating password: %v", _err)
 		}
 		// perform request
-		if _json != "" {
-			_body = _json
-		}
 		if _file != "" {
 			_bytes, _err := util.ReadFile(_file)
 			if _err != nil {
