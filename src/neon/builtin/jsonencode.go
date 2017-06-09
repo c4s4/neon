@@ -1,7 +1,6 @@
 package builtin
 
 import (
-	"encoding/json"
 	"neon/build"
 )
 
@@ -27,7 +26,7 @@ Examples:
 }
 
 func JsonEncode(object interface{}) string {
-	bytes, err := json.Marshal(object)
+	bytes, err := build.PropertyToString(object, true)
 	if err != nil {
 		panic(err)
 	}
