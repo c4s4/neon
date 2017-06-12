@@ -38,13 +38,13 @@ func Chdir(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func() error {
 		_directory, _err := target.Build.Context.EvaluateString(dir)
-		build.Info("Changing to _directory '%s'", _directory)
+		build.Info("Changing to directory '%s'", _directory)
 		if _err != nil {
 			return fmt.Errorf("processing chdir argument: %v", _err)
 		}
 		_err = os.Chdir(_directory)
 		if _err != nil {
-			return fmt.Errorf("changing to _directory '%s': %s", _directory, _err)
+			return fmt.Errorf("changing to directory '%s': %s", _directory, _err)
 		}
 		return nil
 	}, nil
