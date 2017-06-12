@@ -6,6 +6,8 @@ import (
 	"neon/util"
 	"os"
 	"path/filepath"
+	"path"
+	"strings"
 )
 
 const (
@@ -166,7 +168,7 @@ func ParseExtends(object util.Object, build *Build) error {
 		}
 		var extends []*Build
 		for _, parent := range parents {
-			file := filepath.Join(REPO_ROOT, parent)
+			file := ParentPath(parent, build)
 			extend, err := NewBuild(file)
 			if err != nil {
 				return fmt.Errorf("loading parent '%s': %v", parent, err)
@@ -176,6 +178,17 @@ func ParseExtends(object util.Object, build *Build) error {
 		build.Parents = extends
 	}
 	return nil
+}
+
+// Get parent build file path
+func ParentPath(parent string, build *Build) string {
+	if path.IsAbs(parent) {
+		return parent
+	} else if strings.HasPrefix(parent, "./") {
+		return filepath.Join(build.Dir, parent)
+	} else {
+		return filepath.Join(REPO_ROOT, parent)
+	}
 }
 
 // Parse build properties
