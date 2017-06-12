@@ -29,7 +29,6 @@ default:
 - task_path
 - task_print
 - task_read
-- task_remove
 - task_replace
 - task_script
 - task_sleep
@@ -300,6 +299,7 @@ targets:
   task_delete:
     doc: Test task delete
     steps:
+    # delete a directory
     - mkdir: "#{BUILD_DIR}/delete/foo"
     - touch: "#{BUILD_DIR}/delete/foo/test.txt"
     - delete: "#{BUILD_DIR}/delete/foo"
@@ -307,6 +307,19 @@ targets:
         os = import("os")
         filepath = import("path/filepath")
         file = filepath.Join(BUILD_DIR, "delete", "foo")
+        _, err = os.Stat(file)
+        if err == nil {
+          throw("Delete test failure")
+        } else {
+          println("Delete test success")
+        }
+    # delete files
+    - touch: "#{BUILD_DIR}/delete/test.txt"
+    - delete: "#{BUILD_DIR}/delete/test.txt"
+    - script: |
+        os = import("os")
+        filepath = import("path/filepath")
+        file = filepath.Join(BUILD_DIR, "delete", "test.txt")
         _, err = os.Stat(file)
         if err == nil {
           throw("Delete test failure")
@@ -461,23 +474,6 @@ targets:
           throw("Read test failure")
         } else {
           println("Read test success")
-        }
-
-  task_remove:
-    doc: Test task remove
-    steps:
-    - mkdir: "#{BUILD_DIR}/remove"
-    - touch: "#{BUILD_DIR}/remove/test.txt"
-    - remove: "#{BUILD_DIR}/remove/test.txt"
-    - script: |
-        os = import("os")
-        filepath = import("path/filepath")
-        file = filepath.Join(BUILD_DIR, "remove", "test.txt")
-        _, err = os.Stat(file)
-        if err == nil {
-          throw("Remove test failure")
-        } else {
-          println("Remove test success")
         }
 
   task_replace:
