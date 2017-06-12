@@ -61,7 +61,7 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 	if args.HasField("exclude") {
 		excludes, err = args.GetListStringsOrString("exclude")
 		if err != nil {
-			return nil, fmt.Errorf("argument exclude mus be string or list of strings")
+			return nil, fmt.Errorf("argument exclude must be string or list of strings")
 		}
 	}
 	var tofile string
