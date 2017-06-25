@@ -92,20 +92,26 @@ Examples:
 delete
 ------
 
-Delete a directory recursively.
+Delete files or directories (recursively).
 
 Arguments:
 
-- delete: directory or list of directories to delete.
+- delete: glob to select files or directory to delete.
+- dir: the root directory for glob (as a string, optional).
+- exclude: globs of files to exclude (as a string or list of strings,
+  optional).
 
 Examples:
 
     # delete build directory
     - delete: "#{BUILD_DIR}"
+    # delete all XML files except 'foo.xml'
+    - delete:  "**/*.xml"
+      exclude: "**/foo.xml"
 
 Notes:
 
-- Handle with care, this is recursive!
+- Handle with care, directories are deleted recursively!
 
 execute
 -------
@@ -297,20 +303,6 @@ Examples:
     - read: "LICENSE"
       to: license
 
-remove
-------
-
-Remove file(s).
-
-Arguments:
-
-- remove: file or list of files to remove.
-
-Examples:
-
-    # remove all pyc files
-    - remove: "**/*.pyc"
-
 replace
 -------
 
@@ -331,6 +323,29 @@ Examples:
     - replace: "test.txt"
       pattern: "foo"
       with: "bar"
+
+request
+-------
+
+Perform an HTTP request.
+
+Arguments:
+
+- method: the request method (GET, POST, etc), defaults to "GET".
+- headers: request headers as a map
+- body: the request body as a string.
+- file: the request body as a file.
+- status: expected status code, on error if different (defaults to 200).
+- username: user name for authentication.
+- password: user password for authentication.
+
+Response status code is stored in variable _status, response body is stored in
+variable _body and response headers in _headers.
+
+Examples:
+
+    # get google.com
+    - request: "google.com"
 
 script
 ------
@@ -727,6 +742,44 @@ Examples:
     joinpath("foo", "bar", "spam.txt")
     // returns: "foo/bar/spam.txt" on a Linux box and "foo\bar\spam.txt" on
     // Windows
+
+jsondecode
+----------
+
+Decode given string in Json format.
+
+Arguments:
+
+- The string in Json format to decode.
+
+Returns:
+
+- Decoded string.
+
+Examples:
+
+    // decode given list
+    jsondecode("['foo', 'bar']")
+    // returns string slice: ["foo", "bar"]
+
+jsonencode
+----------
+
+Encode given variable in Json format.
+
+Arguments:
+
+- The variable to encode in Json format.
+
+Returns:
+
+- Json encoded string.
+
+Examples:
+
+    // encode given list
+    jsonencode(["foo", "bar"])
+    // returns: "['foo', 'bar']"
 
 keys
 ----
