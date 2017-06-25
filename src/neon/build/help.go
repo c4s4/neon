@@ -12,48 +12,48 @@ import (
 func (build *Build) Help() error {
 	// print build information
 	if build.Name != "" {
-		Info("name: %s", build.Name)
+		Message("name: %s", build.Name)
 	}
 	if build.Doc != "" {
-		Info("doc: %s", build.Doc)
+		Message("doc: %s", build.Doc)
 	}
 	if len(build.Default) > 0 {
 		defauls := "[" + strings.Join(build.Default, ", ") + "]"
-		Info("default: %s", defauls)
+		Message("default: %s", defauls)
 	}
-	Info("repository: %s", build.Repository)
+	Message("repository: %s", build.Repository)
 	if build.Singleton != 0 {
-		Info("singleton: %d", build.Singleton)
+		Message("singleton: %d", build.Singleton)
 	}
 	// print parent build files
 	if len(build.Parents) > 0 {
-		Info("")
-		Info("extends:")
+		Message("")
+		Message("extends:")
 		for _, extend := range build.Extends {
-			Info("- %s", extend)
+			Message("- %s", extend)
 		}
 	}
 	// print configuration files
 	if len(build.Config) > 0 {
-		Info("")
-		Info("configuration:")
+		Message("")
+		Message("configuration:")
 		for _, config := range build.Config {
-			Info("- %s", config)
+			Message("- %s", config)
 		}
 	}
 	// print context scripts
 	if len(build.Config) > 0 {
-		Info("")
-		Info("context:")
+		Message("")
+		Message("context:")
 		for _, script := range build.Scripts {
-			Info("- %s", script)
+			Message("- %s", script)
 		}
 	}
 	// print build properties
 	length := util.MaxLength(build.Context.Properties)
 	if len(build.Context.Properties) > 0 {
-		Info("")
-		Info("properties:")
+		Message("")
+		Message("properties:")
 		for _, name := range build.Context.Properties {
 			value, err := build.Context.GetProperty(name)
 			if err != nil {
@@ -74,8 +74,8 @@ func (build *Build) Help() error {
 	length = util.MaxLength(names)
 	sort.Strings(names)
 	if len(build.Context.Environment) > 0 {
-		Info("")
-		Info("environment:")
+		Message("")
+		Message("environment:")
 		for _, name := range names {
 			value := "\"" + build.Context.Environment[name] + "\""
 			PrintProperty(name, value, []string{}, length)
@@ -90,8 +90,8 @@ func (build *Build) Help() error {
 	length = util.MaxLength(names)
 	sort.Strings(names)
 	if len(names) > 0 {
-		Info("")
-		Info("targets:")
+		Message("")
+		Message("targets:")
 		for _, name := range names {
 			target := targets[name]
 			PrintProperty(name, target.Doc, target.Depends, length)
@@ -108,7 +108,7 @@ func PrintProperty(name, doc string, depends []string, length int) {
 	if doc != "" {
 		deps = " " + deps
 	}
-	Info("  %s: %s%s%s", name,
+	Message("  %s: %s%s%s", name,
 		strings.Repeat(" ", length-utf8.RuneCountInString(name)), doc, deps)
 }
 
@@ -119,7 +119,7 @@ func (build *Build) PrintTargets() {
 		targets = append(targets, name)
 	}
 	sort.Strings(targets)
-	Info(strings.Join(targets, " "))
+	Message(strings.Join(targets, " "))
 }
 
 // Print tasks
@@ -129,16 +129,16 @@ func PrintTasks() {
 		tasks = append(tasks, name)
 	}
 	sort.Strings(tasks)
-	Info(strings.Join(tasks, " "))
+	Message(strings.Join(tasks, " "))
 }
 
 // Print help on tasks
 func PrintHelpTask(task string) {
 	descriptor, found := TaskMap[task]
 	if found {
-		Info(descriptor.Help)
+		Message(descriptor.Help)
 	} else {
-		Info("Task '%s' was not found", task)
+		Message("Task '%s' was not found", task)
 	}
 }
 
@@ -149,50 +149,50 @@ func PrintBuiltins() {
 		builtins = append(builtins, name)
 	}
 	sort.Strings(builtins)
-	Info(strings.Join(builtins, " "))
+	Message(strings.Join(builtins, " "))
 }
 
 // Print help on builtins
 func PrintHelpBuiltin(builtin string) {
 	descriptor, found := BuiltinMap[builtin]
 	if found {
-		Info(descriptor.Help)
+		Message(descriptor.Help)
 	} else {
-		Info("Builtin '%s' was not found", builtin)
+		Message("Builtin '%s' was not found", builtin)
 	}
 }
 
 // Print markdown reference for tasks and builtins
 func PrintReference() {
-	fmt.Println("Tasks Reference")
-	fmt.Println("===============")
-	fmt.Println()
+	Message("Tasks Reference")
+	Message("===============")
+	Message("")
 	var tasks []string
 	for name := range TaskMap {
 		tasks = append(tasks, name)
 	}
 	sort.Strings(tasks)
 	for _, task := range tasks {
-		fmt.Println(task)
-		fmt.Println(strings.Repeat("-", len(task)))
-		fmt.Println()
-		fmt.Println(TaskMap[task].Help)
-		fmt.Println()
+		Message(task)
+		Message(strings.Repeat("-", len(task)))
+		Message("")
+		Message(TaskMap[task].Help)
+		Message("")
 	}
-	fmt.Println()
-	fmt.Println("Builtins Reference")
-	fmt.Println("==================")
-	fmt.Println()
+	Message("")
+	Message("Builtins Reference")
+	Message("==================")
+	Message("")
 	var builtins []string
 	for name := range BuiltinMap {
 		builtins = append(builtins, name)
 	}
 	sort.Strings(builtins)
 	for _, builtin := range builtins {
-		fmt.Println(builtin)
-		fmt.Println(strings.Repeat("-", len(builtin)))
-		fmt.Println()
-		fmt.Println(BuiltinMap[builtin].Help)
-		fmt.Println()
+		Message(builtin)
+		Message(strings.Repeat("-", len(builtin)))
+		Message("")
+		Message(BuiltinMap[builtin].Help)
+		Message("")
 	}
 }

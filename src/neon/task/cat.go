@@ -41,7 +41,7 @@ func Cat(target *build.Target, args util.Object) (build.Task, error) {
 		if _err != nil {
 			return fmt.Errorf("printing _content of file '%s': %v", _eval, _err)
 		}
-		build.Info(string(_content))
+		build.Message(string(_content))
 		return nil
 	}, nil
 }

@@ -85,7 +85,7 @@ func Path(target *build.Target, args util.Object) (build.Task, error) {
 		if len(_files) < 1 {
 			return nil
 		}
-		build.Info("Building path with %d file(s)", len(_files))
+		build.Message("Building path with %d file(s)", len(_files))
 		path := strings.Join(_files, string(filepath.ListSeparator))
 		target.Build.Context.SetProperty(to, path)
 		return nil

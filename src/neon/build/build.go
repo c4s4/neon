@@ -528,7 +528,7 @@ func (build *Build) Install(plugin string) error {
 	}
 	path := build.PluginPath(plugin)
 	if util.DirExists(path) {
-		Info("Plugin '%s' already installed in '%s'", plugin, path)
+		Message("Plugin '%s' already installed in '%s'", plugin, path)
 		return nil
 	}
 	absolute := util.ExpandUserHome(path)
@@ -539,10 +539,10 @@ func (build *Build) Install(plugin string) error {
 		re = regexp.MustCompile("\n\n")
 		message := re.ReplaceAllString(string(output), "\n")
 		message = strings.TrimSpace(message)
-		Info(message)
+		Message(message)
 		return fmt.Errorf("installing plugin '%s'", plugin)
 	} else {
-		Info("Plugin '%s' installed in '%s'", plugin, path)
+		Message("Plugin '%s' installed in '%s'", plugin, path)
 	}
 	return nil
 }

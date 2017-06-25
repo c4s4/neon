@@ -85,7 +85,7 @@ func Delete(target *build.Target, args util.Object) (build.Task, error) {
 		if len(_files) < 1 {
 			return nil
 		}
-		build.Info("Deleting %d file(s) or directory(ies)", len(_files))
+		build.Message("Deleting %d file(s) or directory(ies)", len(_files))
 		for _, _file := range _files {
 			_path := filepath.Join(_dir, _file)
 			if util.DirExists(_path) {

@@ -99,7 +99,7 @@ func Replace(target *build.Target, args util.Object) (build.Task, error) {
 		if len(_files) < 1 {
 			return nil
 		}
-		build.Info("Replacing text in %d file(s)", len(_files))
+		build.Message("Replacing text in %d file(s)", len(_files))
 		for _, _file := range _files {
 			if _dir != "" {
 				_file = filepath.Join(_dir, _file)
