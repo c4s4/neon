@@ -1,6 +1,6 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 0.6.0
+- version: 0.6.0-SNAPSHOT
   date:    2017-06-26
   summary: Build inheritance
   added:
