@@ -5,23 +5,55 @@ import (
 	"neon/util"
 	"sort"
 	"strings"
+	"unicode/utf8"
 )
 
 // Print help on build
 func (build *Build) Help() error {
-	newLine := false
-	// print build documentation
+	// print build information
+	if build.Name != "" {
+		Info("name: %s", build.Name)
+	}
 	if build.Doc != "" {
-		Info(build.Doc)
-		newLine = true
+		Info("doc: %s", build.Doc)
+	}
+	if len(build.Default) > 0 {
+		defauls := "[" + strings.Join(build.Default, ", ") + "]"
+		Info("default: %s", defauls)
+	}
+	Info("repository: %s", build.Repository)
+	if build.Singleton != 0 {
+		Info("singleton: %d", build.Singleton)
+	}
+	// print parent build files
+	if len(build.Parents) > 0 {
+		Info("")
+		Info("extends:")
+		for _, extend := range build.Extends {
+			Info("- %s", extend)
+		}
+	}
+	// print configuration files
+	if len(build.Config) > 0 {
+		Info("")
+		Info("configuration:")
+		for _, config := range build.Config {
+			Info("- %s", config)
+		}
+	}
+	// print context scripts
+	if len(build.Config) > 0 {
+		Info("")
+		Info("context:")
+		for _, script := range build.Scripts {
+			Info("- %s", script)
+		}
 	}
 	// print build properties
 	length := util.MaxLength(build.Context.Properties)
 	if len(build.Context.Properties) > 0 {
-		if newLine {
-			Info("")
-		}
-		Info("Properties:")
+		Info("")
+		Info("properties:")
 		for _, name := range build.Context.Properties {
 			value, err := build.Context.GetProperty(name)
 			if err != nil {
@@ -31,9 +63,8 @@ func (build *Build) Help() error {
 			if err != nil {
 				return fmt.Errorf("formatting property '%s': %v", name, err)
 			}
-			PrintColorLine(name, valueStr, []string{}, length)
+			PrintProperty(name, valueStr, []string{}, length)
 		}
-		newLine = true
 	}
 	// print build environment
 	var names []string
@@ -43,15 +74,12 @@ func (build *Build) Help() error {
 	length = util.MaxLength(names)
 	sort.Strings(names)
 	if len(build.Context.Environment) > 0 {
-		if newLine {
-			Info("")
-		}
-		Info("Environment:")
+		Info("")
+		Info("environment:")
 		for _, name := range names {
 			value := "\"" + build.Context.Environment[name] + "\""
-			PrintColorLine(name, value, []string{}, length)
+			PrintProperty(name, value, []string{}, length)
 		}
-		newLine = true
 	}
 	// print targets documentation
 	targets := build.GetTargets()
@@ -62,16 +90,26 @@ func (build *Build) Help() error {
 	length = util.MaxLength(names)
 	sort.Strings(names)
 	if len(names) > 0 {
-		if newLine {
-			Info("")
-		}
-		Info("Targets:")
+		Info("")
+		Info("targets:")
 		for _, name := range names {
 			target := targets[name]
-			PrintColorLine(name, target.Doc, target.Depends, length)
+			PrintProperty(name, target.Doc, target.Depends, length)
 		}
 	}
 	return nil
+}
+
+func PrintProperty(name, doc string, depends []string, length int) {
+	deps := ""
+	if len(depends) > 0 {
+		deps = "[" + strings.Join(depends, ", ") + "]"
+	}
+	if doc != "" {
+		deps = " " + deps
+	}
+	Info("  %s: %s%s%s", name,
+		strings.Repeat(" ", length-utf8.RuneCountInString(name)), doc, deps)
 }
 
 // Print build targets

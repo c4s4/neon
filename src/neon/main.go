@@ -17,7 +17,7 @@ const (
 )
 
 // Parse command line and return parsed options
-func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, []string) {
+func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, string, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
 	help := flag.Bool("build", false, "Print build help")
 	version := flag.Bool("version", false, "Print neon version")
@@ -29,10 +29,11 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 	builtins := flag.Bool("builtins", false, "Print builtins list")
 	builtin := flag.String("builtin", "", "Print help on given builtin")
 	refs := flag.Bool("refs", false, "Print tasks and builtins reference")
+	install := flag.String("install", "", "Install given plugin")
 	flag.Parse()
 	targets := flag.Args()
 	return *file, *help, *version, *props, *timeit, *tasks, *task, *targs, *builtins,
-		*builtin, *refs, targets
+		*builtin, *refs, *install, targets
 }
 
 // Find build file and return its path
@@ -60,7 +61,7 @@ func FindBuildFile(name string) (string, error) {
 // Program entry point
 func main() {
 	start := time.Now()
-	file, help, version, props, timeit, tasks, task, targs, builtins, builtin, refs, targets := ParseCommandLine()
+	file, help, version, props, timeit, tasks, task, targs, builtins, builtin, refs, install, targets := ParseCommandLine()
 	// options that do not require we load build file
 	if tasks {
 		_build.PrintTasks()
@@ -81,10 +82,19 @@ func main() {
 		fmt.Println(VERSION)
 		os.Exit(0)
 	}
-	// options that do require we load build file
+ 	// options that do require we load build file
 	path, err := FindBuildFile(file)
 	PrintError(err, 1)
 	build, err := _build.NewBuild(path)
+	if build != nil && install != "" {
+		err = build.Install(install)
+		if err == nil {
+			util.PrintColor("%s", util.Green("OK"))
+			os.Exit(0)
+		} else {
+			PrintError(err, 6)
+		}
+	}
 	PrintError(err, 2)
 	if props != "" {
 		err = build.SetCommandLineProperties(props)

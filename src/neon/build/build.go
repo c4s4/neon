@@ -5,8 +5,10 @@ import (
 	"gopkg.in/yaml.v2"
 	"neon/util"
 	"os"
-	"path/filepath"
+	"os/exec"
 	"path"
+	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -23,7 +25,11 @@ type Build struct {
 	Name        string
 	Default     []string
 	Doc         string
+	Repository  string
+	Singleton   int
 	Scripts     []string
+	Extends     []string
+	Config      []string
 	Properties  util.Object
 	Environment map[string]string
 	Targets     map[string]*Target
@@ -35,7 +41,8 @@ type Build struct {
 
 // Possible fields for a build file
 var FIELDS = []string{"name", "doc", "default", "context", "extends",
-	"singleton", "properties", "configuration", "environment", "targets"}
+	"singleton", "repository", "properties", "configuration",
+	"environment", "targets"}
 
 // Make a build from a build file
 func NewBuild(file string) (*Build, error) {
@@ -64,7 +71,7 @@ func NewBuild(file string) (*Build, error) {
 	if err := object.CheckFields(FIELDS); err != nil {
 		return nil, fmt.Errorf("parsing build file: %v", err)
 	}
-	if err := ParseSingleton(object); err != nil {
+	if err := ParseSingleton(object, build); err != nil {
 		return nil, err
 	}
 	if err := ParseName(object, build); err != nil {
@@ -76,11 +83,15 @@ func NewBuild(file string) (*Build, error) {
 	if err := ParseDoc(object, build); err != nil {
 		return nil, err
 	}
+	if err := ParseRepository(object, build); err != nil {
+		return nil, err
+	}
 	if err := ParseContext(object, build); err != nil {
 		return nil, err
 	}
 	if err := ParseExtends(object, build); err != nil {
-		return nil, err
+		// we return build because it can be used to install plugin
+		return build, err
 	}
 	if err := ParseProperties(object, build); err != nil {
 		return nil, err
@@ -98,7 +109,7 @@ func NewBuild(file string) (*Build, error) {
 }
 
 // Parse singleton field of the build
-func ParseSingleton(object util.Object) error {
+func ParseSingleton(object util.Object, build *Build) error {
 	if object.HasField("singleton") {
 		port, err := object.GetInteger("singleton")
 		if err != nil {
@@ -107,6 +118,7 @@ func ParseSingleton(object util.Object) error {
 		if err := util.Singleton(port); err != nil {
 			return fmt.Errorf("another instance of the build is already running")
 		}
+		build.Singleton = port
 	}
 	return nil
 }
@@ -147,6 +159,19 @@ func ParseDoc(object util.Object, build *Build) error {
 	return nil
 }
 
+// Parse repository field of the build
+func ParseRepository(object util.Object, build *Build) error {
+	build.Repository = REPO_ROOT
+	if object.HasField("repository") {
+		repository, err := object.GetString("repository")
+		if err != nil {
+			return fmt.Errorf("getting build repository: %v", err)
+		}
+		build.Repository = repository
+	}
+	return nil
+}
+
 // Parse context field of the build
 func ParseContext(object util.Object, build *Build) error {
 	if object.HasField("context") {
@@ -162,33 +187,29 @@ func ParseContext(object util.Object, build *Build) error {
 // Parse extends field of the build
 func ParseExtends(object util.Object, build *Build) error {
 	if object.HasField("extends") {
-		parents, err := object.GetListStringsOrString("extends")
+		extends, err := object.GetListStringsOrString("extends")
 		if err != nil {
 			return fmt.Errorf("parsing parents: %v", err)
 		}
-		var extends []*Build
-		for _, parent := range parents {
-			file := ParentPath(parent, build)
-			extend, err := NewBuild(file)
+		build.Extends = extends
+		var parents []*Build
+		for _, extend := range build.Extends {
+			file := build.PluginPath(extend)
+			parent, err := NewBuild(file)
 			if err != nil {
-				return fmt.Errorf("loading parent '%s': %v", parent, err)
+				plugin := build.PluginName(extend)
+				if plugin != "" {
+					return fmt.Errorf("loading parent build file '%s', try installing plugin with 'neon -install=%s'",
+						extend, plugin)
+				} else {
+					return fmt.Errorf("loading parent '%s': %v", extend, err)
+				}
 			}
-			extends = append(extends, extend)
+			parents = append(parents, parent)
 		}
-		build.Parents = extends
+		build.Parents = parents
 	}
 	return nil
-}
-
-// Get parent build file path
-func ParentPath(parent string, build *Build) string {
-	if path.IsAbs(parent) {
-		return parent
-	} else if strings.HasPrefix(parent, "./") {
-		return filepath.Join(build.Dir, parent)
-	} else {
-		return filepath.Join(REPO_ROOT, parent)
-	}
 }
 
 // Parse build properties
@@ -227,6 +248,7 @@ func ParseConfiguration(object util.Object, build *Build) error {
 				build.Properties[name] = value
 			}
 		}
+		build.Config = files
 	}
 	return nil
 }
@@ -347,6 +369,27 @@ func (build *Build) Init() error {
 	return nil
 }
 
+// Parse extends field of the build
+func (build *Build) LoadParents() error {
+	var parents []*Build
+	for _, extend := range build.Extends {
+		file := build.PluginPath(extend)
+		parent, err := NewBuild(file)
+		if err != nil {
+			plugin := build.PluginName(extend)
+			if plugin != "" {
+				return fmt.Errorf("loading parent build file '%s', try installing plugin with 'neon -install=%s'",
+					extend, plugin)
+			} else {
+				return fmt.Errorf("loading parent '%s': %v", extend, err)
+			}
+		}
+		parents = append(parents, parent)
+	}
+	build.Parents = parents
+	return nil
+}
+
 // Set the build directory, propagating to parents
 func (build *Build) SetDir(dir string) {
 	build.Dir = dir
@@ -453,4 +496,53 @@ func RunParentTarget(build *Build, name string) (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+// Get parent build file path
+func (build *Build) PluginPath(name string) string {
+	if path.IsAbs(name) {
+		return name
+	} else if strings.HasPrefix(name, "./") {
+		return filepath.Join(build.Dir, name)
+	} else {
+		repo := util.ExpandAndJoinToRoot(build.Dir, build.Repository)
+		return filepath.Join(repo, name)
+	}
+}
+
+// Get plugin name for given resource
+func (build *Build) PluginName(name string) string {
+	re := regexp.MustCompile(`^(\w+/\w+)/.+$`)
+	if re.MatchString(name) {
+		return re.FindStringSubmatch(name)[1]
+	} else {
+		return ""
+	}
+}
+
+// Install given plugin
+func (build *Build) Install(plugin string) error {
+	re := regexp.MustCompile(`^\w+/\w+$`)
+	if !re.MatchString(plugin) {
+		return fmt.Errorf("plugin '%s' is invalid", plugin)
+	}
+	path := build.PluginPath(plugin)
+	if util.DirExists(path) {
+		Info("Plugin '%s' already installed in '%s'", plugin, path)
+		return nil
+	}
+	absolute := util.ExpandUserHome(path)
+	repo := "git@github.com:" + plugin + ".git"
+	command := exec.Command("git", "clone", repo, absolute)
+	output, err := command.CombinedOutput()
+	if err != nil {
+		re = regexp.MustCompile("\n\n")
+		message := re.ReplaceAllString(string(output), "\n")
+		message = strings.TrimSpace(message)
+		Info(message)
+		return fmt.Errorf("installing plugin '%s'", plugin)
+	} else {
+		Info("Plugin '%s' installed in '%s'", plugin, path)
+	}
+	return nil
 }

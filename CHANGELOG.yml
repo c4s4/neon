@@ -1,5 +1,13 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 0.6.0
+  date:    2017-06-26
+  summary: Build inheritance
+  added:
+  - "Build inheritance and plugin installation."
+  fixed:
+  - "Build help (adding missing information)."
+
 - version: 0.5.0
   date:    2017-06-03
   summary: Bug fix
