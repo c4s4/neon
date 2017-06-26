@@ -3,21 +3,10 @@ package build
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"neon/util"
 	"strings"
-	"syscall"
 	"unicode/utf8"
-	"unsafe"
 	"github.com/nsf/termbox-go"
 )
-
-// Size of a terminal window
-type winsize struct {
-	Row    uint16
-	Col    uint16
-	Xpixel uint16
-	Ypixel uint16
-}
 
 // Flag that tells if we print on console without color
 var Grey = false
@@ -76,22 +65,10 @@ func printGrey(format string, fields ...interface{}) {
 
 // Get terminal width
 func termWidth() (int, error) {
-	if util.Windows() {
-		if err := termbox.Init(); err != nil {
-			return 80, fmt.Errorf("getting terminal width")
-		}
-		width, _ := termbox.Size()
-		termbox.Close()
-		return width, nil
-	} else {
-		ws := &winsize{}
-		retCode, _, _ := syscall.Syscall(syscall.SYS_IOCTL,
-			uintptr(syscall.Stdin),
-			uintptr(syscall.TIOCGWINSZ),
-			uintptr(unsafe.Pointer(ws)))
-		if int(retCode) == -1 {
-			return 80, fmt.Errorf("getting terminal width")
-		}
-		return int(ws.Col), nil
+	if err := termbox.Init(); err != nil {
+		return 80, fmt.Errorf("getting terminal width")
 	}
+	width, _ := termbox.Size()
+	termbox.Close()
+	return width, nil
 }
