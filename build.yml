@@ -15,6 +15,7 @@ properties:
   - 'github.com/mattn/go-zglob'
   - 'github.com/fatih/color'
   - 'github.com/mitchellh/gox'
+  - 'github.com/nsf/termbox-go'
 
 targets:
 

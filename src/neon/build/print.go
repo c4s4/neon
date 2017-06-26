@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"unicode/utf8"
 	"unsafe"
+	"github.com/nsf/termbox-go"
 )
 
 // Size of a terminal window
@@ -76,7 +77,12 @@ func printGrey(format string, fields ...interface{}) {
 // Get terminal width
 func termWidth() (int, error) {
 	if util.Windows() {
-		return 80, nil
+		if err := termbox.Init(); err != nil {
+			return 80, err
+		}
+		width, _ := termbox.Size()
+		termbox.Close()
+		return width, nil
 	} else {
 		ws := &winsize{}
 		retCode, _, _ := syscall.Syscall(syscall.SYS_IOCTL,
