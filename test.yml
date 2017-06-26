@@ -1,6 +1,7 @@
 doc: Built file to test builds
 default:
 - builtin_directory
+- builtin_escapeurl
 - builtin_exists
 - builtin_expand
 - builtin_filename
@@ -13,6 +14,7 @@ default:
 - builtin_run
 - builtin_split
 - builtin_throw
+- builtin_unescapeurl
 - builtin_uppercase
 - task_cat
 - task_chdir
@@ -59,6 +61,17 @@ targets:
           throw("Directory test failure")
         } else {
           println("Directory test success")
+        }
+
+  builtin_escapeurl:
+    doc: Test the escapeurl builtin function
+    steps:
+    - script: |
+        escaped = escapeurl("foo bar")
+        if escaped != "foo%20bar" {
+          throw("Escapeurl test failure")
+        } else {
+          println("Escapeurl test success")
         }
 
   builtin_exists:
@@ -229,6 +242,17 @@ targets:
           } else {
             println("Throw test success")
           }
+
+  builtin_unescapeurl:
+    doc: Test the unescapeurl builtin function
+    steps:
+    - script: |
+        unescaped = unescapeurl("foo%20bar")
+        if unescaped != "foo bar" {
+          throw("Unescapeurl test failure")
+        } else {
+          println("Unescapeurl test success")
+        }
 
   builtin_uppercase:
     doc: Test the uppercase builtin function
