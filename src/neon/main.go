@@ -17,7 +17,7 @@ const (
 )
 
 // Parse command line and return parsed options
-func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, []string) {
+func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, string, bool, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
 	help := flag.Bool("build", false, "Print build help")
 	version := flag.Bool("version", false, "Print neon version")
@@ -29,10 +29,12 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 	builtins := flag.Bool("builtins", false, "Print builtins list")
 	builtin := flag.String("builtin", "", "Print help on given builtin")
 	refs := flag.Bool("refs", false, "Print tasks and builtins reference")
+	install := flag.String("install", "", "Install given plugin")
+	grey := flag.Bool("grey", false, "Print on terminal without colors")
 	flag.Parse()
 	targets := flag.Args()
 	return *file, *help, *version, *props, *timeit, *tasks, *task, *targs, *builtins,
-		*builtin, *refs, targets
+		*builtin, *refs, *install, *grey, targets
 }
 
 // Find build file and return its path
@@ -60,8 +62,9 @@ func FindBuildFile(name string) (string, error) {
 // Program entry point
 func main() {
 	start := time.Now()
-	file, help, version, props, timeit, tasks, task, targs, builtins, builtin, refs, targets := ParseCommandLine()
+	file, help, version, props, timeit, tasks, task, targs, builtins, builtin, refs, install, grey, targets := ParseCommandLine()
 	// options that do not require we load build file
+	_build.Grey = grey
 	if tasks {
 		_build.PrintTasks()
 		os.Exit(0)
@@ -78,13 +81,22 @@ func main() {
 		_build.PrintReference()
 		os.Exit(0)
 	} else if version {
-		fmt.Println(VERSION)
+		_build.Message(VERSION)
 		os.Exit(0)
 	}
-	// options that do require we load build file
+ 	// options that do require we load build file
 	path, err := FindBuildFile(file)
 	PrintError(err, 1)
 	build, err := _build.NewBuild(path)
+	if build != nil && install != "" {
+		err = build.Install(install)
+		if err == nil {
+			os.Exit(0)
+		} else {
+			_build.Message("ERROR " + err.Error())
+			os.Exit(6)
+		}
+	}
 	PrintError(err, 2)
 	if props != "" {
 		err = build.SetCommandLineProperties(props)
@@ -100,10 +112,10 @@ func main() {
 		err = build.Run(targets)
 		duration := time.Now().Sub(start)
 		if timeit || duration.Seconds() > 10 {
-			_build.Info("Build duration: %s", duration.String())
+			_build.Message("Build duration: %s", duration.String())
 		}
 		if err == nil {
-			util.PrintColor("%s", util.Green("OK"))
+			_build.PrintOk()
 		} else {
 			PrintError(err, 5)
 		}
@@ -113,7 +125,7 @@ func main() {
 // Print an error and exit if any
 func PrintError(err error, code int) {
 	if err != nil {
-		util.PrintColor("%s %s", util.Red("ERROR"), err.Error())
+		_build.PrintError(err.Error())
 		os.Exit(code)
 	}
 }

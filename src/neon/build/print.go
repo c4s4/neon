@@ -2,23 +2,73 @@ package build
 
 import (
 	"fmt"
-	"neon/util"
+	"github.com/fatih/color"
 	"strings"
 	"unicode/utf8"
+	"github.com/nsf/termbox-go"
 )
 
-func Info(message string, args ...interface{}) {
-	fmt.Println(fmt.Sprintf(message, args...))
+// Flag that tells if we print on console without color
+var Grey = false
+
+// Color definitions
+var red = color.New(color.FgRed, color.Bold).SprintFunc()
+var yellow = color.New(color.FgYellow).SprintFunc()
+var green = color.New(color.FgGreen, color.Bold).SprintFunc()
+
+// Print a message
+func Message(text string, args ...interface{}) {
+	printGrey(text, args...)
 }
 
-func PrintColorLine(name, doc string, depends []string, length int) {
-	deps := ""
-	if len(depends) > 0 {
-		deps = "[" + strings.Join(depends, ", ") + "]"
+// Print a title
+func Title(text string) {
+	width, _ := termWidth()
+	length := width - (4 + utf8.RuneCountInString(text))
+	message := fmt.Sprintf("%s %s --", strings.Repeat("-", length), text)
+	if Grey {
+		printGrey(message)
+	} else {
+		printColor(yellow(message))
 	}
-	if doc != "" {
-		deps = " " + deps
+}
+
+// Print OK
+func PrintOk() {
+	if Grey {
+		printGrey("OK")
+	} else {
+		printColor(green("OK"))
 	}
-	util.PrintColor("%s%s %s%s", util.Yellow(name),
-		strings.Repeat(" ", length-utf8.RuneCountInString(name)), doc, deps)
+}
+
+// Print ERROR
+func PrintError(text string) {
+	if Grey {
+		printGrey("ERROR %s", text)
+	} else {
+		printColor("%s %s", red("ERROR"), text)
+	}
+}
+
+// Print string with arguments in given color
+func printColor(format string, fields ...interface{}) {
+	fmt.Fprintf(color.Output, format, fields...)
+	fmt.Println()
+}
+
+// Print string with arguments in grey
+func printGrey(format string, fields ...interface{}) {
+	fmt.Printf(format, fields...)
+	fmt.Println()
+}
+
+// Get terminal width
+func termWidth() (int, error) {
+	if err := termbox.Init(); err != nil {
+		return 80, fmt.Errorf("getting terminal width")
+	}
+	width, _ := termbox.Size()
+	termbox.Close()
+	return width, nil
 }

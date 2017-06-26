@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"neon/util"
 	"os"
+	"reflect"
 	"regexp"
 	"runtime"
 	"sort"
@@ -64,18 +65,12 @@ func (context *Context) SetInitialProperties(object util.Object) error {
 		var done []string
 		for _, name := range todo {
 			value := object[name]
-			str, ok := value.(string)
-			if ok {
-				eval, err := context.EvaluateString(str)
-				if err == nil {
-					context.SetProperty(name, eval)
-					done = append(done, name)
-				} else {
-					crash = err
-				}
-			} else {
-				context.SetProperty(name, value)
+			eval, err := context.EvaluateObject(value)
+			if err == nil {
+				context.SetProperty(name, eval)
 				done = append(done, name)
+			} else {
+				crash = err
 			}
 		}
 		if len(done) == 0 {
@@ -119,6 +114,62 @@ func (context *Context) EvaluateExpression(source string) (interface{}, error) {
 		return nil, err
 	}
 	return util.ValueToInterface(value), nil
+}
+
+// Evaluate a given object
+func (context *Context) EvaluateObject(object interface{}) (interface{}, error) {
+	switch value := object.(type) {
+	case string:
+		evaluated, err := context.EvaluateString(value)
+		if err != nil {
+			return nil, err
+		}
+		return evaluated, nil
+	case bool:
+		return value, nil
+	case int:
+		return value, nil
+	case int32:
+		return value, nil
+	case int64:
+		return value, nil
+	case float64:
+		return value, nil
+	default:
+		if value == nil {
+			return nil, nil
+		}
+		switch reflect.TypeOf(object).Kind() {
+		case reflect.Slice:
+			slice := reflect.ValueOf(object)
+			elements := make([]interface{}, slice.Len())
+			for index := 0; index < slice.Len(); index++ {
+				val, err := context.EvaluateObject(slice.Index(index).Interface())
+				if err != nil {
+					return nil, err
+				}
+				elements[index] = val
+			}
+			return elements, nil
+		case reflect.Map:
+			dict := reflect.ValueOf(object)
+			elements := make(map[interface{}]interface{})
+			for _, key := range dict.MapKeys() {
+				keyEval, err := context.EvaluateObject(key.Interface())
+				if err != nil {
+					return nil, err
+				}
+				valueEval, err := context.EvaluateObject(dict.MapIndex(key).Interface())
+				if err != nil {
+					return nil, err
+				}
+				elements[keyEval] = valueEval
+			}
+			return elements, nil
+		default:
+			return nil, fmt.Errorf("no serializer for type '%T'", object)
+		}
+	}
 }
 
 // Evaluate a string by replacing '#{foo}' with value of property foo

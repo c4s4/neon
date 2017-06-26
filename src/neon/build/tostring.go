@@ -66,7 +66,7 @@ func PropertyToString(object interface{}, quotes bool) (string, error) {
 			for index, key := range keys {
 				pairs[index] = key + ": " + elements[key]
 			}
-			return "[" + strings.Join(pairs, ", ") + "]", nil
+			return "{" + strings.Join(pairs, ", ") + "}", nil
 		default:
 			return "", fmt.Errorf("no serializer for type '%T'", object)
 		}

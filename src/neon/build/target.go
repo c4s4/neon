@@ -92,7 +92,7 @@ func (target *Target) Run() error {
 			}
 		}
 	}
-	util.PrintColor("%s", util.Yellow("Running target "+target.Name))
+	Title(target.Name)
 	err := os.Chdir(target.Build.Dir)
 	if err != nil {
 		return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)

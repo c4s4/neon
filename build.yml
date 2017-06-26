@@ -1,20 +1,21 @@
 name:    neon
 default: [clean, bin, test, integ]
 doc:     'Build file to build neon'
-extends: ~/.neon/c4s4/go/application.yml
+extends: c4s4/build/go-app.yml
 
 properties:
-  NAME:         'neon'
-  BUILD_DIR:    'build'
-  ARC_DIR:      '#{BUILD_DIR}/#{NAME}-#{VERSION}'
-  REFERENCE:    'doc/reference.md'
-  WIN_SHARE:    '/home/casa/misc/shared'
+  NAME:      'neon'
+  BUILD_DIR: 'build'
+  ARC_DIR:   '#{BUILD_DIR}/#{NAME}-#{VERSION}'
+  REFERENCE: 'doc/reference.md'
+  WIN_SHARE: '/home/casa/misc/shared'
   LIBRARIES:
   - 'gopkg.in/yaml.v2'
   - 'github.com/mattn/anko'
   - 'github.com/mattn/go-zglob'
   - 'github.com/fatih/color'
   - 'github.com/mitchellh/gox'
+  - 'github.com/nsf/termbox-go'
 
 targets:
 
@@ -39,7 +40,7 @@ targets:
     depends: version
     steps:
     - print: "Building neon binary in 'bin/neon'"
-    - remove: 'bin/neon'
+    - delete: 'bin/neon'
     - 'go install #{NAME}'
 
   refs:
@@ -65,7 +66,7 @@ targets:
     - 'md2pdf -o #{ARC_DIR}/README.pdf README.md'
     - 'changelog to markdown > #{BUILD_DIR}/CHANGELOG.md'
     - 'md2pdf -o #{ARC_DIR}/CHANGELOG.pdf #{BUILD_DIR}/CHANGELOG.md'
-    - remove: '#{BUILD_DIR}/CHANGELOG.md'
+    - delete: '#{BUILD_DIR}/CHANGELOG.md'
     - mkdir: '#{ARC_DIR}/doc'
     - 'md2pdf -o #{ARC_DIR}/doc/quickstart.pdf doc/quickstart.md'
     - 'md2pdf -o #{ARC_DIR}/doc/reference.pdf doc/reference.md'

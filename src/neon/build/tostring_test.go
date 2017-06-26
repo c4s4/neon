@@ -45,7 +45,7 @@ func TestPropertyToStringCompositeList(t *testing.T) {
 }
 
 func TestPropertyToStringMap(t *testing.T) {
-	expected := `["bar": 2, "foo": 1]`
+	expected := `{"bar": 2, "foo": 1}`
 	actual, err := PropertyToString(map[string]int{"foo": 1, "bar": 2}, true)
 	if err != nil || actual != expected {
 		t.Error("Error serializing map", err)
@@ -53,7 +53,7 @@ func TestPropertyToStringMap(t *testing.T) {
 }
 
 func TestPropertyToStringCompositeMap(t *testing.T) {
-	expected := `["bar": 2, "foo": 1, 3: "spam"]`
+	expected := `{"bar": 2, "foo": 1, 3: "spam"}`
 	actual, err := PropertyToString(map[interface{}]interface{}{"foo": 1, "bar": 2, 3: "spam"}, true)
 	if err != nil || actual != expected {
 		t.Error("Error serializing composite map", err)

@@ -47,7 +47,7 @@ func Link(target *build.Target, args util.Object) (build.Task, error) {
 		if _err != nil {
 			return fmt.Errorf("processing to argument of link task: %v", _err)
 		}
-		build.Info("Linking file '%s' to '%s'", _source, _dest)
+		build.Message("Linking file '%s' to '%s'", _source, _dest)
 		_err = os.Symlink(_source, _dest)
 		if _err != nil {
 			return fmt.Errorf("linking files: %v", _err)
