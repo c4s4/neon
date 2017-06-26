@@ -78,7 +78,7 @@ func printGrey(format string, fields ...interface{}) {
 func termWidth() (int, error) {
 	if util.Windows() {
 		if err := termbox.Init(); err != nil {
-			return 80, err
+			return 80, fmt.Errorf("getting terminal width")
 		}
 		width, _ := termbox.Size()
 		termbox.Close()
