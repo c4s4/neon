@@ -2,11 +2,12 @@ package build
 
 import (
 	"fmt"
-	"syscall"
-	"unsafe"
-	"unicode/utf8"
 	"github.com/fatih/color"
+	"neon/util"
 	"strings"
+	"syscall"
+	"unicode/utf8"
+	"unsafe"
 )
 
 // Size of a terminal window
@@ -74,13 +75,17 @@ func printGrey(format string, fields ...interface{}) {
 
 // Get terminal width
 func termWidth() (int, error) {
-	ws := &winsize{}
-	retCode, _, _ := syscall.Syscall(syscall.SYS_IOCTL,
-		uintptr(syscall.Stdin),
-		uintptr(syscall.TIOCGWINSZ),
-		uintptr(unsafe.Pointer(ws)))
-	if int(retCode) == -1 {
-		return 80, fmt.Errorf("getting terminal width")
+	if util.Windows() {
+		return 80, nil
+	} else {
+		ws := &winsize{}
+		retCode, _, _ := syscall.Syscall(syscall.SYS_IOCTL,
+			uintptr(syscall.Stdin),
+			uintptr(syscall.TIOCGWINSZ),
+			uintptr(unsafe.Pointer(ws)))
+		if int(retCode) == -1 {
+			return 80, fmt.Errorf("getting terminal width")
+		}
+		return int(ws.Col), nil
 	}
-	return int(ws.Col), nil
 }
