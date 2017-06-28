@@ -2,8 +2,9 @@ package build
 
 import (
 	"fmt"
-	"github.com/buger/goterm"
 	"github.com/fatih/color"
+	"golang.org/x/crypto/ssh/terminal"
+	"os"
 	"strings"
 	"unicode/utf8"
 )
@@ -24,7 +25,7 @@ func Message(text string, args ...interface{}) {
 // Print a title
 func Title(text string) {
 	length := termWidth() - (4 + utf8.RuneCountInString(text))
-	if length < 0 {
+	if length < 2 {
 		length = 2
 	}
 	message := fmt.Sprintf("%s %s --", strings.Repeat("-", length), text)
@@ -67,7 +68,10 @@ func printGrey(format string, fields ...interface{}) {
 
 // Get terminal width
 func termWidth() int {
-	width := goterm.Width()
+	width, _, err := terminal.GetSize(int(os.Stdout.Fd()))
+	if err != nil {
+		return 80
+	}
 	if width <= 0 {
 		width = 80
 	}
