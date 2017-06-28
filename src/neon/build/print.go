@@ -2,10 +2,10 @@ package build
 
 import (
 	"fmt"
+	"github.com/buger/goterm"
 	"github.com/fatih/color"
 	"strings"
 	"unicode/utf8"
-	"github.com/nsf/termbox-go"
 )
 
 // Flag that tells if we print on console without color
@@ -23,8 +23,7 @@ func Message(text string, args ...interface{}) {
 
 // Print a title
 func Title(text string) {
-	width, _ := termWidth()
-	length := width - (4 + utf8.RuneCountInString(text))
+	length := goterm.Width() - (4 + utf8.RuneCountInString(text))
 	message := fmt.Sprintf("%s %s --", strings.Repeat("-", length), text)
 	if Grey {
 		printGrey(message)
@@ -61,14 +60,4 @@ func printColor(format string, fields ...interface{}) {
 func printGrey(format string, fields ...interface{}) {
 	fmt.Printf(format, fields...)
 	fmt.Println()
-}
-
-// Get terminal width
-func termWidth() (int, error) {
-	if err := termbox.Init(); err != nil {
-		return 80, fmt.Errorf("getting terminal width")
-	}
-	width, _ := termbox.Size()
-	termbox.Close()
-	return width, nil
 }
