@@ -594,6 +594,25 @@ Examples:
     dir = directory("/foo/bar/spam.txt")
     // returns: "/foo/bar"
 
+escapeurl
+---------
+
+Escape given URL.
+
+Arguments:
+
+- The URL to escape.
+
+Returns:
+
+- The escaped URL.
+
+Examples:
+
+    // escape given URL
+    escapeurl("foo bar")
+    // returns: "foo%!b(MISSING)ar"
+
 exists
 ------
 
@@ -919,6 +938,25 @@ Examples:
     // stop the script with an error message
     throw("Some tests failed")
     // returns: nothing, the script is interrupted on error
+
+unescapeurl
+-----------
+
+Unescape given URL.
+
+Arguments:
+
+- The URL to unescape.
+
+Returns:
+
+- The unescaped URL.
+
+Examples:
+
+    // unescape given URL
+    escapeurl("foo%!b(MISSING)ar")
+    // returns: "foo bar"
 
 uppercase
 ---------
