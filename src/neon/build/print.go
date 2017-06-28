@@ -24,6 +24,9 @@ func Message(text string, args ...interface{}) {
 // Print a title
 func Title(text string) {
 	length := termWidth() - (4 + utf8.RuneCountInString(text))
+	if length < 0 {
+		length = 2
+	}
 	message := fmt.Sprintf("%s %s --", strings.Repeat("-", length), text)
 	if Grey {
 		printGrey(message)
