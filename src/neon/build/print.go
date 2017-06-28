@@ -9,6 +9,10 @@ import (
 	"unicode/utf8"
 )
 
+const (
+	DEFAULT_WIDTH = 80
+)
+
 // Flag that tells if we print on console without color
 var Grey = false
 
@@ -70,10 +74,10 @@ func printGrey(format string, fields ...interface{}) {
 func termWidth() int {
 	width, _, err := terminal.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
-		return 80
+		return DEFAULT_WIDTH
 	}
 	if width <= 0 {
-		width = 80
+		width = DEFAULT_WIDTH
 	}
 	return width
 }
