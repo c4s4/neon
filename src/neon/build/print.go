@@ -23,7 +23,7 @@ func Message(text string, args ...interface{}) {
 
 // Print a title
 func Title(text string) {
-	length := goterm.Width() - (4 + utf8.RuneCountInString(text))
+	length := termWidth() - (4 + utf8.RuneCountInString(text))
 	message := fmt.Sprintf("%s %s --", strings.Repeat("-", length), text)
 	if Grey {
 		printGrey(message)
@@ -60,4 +60,13 @@ func printColor(format string, fields ...interface{}) {
 func printGrey(format string, fields ...interface{}) {
 	fmt.Printf(format, fields...)
 	fmt.Println()
+}
+
+// Get terminal width
+func termWidth() int {
+	width := goterm.Width()
+	if width <= 0 {
+		width = 80
+	}
+	return width
 }
