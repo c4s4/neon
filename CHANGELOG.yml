@@ -1,19 +1,12 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 0.6.1
-  date:    2017-06-28
-  summary: Bug fix
-  fixed:
-  - "Fixed terminal width on Wndows."
-  added:
-  - "Added escapeurl and unescapeurl builtins."
-
 - version: 0.6.0
-  date:    2017-06-26
+  date:    2017-06-28
   summary: Build inheritance
   added:
   - "Build inheritance and plugin installation."
   - "Added -grey option to output on console without colors."
+  - "Added escapeurl and unescapeurl builtins."
   fixed:
   - "Build help (adding missing information)."
 
