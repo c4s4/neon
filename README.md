@@ -1,10 +1,10 @@
-NEON
+NeON
 ====
 
 - Project :   <https://github.com/c4s4/changelog>.
 - Downloads : <https://github.com/c4s4/changelog/releases>.
 
-Neon is a build tool the way it should be.
+NeON is a build tool the way it should be.
 
 Installation
 ------------
@@ -16,15 +16,16 @@ it *neon*.
 Documentation
 -------------
 
-There are two sources of documentation:
+There are three sources of documentation:
 
 - [The quick start guide](doc/quickstart.md).
+- [The user manual](doc/usermanual.md)
 - [The reference guide](doc/reference.md).
 
 Build
 -----
 
-To build the project without *neon* already installed, follow these steps:
+To build the project without *NeON* already installed, follow these steps:
 
 - Define `GOPATH` environment variable on the directory of the project.
 - Write *src/neon/version.go* file with following content :

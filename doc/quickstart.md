@@ -392,6 +392,8 @@ To get help about neon itself, you can:
 Go further
 ----------
 
-Neon as much more to offer, see [user guide](userguide.md) for more information.
+Neon as much more to offer, see [User Manual](usermanual.md) for in depth
+documentation and [Reference](reference.md) for information about all tasks and
+builtins functions.
 
 *Enjoy!*
