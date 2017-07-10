@@ -6,6 +6,7 @@
   added:
   - "Added line and column numbers in Anko script error message (thanks to an
      idea of Alexandre Hu)."
+  - "Started user manual documentation."
 
 - version: 0.6.0
   date:    2017-06-28

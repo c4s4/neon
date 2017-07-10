@@ -9,7 +9,7 @@ The build file format
 ---------------------
 
 NeON build files are in YAML format. YAML (for *Yet Another Markup Language*)
-is lightweight markup language so that you can write structured text in a
+is a lightweight markup language so that you can write structured text in a
 natural syntax, with no strange tags or other syntaxic form of torture. For
 instance, to describe a list, you would write:
 
@@ -21,7 +21,7 @@ instance, to describe a list, you would write:
 To write a dictionary, you would type:
 
 ```yaml
-gandalf: silmaril
+gandalf: istari
 bilbo: hobbit
 frodo: hobbit
 galadriel: elf
@@ -32,7 +32,7 @@ And you can combine. For instance, a dictionary of lists:
 ```yaml
 elves:
   - Galadriel
-  - 
+  - Arwen
 hobbits:
   - Bilbo
   - Frodo
@@ -73,8 +73,5 @@ Things to know to avoid troubles writing YAML:
   don't want it to be a map.
 
 This introduction to YAML should be enough for you to write valid build files.
-If you want more information about YAML, please see [this article](???).
-
-Overview of the build file
---------------------------
-
+If you want more information about YAML, please visit
+[YAML website](http://yaml.org).
