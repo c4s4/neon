@@ -112,13 +112,12 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 func (context *Context) EvaluateExpression(source string) (interface{}, error) {
 	value, err := context.VM.Execute(source)
 	if err != nil {
-		if e, ok := err.(*vm.Error); ok {
-			return nil, fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
-		} else if e, ok := err.(*parser.Error); ok {
-			return nil, fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
-		} else {
-			return nil, err
+		if e, ok := err.(*parser.Error); ok {
+			err = fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
+		} else if e, ok := err.(*vm.Error); ok {
+			err = fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
 		}
+		return nil, err
 	}
 	return util.ValueToInterface(value), nil
 }
