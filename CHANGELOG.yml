@@ -4,7 +4,8 @@
   date:    2017-07-00
   summary: Improvements
   added:
-  - "Added line and column numbers in Anko script error message."
+  - "Added line and column numbers in Anko script error message (thanks to an
+     idea of Alexandre Hu)."
 
 - version: 0.6.0
   date:    2017-06-28
