@@ -167,7 +167,7 @@ simple ones here so that we can use double for the Shell string. We could also
 escape double quotes inside YAML string as follows:
 
 ```yaml
-- 'echo "Hello $USER!"'
+- "echo \"Hello $USER!\""
 ```
 
 If return value of the script is not *0*, which denotes an error running the
