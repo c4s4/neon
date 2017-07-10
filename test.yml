@@ -237,7 +237,7 @@ targets:
       - script: 'throw("TEST")'
       catch:
       - script: |
-          if _error != "evaluating script: TEST" {
+          if _error != "evaluating script: TEST (at line 1, column 1)" {
             throw("Throw test failure")
           } else {
             println("Throw test success")
