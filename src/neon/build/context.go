@@ -3,6 +3,7 @@ package build
 import (
 	"fmt"
 	anko_core "github.com/mattn/anko/builtins"
+	"github.com/mattn/anko/parser"
 	"github.com/mattn/anko/vm"
 	zglob "github.com/mattn/go-zglob"
 	"io/ioutil"
@@ -111,7 +112,13 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 func (context *Context) EvaluateExpression(source string) (interface{}, error) {
 	value, err := context.VM.Execute(source)
 	if err != nil {
-		return nil, err
+		if e, ok := err.(*vm.Error); ok {
+			return nil, fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
+		} else if e, ok := err.(*parser.Error); ok {
+			return nil, fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
+		} else {
+			return nil, err
+		}
 	}
 	return util.ValueToInterface(value), nil
 }

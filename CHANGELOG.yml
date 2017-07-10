@@ -1,5 +1,11 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 0.7.0-SNAPSHOT
+  date:    2017-07-00
+  summary: Improvements
+  added:
+  - "Added line and column numbers in Anko script error message."
+
 - version: 0.6.0
   date:    2017-06-28
   summary: Build inheritance
