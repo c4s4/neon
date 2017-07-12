@@ -3,10 +3,9 @@ package build
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"golang.org/x/crypto/ssh/terminal"
-	"os"
 	"strings"
 	"unicode/utf8"
+	"neon/util"
 )
 
 const (
@@ -28,7 +27,7 @@ func Message(text string, args ...interface{}) {
 
 // Print a title
 func Title(text string) {
-	length := termWidth() - (4 + utf8.RuneCountInString(text))
+	length := util.TerminalWidth() - (4 + utf8.RuneCountInString(text))
 	if length < 2 {
 		length = 2
 	}
@@ -68,16 +67,4 @@ func printColor(format string, fields ...interface{}) {
 func printGrey(format string, fields ...interface{}) {
 	fmt.Printf(format, fields...)
 	fmt.Println()
-}
-
-// Get terminal width
-func termWidth() int {
-	width, _, err := terminal.GetSize(int(os.Stdout.Fd()))
-	if err != nil {
-		return DEFAULT_WIDTH
-	}
-	if width <= 0 {
-		width = DEFAULT_WIDTH
-	}
-	return width
 }
