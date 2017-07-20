@@ -44,7 +44,7 @@ func NewContext(build *Build) (*Context, error) {
 		}
 		_, err = vm.Execute(string(source))
 		if err != nil {
-			return nil, fmt.Errorf("evaluating script '%s': %v", script, err)
+			return nil, fmt.Errorf("evaluating script '%s': %v", script, FormatScriptError(err))
 		}
 	}
 	err := context.SetInitialProperties(properties)
@@ -112,12 +112,7 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 func (context *Context) EvaluateExpression(source string) (interface{}, error) {
 	value, err := context.VM.Execute(source)
 	if err != nil {
-		if e, ok := err.(*parser.Error); ok {
-			err = fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
-		} else if e, ok := err.(*vm.Error); ok {
-			err = fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
-		}
-		return nil, err
+		return nil, FormatScriptError(err)
 	}
 	return util.ValueToInterface(value), nil
 }
@@ -322,4 +317,14 @@ func (context *Context) FindFiles(dir string, includes, excludes []string, folde
 	}
 	sort.Strings(files)
 	return files, nil
+}
+
+func FormatScriptError(err error) error {
+	if e, ok := err.(*parser.Error); ok {
+		return fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
+	} else if e, ok := err.(*vm.Error); ok {
+		return fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
+	} else {
+		return err
+	}
 }
