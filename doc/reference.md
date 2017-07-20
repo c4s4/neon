@@ -287,6 +287,32 @@ Examples:
     # say hello
     - print: "Hello World!"
 
+prompt
+------
+
+Prompt the user for the value of a given property matching a pattern.
+
+Arguments:
+
+- message: message to print at prompt. Should include a description of the
+  expected pattern.
+- property: the name of the property to set.
+- default: default value if user doesn't type anything. Written into square
+  brackets after prompt message. Optional.
+- pattern: a regular expression for prompted value. If this pattern is not
+  matched, this task will prompt again. Optional, if no pattern is given, any
+  value is accepted.
+- error: the error message to print when pattern is not matched.
+
+Examples:
+
+    # returns: typed message
+    - prompt:  "Enter your age"
+      to:      "age"
+      default: "18"
+      pattern: "^\d+\s$"
+      error:   "Age must be a positive integer"
+
 read
 ----
 
@@ -610,8 +636,8 @@ Returns:
 Examples:
 
     // escape given URL
-    escapeurl("foo bar")
-    // returns: "foo%!b(MISSING)ar"
+    escapeurl("/foo bar")
+    // returns: "/foo%!b(MISSING)ar"
 
 exists
 ------
