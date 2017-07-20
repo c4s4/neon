@@ -21,11 +21,15 @@ Returns:
 Examples:
 
     // escape given URL
-    escapeurl("foo bar")
-    // returns: "foo%20bar"`,
+    escapeurl("/foo bar")
+    // returns: "/foo%20bar"`,
 	}
 }
 
 func EscapeUrl(path string) string {
-	return url.PathEscape(path)
+	url, err := url.Parse(path)
+	if err != nil {
+		panic(err)
+	}
+	return url.EscapedPath()
 }

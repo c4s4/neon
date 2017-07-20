@@ -67,8 +67,8 @@ targets:
     doc: Test the escapeurl builtin function
     steps:
     - script: |
-        escaped = escapeurl("foo bar")
-        if escaped != "foo%20bar" {
+        escaped = escapeurl("/foo bar")
+        if escaped != "/foo%20bar" {
           throw("Escapeurl test failure")
         } else {
           println("Escapeurl test success")
@@ -247,8 +247,8 @@ targets:
     doc: Test the unescapeurl builtin function
     steps:
     - script: |
-        unescaped = unescapeurl("foo%20bar")
-        if unescaped != "foo bar" {
+        unescaped = unescapeurl("/foo%20bar")
+        if unescaped != "/foo bar" {
           throw("Unescapeurl test failure")
         } else {
           println("Unescapeurl test success")

@@ -5,7 +5,7 @@ import (
 )
 
 func TestEscapeUrl(t *testing.T) {
-	if EscapeUrl("foo bar") != "foo%20bar" {
+	if EscapeUrl("/foo bar") != "/foo%20bar" {
 		t.Errorf("Error builtin escapeulr")
 	}
 }
