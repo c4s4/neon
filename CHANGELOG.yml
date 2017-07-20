@@ -7,6 +7,7 @@
   - "Added task prompt."
   fixed:
   - "Fixed builtin escapeurl()."
+  - "Error message is improved for errors parsing context scripts."
 
 - version: 0.7.0
   date:    2017-07-13
