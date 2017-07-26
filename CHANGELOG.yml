@@ -1,5 +1,12 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 0.9.0-SNAPSHOT
+  date:    2017-07-26
+  summary: Removed script task
+  changed:
+  - "Removed 'script' task: scripts are written in quotes and shell commands
+     start with a dollar sign."
+
 - version: 0.8.0
   date:    2017-07-20
   summary: New task prompt
