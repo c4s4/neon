@@ -18,7 +18,11 @@ type Step interface {
 func NewStep(target *Target, step interface{}) (Step, error) {
 	switch step := step.(type) {
 	case string:
-		return NewShellStep(target, step)
+		if strings.HasPrefix(step, "$") {
+			return NewShellStep(target, step[1:])
+		} else {
+			return NewScriptStep(target, step)
+		}
 	case map[interface{}]interface{}:
 		return NewTaskStep(target, step)
 	default:
@@ -67,6 +71,30 @@ func (step ShellStep) Run() error {
 		return fmt.Errorf("building environment: %v", err)
 	}
 	return command.Run()
+}
+
+// A script step
+type ScriptStep struct {
+	Target *Target
+	Script string
+}
+
+// Make a script step
+func NewScriptStep(target *Target, script string) (Step, error) {
+	step := ScriptStep{
+		Target: target,
+		Script: script,
+	}
+	return step, nil
+}
+
+// Run a script step using Anko VM.
+func (step ScriptStep) Run() error {
+	_, err := step.Target.Build.Context.EvaluateExpression(step.Script)
+	if err != nil {
+		return fmt.Errorf("evaluating script: %v", err)
+	}
+	return nil
 }
 
 // Structure for a task step
