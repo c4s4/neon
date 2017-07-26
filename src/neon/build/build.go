@@ -191,12 +191,8 @@ func (build *Build) LoadParents() error {
 		file := build.PluginPath(extend)
 		parent, err := NewBuild(file)
 		if err != nil {
-			plugin := build.PluginName(extend)
-			if plugin != "" {
-				return fmt.Errorf("loading parent build file '%s', try installing plugin with 'neon -install=%s'",
-					extend, plugin)
-			} else {
-				return fmt.Errorf("loading parent '%s': %v", extend, err)
+			if err != nil {
+				return fmt.Errorf("loading parent build file '%s': %v", extend, err)
 			}
 		}
 		parents = append(parents, parent)

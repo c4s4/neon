@@ -95,13 +95,7 @@ func ParseExtends(object util.Object, build *Build) error {
 			file := build.PluginPath(extend)
 			parent, err := NewBuild(file)
 			if err != nil {
-				plugin := build.PluginName(extend)
-				if plugin != "" {
-					return fmt.Errorf("loading parent build file '%s', try installing plugin with 'neon -install=%s'",
-						extend, plugin)
-				} else {
-					return fmt.Errorf("loading parent '%s': %v", extend, err)
-				}
+				return fmt.Errorf("loading parent build file '%s': %v", extend, err)
 			}
 			parents = append(parents, parent)
 		}
