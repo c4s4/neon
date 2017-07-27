@@ -563,6 +563,8 @@ targets:
     steps:
     - time:
       - pass:
+      to: duration
+    - print: 'duration: #{duration}s'
     - print: "Time test success"
 
   task_touch:
