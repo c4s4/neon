@@ -15,11 +15,12 @@ func init() {
 Arguments:
 
 - time: the steps to measure execution duration.
-- to: the property to store duration in seconds as a float.
+- to: the property to store duration in seconds as a float (optional,
+  print duration on console if not set).
 
 Examples:
 
-    # measure duration to say hello
+    # print duration to say hello
     - time:
       - print: "Hello World!"
       to: duration
@@ -29,16 +30,19 @@ Examples:
 
 func Time(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"time", "to"}
-	if err := CheckFields(args, fields, fields); err != nil {
+	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err
 	}
 	steps, err := ParseSteps(target, args, "time")
 	if err != nil {
 		return nil, err
 	}
-	to, err := args.GetString("to")
-	if err != nil {
-		return nil, fmt.Errorf("argument to of task time must be a string")
+	var to string
+	if args.HasField("to") {
+		to, err = args.GetString("to")
+		if err != nil {
+			return nil, fmt.Errorf("argument to of task time must be a string")
+		}
 	}
 	return func() error {
 		_to, _err := target.Build.Context.EvaluateString(to)
@@ -51,7 +55,11 @@ func Time(target *build.Target, args util.Object) (build.Task, error) {
 			return _err
 		}
 		_duration := time.Now().Sub(_start).Seconds()
-		target.Build.Context.SetProperty(_to, _duration)
+		if to != "" {
+			target.Build.Context.SetProperty(_to, _duration)
+		} else {
+			build.Message("Duration: %gs", _duration)
+		}
 		return nil
 	}, nil
 }
