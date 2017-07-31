@@ -11,6 +11,7 @@ default:
 - builtin_joinpath
 - builtin_lowercase
 - builtin_now
+- builtin_older
 - builtin_run
 - builtin_split
 - builtin_throw
@@ -189,6 +190,33 @@ targets:
         throw("ERROR now '"+n+"'")
       } else {
         println("Now test success")
+      }
+
+  builtin_older:
+    doc: Test the older builtin function
+    steps:
+    - mkdir: '#{BUILD_DIR}/older'
+    - touch: '#{BUILD_DIR}/older/source'
+    - touch: '#{BUILD_DIR}/older/result'
+    - |
+      if older("build/older/source", "build/older/result") {
+        throw("Older test failure")
+      } else {
+        println("Older test success")
+      }
+    - touch: '#{BUILD_DIR}/older/source'
+    - |
+      if older("build/older/source", "build/older/result") {
+        println("Older test success")
+      } else {
+        throw("Older test failure")
+      }
+    - delete: '#{BUILD_DIR}/older/result'
+    - |
+      if older("build/older/source", "build/older/result") {
+        println("Older test success")
+      } else {
+        throw("Older test failure")
       }
 
   builtin_read:

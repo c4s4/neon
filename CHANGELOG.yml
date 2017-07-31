@@ -6,6 +6,8 @@
   changed:
   - "Removed 'script' task: scripts are written in quotes and shell commands
      start with a dollar sign."
+  added:
+  - "Added older builtin function."
 
 - version: 0.8.0
   date:    2017-07-20
