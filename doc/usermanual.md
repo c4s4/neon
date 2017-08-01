@@ -318,6 +318,9 @@ Examples:
     - print: 'duration: #{duration}s'
 ```
 
+You can get information on available tasks
+[on this reference page](reference.md).
+
 ### Shell task
 
 A shell task runs a script. This script will run with *sh* on Unix and
@@ -362,7 +365,7 @@ targets:
 Your scripts might use builtin funtions, defined by Anko scripting engine (such
 as *toString()*) or by NeON. To lis NeON builtins, you can type command 
 `neon -builtins`. To get help on given builtin, type `neon -builtin split`.
-You can get information on available tasks
+You can get information on available builtin functions
 [on this reference page](reference.md).
 
 You can define your own functions in scripts that you load in the build file
