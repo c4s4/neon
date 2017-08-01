@@ -17,12 +17,12 @@ default:
 - builtin_throw
 - builtin_unescapeurl
 - builtin_uppercase
+- task_$
 - task_cat
 - task_chdir
 - task_chmod
 - task_copy
 - task_delete
-- task_execute
 - task_for
 - task_if
 - task_link
@@ -293,6 +293,20 @@ targets:
         println("Uppercase test success")
       }
 
+  task_$:
+    doc: Test task $
+    steps:
+    - if: '_OS != "windows"'
+      then:
+      - $: 'echo "TEST"'
+        =: 'result'
+      - |
+        if result != "TEST" {
+          throw("$ test failure")
+        } else {
+          println("$ test success")
+        }
+
   task_cat:
     doc: Test task cat
     steps:
@@ -379,20 +393,6 @@ targets:
         println("Delete test success")
       }
 
-  task_execute:
-    doc: Test task execute
-    steps:
-    - if: '_OS != "windows"'
-      then:
-      - execute: 'echo "TEST"'
-        output:  'result'
-      - |
-        if result != "TEST" {
-          throw("Execute test failure")
-        } else {
-          println("Execute test success")
-        }
-  
   task_for:
     doc: Test doc task
     steps:

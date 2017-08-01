@@ -3,9 +3,6 @@ package build
 import (
 	"fmt"
 	"neon/util"
-	"os"
-	"os/exec"
-	"runtime"
 	"strings"
 )
 
@@ -18,59 +15,12 @@ type Step interface {
 func NewStep(target *Target, step interface{}) (Step, error) {
 	switch step := step.(type) {
 	case string:
-		if strings.HasPrefix(step, "$") {
-			return NewShellStep(target, step[1:])
-		} else {
-			return NewScriptStep(target, step)
-		}
+		return NewScriptStep(target, step)
 	case map[interface{}]interface{}:
 		return NewTaskStep(target, step)
 	default:
 		return nil, fmt.Errorf("step must be string or map")
 	}
-}
-
-// A shell step
-type ShellStep struct {
-	Target  *Target
-	Command string
-}
-
-// Make a shell step
-func NewShellStep(target *Target, shell string) (Step, error) {
-	step := ShellStep{
-		Target:  target,
-		Command: shell,
-	}
-	return step, nil
-}
-
-// Run a shell step:
-// - If running on windows, run shell with "cmd.exe"
-// - Otherwise, run shell with "sh"
-func (step ShellStep) Run() error {
-	cmd, err := step.Target.Build.Context.EvaluateString(step.Command)
-	if err != nil {
-		return fmt.Errorf("evaluating shell expression: %v", err)
-	}
-	var command *exec.Cmd
-	if runtime.GOOS == "windows" {
-		command = exec.Command("cmd.exe", "/C", cmd)
-	} else {
-		command = exec.Command("sh", "-c", cmd)
-	}
-	dir, err := os.Getwd()
-	if err != nil {
-		return fmt.Errorf("getting current working directory: %v", err)
-	}
-	command.Dir = dir
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
-	command.Env, err = step.Target.Build.Context.EvaluateEnvironment()
-	if err != nil {
-		return fmt.Errorf("building environment: %v", err)
-	}
-	return command.Run()
 }
 
 // A script step
