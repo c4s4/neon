@@ -140,3 +140,70 @@ targets:
     - delete: '#{BUILD_DIR}'
 ```
 
+Build file properties
+---------------------
+
+Build file properties are some sort of build variables. The properties section
+is a map with string keys. For instance:
+
+```yaml
+properties:
+  STRING:  'This is a string'
+  OTHER:   '1'
+  INTEGER: 42
+  FLOAT:   4.2
+  LIST:    [1, 1, 2, 3, 5, 8]
+  MAP:
+    one:   1
+    two:   2
+    three: 3
+```
+
+A build property might use the value of another one. For instance:
+
+```yaml
+properties:
+  NAME:      'test'
+  BUILD_DIR: 'build'
+  ARCHIVE:   '#{BUILD_DIR}/#{NAME}.zip'
+```
+
+The *ARCHIVE* property uses values of *BUILD_DIR* and *NAME*. Note that the
+order of properties is not important as maps are not ordered.
+
+To avoid errors, you should follow these conventions:
+
+- Uppercase properties are constants, defined in properties field.
+- Lowercase properties are local variables. Note that they are defined in the
+  whole build file you should alway define their value in the current target.
+- Properties starting with underscores (such as *_error*) are internal
+  variables, defined by NeON. They should not be modified.
+
+These properties are defined in the virtual machine that runs scripts. This
+scripting language is [Anko](http://github.com/mattn/anko), which is a kind of
+scripted Go.
+
+Thus you can also define and user build properties in scripts. for instance,
+you might write:
+
+```yaml
+properties:
+  BUILD_DIR: 'build'
+
+targets:
+
+  test:
+    steps:
+    - 'file = joinpath(BUILD_DIR, "test.txt")'
+```
+
+Note that to use property *BUILD_DIR*, you write `BUILD_DIR` and not
+`#{BUILD_DIR}`. The expression `#{BUILD_DIR}` is used to insert a property
+value in a string, not a script.
+
+Note that some tasks define internal properties. For instance, task *try*
+will store raised error in internal build property *_error*.
+
+All YAML types might be used to define build properties. Thus, you can define
+string, integers, floats, but also lists and maps. You may iterate on values
+of a property in the build file.
