@@ -20,9 +20,8 @@ const (
 )
 
 // Possible fields for a build file
-var FIELDS = []string{"doc", "default", "context", "extends",
-	"singleton", "repository", "properties", "configuration", "environment",
-	"targets"}
+var FIELDS = []string{"doc", "default", "extends", "context", "singleton",
+	"repository", "properties", "configuration", "environment", "targets"}
 
 // Build structure
 type Build struct {
