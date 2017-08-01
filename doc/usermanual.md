@@ -5,9 +5,15 @@ This document is a detailed documentation on NeON. For a quick overview, see
 [Quick Start](quickstart.md). If you are looking for a documentation on tasks
 and builtins, see [Reference](reference.md) documentation.
 
+**Table of Contents**
+
 - [Build file format](#build-file-format)
 - [Build file structure](#build-file-structure)
 - [Build properties](#build-properties)
+- [Build targets](#build-targets)
+  - [NeON tasks](#neon-tasks)
+  - [Shell tasks](#shell-tasks)
+  - [Script tasks](#script-tasks)
 
 Build file format
 -----------------
