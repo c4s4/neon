@@ -5,8 +5,12 @@ This document is a detailed documentation on NeON. For a quick overview, see
 [Quick Start](quickstart.md). If you are looking for a documentation on tasks
 and builtins, see [Reference](reference.md) documentation.
 
-The build file format
----------------------
+- [Build file format](#Build file format)
+- [Build file structure](#Build file structure)
+- [Build properties](#Build properties)
+
+Build file format
+-----------------
 
 NeON build files are in YAML format. YAML (for *Yet Another Markup Language*)
 is a lightweight markup language so that you can write structured text in a
