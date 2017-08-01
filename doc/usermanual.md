@@ -11,9 +11,9 @@ and builtins, see [Reference](reference.md) documentation.
 - [Build file structure](#build-file-structure)
 - [Build properties](#build-properties)
 - [Build targets](#build-targets)
-  - [NeON tasks](#neon-tasks)
-  - [Shell tasks](#shell-tasks)
-  - [Script tasks](#script-tasks)
+  - [NeON task](#neon-task)
+  - [Shell task](#shell-task)
+  - [Script task](#script-task)
 
 Build file format
 -----------------
@@ -243,7 +243,7 @@ A target might define following fields:
 
 Tasks might be one of the following:
 
-### NeON tasks
+### NeON task
 
 They are tasks defined in NeON engine. This is a way to write platform
 independant build files. These tasks are maps with string keys.
