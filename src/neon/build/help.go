@@ -11,9 +11,6 @@ import (
 // Print help on build
 func (build *Build) Help() error {
 	// print build information
-	if build.Name != "" {
-		Message("name: %s", build.Name)
-	}
 	if build.Doc != "" {
 		Message("doc: %s", build.Doc)
 	}

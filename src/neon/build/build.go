@@ -20,7 +20,7 @@ const (
 )
 
 // Possible fields for a build file
-var FIELDS = []string{"name", "doc", "default", "context", "extends",
+var FIELDS = []string{"doc", "default", "context", "extends",
 	"singleton", "repository", "properties", "configuration", "environment",
 	"targets"}
 
@@ -29,7 +29,6 @@ type Build struct {
 	File        string
 	Dir         string
 	Here        string
-	Name        string
 	Default     []string
 	Doc         string
 	Repository  string
@@ -74,9 +73,6 @@ func NewBuild(file string) (*Build, error) {
 		return nil, fmt.Errorf("parsing build file: %v", err)
 	}
 	if err := ParseSingleton(object, build); err != nil {
-		return nil, err
-	}
-	if err := ParseName(object, build); err != nil {
 		return nil, err
 	}
 	if err := ParseDefault(object, build); err != nil {

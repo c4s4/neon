@@ -21,18 +21,6 @@ func ParseSingleton(object util.Object, build *Build) error {
 	return nil
 }
 
-// Parse name field of the build
-func ParseName(object util.Object, build *Build) error {
-	if object.HasField("name") {
-		name, err := object.GetString("name")
-		if err != nil {
-			return fmt.Errorf("getting build name: %v", err)
-		}
-		build.Name = name
-	}
-	return nil
-}
-
 // Parse default field of the build
 func ParseDefault(object util.Object, build *Build) error {
 	if object.HasField("default") {
