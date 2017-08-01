@@ -14,6 +14,7 @@ and builtins, see [Reference](reference.md) documentation.
   - [NeON task](#neon-task)
   - [Shell task](#shell-task)
   - [Script task](#script-task)
+- [Build inheritance](#build-inheritance)
 
 Build file format
 -----------------
@@ -384,3 +385,80 @@ with *context* field.
 To get more information about 
 [Anko scripting language clic here](http://github.com/mattn/anko).
 
+Build inheritance
+-----------------
+
+A build file can extend another parent build file with the *extends* field.
+For instance, with this parent build file called *buildir.yml*:
+
+```yaml
+doc: Parent build file to manage build directory
+
+properties:
+  BUILD_DIR: 'build'
+
+targets:
+
+  clean:
+    doc: Clean generated files
+    steps:
+    - delete: '#{BUILD_DIR}'
+```
+
+You may reuse this build file in another one:
+
+```yaml
+doc: Build file
+extends: ./buildir.yml
+
+targets:
+
+  compile:
+    doc: Compile
+    depends: clean
+    steps:
+    - $: 'compile sources'
+```
+
+The main build file that extends *buildir.yml* will inherit its properties and
+targets.
+
+Note that a build file can redefine inherited properties. For instance, you may
+decide to set *BUILD_DIR* to *target* with following build file:
+
+```yaml
+doc: Build file
+extends: ./buildir.yml
+properties:
+  BUILD_DIR: target
+
+targets:
+
+  compile:
+    doc: Compile
+    depends: clean
+    steps:
+    - $: 'compile sources'
+```
+
+This will redefine the build directory as expected.
+
+You may also redefine targets. For instance, let's say you want to warn before
+deleting build directory. You would write:
+
+```yaml
+doc: Build file
+extends: ./buildir.yml
+
+targets:
+
+  clean:
+    doc: Clea generated files
+    steps:
+    - print: 'Deleting build directory'
+    - super:
+```
+
+The *super* task will run steps of parent target.
+
+*Enjoy!*
