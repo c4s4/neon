@@ -362,6 +362,8 @@ targets:
 Your scripts might use builtin funtions, defined by Anko scripting engine (such
 as *toString()*) or by NeON. To lis NeON builtins, you can type command 
 `neon -builtins`. To get help on given builtin, type `neon -builtin split`.
+You can get information on available tasks
+[on this reference page](reference.md).
 
 You can define your own functions in scripts that you load in the build file
 with *context* field.
