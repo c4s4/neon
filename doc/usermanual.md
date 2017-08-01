@@ -76,7 +76,7 @@ This introduction to YAML should be enough for you to write valid build files.
 If you want more information about YAML, please visit
 [YAML website](http://yaml.org).
 
-Build File Structure
+Build file structure
 --------------------
 
 A build file is a YAML map. First level fields are the following:
@@ -207,3 +207,165 @@ will store raised error in internal build property *_error*.
 All YAML types might be used to define build properties. Thus, you can define
 string, integers, floats, but also lists and maps. You may iterate on values
 of a property in the build file.
+
+Build targets
+-------------
+
+Build targets might be compared to functions. They are called on command line.
+If you call NeON with `neon clean`, you will run target *clean*.
+
+This target might look like:
+
+```yaml
+targets:
+
+  clean:
+    doc: Clean generated files
+    steps:
+    - delete: 'build'
+```
+
+A target might define following fields:
+
+- **doc** this is the target documentation.
+- **depends** to list targets before running this one.
+- **steps** is the list of the tasks to run the target.
+
+Tasks might be one of the following:
+
+### NeON tasks
+
+They are tasks defined in NeON engine. This is a way to write platform
+independant build files. These tasks are maps with string keys.
+
+There are tasks to manage files (copy, delete, move and so on), archives
+(create ZIP or TAR files), directories (create, change to) or links. For
+instance, to delete all *.so* files in *build* directory, you would write:
+
+```yaml
+targets:
+
+  delete:
+    doc: Delete object files
+    steps:
+    - delete: '**/*.so'
+      dir:    'build'
+```
+
+Ther are also logical tasks to perform tests and iterate on values. For
+instance, to iterate on a list of files, you could write:
+
+```yaml
+targets:
+
+  pdf:
+    doc: Generate PDF files
+    steps:
+    - for: 'file'
+      in:  'find("md", "*.md")'
+      do:
+      - $: 'md2pdf -o "build/#{file}.pdf" "md/#{file}"'
+```
+
+To generate a file if the source is newer, you would write:
+
+```yaml
+targets:
+
+  pdf:
+    doc: Generate PDF file
+    steps:
+    - if: 'older("file.md", "build/file.pdf")'
+      then:
+      - $: 'md2pdf -o "build/file.pdf" "file.md"'
+```
+
+There are also tasks to manage errors. For instance to run a command and catch
+any error (that is when the command returns a value different from *0*) to
+write an error message, you could write:
+
+```yaml
+targets:
+
+  command:
+    doc: Try to run a command
+    steps:
+    - try:
+      - $: 'command that might fail'
+      catch:
+      - throw: 'There was an error running command'
+```
+
+To list all available NeON tasks, type command `neon -tasks`. To get help on a
+given command *foo*, type `neon -task foo`:
+
+```
+$ n -task time
+Record duration to run a block of steps.
+
+Arguments:
+
+- time: the steps to measure execution duration.
+- to: the property to store duration in seconds as a float (optional,
+  print duration on console if not set).
+
+Examples:
+
+    # print duration to say hello
+    - time:
+      - print: "Hello World!"
+      to: duration
+    - print: 'duration: #{duration}s'
+```
+
+### Shell task
+
+A shell task runs a script. This script will run with *sh* on Unix and
+*cmd.exe* on Windows. They are a map with *$* field.
+
+This script might be a simple command such as *ls* or it may be a full shell or
+batch script. In this case, you should the appropriate YAML syntax:
+
+```yaml
+targets:
+
+  shell:
+    steps:
+    - $: |
+         This is a shell script
+         with more that one line
+```
+
+A shell task will fail if the script returns a value different from *0*. You
+might manage errors with *try* task.
+
+Of course a command might be system dependant, but this is not always the case.
+For instance, a command such as `java -jar foo.jar` will probably run the same
+on all systems. This is also the case for most Git commands.
+
+### Script task
+
+A script task is a piece of code that will run in the NeON scripting engine.
+This is also a way to write platform independant code. But this is a way to
+write complex scripts that would be complicated to write with system commands.
+
+A script task is a simple string. For instance:
+
+```yaml
+targets:
+
+  script:
+    steps:
+    - 'file = joinpath(BUILD_DIR, "test.txt")'
+```
+
+Your scripts might use builtin funtions, defined by Anko scripting engine (such
+as *toString()*) or by NeON. To lis NeON builtins, you can type command 
+`neon -builtins`. To get help on given builtin, type `neon -builtin split`.
+
+You can define your own functions in scripts that you load in the build file
+with *context* field.
+
+To get more information about 
+[Anko scripting language clic here](http://github.com/mattn/anko).
+
