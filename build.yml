@@ -1,6 +1,5 @@
-name:    neon
-default: [clean, bin, test, integ]
 doc:     'Build file to build neon'
+default: [clean, bin, test, integ]
 extends: c4s4/build/go-app.yml
 
 properties:
@@ -68,6 +67,7 @@ targets:
     - delete: '#{BUILD_DIR}/CHANGELOG.md'
     - mkdir: '#{ARC_DIR}/doc'
     - $: 'md2pdf -o #{ARC_DIR}/doc/quickstart.pdf doc/quickstart.md'
+    - $: 'md2pdf -o #{ARC_DIR}/doc/usermanual.pdf doc/usermanual.md'
     - $: 'md2pdf -o #{ARC_DIR}/doc/reference.pdf doc/reference.md'
     - tar:    '#{NAME}-#{VERSION}/**/*'
       dir:    '#{BUILD_DIR}'

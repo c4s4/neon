@@ -361,8 +361,8 @@ to validate files and *anko* script to generate a report from tool output.
 Getting help
 ------------
 
-You can print help on build file typing `neon -build`. You will get help on
-build properties, environment variables and targets. This will be useful if
+You can print information on build file typing `neon -info`. You will get help
+on build properties, environment variables and targets. This will be useful if
 you have documented your build file. To document a given property, you would
 write:
 

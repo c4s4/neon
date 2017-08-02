@@ -19,7 +19,7 @@ const (
 // Parse command line and return parsed options
 func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, string, bool, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
-	help := flag.Bool("build", false, "Print build help")
+	info := flag.Bool("info", false, "Print build information")
 	version := flag.Bool("version", false, "Print neon version")
 	props := flag.String("props", "", "Build properties")
 	timeit := flag.Bool("time", false, "Print build duration")
@@ -33,7 +33,7 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 	grey := flag.Bool("grey", false, "Print on terminal without colors")
 	flag.Parse()
 	targets := flag.Args()
-	return *file, *help, *version, *props, *timeit, *tasks, *task, *targs, *builtins,
+	return *file, *info, *version, *props, *timeit, *tasks, *task, *targs, *builtins,
 		*builtin, *refs, *install, *grey, targets
 }
 
@@ -62,7 +62,7 @@ func FindBuildFile(name string) (string, error) {
 // Program entry point
 func main() {
 	start := time.Now()
-	file, help, version, props, timeit, tasks, task, targs, builtins, builtin, refs, install, grey, targets := ParseCommandLine()
+	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, refs, install, grey, targets := ParseCommandLine()
 	// options that do not require we load build file
 	_build.Grey = grey
 	if tasks {
@@ -84,7 +84,7 @@ func main() {
 		_build.Message(VERSION)
 		os.Exit(0)
 	}
- 	// options that do require we load build file
+	// options that do require we load build file
 	path, err := FindBuildFile(file)
 	PrintError(err, 1)
 	build, err := _build.NewBuild(path)
@@ -106,8 +106,8 @@ func main() {
 	PrintError(err, 4)
 	if targs {
 		build.PrintTargets()
-	} else if help {
-		err = build.Help()
+	} else if info {
+		err = build.Info()
 	} else {
 		err = build.Run(targets)
 		duration := time.Now().Sub(start)
