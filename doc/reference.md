@@ -295,7 +295,7 @@ Prompt the user for the value of a given property matching a pattern.
 
 Arguments:
 
-- message: message to print at prompt. Should include a description of the
+- prompt: message to print at prompt. Should include a description of the
   expected pattern.
 - property: the name of the property to set.
 - default: default value if user doesn't type anything. Written into square
