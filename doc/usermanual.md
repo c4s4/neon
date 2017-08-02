@@ -87,6 +87,8 @@ This introduction to YAML should be enough for you to write valid build files.
 If you want more information about YAML, please visit
 [YAML website](http://yaml.org).
 
+[Back to top](#user-manual)
+
 Build file structure
 --------------------
 
@@ -150,6 +152,8 @@ targets:
     steps:
     - delete: '#{BUILD_DIR}'
 ```
+
+[Back to top](#user-manual)
 
 Build file properties
 ---------------------
@@ -219,6 +223,8 @@ All YAML types might be used to define build properties. Thus, you can define
 string, integers, floats, but also lists and maps. You may iterate on values
 of a property in the build file.
 
+[Back to top](#user-manual)
+
 Build targets
 -------------
 
@@ -243,6 +249,8 @@ A target might define following fields:
 - **steps** is the list of the tasks to run the target.
 
 Tasks might be one of the following:
+
+[Back to top](#user-manual)
 
 ### NeON task
 
@@ -332,6 +340,8 @@ Examples:
 You can get information on available tasks
 [on this reference page](reference.md).
 
+[Back to top](#user-manual)
+
 ### Shell task
 
 A shell task runs a script. This script will run with *sh* on Unix and
@@ -356,6 +366,8 @@ might manage errors with *try* task.
 Of course a command might be system dependant, but this is not always the case.
 For instance, a command such as `java -jar foo.jar` will probably run the same
 on all systems. This is also the case for most Git commands.
+
+[Back to top](#user-manual)
 
 ### Script task
 
@@ -384,6 +396,8 @@ with *context* field.
 
 To get more information about 
 [Anko scripting language clic here](http://github.com/mattn/anko).
+
+[Back to top](#user-manual)
 
 Build inheritance
 -----------------
@@ -460,5 +474,7 @@ targets:
 ```
 
 The *super* task will run steps of parent target.
+
+[Back to top](#user-manual)
 
 *Enjoy!*
