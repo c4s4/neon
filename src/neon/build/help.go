@@ -9,7 +9,7 @@ import (
 )
 
 // Print help on build
-func (build *Build) Help() error {
+func (build *Build) Info() error {
 	// print build information
 	if build.Doc != "" {
 		Message("doc: %s", build.Doc)

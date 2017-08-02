@@ -6,6 +6,7 @@
   changed:
   - "Removed 'script' task: scripts are written in quotes and shell commands
      run with the $ task."
+  - "Replaced '-build' option with '-info' to get information about the build."
   added:
   - "Added older builtin function."
   - "Added sections in user manual."
