@@ -20,16 +20,14 @@ const (
 )
 
 // Possible fields for a build file
-var FIELDS = []string{"name", "doc", "default", "context", "extends",
-	"singleton", "repository", "properties", "configuration", "environment",
-	"targets"}
+var FIELDS = []string{"doc", "default", "extends", "repository", "context",
+	"singleton", "properties", "configuration", "environment", "targets"}
 
 // Build structure
 type Build struct {
 	File        string
 	Dir         string
 	Here        string
-	Name        string
 	Default     []string
 	Doc         string
 	Repository  string
@@ -74,9 +72,6 @@ func NewBuild(file string) (*Build, error) {
 		return nil, fmt.Errorf("parsing build file: %v", err)
 	}
 	if err := ParseSingleton(object, build); err != nil {
-		return nil, err
-	}
-	if err := ParseName(object, build); err != nil {
 		return nil, err
 	}
 	if err := ParseDefault(object, build); err != nil {
@@ -191,12 +186,8 @@ func (build *Build) LoadParents() error {
 		file := build.PluginPath(extend)
 		parent, err := NewBuild(file)
 		if err != nil {
-			plugin := build.PluginName(extend)
-			if plugin != "" {
-				return fmt.Errorf("loading parent build file '%s', try installing plugin with 'neon -install=%s'",
-					extend, plugin)
-			} else {
-				return fmt.Errorf("loading parent '%s': %v", extend, err)
+			if err != nil {
+				return fmt.Errorf("loading parent build file '%s': %v", extend, err)
 			}
 		}
 		parents = append(parents, parent)

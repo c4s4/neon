@@ -11,17 +11,18 @@ default:
 - builtin_joinpath
 - builtin_lowercase
 - builtin_now
+- builtin_older
 - builtin_run
 - builtin_split
 - builtin_throw
 - builtin_unescapeurl
 - builtin_uppercase
+- task_$
 - task_cat
 - task_chdir
 - task_chmod
 - task_copy
 - task_delete
-- task_execute
 - task_for
 - task_if
 - task_link
@@ -51,65 +52,65 @@ targets:
   builtin_directory:
     doc: Test the directory builtin function
     steps:
-    - script: |
-        actual = directory("/foo/bar/spam.txt")
-        expected = "/foo/bar"
-        if _OS == "windows" {
-          expected = `\foo\bar`
-        }
-        if actual != expected {
-          throw("Directory test failure")
-        } else {
-          println("Directory test success")
-        }
+    - |
+      actual = directory("/foo/bar/spam.txt")
+      expected = "/foo/bar"
+      if _OS == "windows" {
+        expected = `\foo\bar`
+      }
+      if actual != expected {
+        throw("Directory test failure")
+      } else {
+        println("Directory test success")
+      }
 
   builtin_escapeurl:
     doc: Test the escapeurl builtin function
     steps:
-    - script: |
-        escaped = escapeurl("/foo bar")
-        if escaped != "/foo%20bar" {
-          throw("Escapeurl test failure")
-        } else {
-          println("Escapeurl test success")
-        }
+    - |
+      escaped = escapeurl("/foo bar")
+      if escaped != "/foo%20bar" {
+        throw("Escapeurl test failure")
+      } else {
+        println("Escapeurl test success")
+      }
 
   builtin_exists:
     doc: Test exists builtin function
     steps:
     - mkdir: "#{BUILD_DIR}/exists"
-    - script: |
-        if !exists(joinpath(BUILD_DIR, "exists")) {
-          throw("Exists test failure")
-        } else {
-          println("Exists test success")
-        }
+    - |
+      if !exists(joinpath(BUILD_DIR, "exists")) {
+        throw("Exists test failure")
+      } else {
+        println("Exists test success")
+      }
 
   builtin_expand:
     doc: Test expand builtin function
     steps:
     - if: '_OS != "windows"'
       then:
-      - script: |
-          os = import("os")
-          actual = expand("~/foo")
-          expected = os.Getenv("HOME") + "/foo"
-          if actual != expected {
-            throw("Expand test failure")
-          } else {
-            println("Expand test success")
-          }
+      - |
+        os = import("os")
+        actual = expand("~/foo")
+        expected = os.Getenv("HOME") + "/foo"
+        if actual != expected {
+          throw("Expand test failure")
+        } else {
+          println("Expand test success")
+        }
 
   builtin_filename:
     doc: Test the filename builtin function
     steps:
-    - script: |
-        file = filename("/foo/bar/spam.txt")
-        if file != "spam.txt" {
-          throw("Filename test failure")
-        } else {
-          println("Filename test success")
-        }
+    - |
+      file = filename("/foo/bar/spam.txt")
+      if file != "spam.txt" {
+        throw("Filename test failure")
+      } else {
+        println("Filename test success")
+      }
 
   builtin_filter:
     doc: Test the filter builtin function
@@ -118,13 +119,13 @@ targets:
     - touch:
       - "#{BUILD_DIR}/filter/foo.txt"
       - "#{BUILD_DIR}/filter/bar.txt"
-    - script: |
-        files = toString(filter(find(BUILD_DIR, "filter/**/*.txt"), "filter/**/bar*"))
-        if files != "[filter/foo.txt]" {
-          throw("ERROR: " + files)
-        } else {
-          println("Filter test success")
-        }
+    - |
+      files = toString(filter(find(BUILD_DIR, "filter/**/*.txt"), "filter/**/bar*"))
+      if files != "[filter/foo.txt]" {
+        throw("ERROR: " + files)
+      } else {
+        println("Filter test success")
+      }
 
   builtin_find:
     doc: Test the find builtin function
@@ -133,63 +134,90 @@ targets:
     - touch:
       - "#{BUILD_DIR}/find/foo"
       - "#{BUILD_DIR}/find/spam/bar"
-    - script: |
-        files = toString(find(BUILD_DIR+"/find", "**/*"))
-        if files != "[foo spam spam/bar]" {
-          throw("ERROR: " + files)
-        } else {
-          println("Find test success")
-        }
+    - |
+      files = toString(find(BUILD_DIR+"/find", "**/*"))
+      if files != "[foo spam spam/bar]" {
+        throw("ERROR: " + files)
+      } else {
+        println("Find test success")
+      }
 
   builtin_join:
     doc: Test the join builtin function
     steps:
-    - script: |
-        s = join(["foo", "bar"], " ")
-        if s != "foo bar" {
-          throw("Join test failure")
-        } else {
-          println("Join test success")
-        }
+    - |
+      s = join(["foo", "bar"], " ")
+      if s != "foo bar" {
+        throw("Join test failure")
+      } else {
+        println("Join test success")
+      }
 
   builtin_joinpath:
     doc: Test the joinpath builtin function
     steps:
-    - script: |
-        path = joinpath("/foo", "bar", "spam.txt")
-        expected = "/foo/bar/spam.txt"
-        if _OS == "windows" {
-          expected = `\foo\bar\spam.txt`
-        }
-        if path != expected {
-          throw("Joinpath test failure")
-        } else {
-          println("Joinpath test success")
-        }
+    - |
+      path = joinpath("/foo", "bar", "spam.txt")
+      expected = "/foo/bar/spam.txt"
+      if _OS == "windows" {
+        expected = `\foo\bar\spam.txt`
+      }
+      if path != expected {
+        throw("Joinpath test failure")
+      } else {
+        println("Joinpath test success")
+      }
 
   builtin_lowercase:
     doc: Test the lowercase builtin function
     steps:
-    - script: |
-        upper = lowercase("TEST")
-        if upper != "test" {
-          throw("Lowercase test failure")
-        } else {
-          println("Lowercase test success")
-        }
+    - |
+      upper = lowercase("TEST")
+      if upper != "test" {
+        throw("Lowercase test failure")
+      } else {
+        println("Lowercase test success")
+      }
 
   builtin_now:
     doc: Test the now builtin function
     steps:
-    - script: |
-        r = import("regexp")
-        n = now()
-        match, err = r.MatchString(`\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d`, n)
-        if !match || err != nil {
-          throw("ERROR now '"+n+"'")
-        } else {
-          println("Now test success")
-        }
+    - |
+      r = import("regexp")
+      n = now()
+      match, err = r.MatchString(`\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d`, n)
+      if !match || err != nil {
+        throw("ERROR now '"+n+"'")
+      } else {
+        println("Now test success")
+      }
+
+  builtin_older:
+    doc: Test the older builtin function
+    steps:
+    - mkdir: '#{BUILD_DIR}/older'
+    - touch: '#{BUILD_DIR}/older/source'
+    - touch: '#{BUILD_DIR}/older/result'
+    - |
+      if older("build/older/source", "build/older/result") {
+        throw("Older test failure")
+      } else {
+        println("Older test success")
+      }
+    - touch: '#{BUILD_DIR}/older/source'
+    - |
+      if older("build/older/source", "build/older/result") {
+        println("Older test success")
+      } else {
+        throw("Older test failure")
+      }
+    - delete: '#{BUILD_DIR}/older/result'
+    - |
+      if older("build/older/source", "build/older/result") {
+        println("Older test success")
+      } else {
+        throw("Older test failure")
+      }
 
   builtin_read:
     doc: Test read builtin function
@@ -197,72 +225,86 @@ targets:
     - mkdir: "#{BUILD_DIR}/read"
     - write: "#{BUILD_DIR}/read/test.txt"
       text:  "Hello World!"
-    - script: |
-        text := read(joinpath(BUILD_DIR, "read", "test.txt"))
-        if text != "Hello World!" {
-          throw("Read test failure")
-        } else {
-          println("Read test success")
-        }
+    - |
+      text := read(joinpath(BUILD_DIR, "read", "test.txt"))
+      if text != "Hello World!" {
+        throw("Read test failure")
+      } else {
+        println("Read test success")
+      }
 
   builtin_run:
     doc: Test run builtin function
     steps:
     - if: '_OS != "windows"'
       then:
-      - script: |
-          n = run("date", "--iso-8601")
-          match, err = r.MatchString(`\d\d\d\d-\d\d-\d\d`, n)
-          if !match || err != nil {
-            throw("ERROR run '"+n+"'")
-          } else {
-            println("Run test success")
-          }
+      - |
+        n = run("date", "--iso-8601")
+        match, err = r.MatchString(`\d\d\d\d-\d\d-\d\d`, n)
+        if !match || err != nil {
+          throw("ERROR run '"+n+"'")
+        } else {
+          println("Run test success")
+        }
 
   builtin_split:
     doc: Test split builtin function
     steps:
-    - script: |
-        s = split("foo bar", " ")
-        if len(s) != 2 || s[0] != "foo" || s[1] != "bar" {
-          throw("ERROR split '"+s+"'")
-        } else {
-          println("Split test success")
-        }
+    - |
+      s = split("foo bar", " ")
+      if len(s) != 2 || s[0] != "foo" || s[1] != "bar" {
+        throw("ERROR split '"+s+"'")
+      } else {
+        println("Split test success")
+      }
 
   builtin_throw:
     doc: Test the throw builtin function
     steps:
     - try:
-      - script: 'throw("TEST")'
+      - 'throw("TEST")'
       catch:
-      - script: |
-          if _error != "evaluating script: TEST (at line 1, column 1)" {
-            throw("Throw test failure")
-          } else {
-            println("Throw test success")
-          }
+      - |
+        if _error != "evaluating script: TEST (at line 1, column 1)" {
+          throw("Throw test failure")
+        } else {
+          println("Throw test success")
+        }
 
   builtin_unescapeurl:
     doc: Test the unescapeurl builtin function
     steps:
-    - script: |
-        unescaped = unescapeurl("/foo%20bar")
-        if unescaped != "/foo bar" {
-          throw("Unescapeurl test failure")
-        } else {
-          println("Unescapeurl test success")
-        }
+    - |
+      unescaped = unescapeurl("/foo%20bar")
+      if unescaped != "/foo bar" {
+        throw("Unescapeurl test failure")
+      } else {
+        println("Unescapeurl test success")
+      }
 
   builtin_uppercase:
     doc: Test the uppercase builtin function
     steps:
-    - script: |
-        upper = uppercase("test")
-        if upper != "TEST" {
-          throw("Uppercase test failure")
+    - |
+      upper = uppercase("test")
+      if upper != "TEST" {
+        throw("Uppercase test failure")
+      } else {
+        println("Uppercase test success")
+      }
+
+  task_$:
+    doc: Test task $
+    steps:
+    - if: '_OS != "windows"'
+      then:
+      - $: 'echo "TEST"'
+        =: 'result'
+      - |
+        if result != "TEST" {
+          throw("$ test failure")
         } else {
-          println("Uppercase test success")
+          println("$ test success")
         }
 
   task_cat:
@@ -276,20 +318,20 @@ targets:
     doc: Test task chdir
     steps:
     - mkdir: "#{BUILD_DIR}"
-    - script: |
-        filepath = import("path/filepath")
-        buildDir = filepath.Abs(BUILD_DIR)
+    - |
+      filepath = import("path/filepath")
+      buildDir = filepath.Abs(BUILD_DIR)
     - chdir: "#{BUILD_DIR}"
-    - script: |
-        os = import("os")
-        dir = os.Getwd()
-        if dir != buildDir {
-          println(dir)
-          println(buildDir)
-          throw("Chdir test failure")
-        } else {
-          println("Chdir test success")
-        }
+    - |
+      os = import("os")
+      dir = os.Getwd()
+      if dir != buildDir {
+        println(dir)
+        println(buildDir)
+        throw("Chdir test failure")
+      } else {
+        println("Chdir test success")
+      }
 
   task_chmod:
     doc: Test task chmod
@@ -312,13 +354,13 @@ targets:
       dir:     "#{BUILD_DIR}/copy/src"
       exclude: "**/bar*"
       todir:   "#{BUILD_DIR}/copy/dst"
-    - script: |
-        files = toString(find(BUILD_DIR, "copy/dst/*"))
-        if files != "[copy/dst/foo.txt]" {
-          throw("ERROR: " + files)
-        } else {
-          println("Copy test success")
-        }
+    - |
+      files = toString(find(BUILD_DIR, "copy/dst/*"))
+      if files != "[copy/dst/foo.txt]" {
+        throw("ERROR: " + files)
+      } else {
+        println("Copy test success")
+      }
 
   task_delete:
     doc: Test task delete
@@ -327,72 +369,58 @@ targets:
     - mkdir: "#{BUILD_DIR}/delete/foo"
     - touch: "#{BUILD_DIR}/delete/foo/test.txt"
     - delete: "#{BUILD_DIR}/delete/foo"
-    - script: |
-        os = import("os")
-        filepath = import("path/filepath")
-        file = filepath.Join(BUILD_DIR, "delete", "foo")
-        _, err = os.Stat(file)
-        if err == nil {
-          throw("Delete test failure")
-        } else {
-          println("Delete test success")
-        }
+    - |
+      os = import("os")
+      filepath = import("path/filepath")
+      file = filepath.Join(BUILD_DIR, "delete", "foo")
+      _, err = os.Stat(file)
+      if err == nil {
+        throw("Delete test failure")
+      } else {
+        println("Delete test success")
+      }
     # delete files
     - touch: "#{BUILD_DIR}/delete/test.txt"
     - delete: "#{BUILD_DIR}/delete/test.txt"
-    - script: |
-        os = import("os")
-        filepath = import("path/filepath")
-        file = filepath.Join(BUILD_DIR, "delete", "test.txt")
-        _, err = os.Stat(file)
-        if err == nil {
-          throw("Delete test failure")
-        } else {
-          println("Delete test success")
-        }
+    - |
+      os = import("os")
+      filepath = import("path/filepath")
+      file = filepath.Join(BUILD_DIR, "delete", "test.txt")
+      _, err = os.Stat(file)
+      if err == nil {
+        throw("Delete test failure")
+      } else {
+        println("Delete test success")
+      }
 
-  task_execute:
-    doc: Test task execute
-    steps:
-    - if: '_OS != "windows"'
-      then:
-      - execute: 'echo "TEST"'
-        output:  'result'
-      - script: |
-          if result != "TEST" {
-            throw("Execute test failure")
-          } else {
-            println("Execute test success")
-          }
-  
   task_for:
     doc: Test doc task
     steps:
-    - script: 'sum = 0'
+    - 'sum = 0'
     - for: i
       in: [1, 2, 3]
       do:
-      - script: 'sum = sum + i'
-    - script: |
-        if sum != 6 {
-          throw("For test failure")
-        } else {
-          println("For test success")
-        }
+      - 'sum = sum + i'
+    - |
+      if sum != 6 {
+        throw("For test failure")
+      } else {
+        println("For test success")
+      }
 
   task_if:
     doc: If task success
     steps:
-    - script: 'failure = true'
+    - 'failure = true'
     - if: failure
       then:
-      - script: 'failure = false'
-    - script: |
-        if failure {
-          throw("If test failure")
-        } else {
-          println("If test success")
-        }
+      - 'failure = false'
+    - |
+      if failure {
+        throw("If test failure")
+      } else {
+        println("If test success")
+      }
 
   task_link:
     doc: Test task link
@@ -404,30 +432,30 @@ targets:
       - touch: "#{BUILD_DIR}/link/foo"
       - link: "#{BUILD_DIR}/link/foo"
         to:   "#{BUILD_DIR}/link/bar"
-      - script: |
-          files = toString(find(BUILD_DIR, "link/*"))
-          if files != "[link/bar link/foo]" {
-            throw("ERROR: " + files)
-          } else {
-            println("Link test success")
-          }
+      - |
+        files = toString(find(BUILD_DIR, "link/*"))
+        if files != "[link/bar link/foo]" {
+          throw("ERROR: " + files)
+        } else {
+          println("Link test success")
+        }
 
   task_mkdir:
     doc: Test task mkdir
     steps:
     - mkdir: "#{BUILD_DIR}/mkdir"
-    - script: |
-        os = import("os")
-        filepath = import("path/filepath")
-        dir = filepath.Join(BUILD_DIR, "mkdir")
-        stat, err = os.Stat(dir)
-        if err != nil {
-          throw("Mkdir test failure")
-        } else if !stat.IsDir() {
-          throw("Mkdir task failure")
-        } else {
-          println("Mkdir test success")
-        }
+    - |
+      os = import("os")
+      filepath = import("path/filepath")
+      dir = filepath.Join(BUILD_DIR, "mkdir")
+      stat, err = os.Stat(dir)
+      if err != nil {
+        throw("Mkdir test failure")
+      } else if !stat.IsDir() {
+        throw("Mkdir task failure")
+      } else {
+        println("Mkdir test success")
+      }
 
   task_move:
     doc: Test task move
@@ -441,14 +469,14 @@ targets:
       dir:     "#{BUILD_DIR}/move/src"
       exclude: "**/bar*"
       todir:   "#{BUILD_DIR}/move/dst"
-    - script: |
-        files_dst = toString(find(BUILD_DIR, "move/dst/*"))
-        files_src = toString(find(BUILD_DIR, "move/src/*"))
-        if files_dst != "[move/dst/foo.txt]" || files_src != "[move/src/bar.txt]" {
-          throw("ERROR: " + files_dst + " + " + files_src)
-        } else {
-          println("Move test success")
-        }
+    - |
+      files_dst = toString(find(BUILD_DIR, "move/dst/*"))
+      files_src = toString(find(BUILD_DIR, "move/src/*"))
+      if files_dst != "[move/dst/foo.txt]" || files_src != "[move/src/bar.txt]" {
+        throw("ERROR: " + files_dst + " + " + files_src)
+      } else {
+        println("Move test success")
+      }
 
   task_pass:
     doc: Test task pass
@@ -466,16 +494,16 @@ targets:
     - path: "lib/*.jar"
       dir: "#{BUILD_DIR}/path"
       to: "classpath"
-    - script: |
-        path = "lib/bar.jar:lib/foo.jar"
-        if _OS == "windows" {
-          path = "lib/bar.jar;lib/foo.jar"
-        }
-        if classpath != path {
-          throw("Path test failure: "+classpath)
-        } else {
-          println("Path test success")
-        }
+    - |
+      path = "lib/bar.jar:lib/foo.jar"
+      if _OS == "windows" {
+        path = "lib/bar.jar;lib/foo.jar"
+      }
+      if classpath != path {
+        throw("Path test failure: "+classpath)
+      } else {
+        println("Path test success")
+      }
 
   task_print:
     doc: Test task print
@@ -486,19 +514,19 @@ targets:
     doc: Test task read
     steps:
     - mkdir: "#{BUILD_DIR}/read"
-    - script: |
-        ioutil = import("io/ioutil")
-        filepath = import("path/filepath")
-        file = filepath.Join(BUILD_DIR, "read", "test.txt")
-        ioutil.WriteFile(file, toByteSlice("TEST"), 420)
+    - |
+      ioutil = import("io/ioutil")
+      filepath = import("path/filepath")
+      file = filepath.Join(BUILD_DIR, "read", "test.txt")
+      ioutil.WriteFile(file, toByteSlice("TEST"), 420)
     - read: "#{BUILD_DIR}/read/test.txt"
       to: "read"
-    - script: |
-        if read != "TEST" {
-          throw("Read test failure")
-        } else {
-          println("Read test success")
-        }
+    - |
+      if read != "TEST" {
+        throw("Read test failure")
+      } else {
+        println("Read test success")
+      }
 
   task_replace:
     doc: Test task replace
@@ -509,25 +537,23 @@ targets:
     - replace: "#{BUILD_DIR}/replace/test.txt"
       pattern: "World"
       with: "You"
-    - script: |
-        ioutil = import("io/ioutil")
-        filepath = import("path/filepath")
-        file = filepath.Join(BUILD_DIR, "replace", "test.txt")
-        content, err = ioutil.ReadFile(file)
-        if err != nil {
-          throw("Write test failure")
-        }
-        if toString(content) != "Hello You!" {
-          throw("Write test failure")
-        }
-        println("Write test sucess")
-
-
+    - |
+      ioutil = import("io/ioutil")
+      filepath = import("path/filepath")
+      file = filepath.Join(BUILD_DIR, "replace", "test.txt")
+      content, err = ioutil.ReadFile(file)
+      if err != nil {
+        throw("Write test failure")
+      }
+      if toString(content) != "Hello You!" {
+        throw("Write test failure")
+      }
+      println("Write test sucess")
 
   task_script:
     doc: Test task script
     steps:
-    - script: 'println("Script test success")'
+    - 'println("Script test success")'
 
   task_sleep:
     doc: Test task sleep
@@ -550,7 +576,7 @@ targets:
   task_throw:
     doc: Test task throw
     steps:
-    - script: 'error = ""'
+    - 'error = ""'
     - try:
       - throw: 'This is a test'
       catch:
@@ -565,6 +591,10 @@ targets:
     steps:
     - time:
       - pass:
+    - time:
+      - pass:
+      to: duration
+    - print: 'duration: #{duration}s'
     - print: "Time test success"
 
   task_touch:
@@ -572,13 +602,13 @@ targets:
     steps:
     - mkdir: "#{BUILD_DIR}/touch"
     - touch: "#{BUILD_DIR}/touch/foo"
-    - script: |
-        files = toString(find(BUILD_DIR, "touch/*"))
-        if files != "[touch/foo]" {
-          throw("ERROR: " + files)
-        } else {
-          println("Touch test success")
-        }
+    - |
+      files = toString(find(BUILD_DIR, "touch/*"))
+      if files != "[touch/foo]" {
+        throw("ERROR: " + files)
+      } else {
+        println("Touch test success")
+      }
 
   task_try:
     doc: Test task try
@@ -587,12 +617,12 @@ targets:
     - try:
       - throw: "Test"
       catch:
-      - script: |
-          if _error != "Test" {
-            throw("Try test failure")
-          } else {
-            println("Try test success")
-          }
+      - |
+        if _error != "Test" {
+          throw("Try test failure")
+        } else {
+          println("Try test success")
+        }
     # single try: execution continue, even if an error occurs
     - try:
       - throw: "Try test failure"
@@ -600,28 +630,28 @@ targets:
     - try:
       - throw: "Test"
       catch:
-      - script: 'error = "catched"'
+      - 'error = "catched"'
       finally:
-      - script: |
-          if error != "catched" {
-            throw("Try test failure")
-          } else {
-            println("Try test success")
-          }
+      - |
+        if error != "catched" {
+          throw("Try test failure")
+        } else {
+          println("Try test success")
+        }
 
   task_while:
     doc: Test while task
     steps:
-    - script: 'i = 0'
+    - 'i = 0'
     - while: 'i < 10'
       do:
-      - script: 'i++'
-    - script: |
-        if i != 10 {
-          throw("While test failure")
-        } else {
-          println("While test success")
-        }
+      - 'i++'
+    - |
+      if i != 10 {
+        throw("While test failure")
+      } else {
+        println("While test success")
+      }
 
   task_write:
     doc: Test task write
@@ -629,33 +659,33 @@ targets:
     - mkdir: "#{BUILD_DIR}/write"
     - write: "#{BUILD_DIR}/write/test.txt"
       text:  "Hello World!"
-    - script: |
-        ioutil = import("io/ioutil")
-        filepath = import("path/filepath")
-        file = filepath.Join(BUILD_DIR, "write", "test.txt")
-        content, err = ioutil.ReadFile(file)
-        if err != nil {
-          throw("Write test failure")
-        }
-        if toString(content) != "Hello World!" {
-          throw("Write test failure")
-        }
-        println("Write test sucess")
+    - |
+      ioutil = import("io/ioutil")
+      filepath = import("path/filepath")
+      file = filepath.Join(BUILD_DIR, "write", "test.txt")
+      content, err = ioutil.ReadFile(file)
+      if err != nil {
+        throw("Write test failure")
+      }
+      if toString(content) != "Hello World!" {
+        throw("Write test failure")
+      }
+      println("Write test sucess")
     - write:  "#{BUILD_DIR}/write/test.txt"
       text:   " And you too!"
       append: true
-    - script: |
-        ioutil = import("io/ioutil")
-        filepath = import("path/filepath")
-        file = filepath.Join(BUILD_DIR, "write", "test.txt")
-        content, err = ioutil.ReadFile(file)
-        if err != nil {
-          throw("Write test failure")
-        }
-        if toString(content) != "Hello World! And you too!" {
-          throw("Write test failure")
-        }
-        println("Write test sucess")
+    - |
+      ioutil = import("io/ioutil")
+      filepath = import("path/filepath")
+      file = filepath.Join(BUILD_DIR, "write", "test.txt")
+      content, err = ioutil.ReadFile(file)
+      if err != nil {
+        throw("Write test failure")
+      }
+      if toString(content) != "Hello World! And you too!" {
+        throw("Write test failure")
+      }
+      println("Write test sucess")
 
   task_zip:
     doc: Test task zip

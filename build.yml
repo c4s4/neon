@@ -22,7 +22,7 @@ targets:
     doc: 'Run an integration test on a build file'
     steps:
     - print: "Running integration test in build file 'test.yml'"
-    - 'bin/neon -file test.yml'
+    - $: 'bin/neon -file test.yml'
 
   version:
     doc: 'Generate version file'
@@ -40,35 +40,35 @@ targets:
     steps:
     - print: "Building neon binary in 'bin/neon'"
     - delete: 'bin/neon'
-    - 'go install #{NAME}'
+    - $: 'go install #{NAME}'
 
   refs:
     doc: 'Generate reference documentation for tasks and builtins'
     depends: bin
     steps:
-    - 'bin/neon -refs > #{REFERENCE}'
+    - $: 'bin/neon -refs > #{REFERENCE}'
     # we add and commit reference if modified
     - try:
-      - 'git diff --quiet --exit-code #{REFERENCE}'
+      - $: 'git diff --quiet --exit-code #{REFERENCE}'
       catch:
-      - 'git add "#{REFERENCE}"'
-      - 'git commit -m "Updated reference" "#{REFERENCE}"'
+      - $: 'git add "#{REFERENCE}"'
+      - $: 'git commit -m "Updated reference" "#{REFERENCE}"'
 
   archive:
     doc: 'Generate distribution archive'
     depends: version
     steps:
     - mkdir: '#{ARC_DIR}/bin/'
-    - 'gox -output=#{ARC_DIR}/bin/{{.Dir}}_{{.OS}}_{{.Arch}} #{NAME}'
+    - $: 'gox -output=#{ARC_DIR}/bin/{{.Dir}}_{{.OS}}_{{.Arch}} #{NAME}'
     - copy: 'LICENSE.txt'
       todir: '#{ARC_DIR}/'
-    - 'md2pdf -o #{ARC_DIR}/README.pdf README.md'
-    - 'changelog to markdown > #{BUILD_DIR}/CHANGELOG.md'
-    - 'md2pdf -o #{ARC_DIR}/CHANGELOG.pdf #{BUILD_DIR}/CHANGELOG.md'
+    - $: 'md2pdf -o #{ARC_DIR}/README.pdf README.md'
+    - $: 'changelog to markdown > #{BUILD_DIR}/CHANGELOG.md'
+    - $: 'md2pdf -o #{ARC_DIR}/CHANGELOG.pdf #{BUILD_DIR}/CHANGELOG.md'
     - delete: '#{BUILD_DIR}/CHANGELOG.md'
     - mkdir: '#{ARC_DIR}/doc'
-    - 'md2pdf -o #{ARC_DIR}/doc/quickstart.pdf doc/quickstart.md'
-    - 'md2pdf -o #{ARC_DIR}/doc/reference.pdf doc/reference.md'
+    - $: 'md2pdf -o #{ARC_DIR}/doc/quickstart.pdf doc/quickstart.md'
+    - $: 'md2pdf -o #{ARC_DIR}/doc/reference.pdf doc/reference.md'
     - tar:    '#{NAME}-#{VERSION}/**/*'
       dir:    '#{BUILD_DIR}'
       tofile: '#{BUILD_DIR}/#{NAME}-#{VERSION}.tar.gz'
@@ -83,4 +83,4 @@ targets:
     steps:
     - copy:   'test.yml'
       tofile: '~/misc/shared/build.yml'
-    - 'gox -output=#{WIN_SHARE}/#{NAME} -osarch=windows/386 #{NAME}'
+    - $: 'gox -output=#{WIN_SHARE}/#{NAME} -osarch=windows/386 #{NAME}'

@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"neon/build"
 	"neon/util"
 	"time"
@@ -9,38 +10,56 @@ import (
 func init() {
 	build.TaskMap["time"] = build.TaskDescriptor{
 		Constructor: Time,
-		Help: `Print duration to run a block of steps.
+		Help: `Record duration to run a block of steps.
 
 Arguments:
 
 - time: the steps to measure execution duration.
+- to: the property to store duration in seconds as a float (optional,
+  print duration on console if not set).
 
 Examples:
 
-    # measure duration to say hello
+    # print duration to say hello
     - time:
-      - print: "Hello World!"`,
+      - print: "Hello World!"
+      to: duration
+    - print: 'duration: #{duration}s'`,
 	}
 }
 
 func Time(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"time"}
-	if err := CheckFields(args, fields, fields); err != nil {
+	fields := []string{"time", "to"}
+	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err
 	}
 	steps, err := ParseSteps(target, args, "time")
 	if err != nil {
 		return nil, err
 	}
+	var to string
+	if args.HasField("to") {
+		to, err = args.GetString("to")
+		if err != nil {
+			return nil, fmt.Errorf("argument to of task time must be a string")
+		}
+	}
 	return func() error {
+		_to, _err := target.Build.Context.EvaluateString(to)
+		if _err != nil {
+			return fmt.Errorf("evaluating property: %v", _err)
+		}
 		_start := time.Now()
-		build.Message("Starting timer...")
-		_err := RunSteps(target.Build, steps)
+		_err = RunSteps(target.Build, steps)
 		if _err != nil {
 			return _err
 		}
-		_duration := time.Now().Sub(_start)
-		build.Message("Duration: %s", _duration)
+		_duration := time.Now().Sub(_start).Seconds()
+		if to != "" {
+			target.Build.Context.SetProperty(_to, _duration)
+		} else {
+			build.Message("Duration: %gs", _duration)
+		}
 		return nil
 	}, nil
 }

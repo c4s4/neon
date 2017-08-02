@@ -1,6 +1,23 @@
 Tasks Reference
 ===============
 
+$
+-
+
+Execute a command and return output and value.
+
+Arguments:
+
+- $: command to run.
+- =: name of the variable to store trimed output into (optional, output to
+  console if not set).
+
+Examples:
+
+    # execute ls command and get result in 'files' variable
+    - $: 'ls'
+      =: 'files'
+
 cat
 ---
 
@@ -112,22 +129,6 @@ Examples:
 Notes:
 
 - Handle with care, directories are deleted recursively!
-
-execute
--------
-
-Execute a command and return output and value.
-
-Arguments:
-
-- execute: command to run.
-- output: name of the variable to store trimed output into.
-
-Examples:
-
-    # execute ls command and get result in 'files' variable
-    - execute: 'ls'
-      output:  'files'
 
 for
 ---
@@ -373,34 +374,6 @@ Examples:
     # get google.com
     - request: "google.com"
 
-script
-------
-
-Run an Anko script.
-
-Arguments:
-
-- script: the source of the script to run.
-
-Examples:
-
-    # build a classpath with all jar files in lib directory
-    - script: |
-        strings = import("strings")
-        jars = find("lib", "*.jar")
-        classpath = strings.Join(jars, ":")
-
-Notes:
-
-- The scripting language is Anko, which is a scriptable Go. For more information
-  please refer to Anko site at http://github.com/mattn/anko. Thanks Mattn!
-- Buitlin functions are functions you can access in scripts. To list them, you
-  cas type 'neon -builtins', to get help on a given one, you may type for instance
-  'neon -builtin find'.
-- Properties can be accessed and set in scripts. Variables you define in scripts
-  are readable as properties. In other words, scripts and properties share the
-  same context.
-
 sleep
 -----
 
@@ -480,17 +453,21 @@ Notes:
 time
 ----
 
-Print duration to run a block of steps.
+Record duration to run a block of steps.
 
 Arguments:
 
 - time: the steps to measure execution duration.
+- to: the property to store duration in seconds as a float (optional,
+  print duration on console if not set).
 
 Examples:
 
-    # measure duration to say hello
+    # print duration to say hello
     - time:
       - print: "Hello World!"
+      to: duration
+    - print: 'duration: #{duration}s'
 
 touch
 -----
@@ -885,6 +862,28 @@ Examples:
     // to get date in ISO format
     now()[0:10]
     // returns: "2006-01-02"
+
+older
+-----
+
+Tells if source is older than result file (if any).
+
+Arguments:
+
+- source: source file that must exist.
+- result: result file (may not exist).
+
+Returns:
+
+- A boolean that tells if source is older tha result. If result file doesn't
+  exists, this returns true.
+
+Examples:
+
+    // generate PDF if source Markdown changed
+    if older("source.md", "result.pdf") {
+    	compile("source.md")
+    }
 
 read
 ----
