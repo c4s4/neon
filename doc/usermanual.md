@@ -155,8 +155,8 @@ targets:
 
 [Back to top](#user-manual)
 
-Build file properties
----------------------
+Build properties
+----------------
 
 Build file properties are some sort of build variables. The properties section
 is a map with string keys. For instance:
