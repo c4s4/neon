@@ -111,7 +111,7 @@ targets:
 
   upper:
     steps:
-    - script: 'USER_NAME = uppercase(USER_NAME)'
+    - 'USER_NAME = uppercase(USER_NAME)'
 ```
 
 Which produces following output:
@@ -155,11 +155,11 @@ Anko code or Neon tasks:
 
 #### Shell scripts
 
-To run a shell script, you just have to put it in a string. Thus, to print the
+To run a shell script, you use task named *$*. Thus, to print the
 user's name, we could write:
 
 ```yaml
-- 'echo "Hello $USER!"'
+- $: 'echo "Hello $USER!"'
 ```
 
 Note that we can surround YAML strings with simple or double quotes. We choose
@@ -167,7 +167,7 @@ simple ones here so that we can use double for the Shell string. We could also
 escape double quotes inside YAML string as follows:
 
 ```yaml
-- "echo \"Hello $USER!\""
+- $: "echo \"Hello $USER!\""
 ```
 
 If return value of the script is not *0*, which denotes an error running the
@@ -179,7 +179,7 @@ targets:
 
   broken:
     steps:
-    - 'command-that-doesnt-exist'
+    - $: 'command-that-doesnt-exist'
 ```
 
 Will produce this output on the console:
@@ -198,10 +198,10 @@ targets:
 
   shell:
     steps:
-    - |
-      echo "This is a long"
-      echo "Shell script on"
-      echo "More than one line"
+    - $: |
+         echo "This is a long"
+         echo "Shell script on"
+         echo "More than one line"
 ```
 
 ### Neon tasks
@@ -217,7 +217,7 @@ targets:
 
   copy:
     steps:
-    - copy: "**/*.xml"
+    - copy:  "**/*.xml"
       todir: "build"
 ```
 
@@ -274,29 +274,29 @@ targets:
         - print: "ERROR!"
 ```
 
-### Anko scripts
+### Scripts
 
-An Anko script is indicated with `script` instruction as follows:
+A script is just a simple string, as follows:
 
 ```yaml
 targets:
 
   script:
     steps:
-    - script: 'println("Hello World!")'
+    - 'println("Hello World!")'
 ```
 
-You can also write a long Anko script with the pipe notation:
+You can also write a long script with the pipe notation:
 
 ```yaml
 targets:
 
   script:
     steps:
-    - script: |
-        for i in range(10) {
-          println(i)
-        }
+    - |
+      for i in range(10) {
+        println(i)
+      }
 ```
 
 In addition to Anko builtin functions, Neon adds handy builtins to perform
@@ -326,24 +326,24 @@ files against a schematron and produces an HTML report:
         do:
         - try:
           - print: "- #{file}"
-          - execute: 'jing -C "#{CATALOG}" "src/sch/Ouvrages_v1.sch" "#{DEST_DIR}/#{encyclo}/#{file}"'
-            output:  'output'
+          - $: 'jing -C "#{CATALOG}" "src/sch/Ouvrages_v1.sch" "#{DEST_DIR}/#{encyclo}/#{file}"'
+            =:  'output'
           catch:
-          - script: 'errors[file] = output'
+          - 'errors[file] = output'
       - if: 'len(keys(errors)) > 0'
         then:
-        - script: |
-            sort = import("sort")
-            report = "# Validation Schematron des Encyclopedies\n\n"
-            files = sort.Strings(keys(errors))
-            for file in files {
-              report += "### " + file + "\n\n```\n"
-              report += errors[file]
-              report += "\n```\n\n"
-            }
+        - |
+          sort = import("sort")
+          report = "# Validation Schematron des Encyclopedies\n\n"
+          files = sort.Strings(keys(errors))
+          for file in files {
+            report += "### " + file + "\n\n```\n"
+            report += errors[file]
+            report += "\n```\n\n"
+          }
         - write: '#{BUILD_DIR}/#{encyclo}.md'
           from:  'report'
-        - 'pandoc -f markdown -t html "#{BUILD_DIR}/#{encyclo}.md" > "#{BUILD_DIR}/#{encyclo}.html"'
+        - $: 'pandoc -f markdown -t html "#{BUILD_DIR}/#{encyclo}.md" > "#{BUILD_DIR}/#{encyclo}.html"'
 
 ```
 
@@ -376,7 +376,7 @@ targets:
       in:  find("data", "*.xml")
       do:
       - print: "Validating #{file}..."
-      - 'xmllint --noout --valid data/#{file}'
+      - $: 'xmllint --noout --valid data/#{file}'
 ```
 
 You can also document the whole build putting a `doc` entry at the root of the
