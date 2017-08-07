@@ -338,7 +338,7 @@ func (build *Build) Install(plugin string) error {
 		return nil
 	}
 	absolute := util.ExpandUserHome(path)
-	repo := "git@github.com:" + plugin + ".git"
+	repo := "git://github.com/" + plugin + ".git"
 	command := exec.Command("git", "clone", repo, absolute)
 	Message("Running command '%s'...", strings.Join(command.Args, " "))
 	output, err := command.CombinedOutput()
