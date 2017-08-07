@@ -18,6 +18,20 @@ Examples:
     - $: 'ls'
       =: 'files'
 
+assert
+------
+
+Make an assertion and fail if assertion condition is false.
+
+Arguments:
+
+- assert: the assertion to perform (as a script expression).
+
+Examples:
+
+    # assert that foo == "bar", and fail otherwize
+    - assert: 'foo == "bar"'
+
 cat
 ---
 
@@ -381,12 +395,14 @@ Sleep a given number of seconds.
 		
 Arguments:
 
-- sleep: the duration to sleep in seconds as an integer.
+- sleep: the duration to sleep in seconds as a float or integer.
 
 Examples:
 
-    # sleep for 10 seconds
-    - sleep: 10
+    # sleep for 1.5 seconds
+    - sleep: 1.5
+    # sleep for 3 seconds
+    - sleep: 3
 
 super
 -----
