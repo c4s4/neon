@@ -13,6 +13,15 @@ Download latest binary archive at <https://github.com/c4s4/neon/releases>. Unzip
 the archive, put the binary of your platform somewhere in your *PATH* and rename
 it *neon*.
 
+Unix users can add Bash completion putting file *bash/neon* in
+*/etc/bash_completion.d/* directory and adding line
+`. /etc/bash_completion.d/neon` in your *~/.bashrc* file. This will enable
+following completions:
+
+- Typing `neon ` and hitting TAB will complete on build targets.
+- Typing `neon -task ` and hitting TAB will complete on tasks.
+- Typing `neon -builtin ` and hitting TAB will complete on builtins.
+
 Documentation
 -------------
 
