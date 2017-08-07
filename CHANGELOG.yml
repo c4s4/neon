@@ -13,6 +13,7 @@
   - "Added sections in user manual."
   fixed:
   - "Fixed property evaluation bug (see 'test/bug-1.yml' build file)."
+  - "Fixed plugin installation from github."
 
 - version: 0.8.0
   date:    2017-07-20

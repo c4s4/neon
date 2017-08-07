@@ -88,6 +88,6 @@ targets:
   win:
     doc: 'Test integration build file on Windows'
     steps:
-    - copy:   'test.yml'
-      tofile: '~/misc/shared/build.yml'
+    - copy:  'test/*.yml'
+      todir: '~/misc/shared/'
     - $: 'gox -output=#{WIN_SHARE}/#{NAME} -osarch=windows/386 #{NAME}'
