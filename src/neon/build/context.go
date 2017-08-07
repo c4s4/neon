@@ -117,7 +117,8 @@ func (context *Context) EvaluateExpression(source string) (interface{}, error) {
 	return util.ValueToInterface(value), nil
 }
 
-// Evaluate a given object
+// Evaluate a given object, that is replace '#{foo}' in strings with the value
+// of property foo
 func (context *Context) EvaluateObject(object interface{}) (interface{}, error) {
 	switch value := object.(type) {
 	case string:
@@ -176,24 +177,30 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 // Evaluate a string by replacing '#{foo}' with value of property foo
 func (context *Context) EvaluateString(text string) (string, error) {
 	r := regexp.MustCompile(`#{.*?}`)
-	var err error
+	var errors []error
 	replaced := r.ReplaceAllStringFunc(text, func(expression string) string {
 		name := expression[2 : len(expression)-1]
 		var value interface{}
-		value, err = context.EvaluateExpression(name)
+		value, err := context.EvaluateExpression(name)
 		if err != nil {
+			errors = append(errors, err)
 			return ""
 		} else {
 			var str string
 			str, err = PropertyToString(value, false)
 			if err != nil {
+				errors = append(errors, err)
 				return ""
 			} else {
 				return str
 			}
 		}
 	})
-	return replaced, err
+	if len(errors) > 0 {
+		return replaced, errors[0]
+	} else {
+		return replaced, nil
+	}
 }
 
 // Evaluate environment in context and return it as a slice of strings

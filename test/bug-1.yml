@@ -1,0 +1,14 @@
+default: test
+
+properties:
+  foo: 'foo'
+  bar: 'bar'
+  baz: '#{foo} #{bar}'
+
+targets:
+
+  test:
+    steps:
+    - assert: 'foo == "foo"'
+    - assert: 'bar == "bar"'
+    - assert: 'baz == "foo bar"'
