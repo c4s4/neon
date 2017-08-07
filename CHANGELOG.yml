@@ -1,8 +1,8 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
 - version: 0.9.0
-  date:    2017-08-03
-  summary: Removed script task and added $ task
+  date:    2017-08-07
+  summary: Script and shell task refactoring
   changed:
   - "Removed 'script' task: scripts are written in quotes and shell commands
      run with the $ task."
@@ -11,6 +11,8 @@
   - "Added older() builtin function."
   - "Added assert task."
   - "Added sections in user manual."
+  fixed:
+  - "Fixed property evaluation bug (see 'test/bug-1.yml' build file)."
 
 - version: 0.8.0
   date:    2017-07-20
