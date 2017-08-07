@@ -169,6 +169,7 @@ targets:
   builtin_older:
     doc: Test the older builtin function
     steps:
+    - delete: '#{BUILD_DIR}/older'
     - mkdir: '#{BUILD_DIR}/older'
     - touch: '#{BUILD_DIR}/older/source'
     - touch: '#{BUILD_DIR}/older/result'

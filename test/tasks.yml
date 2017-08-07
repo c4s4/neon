@@ -46,6 +46,21 @@ targets:
           println("$ test success")
         }
 
+  task_assert:
+    doc: Test task assert
+    steps:
+    - assert: 'true'
+    - 'success = true'
+    - try:
+      - assert: 'false'
+      - 'success = false'
+    - if: '!success'
+      then:
+      - throw: 'Assert test failure'
+      else:
+      - print: 'Assert test success'
+
+
   task_cat:
     doc: Test task cat
     steps:
@@ -297,6 +312,7 @@ targets:
   task_sleep:
     doc: Test task sleep
     steps:
+    - sleep: 0.1
     - sleep: 1
 
   task_tar:

@@ -18,10 +18,14 @@ properties:
 targets:
 
   integ:
-    doc: 'Run an integration test on a build file'
+    doc: 'Run integration tests'
     steps:
-    - print: "Running integration test in build file 'test.yml'"
-    - $: 'bin/neon -file test.yml'
+    - print: "Running integration tests"
+    - for: 'file'
+      in:  'find("test", "*.yml")'
+      do:
+      - print: 'Running build file "#{file}"'
+      - $: 'bin/neon -file "test/#{file}"'
 
   version:
     doc: 'Generate version file'
