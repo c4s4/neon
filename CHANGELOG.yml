@@ -8,7 +8,8 @@
      run with the $ task."
   - "Replaced '-build' option with '-info' to get information about the build."
   added:
-  - "Added older builtin function."
+  - "Added older() builtin function."
+  - "Added assert task."
   - "Added sections in user manual."
 
 - version: 0.8.0
