@@ -1,14 +1,14 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
 - version: 0.9.0
-  date:    2017-08-07
+  date:    2017-08-08
   summary: Script and shell task refactoring
   changed:
   - "Removed 'script' task: scripts are written in quotes and shell commands
      run with the $ task."
   - "Replaced '-build' option with '-info' to get information about the build."
   added:
-  - "Added older() builtin function."
+  - "Added older() and dotexe() builtin functions."
   - "Added assert task."
   - "Added sections in user manual."
   fixed:
