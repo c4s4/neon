@@ -613,6 +613,25 @@ Examples:
     dir = directory("/foo/bar/spam.txt")
     // returns: "/foo/bar"
 
+dotexe
+------
+
+Add '.exe' extension or not depending on platform.
+
+Arguments:
+
+- The command to process.
+
+Returns:
+
+- Command with '.exe' added (on Windows) or not (on Unix).
+
+Examples:
+
+    // run command foo on windows and linux
+    run(dotexe("foo"))
+    // runs 'foo.exe' on windows and 'foo' on unix
+
 escapeurl
 ---------
 
