@@ -20,7 +20,7 @@ Returns:
 
 Examples:
 
-    // run command foo on windows nd linux
+    // run command foo on windows and linux
     run(dotexe("foo"))
     // runs 'foo.exe' on windows and 'foo' on unix`,
 	}
