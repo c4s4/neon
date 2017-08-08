@@ -1,6 +1,7 @@
 doc: Built file to test builds
 default:
 - builtin_directory
+- builtin_dotexe
 - builtin_escapeurl
 - builtin_exists
 - builtin_expand
@@ -37,6 +38,19 @@ targets:
       } else {
         println("Directory test success")
       }
+
+  builtin_dotexe:
+    doc: Test the dotexe builtin function
+    steps:
+    - |
+      result = dotexe("foo")
+      if _OS == "windows" && result != "foo.exe" {
+        throw("Dotexe test failure")
+      }
+      if _OS != "windows" && result != "foo" {
+        throw("Dotexe test failure")
+      }
+      println("Dotexe test success")
 
   builtin_escapeurl:
     doc: Test the escapeurl builtin function
