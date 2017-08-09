@@ -1,7 +1,6 @@
 doc: Built file to test builds
 default:
 - builtin_directory
-- builtin_dotexe
 - builtin_escapeurl
 - builtin_exists
 - builtin_expand
@@ -18,6 +17,7 @@ default:
 - builtin_throw
 - builtin_unescapeurl
 - builtin_uppercase
+- builtin_winexe
 
 properties:
   BUILD_DIR: "../build"
@@ -38,19 +38,6 @@ targets:
       } else {
         println("Directory test success")
       }
-
-  builtin_dotexe:
-    doc: Test the dotexe builtin function
-    steps:
-    - |
-      result = dotexe("foo")
-      if _OS == "windows" && result != "foo.exe" {
-        throw("Dotexe test failure")
-      }
-      if _OS != "windows" && result != "foo" {
-        throw("Dotexe test failure")
-      }
-      println("Dotexe test success")
 
   builtin_escapeurl:
     doc: Test the escapeurl builtin function
@@ -281,3 +268,23 @@ targets:
       } else {
         println("Uppercase test success")
       }
+
+  builtin_winexe:
+    doc: Test the winexe builtin function
+    steps:
+    - |
+      result = winexe("foo")
+      if _OS == "windows" && result != "foo.exe" {
+        throw("Winexe test failure")
+      }
+      if _OS != "windows" && result != "foo" {
+        throw("Winexe test failure")
+      }
+      result = winexe("foo.sh")
+      if _OS == "windows" && result != "foo.bat" {
+        throw("Winexe test failure")
+      }
+      if _OS != "windows" && result != "foo.sh" {
+        throw("Winexe test failure")
+      }
+      println("Winexe test success")

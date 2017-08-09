@@ -8,7 +8,7 @@
      run with the $ task."
   - "Replaced '-build' option with '-info' to get information about the build."
   added:
-  - "Added older() and dotexe() builtin functions."
+  - "Added older() and winexe() builtin functions."
   - "Added assert task."
   - "Added sections in user manual."
   fixed:
