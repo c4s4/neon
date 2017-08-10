@@ -373,7 +373,7 @@ Perform an HTTP request.
 Arguments:
 
 - method: the request method (GET, POST, etc), defaults to "GET".
-- headers: request headers as a map
+- headers: request headers as an anko map.
 - body: the request body as a string.
 - file: the request body as a file.
 - status: expected status code, on error if different (defaults to 200).
