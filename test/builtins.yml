@@ -9,6 +9,7 @@ default:
 - builtin_find
 - builtin_join
 - builtin_joinpath
+- builtin_list
 - builtin_lowercase
 - builtin_now
 - builtin_older
@@ -141,6 +142,23 @@ targets:
         throw("Joinpath test failure")
       } else {
         println("Joinpath test success")
+      }
+
+  builtin_list:
+    doc: Test the list builtin function
+    steps:
+    - |
+      l = list("foo")
+      if len(l) != 1 || l[0] != "foo" {
+        throw("List test failure")
+      } else {
+        println("List test success")
+      }
+      l = list(["foo"])
+      if len(l) != 1 || l[0] != "foo" {
+        throw("List test failure")
+      } else {
+        println("List test success")
       }
 
   builtin_lowercase:
