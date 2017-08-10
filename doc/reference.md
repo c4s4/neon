@@ -613,25 +613,6 @@ Examples:
     dir = directory("/foo/bar/spam.txt")
     // returns: "/foo/bar"
 
-dotexe
-------
-
-Add '.exe' extension or not depending on platform.
-
-Arguments:
-
-- The command to process.
-
-Returns:
-
-- Command with '.exe' added (on Windows) or not (on Unix).
-
-Examples:
-
-    // run command foo on windows and linux
-    run(dotexe("foo"))
-    // runs 'foo.exe' on windows and 'foo' on unix
-
 escapeurl
 ---------
 
@@ -857,6 +838,27 @@ Examples:
     keys({"foo": 1, "bar": 2})
     // returns: ["foo", "bar"]
 
+list
+----
+
+Return a list:
+- If the object is already a list, return the object.
+- If the object is not a list, wrap it into a list.
+
+Arguments:
+
+- The object to turn into a list.
+
+Returns:
+
+- The list.
+
+Examples:
+
+    // get a list of foo
+    list(foo)
+	// return foo if already a list or [foo] otherwise
+
 lowercase
 ---------
 
@@ -1036,4 +1038,28 @@ Examples:
     // set string in upper case
     uppercase("FooBAR")
     // returns: "FOOBAR"
+
+winexe
+------
+
+Add '.exe' or '.bat' extensions depending on platform:
+- command will stay command on Unix and will become command.exe on Windows.
+- script.sh will stay script.sh on Unix and will become script.bat on Windows.
+
+Arguments:
+
+- The command to process.
+
+Returns:
+
+- Command adapted to host system.
+
+Examples:
+
+    // run command foo on unix and windows
+    run(winexe("foo"))
+    // will run foo on unix and foo.exe on windows
+    // run script script.sh unix and windows
+    run(winexe("script.sh"))
+    // will run script.sh on unix and script.bat on windows
 
