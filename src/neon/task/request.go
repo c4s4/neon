@@ -23,7 +23,7 @@ func init() {
 Arguments:
 
 - method: the request method (GET, POST, etc), defaults to "GET".
-- headers: request headers as a map
+- headers: request headers as an anko map.
 - body: the request body as a string.
 - file: the request body as a file.
 - status: expected status code, on error if different (defaults to 200).
@@ -56,11 +56,11 @@ func Request(target *build.Target, args util.Object) (build.Task, error) {
 			return nil, fmt.Errorf("argument method of task request must be a string")
 		}
 	}
-	var headers map[string]string
+	var headers string
 	if args.HasField("headers") {
-		headers, err = args.GetMapStringString("headers")
+		headers, err = args.GetString("headers")
 		if err != nil {
-			return nil, fmt.Errorf("argument headers of task request must be a map of strings strings")
+			return nil, fmt.Errorf("argument headers of task request must be a string")
 		}
 	}
 	var body string
@@ -111,17 +111,13 @@ func Request(target *build.Target, args util.Object) (build.Task, error) {
 		if _err != nil {
 			return fmt.Errorf("evaluating method: %v", _err)
 		}
-		_headers := make(map[string]string)
-		for name, value := range headers {
-			_name, _err := target.Build.Context.EvaluateString(name)
-			if _err != nil {
-				return fmt.Errorf("evaluating headers: %v", _err)
-			}
-			_value, _err := target.Build.Context.EvaluateString(value)
-			if _err != nil {
-				return fmt.Errorf("evaluating headers: %v", _err)
-			}
-			_headers[_name] = _value
+		_result, _err := target.Build.Context.EvaluateExpression(headers)
+		if _err != nil {
+			return fmt.Errorf("evaluating headers: %v", _err)
+		}
+		_headers, _err := util.ToMapStringString(_result)
+		if _err != nil {
+			return fmt.Errorf("evaluating headers: %v", _err)
 		}
 		_str, _err := target.Build.Context.EvaluateString(body)
 		if _err != nil {

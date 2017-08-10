@@ -23,6 +23,21 @@ func ToList(object interface{}) ([]interface{}, error) {
 	}
 }
 
+// Return interface as a map with string keys and values
+func ToMapStringString(object interface{}) (map[string]string, error) {
+	value := reflect.ValueOf(object)
+	if value.Kind() != reflect.Map {
+		return nil, fmt.Errorf("object is not a map")
+	}
+	result := make(map[string]string)
+	for _, key := range value.MapKeys() {
+		keyString := key.Interface().(string)
+		valueString := value.MapIndex(key).Interface().(string)
+		result[keyString] = valueString
+	}
+	return result, nil
+}
+
 // Return a reflect.Value as an interface
 func ValueToInterface(value reflect.Value) interface{} {
 	if value.IsValid() {
