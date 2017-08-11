@@ -10,7 +10,7 @@
   added:
   - "Added older(), winexe(), list(), unixpath(), windowspath() and ospath()
      builtin functions."
-  - "Added assert task."
+  - "Added assert, unzip and untar tasks."
   - "Added sections in user manual."
   fixed:
   - "Fixed property evaluation bug (see 'test/bug-1.yml' build file)."

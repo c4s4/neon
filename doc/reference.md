@@ -536,6 +536,43 @@ Notes:
 
 - The error message for the failure is stored in '_error' variable as text.
 
+untar
+-----
+
+Expand a tar file in a directory.
+
+Arguments:
+
+- untar: the tar file to expand.
+- todir: the destination directory.
+
+Examples:
+
+    # untar foo.tar to build directory
+    - untar: "foo.tar"
+      todir: "build"
+
+Notes:
+
+- If archive filename ends with gz (with a name such as foo.tar.gz or foo.tgz)
+  the tar archive is uncompressed with gzip.
+
+unzip
+-----
+
+Expand a zip file in a directory.
+
+Arguments:
+
+- unzip: the zip file to expand.
+- todir: the destination directory.
+
+Examples:
+
+    # unzip foo.zip to build directory
+    - untar: "foo.zip"
+      todir: "build"
+
 while
 -----
 
