@@ -922,6 +922,25 @@ Examples:
     	compile("source.md")
     }
 
+ospath
+------
+
+Convert path to running OS.
+
+Arguments:
+
+- The path to convert.
+
+Returns:
+
+- The converted path.
+
+Examples:
+
+    // convert path foo/bar to OS format
+    path = ospath("foo/bar")
+    // will return foo/bar on Unix and foo\bar on Windows
+
 read
 ----
 
@@ -1020,6 +1039,25 @@ Examples:
     escapeurl("foo%!b(MISSING)ar")
     // returns: "foo bar"
 
+unixpath
+--------
+
+Convert a path to Unix format.
+
+Arguments:
+
+- The path to convert.
+
+Returns:
+
+- The converted path.
+
+Examples:
+
+    // convert path to unix
+    uppercase("c:\foo\bar")
+    // returns: "/c/foo/bar"
+
 uppercase
 ---------
 
@@ -1039,12 +1077,32 @@ Examples:
     uppercase("FooBAR")
     // returns: "FOOBAR"
 
+windowspath
+-----------
+
+Convert a path to Windows format.
+
+Arguments:
+
+- The path to convert.
+
+Returns:
+
+- The converted path.
+
+Examples:
+
+    // convert path to windows
+    uppercase("/c/foo/bar")
+    // returns: "c:\foo\bar"
+
 winexe
 ------
 
 Add '.exe' or '.bat' extensions depending on platform:
 - command will stay command on Unix and will become command.exe on Windows.
 - script.sh will stay script.sh on Unix and will become script.bat on Windows.
+It will also replace / with \ in the executable path.
 
 Arguments:
 
@@ -1057,8 +1115,8 @@ Returns:
 Examples:
 
     // run command foo on unix and windows
-    run(winexe("foo"))
-    // will run foo on unix and foo.exe on windows
+    run(winexe("bin/foo"))
+    // will run bin/foo on unix and bin\foo.exe on windows
     // run script script.sh unix and windows
     run(winexe("script.sh"))
     // will run script.sh on unix and script.bat on windows

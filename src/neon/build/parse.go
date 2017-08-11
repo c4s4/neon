@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"neon/util"
+	"runtime"
 )
 
 // Parse singleton field of the build
@@ -17,6 +18,24 @@ func ParseSingleton(object util.Object, build *Build) error {
 			return fmt.Errorf("another instance of the build is already running")
 		}
 		build.Singleton = port
+	}
+	return nil
+}
+
+// Parse shell field of the build
+func ParseShell(object util.Object, build *Build) error {
+	if object.HasField("shell") {
+		shell, err := object.GetListStrings("shell")
+		if err != nil {
+			return fmt.Errorf("getting shell interpreter: %v", err)
+		}
+		build.Shell = shell
+	} else {
+		if runtime.GOOS == "windows" {
+			build.Shell = []string{"cmd", "/c"}
+		} else {
+			build.Shell = []string{"sh", "-c"}
+		}
 	}
 	return nil
 }

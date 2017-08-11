@@ -16,6 +16,8 @@ const (
 	DEFAULT_BUILD_FILE = "build.yml"
 )
 
+var VERSION string
+
 // Parse command line and return parsed options
 func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, string, bool, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
