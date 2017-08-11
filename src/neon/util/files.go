@@ -8,6 +8,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"strings"
+	"regexp"
 )
 
 const (
@@ -163,4 +164,28 @@ func ExpandAndJoinToRoot(root, path string) string {
 	} else {
 		return filepath.Join(root, path)
 	}
+}
+
+// Turn a path to Unix format
+func PathToUnix(path string) string {
+	// replace path separator \ with /
+	path = strings.Replace(path, "\\", "/", -1)
+	// replace c: with /c
+	r := regexp.MustCompile("^[A-Za-z]:.*$")
+	if r.MatchString(path) {
+		path = "/" + path[0:1] + path[2:]
+	}
+	return path
+}
+
+// Turn a path to Windows format
+func PathToWindows(path string) string {
+	// replace path separator / with \
+	path = strings.Replace(path, "/", "\\", -1)
+	// replace /c/ with c:/
+	r := regexp.MustCompile(`^\\[A-Za-z]\\.*$`)
+	if r.MatchString(path) {
+		path = path[1:2] + ":" + path[2:]
+	}
+	return path
 }
