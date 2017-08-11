@@ -18,7 +18,7 @@ default:
 - task_replace
 - task_script
 - task_sleep
-- task_tar
+- task_tar_untar
 - task_throw
 - task_time
 - task_touch
@@ -315,8 +315,8 @@ targets:
     - sleep: 0.1
     - sleep: 1
 
-  task_tar:
-    doc: Tast task tar
+  task_tar_untar:
+    doc: Test tasks tar and untar
     steps:
     - mkdir: "#{BUILD_DIR}/tar/foo"
     - touch:
@@ -326,7 +326,15 @@ targets:
       dir: "#{BUILD_DIR}/tar"
       prefix: "bar"
       tofile: "#{BUILD_DIR}/tar/test.tar.gz"
-    - print: "Tar test success"
+    - delete: "#{BUILD_DIR}/tar/foo"
+    - untar: "#{BUILD_DIR}/tar/test.tar.gz"
+      todir: "#{BUILD_DIR}/tar"
+    - delete: "#{BUILD_DIR}/tar/test.tar.gz"
+    - if: '!exists(joinpath(BUILD_DIR, "tar", "bar", "foo", "eggs.txt")) ||
+           !exists(joinpath(BUILD_DIR, "tar", "bar", "foo", "spam.txt"))'
+      then:
+      - throw: 'Tar/Untar test failure'
+    - print: "Tar/Untar test success"
 
   task_throw:
     doc: Test task throw
@@ -442,7 +450,7 @@ targets:
       }
       println("Write test sucess")
 
-  task_zip:
+  task_zip_unzip:
     doc: Test task zip
     steps:
     - mkdir: "#{BUILD_DIR}/zip/foo"
@@ -453,4 +461,12 @@ targets:
       dir: "#{BUILD_DIR}/zip"
       prefix: "bar"
       tofile: "#{BUILD_DIR}/zip/test.zip"
+    - delete: "#{BUILD_DIR}/zip/foo"
+    - unzip: "#{BUILD_DIR}/zip/test.zip"
+      todir: "#{BUILD_DIR}/zip"
+    - delete: "#{BUILD_DIR}/zip/test.zip"
+    - if: '!exists(joinpath(BUILD_DIR, "zip", "bar", "foo", "eggs.txt")) ||
+           !exists(joinpath(BUILD_DIR, "zip", "bar", "foo", "spam.txt"))'
+      then:
+      - throw: 'Zip/Unzip test failure'
     - print: "Zip test success"
