@@ -6,7 +6,6 @@ import (
 	"neon/util"
 	"os"
 	"os/exec"
-	"runtime"
 	"strings"
 )
 
@@ -55,11 +54,10 @@ func Shell(target *build.Target, args util.Object) (build.Task, error) {
 			return fmt.Errorf("processing output argument: %v", _err)
 		}
 		var _command *exec.Cmd
-		if runtime.GOOS == "windows" {
-			_command = exec.Command("cmd.exe", "/C", _shell)
-		} else {
-			_command = exec.Command("sh", "-c", _shell)
-		}
+		_binary := target.Build.Shell[0]
+		_arguments := target.Build.Shell[1:]
+		_arguments = append(_arguments, _shell)
+		_command = exec.Command(_binary, _arguments...)
 		_dir, _err := os.Getwd()
 		if _err != nil {
 			return fmt.Errorf("getting current working directory: %v", _err)
