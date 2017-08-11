@@ -27,23 +27,12 @@ targets:
       - print: 'Running build file "#{file}"'
       - $: 'bin/neon -file "test/#{file}"'
 
-  version:
-    doc: 'Generate version file'
-    steps:
-    - print: 'Generating version source file'
-    - write: 'src/neon/version.go'
-      text:  |
-        package main
-
-        var VERSION = "#{VERSION}"
-
   bin:
     doc: 'Build neon binary'
-    depends: version
     steps:
     - print: "Building neon binary in 'bin/neon'"
     - delete: 'bin/neon'
-    - $: 'go install #{NAME}'
+    - $: 'go install -ldflags "-X main.VERSION=#{VERSION}" #{NAME}'
 
   refs:
     doc: 'Generate reference documentation for tasks and builtins'
@@ -59,10 +48,9 @@ targets:
 
   archive:
     doc: 'Generate distribution archive'
-    depends: version
     steps:
     - mkdir: '#{ARC_DIR}/bin/'
-    - $: 'gox -output=#{ARC_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}} #{NAME}'
+    - $: 'gox -ldflags "-X main.VERSION=#{VERSION}" -output=#{ARC_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}} #{NAME}'
     - copy: 'LICENSE.txt'
       todir: '#{ARC_DIR}/'
     - $: 'md2pdf -o #{ARC_DIR}/README.pdf README.md'
