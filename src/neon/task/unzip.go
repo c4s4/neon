@@ -54,6 +54,7 @@ func Unzip(target *build.Target, args util.Object) (build.Task, error) {
 		}
 		_file = util.ExpandUserHome(_file)
 		_todir = util.ExpandUserHome(_todir)
+		build.Message("Unzipping archive '%s' to directory '%s'...", _file, _todir)
 		_err = UnzipFile(_file, _todir)
 		if _err != nil {
 			return fmt.Errorf("expanding archive: %v", _err)
