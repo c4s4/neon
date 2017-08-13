@@ -1,6 +1,4 @@
 language: go
-env:
-- GOPATH=`pwd`
 install:
 - go get gopkg.in/yaml.v2
 - go get github.com/mattn/anko
@@ -8,4 +6,4 @@ install:
 - go get github.com/fatih/color
 - go get github.com/mitchellh/gox
 script:
-- go test neon
+- go test neon/...
