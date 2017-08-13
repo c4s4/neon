@@ -1,6 +1,4 @@
 language: go
-env:
-- GOPATH=`pwd`
 install:
 - go get gopkg.in/yaml.v2
 - go get github.com/mattn/anko
