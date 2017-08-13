@@ -5,3 +5,5 @@ install:
 - go get github.com/mattn/go-zglob
 - go get github.com/fatih/color
 - go get github.com/mitchellh/gox
+script:
+- go test neon
