@@ -1,11 +1,10 @@
 package builtin
 
 import (
+	"neon/util"
 	"testing"
 )
 
 func TestDirectory(t *testing.T) {
-	if Directory("/foo/bar/spam.txt") != "/foo/bar" {
-		t.Errorf("Error builtin directory")
-	}
+	util.Assert(Directory("/foo/bar/spam.txt"), "/foo/bar", t)
 }
