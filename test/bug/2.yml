@@ -1,0 +1,17 @@
+default: test
+
+properties:
+  FOO: 'foo'
+
+environment:
+  FOO: '#{FOO}'
+
+targets:
+
+  test:
+    steps:
+    - $: 'echo $FOO'
+      =: 'result'
+    - if: 'result != "foo"'
+      then:
+      - throw: 'Environment evaluation failed'
