@@ -1,0 +1,20 @@
+doc: Built file to test tasks
+default: task_throw
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_throw:
+    doc: Test task throw
+    steps:
+    - 'error = ""'
+    - try:
+      - throw: 'This is a test'
+      catch:
+      - if: '_error == "This is a test"'
+        then:
+        - print: 'Throw task test success'
+        else:
+        - throw: "Throw task test failure"

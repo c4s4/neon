@@ -1,0 +1,21 @@
+doc: Built file to test builds
+default: builtin_read
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_read:
+    doc: Test read builtin function
+    steps:
+    - mkdir: "#{BUILD_DIR}/read"
+    - write: "#{BUILD_DIR}/read/test.txt"
+      text:  "Hello World!"
+    - |
+      text = read(joinpath(BUILD_DIR, "read", "test.txt"))
+      if text != "Hello World!" {
+        throw("Read test failure")
+      } else {
+        println("Read test success")
+      }

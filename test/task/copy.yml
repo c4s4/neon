@@ -1,0 +1,27 @@
+doc: Built file to test tasks
+default: task_copy
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_copy:
+    doc: Test task copy
+    steps:
+    - mkdir: "#{BUILD_DIR}/copy/src"
+    - mkdir: "#{BUILD_DIR}/copy/dst"
+    - touch:
+      - "#{BUILD_DIR}/copy/src/foo.txt"
+      - "#{BUILD_DIR}/copy/src/bar.txt"
+    - copy:    "**/*.txt"
+      dir:     "#{BUILD_DIR}/copy/src"
+      exclude: "**/bar*"
+      todir:   "#{BUILD_DIR}/copy/dst"
+    - |
+      files = toString(find(BUILD_DIR, "copy/dst/*"))
+      if files != "[copy/dst/foo.txt]" {
+        throw("ERROR: " + files)
+      } else {
+        println("Copy test success")
+      }

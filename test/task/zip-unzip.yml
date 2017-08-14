@@ -1,0 +1,28 @@
+doc: Built file to test tasks
+default: task_zip_unzip
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_zip_unzip:
+    doc: Test task zip
+    steps:
+    - mkdir: "#{BUILD_DIR}/zip/foo"
+    - touch:
+      - "#{BUILD_DIR}/zip/foo/spam.txt"
+      - "#{BUILD_DIR}/zip/foo/eggs.txt"
+    - zip: "**/*.txt"
+      dir: "#{BUILD_DIR}/zip"
+      prefix: "bar"
+      tofile: "#{BUILD_DIR}/zip/test.zip"
+    - delete: "#{BUILD_DIR}/zip/foo"
+    - unzip: "#{BUILD_DIR}/zip/test.zip"
+      todir: "#{BUILD_DIR}/zip"
+    - delete: "#{BUILD_DIR}/zip/test.zip"
+    - if: '!exists(joinpath(BUILD_DIR, "zip", "bar", "foo", "eggs.txt")) ||
+           !exists(joinpath(BUILD_DIR, "zip", "bar", "foo", "spam.txt"))'
+      then:
+      - throw: 'Zip/Unzip test failure'
+    - print: "Zip test success"

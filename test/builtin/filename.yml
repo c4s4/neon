@@ -1,0 +1,18 @@
+doc: Built file to test builds
+default: builtin_filename
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_filename:
+    doc: Test the filename builtin function
+    steps:
+    - |
+      file = filename("/foo/bar/spam.txt")
+      if file != "spam.txt" {
+        throw("Filename test failure")
+      } else {
+        println("Filename test success")
+      }

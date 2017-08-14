@@ -1,0 +1,18 @@
+doc: Built file to test builds
+default: builtin_split
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_split:
+    doc: Test split builtin function
+    steps:
+    - |
+      s = split("foo bar", " ")
+      if len(s) != 2 || s[0] != "foo" || s[1] != "bar" {
+        throw("ERROR split '"+s+"'")
+      } else {
+        println("Split test success")
+      }

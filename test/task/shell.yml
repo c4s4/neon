@@ -1,0 +1,21 @@
+doc: Built file to test tasks
+default: task_$
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_$:
+    doc: Test task $
+    steps:
+    - if: '_OS != "windows"'
+      then:
+      - $: 'echo "TEST"'
+        =: 'result'
+      - |
+        if result != "TEST" {
+          throw("$ test failure")
+        } else {
+          println("$ test success")
+        }

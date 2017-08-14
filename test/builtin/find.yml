@@ -1,0 +1,22 @@
+doc: Built file to test builds
+default: builtin_find
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_find:
+    doc: Test the find builtin function
+    steps:
+    - mkdir: "#{BUILD_DIR}/find/spam"
+    - touch:
+      - "#{BUILD_DIR}/find/foo"
+      - "#{BUILD_DIR}/find/spam/bar"
+    - |
+      files = toString(find(BUILD_DIR+"/find", "**/*"))
+      if files != "[foo spam spam/bar]" {
+        throw("ERROR: " + files)
+      } else {
+        println("Find test success")
+      }

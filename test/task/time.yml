@@ -1,0 +1,18 @@
+doc: Built file to test tasks
+default: task_time
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_time:
+    doc: Test task time
+    steps:
+    - time:
+      - pass:
+    - time:
+      - pass:
+      to: duration
+    - print: 'duration: #{duration}s'
+    - print: "Time test success"

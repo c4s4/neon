@@ -1,0 +1,18 @@
+doc: Built file to test builds
+default: builtin_lowercase
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_lowercase:
+    doc: Test the lowercase builtin function
+    steps:
+    - |
+      upper = lowercase("TEST")
+      if upper != "test" {
+        throw("Lowercase test failure")
+      } else {
+        println("Lowercase test success")
+      }

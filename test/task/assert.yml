@@ -1,0 +1,21 @@
+doc: Built file to test tasks
+default: task_assert
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_assert:
+    doc: Test task assert
+    steps:
+    - assert: 'true'
+    - 'success = true'
+    - try:
+      - assert: 'false'
+      - 'success = false'
+    - if: '!success'
+      then:
+      - throw: 'Assert test failure'
+      else:
+      - print: 'Assert test success'

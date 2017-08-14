@@ -1,0 +1,22 @@
+doc: Built file to test builtin directory
+default: builtin_directory
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_directory:
+    doc: Test the directory builtin function
+    steps:
+    - |
+      actual = directory("/foo/bar/spam.txt")
+      expected = "/foo/bar"
+      if _OS == "windows" {
+        expected = `\foo\bar`
+      }
+      if actual != expected {
+        throw("Directory test failure")
+      } else {
+        println("Directory test success")
+      }

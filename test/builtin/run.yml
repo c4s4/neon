@@ -1,0 +1,22 @@
+doc: Built file to test builds
+default: builtin_run
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_run:
+    doc: Test run builtin function
+    steps:
+    - if: '_OS != "windows"'
+      then:
+      - |
+        regexp = import("regexp")
+        n = run("date", "--iso-8601")
+        match, err = regexp.MatchString(`\d\d\d\d-\d\d-\d\d`, n)
+        if !match || err != nil {
+          throw("ERROR run '"+n+"'")
+        } else {
+          println("Run test success")
+        }

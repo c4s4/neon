@@ -1,0 +1,18 @@
+doc: Built file to test builds
+default: builtin_join
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_join:
+    doc: Test the join builtin function
+    steps:
+    - |
+      s = join(["foo", "bar"], " ")
+      if s != "foo bar" {
+        throw("Join test failure")
+      } else {
+        println("Join test success")
+      }

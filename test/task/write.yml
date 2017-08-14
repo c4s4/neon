@@ -1,0 +1,41 @@
+doc: Built file to test tasks
+default: task_write
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_write:
+    doc: Test task write
+    steps:
+    - mkdir: "#{BUILD_DIR}/write"
+    - write: "#{BUILD_DIR}/write/test.txt"
+      text:  "Hello World!"
+    - |
+      ioutil = import("io/ioutil")
+      filepath = import("path/filepath")
+      file = filepath.Join(BUILD_DIR, "write", "test.txt")
+      content, err = ioutil.ReadFile(file)
+      if err != nil {
+        throw("Write test failure")
+      }
+      if toString(content) != "Hello World!" {
+        throw("Write test failure")
+      }
+      println("Write test sucess")
+    - write:  "#{BUILD_DIR}/write/test.txt"
+      text:   " And you too!"
+      append: true
+    - |
+      ioutil = import("io/ioutil")
+      filepath = import("path/filepath")
+      file = filepath.Join(BUILD_DIR, "write", "test.txt")
+      content, err = ioutil.ReadFile(file)
+      if err != nil {
+        throw("Write test failure")
+      }
+      if toString(content) != "Hello World! And you too!" {
+        throw("Write test failure")
+      }
+      println("Write test sucess")
