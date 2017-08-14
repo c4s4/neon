@@ -12,7 +12,7 @@ targets:
     - |
       actual = absolute("foo/../bar/spam.txt")
       expected = joinpath(_BASE, "bar/spam.txt")
-      if actual != expected {
+      if unixpath(actual) != unixpath(expected) {
         throw("Absolute test failure")
       } else {
         println("Absolute test success")
