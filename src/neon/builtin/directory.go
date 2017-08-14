@@ -2,6 +2,7 @@ package builtin
 
 import (
 	"neon/build"
+	"neon/util"
 	"path/filepath"
 )
 
@@ -27,5 +28,5 @@ Examples:
 }
 
 func Directory(path string) string {
-	return filepath.Dir(path)
+	return util.PathToUnix(filepath.Dir(path))
 }

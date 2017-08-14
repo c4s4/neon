@@ -12,9 +12,6 @@ targets:
     - |
       path = joinpath("/foo", "bar", "spam.txt")
       expected = "/foo/bar/spam.txt"
-      if _OS == "windows" {
-        expected = `\foo\bar\spam.txt`
-      }
       if path != expected {
         throw("Joinpath test failure")
       } else {

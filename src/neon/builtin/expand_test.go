@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"neon/util"
 	"testing"
 	"os/user"
 )
@@ -8,7 +9,5 @@ import (
 func TestExpand(t *testing.T) {
 	user, _ := user.Current()
 	home := user.HomeDir
-	if Expand("~/foo") != home + "/foo" {
-		t.Errorf("Error builtin expand")
-	}
+	util.Assert(util.PathToUnix(Expand("~/foo")), util.PathToUnix(home + "/foo"), t)
 }
