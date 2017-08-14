@@ -99,7 +99,7 @@ func UntarFile(file, dir string) error {
 			continue
 		}
 		target := filepath.Join(dir, header.Name)
-		if header.Typeflag == '0' {
+		if header.Typeflag == tar.TypeReg {
 			destination := filepath.Dir(target)
 			if _, err := os.Stat(destination); err != nil {
 				if err := os.MkdirAll(destination, 0755); err != nil {
