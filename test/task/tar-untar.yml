@@ -20,7 +20,7 @@ targets:
     - delete: "#{BUILD_DIR}/tar/foo"
     - untar: "#{BUILD_DIR}/tar/test.tar.gz"
       todir: "#{BUILD_DIR}/tar"
-    #- delete: "#{BUILD_DIR}/tar/test.tar.gz"
+    - delete: "#{BUILD_DIR}/tar/test.tar.gz"
     - if: '!exists(joinpath(BUILD_DIR, "tar", "bar", "foo", "eggs.txt")) ||
            !exists(joinpath(BUILD_DIR, "tar", "bar", "foo", "spam.txt"))'
       then:
