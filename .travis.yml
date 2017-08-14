@@ -1,0 +1,11 @@
+language: go
+install:
+- go get gopkg.in/yaml.v2
+- go get github.com/mattn/anko
+- go get github.com/mattn/go-zglob
+- go get github.com/fatih/color
+- go get github.com/mitchellh/gox
+script:
+- mv $HOME/gopath/src/github.com/c4s4/neon $HOME/gopath/src/
+- cd $HOME/gopath
+- go test neon/...

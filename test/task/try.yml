@@ -1,0 +1,36 @@
+doc: Built file to test tasks
+default: task_try
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_try:
+    doc: Test task try
+    steps:
+    # simple try/catch: error is trapped in catch clause
+    - try:
+      - throw: "Test"
+      catch:
+      - |
+        if _error != "Test" {
+          throw("Try test failure")
+        } else {
+          println("Try test success")
+        }
+    # single try: execution continue, even if an error occurs
+    - try:
+      - throw: "Try test failure"
+    # try/catch/finally: finally run whatever happens
+    - try:
+      - throw: "Test"
+      catch:
+      - 'error = "catched"'
+      finally:
+      - |
+        if error != "catched" {
+          throw("Try test failure")
+        } else {
+          println("Try test success")
+        }

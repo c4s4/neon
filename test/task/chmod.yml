@@ -1,0 +1,16 @@
+doc: Built file to test tasks
+default: task_chmod
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_chmod:
+    doc: Test task chmod
+    steps:
+    - mkdir: "#{BUILD_DIR}/chmod"
+    - touch: "#{BUILD_DIR}/chmod/test.txt"
+    - chmod: "test.txt"
+      dir: "#{BUILD_DIR}/chmod"
+      mode: "0755"

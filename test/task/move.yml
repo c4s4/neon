@@ -1,0 +1,28 @@
+doc: Built file to test tasks
+default: task_move
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_move:
+    doc: Test task move
+    steps:
+    - mkdir: "#{BUILD_DIR}/move/src"
+    - mkdir: "#{BUILD_DIR}/move/dst"
+    - touch:
+      - "#{BUILD_DIR}/move/src/foo.txt"
+      - "#{BUILD_DIR}/move/src/bar.txt"
+    - move:    "**/*.txt"
+      dir:     "#{BUILD_DIR}/move/src"
+      exclude: "**/bar*"
+      todir:   "#{BUILD_DIR}/move/dst"
+    - |
+      files_dst = toString(find(BUILD_DIR, "move/dst/*"))
+      files_src = toString(find(BUILD_DIR, "move/src/*"))
+      if files_dst != "[move/dst/foo.txt]" || files_src != "[move/src/bar.txt]" {
+        throw("ERROR: " + files_dst + " + " + files_src)
+      } else {
+        println("Move test success")
+      }

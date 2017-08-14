@@ -1,0 +1,25 @@
+doc: Built file to test tasks
+default: task_link
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_link:
+    doc: Test task link
+    steps:
+    - if: '_OS != "windows"'
+      then:
+      - delete:  "#{BUILD_DIR}/link"
+      - mkdir: "#{BUILD_DIR}/link"
+      - touch: "#{BUILD_DIR}/link/foo"
+      - link: "#{BUILD_DIR}/link/foo"
+        to:   "#{BUILD_DIR}/link/bar"
+      - |
+        files = toString(find(BUILD_DIR, "link/*"))
+        if files != "[link/bar link/foo]" {
+          throw("ERROR: " + files)
+        } else {
+          println("Link test success")
+        }

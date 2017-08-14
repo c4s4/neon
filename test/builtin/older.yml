@@ -1,0 +1,35 @@
+doc: Built file to test builds
+default: builtin_older
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_older:
+    doc: Test the older builtin function
+    steps:
+    - delete: '#{BUILD_DIR}/older'
+    - mkdir: '#{BUILD_DIR}/older'
+    - touch: '#{BUILD_DIR}/older/source'
+    - touch: '#{BUILD_DIR}/older/result'
+    - |
+      if older(joinpath(BUILD_DIR, "older/source"), joinpath(BUILD_DIR, "older/result")) {
+        throw("Older test failure")
+      } else {
+        println("Older test success")
+      }
+    - touch: '#{BUILD_DIR}/older/source'
+    - |
+      if older(joinpath(BUILD_DIR, "older/source"), joinpath(BUILD_DIR, "older/result")) {
+        println("Older test success")
+      } else {
+        throw("Older test failure")
+      }
+    - delete: '#{BUILD_DIR}/older/result'
+    - |
+      if older(joinpath(BUILD_DIR, "older/source"), joinpath(BUILD_DIR, "older/result")) {
+        println("Older test success")
+      } else {
+        throw("Older test failure")
+      }

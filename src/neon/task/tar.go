@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"path"
 )
 
 func init() {
@@ -123,58 +124,51 @@ func Tar(target *build.Target, args util.Object) (build.Task, error) {
 }
 
 func Writetar(dir string, files []string, prefix, to string) error {
-	file, err := os.Create(to)
+	stream, err := os.Create(to)
 	if err != nil {
 		return fmt.Errorf("creating tar archive: %v", err)
 	}
-	defer file.Close()
-	var fileWriter io.WriteCloser = file
+	defer stream.Close()
+	var fileWriter io.WriteCloser = stream
 	if strings.HasSuffix(to, "gz") {
-		fileWriter = gzip.NewWriter(file)
+		fileWriter = gzip.NewWriter(stream)
 		defer fileWriter.Close()
 	}
 	writer := tar.NewWriter(fileWriter)
 	defer writer.Close()
 	for _, name := range files {
-		var path string
+		var file string
 		if dir != "" {
-			path = filepath.Join(dir, name)
+			file = filepath.Join(dir, name)
 		} else {
-			path = name
+			file = name
 		}
-		err := writeFileToTar(writer, path, name, prefix)
+		err := writeFileToTar(writer, file, name, prefix)
 		if err != nil {
-			return fmt.Errorf("writing file to tar archive: %v", err)
+			return fmt.Errorf("writing stream to tar archive: %v", err)
 		}
 	}
 	return nil
 }
 
-func writeFileToTar(writer *tar.Writer, path, name, prefix string) error {
-	file, err := os.Open(path)
+func writeFileToTar(writer *tar.Writer, file, name, prefix string) error {
+	stream, err := os.Open(file)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
-	stat, err := file.Stat()
+	defer stream.Close()
+	info, err := stream.Stat()
 	if err != nil {
 		return err
 	}
-	name = sanitizedName(name)
-	if prefix != "" {
-		name = prefix + "/" + name
+	header, err := tar.FileInfoHeader(info, "")
+	if err != nil {
+		return err
 	}
-	header := &tar.Header{
-		Name:    name,
-		Mode:    int64(stat.Mode()),
-		Uid:     os.Getuid(),
-		Gid:     os.Getgid(),
-		Size:    stat.Size(),
-		ModTime: stat.ModTime(),
-	}
+	header.Name = path.Join(prefix, SanitizeName(name))
 	if err = writer.WriteHeader(header); err != nil {
 		return err
 	}
-	_, err = io.Copy(writer, file)
+	_, err = io.Copy(writer, stream)
 	return err
 }

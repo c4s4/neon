@@ -1,0 +1,18 @@
+doc: Built file to test builds
+default: builtin_exists
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_exists:
+    doc: Test exists builtin function
+    steps:
+    - mkdir: "#{BUILD_DIR}/exists"
+    - |
+      if !exists(joinpath(BUILD_DIR, "exists")) {
+        throw("Exists test failure")
+      } else {
+        println("Exists test success")
+      }

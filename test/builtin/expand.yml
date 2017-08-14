@@ -1,0 +1,22 @@
+doc: Built file to test builds
+default: builtin_expand
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_expand:
+    doc: Test expand builtin function
+    steps:
+    - if: '_OS != "windows"'
+      then:
+      - |
+        os = import("os")
+        actual = expand("~/foo")
+        expected = os.Getenv("HOME") + "/foo"
+        if actual != expected {
+          throw("Expand test failure")
+        } else {
+          println("Expand test success")
+        }

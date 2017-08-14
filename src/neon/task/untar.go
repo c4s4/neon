@@ -99,10 +99,7 @@ func UntarFile(file, dir string) error {
 			continue
 		}
 		target := filepath.Join(dir, header.Name)
-		switch header.Typeflag {
-		case tar.TypeDir:
-			continue
-		case tar.TypeReg:
+		if header.Typeflag == tar.TypeReg {
 			destination := filepath.Dir(target)
 			if _, err := os.Stat(destination); err != nil {
 				if err := os.MkdirAll(destination, 0755); err != nil {
@@ -113,10 +110,10 @@ func UntarFile(file, dir string) error {
 			if err != nil {
 				return fmt.Errorf("creating destination file %s: %v", target, err)
 			}
-			defer dest.Close()
 			if _, err := io.Copy(dest, tarReader); err != nil {
 				return fmt.Errorf("copying to destination file %s: %v", target, err)
 			}
+			dest.Close()
 		}
 	}
 }
