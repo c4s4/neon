@@ -4,7 +4,7 @@ properties:
   FOO: 'foo'
 
 environment:
-  FOO: '#{FOO}'
+  FOO: '#{uppercase(FOO)}'
 
 targets:
 
@@ -12,6 +12,6 @@ targets:
     steps:
     - $: 'echo $FOO'
       =: 'result'
-    - if: 'result != "foo"'
+    - if: 'result != "FOO"'
       then:
       - throw: 'Environment evaluation failed'
