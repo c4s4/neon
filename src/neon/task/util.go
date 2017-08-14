@@ -87,7 +87,7 @@ func RunSteps(build *build.Build, steps []build.Step) error {
 	return nil
 }
 
-func sanitizedName(filename string) string {
+func SanitizeName(filename string) string {
 	if len(filename) > 1 && filename[1] == ':' &&
 		runtime.GOOS == "windows" {
 		filename = filename[2:]

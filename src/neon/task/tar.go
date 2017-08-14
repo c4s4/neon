@@ -160,7 +160,7 @@ func writeFileToTar(writer *tar.Writer, path, name, prefix string) error {
 	if err != nil {
 		return err
 	}
-	name = sanitizedName(name)
+	name = SanitizeName(name)
 	if prefix != "" {
 		name = prefix + "/" + name
 	}
