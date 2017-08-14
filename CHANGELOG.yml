@@ -8,8 +8,8 @@
      run with the $ task."
   - "Replaced '-build' option with '-info' to get information about the build."
   added:
-  - "Added older(), winexe(), list(), unixpath(), windowspath() and ospath()
-     builtin functions."
+  - "Added older(), winexe(), list(), unixpath(), windowspath(), ospath() and
+     absolute() builtin functions."
   - "Added assert, unzip and untar tasks."
   - "Added sections in user manual."
   fixed:
