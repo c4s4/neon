@@ -3,7 +3,6 @@ package builtin
 import (
 	"testing"
 	"strings"
-	"fmt"
 )
 
 func TestAbsolute(t *testing.T) {
