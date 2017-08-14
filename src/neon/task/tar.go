@@ -160,17 +160,9 @@ func writeFileToTar(writer *tar.Writer, path, name, prefix string) error {
 	if err != nil {
 		return err
 	}
-	name = SanitizeName(name)
-	if prefix != "" {
-		name = prefix + "/" + name
-	}
-	header := &tar.Header{
-		Name:    name,
-		Mode:    int64(stat.Mode()),
-		Uid:     os.Getuid(),
-		Gid:     os.Getgid(),
-		Size:    stat.Size(),
-		ModTime: stat.ModTime(),
+	header, err := tar.FileInfoHeader(stat, "")
+	if err != nil {
+		return err
 	}
 	if err = writer.WriteHeader(header); err != nil {
 		return err

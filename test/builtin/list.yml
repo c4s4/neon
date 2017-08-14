@@ -1,0 +1,24 @@
+doc: Built file to test builds
+default: builtin_list
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_list:
+    doc: Test the list builtin function
+    steps:
+    - |
+      l = list("foo")
+      if len(l) != 1 || l[0] != "foo" {
+        throw("List test failure")
+      } else {
+        println("List test success")
+      }
+      l = list(["foo"])
+      if len(l) != 1 || l[0] != "foo" {
+        throw("List test failure")
+      } else {
+        println("List test success")
+      }

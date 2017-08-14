@@ -1,0 +1,20 @@
+doc: Built file to test builds
+default: builtin_throw
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_throw:
+    doc: Test the throw builtin function
+    steps:
+    - try:
+      - 'throw("TEST")'
+      catch:
+      - |
+        if _error != "evaluating script: TEST (at line 1, column 1)" {
+          throw("Throw test failure")
+        } else {
+          println("Throw test success")
+        }

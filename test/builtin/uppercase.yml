@@ -1,0 +1,18 @@
+doc: Built file to test builds
+default: builtin_uppercase
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_uppercase:
+    doc: Test the uppercase builtin function
+    steps:
+    - |
+      upper = uppercase("test")
+      if upper != "TEST" {
+        throw("Uppercase test failure")
+      } else {
+        println("Uppercase test success")
+      }

@@ -1,0 +1,28 @@
+doc: Built file to test tasks
+default: task_path
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_path:
+    doc: Test task path
+    steps:
+    - mkdir: "#{BUILD_DIR}/path/lib"
+    - touch:
+      - "#{BUILD_DIR}/path/lib/foo.jar"
+      - "#{BUILD_DIR}/path/lib/bar.jar"
+    - path: "lib/*.jar"
+      dir: "#{BUILD_DIR}/path"
+      to: "classpath"
+    - |
+      path = "lib/bar.jar:lib/foo.jar"
+      if _OS == "windows" {
+        path = "lib/bar.jar;lib/foo.jar"
+      }
+      if classpath != path {
+        throw("Path test failure: "+classpath)
+      } else {
+        println("Path test success")
+      }

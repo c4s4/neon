@@ -1,0 +1,21 @@
+doc: Built file to test tasks
+default: task_if
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_if:
+    doc: If task success
+    steps:
+    - 'failure = true'
+    - if: failure
+      then:
+      - 'failure = false'
+    - |
+      if failure {
+        throw("If test failure")
+      } else {
+        println("If test success")
+      }

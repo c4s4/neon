@@ -1,0 +1,38 @@
+doc: Built file to test tasks
+default: task_delete
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_delete:
+    doc: Test task delete
+    steps:
+    # delete a directory
+    - mkdir: "#{BUILD_DIR}/delete/foo"
+    - touch: "#{BUILD_DIR}/delete/foo/test.txt"
+    - delete: "#{BUILD_DIR}/delete/foo"
+    - |
+      os = import("os")
+      filepath = import("path/filepath")
+      file = filepath.Join(BUILD_DIR, "delete", "foo")
+      _, err = os.Stat(file)
+      if err == nil {
+        throw("Delete test failure")
+      } else {
+        println("Delete test success")
+      }
+    # delete files
+    - touch: "#{BUILD_DIR}/delete/test.txt"
+    - delete: "#{BUILD_DIR}/delete/test.txt"
+    - |
+      os = import("os")
+      filepath = import("path/filepath")
+      file = filepath.Join(BUILD_DIR, "delete", "test.txt")
+      _, err = os.Stat(file)
+      if err == nil {
+        throw("Delete test failure")
+      } else {
+        println("Delete test success")
+      }

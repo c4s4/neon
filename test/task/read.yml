@@ -1,0 +1,25 @@
+doc: Built file to test tasks
+default: task_read
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_read:
+    doc: Test task read
+    steps:
+    - mkdir: "#{BUILD_DIR}/read"
+    - |
+      ioutil = import("io/ioutil")
+      filepath = import("path/filepath")
+      file = filepath.Join(BUILD_DIR, "read", "test.txt")
+      ioutil.WriteFile(file, toByteSlice("TEST"), 420)
+    - read: "#{BUILD_DIR}/read/test.txt"
+      to: "read"
+    - |
+      if read != "TEST" {
+        throw("Read test failure")
+      } else {
+        println("Read test success")
+      }

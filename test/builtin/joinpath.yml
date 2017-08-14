@@ -1,0 +1,22 @@
+doc: Built file to test builds
+default: builtin_joinpath
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_joinpath:
+    doc: Test the joinpath builtin function
+    steps:
+    - |
+      path = joinpath("/foo", "bar", "spam.txt")
+      expected = "/foo/bar/spam.txt"
+      if _OS == "windows" {
+        expected = `\foo\bar\spam.txt`
+      }
+      if path != expected {
+        throw("Joinpath test failure")
+      } else {
+        println("Joinpath test success")
+      }

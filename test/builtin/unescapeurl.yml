@@ -1,0 +1,18 @@
+doc: Built file to test builds
+default: builtin_unescapeurl
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_unescapeurl:
+    doc: Test the unescapeurl builtin function
+    steps:
+    - |
+      unescaped = unescapeurl("/foo%20bar")
+      if unescaped != "/foo bar" {
+        throw("Unescapeurl test failure")
+      } else {
+        println("Unescapeurl test success")
+      }

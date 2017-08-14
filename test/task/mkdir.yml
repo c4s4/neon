@@ -1,0 +1,24 @@
+doc: Built file to test tasks
+default: task_mkdir
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  task_mkdir:
+    doc: Test task mkdir
+    steps:
+    - mkdir: "#{BUILD_DIR}/mkdir"
+    - |
+      os = import("os")
+      filepath = import("path/filepath")
+      dir = filepath.Join(BUILD_DIR, "mkdir")
+      stat, err = os.Stat(dir)
+      if err != nil {
+        throw("Mkdir test failure")
+      } else if !stat.IsDir() {
+        throw("Mkdir task failure")
+      } else {
+        println("Mkdir test success")
+      }

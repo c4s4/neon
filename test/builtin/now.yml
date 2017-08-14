@@ -1,0 +1,20 @@
+doc: Built file to test builds
+default: builtin_now
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_now:
+    doc: Test the now builtin function
+    steps:
+    - |
+      r = import("regexp")
+      n = now()
+      match, err = r.MatchString(`\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d`, n)
+      if !match || err != nil {
+        throw("ERROR now '"+n+"'")
+      } else {
+        println("Now test success")
+      }

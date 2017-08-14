@@ -1,0 +1,27 @@
+doc: Built file to test builds
+default: builtin_winexe
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_winexe:
+    doc: Test the winexe builtin function
+    steps:
+    - |
+      result = winexe("foo")
+      if _OS == "windows" && result != "foo.exe" {
+        throw("Winexe test failure")
+      }
+      if _OS != "windows" && result != "foo" {
+        throw("Winexe test failure")
+      }
+      result = winexe("foo.sh")
+      if _OS == "windows" && result != "foo.bat" {
+        throw("Winexe test failure")
+      }
+      if _OS != "windows" && result != "foo.sh" {
+        throw("Winexe test failure")
+      }
+      println("Winexe test success")

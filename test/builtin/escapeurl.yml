@@ -1,0 +1,18 @@
+doc: Built file to test builds
+default: builtin_escapeurl
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_escapeurl:
+    doc: Test the escapeurl builtin function
+    steps:
+    - |
+      escaped = escapeurl("/foo bar")
+      if escaped != "/foo%20bar" {
+        throw("Escapeurl test failure")
+      } else {
+        println("Escapeurl test success")
+      }
