@@ -232,7 +232,7 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 					return value
 				}
 			} else {
-				value, err := context.GetProperty(name)
+				value, err := context.EvaluateExpression(name)
 				if err != nil {
 					return expression
 				} else {
