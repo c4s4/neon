@@ -25,7 +25,7 @@ default:
 - task_try
 - task_while
 - task_write
-- task_zip
+- task_zip_unzip
 
 properties:
   BUILD_DIR: "../build"
