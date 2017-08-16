@@ -8,6 +8,7 @@ import (
 	"unicode/utf8"
 	"runtime"
 	"testing"
+	"regexp"
 )
 
 // Return interface as a list of interfaces
@@ -150,4 +151,10 @@ func Assert(actual, expected string, t *testing.T) {
 	if actual != expected {
 		t.Errorf("actual \"%s\" != expected \"%s\"", actual, expected)
 	}
+}
+
+// RemoveBlankLines removes blank lines of given string.
+func RemoveBlankLines(text string) string {
+	regex := regexp.MustCompile("(\n\\s*)+\n")
+	return regex.ReplaceAllString(text, "\n")
 }

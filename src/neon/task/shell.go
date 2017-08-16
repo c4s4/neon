@@ -72,7 +72,9 @@ func (c Commands) Run(pipe bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return command.Run(c.Build, pipe)
+	output, err := command.Run(c.Build, pipe)
+	output = util.RemoveBlankLines(output)
+	return output, err
 }
 
 type Command interface {
@@ -114,7 +116,7 @@ func (c CommandSingle) Run(build *build.Build, pipe bool) (string, error) {
 	} else {
 		bytes, err := command.CombinedOutput()
 		if err != nil {
-			return "", fmt.Errorf("executing command: %v", err)
+			return string(bytes), fmt.Errorf("executing command: %v", err)
 		}
 		return string(bytes), nil
 	}
@@ -158,7 +160,7 @@ func (c CommandScript) Run(build *build.Build, pipe bool) (string, error) {
 	} else {
 		bytes, err := command.CombinedOutput()
 		if err != nil {
-			return "", fmt.Errorf("executing command: %v", err)
+			return string(bytes), fmt.Errorf("executing command: %v", err)
 		}
 		return string(bytes), nil
 	}
@@ -217,6 +219,7 @@ func Shell(target *build.Target, args util.Object) (build.Task, error) {
 		}
 		_output, _err := commands.Run(_variable == "")
 		if _err != nil {
+			build.Message(_output)
 			return _err
 		}
 		if _variable != "" {
