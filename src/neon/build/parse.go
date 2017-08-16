@@ -158,7 +158,7 @@ func ParseEnvironment(object util.Object, build *Build) error {
 	if object.HasField("environment") {
 		env, err := object.GetObject("environment")
 		if err != nil {
-			return fmt.Errorf("parsing environmen: %v", err)
+			return fmt.Errorf("parsing environment: %v", err)
 		}
 		environment, err = env.ToMapStringString()
 		if err != nil {

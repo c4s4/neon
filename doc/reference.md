@@ -631,6 +631,25 @@ Examples:
 Builtins Reference
 ==================
 
+absolute
+--------
+
+Return absolute value of a given path.
+
+Arguments:
+
+- The path to get absolute value.
+
+Returns:
+
+- The absolute value of the path.
+
+Examples:
+
+    // get absolute value of path "foo/../bar/spam.txt"
+    path = absolute("foo/../bar/spam.txt")
+    // returns: "/home/user/build/bar/spam.txt"
+
 directory
 ---------
 

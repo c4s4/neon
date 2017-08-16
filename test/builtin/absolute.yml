@@ -1,0 +1,19 @@
+doc: Built file to test builtin absolute
+default: builtin_absolute
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_absolute:
+    doc: Test the absolute builtin function
+    steps:
+    - |
+      actual = absolute("foo/../bar/spam.txt")
+      expected = joinpath(_BASE, "bar/spam.txt")
+      if unixpath(actual) != unixpath(expected) {
+        throw("Absolute test failure")
+      } else {
+        println("Absolute test success")
+      }

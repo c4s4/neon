@@ -73,10 +73,3 @@ targets:
     depends: [clean, test, integ, refs, archive]
     steps:
     - super:
-
-  win:
-    doc: 'Test integration build file on Windows'
-    steps:
-    - copy:  'test/*.yml'
-      todir: '~/misc/shared/'
-    - $: 'gox -output=#{WIN_SHARE}/#{NAME} -osarch=windows/386 #{NAME}'

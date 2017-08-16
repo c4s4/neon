@@ -212,16 +212,16 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 		value := line[index+1:]
 		environment[name] = value
 	}
-	environment["BASE"] = context.Build.Dir
-	environment["HERE"] = context.Build.Here
+	environment["_BASE"] = context.Build.Dir
+	environment["_HERE"] = context.Build.Here
 	var variables []string
-	for name, _ := range context.Environment {
+	for name := range context.Environment {
 		variables = append(variables, name)
 	}
 	sort.Strings(variables)
 	for _, name := range variables {
 		value := context.Environment[name]
-		r := regexp.MustCompile("[\\$#]{.*?}")
+		r := regexp.MustCompile(`[$#]{.*?}`)
 		replaced := r.ReplaceAllStringFunc(value, func(expression string) string {
 			name := expression[2 : len(expression)-1]
 			if expression[0:1] == "$" {
@@ -232,7 +232,7 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 					return value
 				}
 			} else {
-				value, err := context.GetProperty(name)
+				value, err := context.EvaluateExpression(name)
 				if err != nil {
 					return expression
 				} else {
@@ -326,6 +326,7 @@ func (context *Context) FindFiles(dir string, includes, excludes []string, folde
 	return files, nil
 }
 
+// FormatScriptError adds line and column numbers on parser or vm errors.
 func FormatScriptError(err error) error {
 	if e, ok := err.(*parser.Error); ok {
 		return fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
