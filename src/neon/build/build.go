@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"runtime"
 )
 
 const (
@@ -32,7 +33,7 @@ type Build struct {
 	Doc         string
 	Repository  string
 	Singleton   int
-	Shell       []string
+	Shell       map[string][]string
 	Scripts     []string
 	Extends     []string
 	Config      []string
@@ -356,4 +357,18 @@ func (build *Build) Install(plugin string) error {
 		Message("Plugin '%s' installed in '%s'", plugin, path)
 	}
 	return nil
+}
+
+// GetShell return shell for current os.
+func (build *Build) GetShell() ([]string, error) {
+	for system, shell := range build.Shell {
+		if system != "default" && system == runtime.GOOS {
+			return shell, nil
+		}
+	}
+	shell, ok := build.Shell["default"]
+	if !ok {
+		return nil, fmt.Errorf("no shell found for '%s'", runtime.GOOS)
+	}
+	return shell, nil
 }

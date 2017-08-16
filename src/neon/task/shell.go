@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"runtime"
 )
 
 func init() {
@@ -16,7 +17,7 @@ func init() {
 
 Arguments:
 
-- $: command to run.
+- $: command to run or a map of commands per operating system.
 - =: name of the variable to store trimed output into (optional, output to
   console if not set).
 
@@ -24,20 +25,35 @@ Examples:
 
     # execute ls command and get result in 'files' variable
     - $: 'ls'
-      =: 'files'`,
+      =: 'files'
+    # execute dir command on windows and ls on other OS
+    - $:
+    	windows: 'dir'
+    	default: 'ls'`,
 	}
 }
 
 func Shell(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"$", "="}
+	var err error
 	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err
 	}
-	shell, ok := args["$"].(string)
-	if !ok {
-		return nil, fmt.Errorf("argument of task $ must be a string")
+	var cmds map[string]string
+	if util.IsString(args["$"]) {
+		cmds = map[string]string {
+			"default": args["$"].(string),
+		}
+	} else if util.IsMap(args["$"]) {
+		cmds, err = util.ToMapStringString(args["$"])
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		fmt.Errorf("shell command must be a string or a map of strings")
 	}
 	var output string
+	var ok bool
 	if args.HasField("=") {
 		output, ok = args["="].(string)
 		if !ok {
@@ -45,7 +61,14 @@ func Shell(target *build.Target, args util.Object) (build.Task, error) {
 		}
 	}
 	return func() error {
-		_shell, _err := target.Build.Context.EvaluateString(shell)
+		_cmd, _ok := cmds[runtime.GOOS]
+		if !_ok {
+			_cmd, _ok = cmds["default"]
+			if !_ok {
+				return fmt.Errorf("no command found for '%s'", runtime.GOOS)
+			}
+		}
+		_cmd, _err := target.Build.Context.EvaluateString(_cmd)
 		if _err != nil {
 			return fmt.Errorf("processing $ argument: %v", _err)
 		}
@@ -54,9 +77,13 @@ func Shell(target *build.Target, args util.Object) (build.Task, error) {
 			return fmt.Errorf("processing output argument: %v", _err)
 		}
 		var _command *exec.Cmd
-		_binary := target.Build.Shell[0]
-		_arguments := target.Build.Shell[1:]
-		_arguments = append(_arguments, _shell)
+		_shell, _err := target.Build.GetShell()
+		if _err != nil {
+			return _err
+		}
+		_binary := _shell[0]
+		_arguments := _shell[1:]
+		_arguments = append(_arguments, _cmd)
 		_command = exec.Command(_binary, _arguments...)
 		_dir, _err := os.Getwd()
 		if _err != nil {

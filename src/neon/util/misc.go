@@ -23,6 +23,23 @@ func ToList(object interface{}) ([]interface{}, error) {
 		return nil, fmt.Errorf("must be a list")
 	}
 }
+// ToSliceString return interface as a slice of strings.
+func ToSliceString(object interface{}) ([]string, error) {
+	slice := reflect.ValueOf(object)
+	if slice.Kind() == reflect.Slice {
+		result := make([]string, slice.Len())
+		for i := 0; i < slice.Len(); i++ {
+			value := slice.Index(i)
+			if value.Kind() != reflect.String {
+				fmt.Errorf("must be a slice of strings")
+			}
+			result[i] = value.Interface().(string)
+		}
+		return result, nil
+	} else {
+		return nil, fmt.Errorf("must be a slice of strings")
+	}
+}
 
 // Return interface as a map with string keys and values
 func ToMapStringString(object interface{}) (map[string]string, error) {
@@ -37,6 +54,37 @@ func ToMapStringString(object interface{}) (map[string]string, error) {
 		result[keyString] = valueString
 	}
 	return result, nil
+}
+
+// ToMapStringInterface return interface as a map with string keys and interface
+// values.
+func ToMapStringInterface(object interface{}) (map[string]interface{}, error) {
+	value := reflect.ValueOf(object)
+	if value.Kind() != reflect.Map {
+		return nil, fmt.Errorf("object is not a map")
+	}
+	result := make(map[string]interface{})
+	for _, key := range value.MapKeys() {
+		keyString := key.Interface().(string)
+		valueInterface := value.MapIndex(key).Interface()
+		result[keyString] = valueInterface
+	}
+	return result, nil
+}
+
+// IsMap tells if given object is a map
+func IsMap(object interface{}) bool {
+	return reflect.ValueOf(object).Kind() == reflect.Map
+}
+
+// IsString tells if given object is a string
+func IsString(object interface{}) bool {
+	return reflect.ValueOf(object).Kind() == reflect.String
+}
+
+// IsSlice tells if given object is a slice.
+func IsSlice(object interface{}) bool {
+	return reflect.ValueOf(object).Kind() == reflect.Slice
 }
 
 // Return a reflect.Value as an interface

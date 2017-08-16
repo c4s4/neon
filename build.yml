@@ -1,7 +1,6 @@
 doc:     'Build file to build neon'
 default: [clean, bin, test, integ]
 extends: c4s4/build/go-app.yml
-shell: ['sh', '-c']
 
 properties:
   NAME:      'neon'
