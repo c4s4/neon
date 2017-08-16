@@ -17,7 +17,9 @@ func init() {
 
 Arguments:
 
-- $: command to run or a map of commands per operating system.
+- $: command to run as a string or a list of strings. You can also provide a
+  map of commands per operating system ("default" defines command to run on
+  operating systems that are not in the map).
 - =: name of the variable to store trimed output into (optional, output to
   console if not set).
 
@@ -29,85 +31,196 @@ Examples:
     # execute dir command on windows and ls on other OS
     - $:
     	windows: 'dir'
-    	default: 'ls'`,
+    	default: 'ls'
+    # execute command as a list of strings
+    - $:
+    	- 'ls''
+    	- '-al'
+
+Notes:
+
+- Commands defined as a string run in the shell defined by shell field at the
+  root of the build file (or 'sh -c' on Unix and 'cmd /c' on Windows by
+  default).
+- Defining a command as a list of strings is useful on Windows. Default shell on
+  Windows is 'cmd' which can't properly manage arguments with spaces.
+- Argument of a command defined as a list won't be expanded by shell. Thus
+  $USER won't be expanded for instance.`,
 	}
+}
+
+type Commands struct {
+	Build    *build.Build
+	Commands map[string]Command
+}
+
+func (c Commands) GetCommand() (Command, error) {
+	for system, command := range c.Commands {
+		if system != "default" && system == runtime.GOOS {
+			return command, nil
+		}
+	}
+	command, ok := c.Commands["default"]
+	if !ok {
+		return nil, fmt.Errorf("no command found for '%s'", runtime.GOOS)
+	}
+	return command, nil
+}
+
+func (c Commands) Run(pipe bool) (string, error) {
+	command, err := c.GetCommand()
+	if err != nil {
+		return "", err
+	}
+	return command.Run(c.Build, pipe)
+}
+
+type Command interface {
+	Run(build *build.Build, pipe bool) (string, error)
+}
+
+type CommandSingle struct {
+	Parts []string
+}
+
+func (c CommandSingle) Run(build *build.Build, pipe bool) (string, error) {
+	parts := make([]string, len(c.Parts))
+	var err error
+	for i := 0; i < len(c.Parts); i++ {
+		parts[i], err = build.Context.EvaluateString(c.Parts[i])
+		if err != nil {
+			return "", err
+		}
+	}
+	command := exec.Command(parts[0], parts[1:]...)
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("getting current working directory: %v", err)
+	}
+	command.Dir = dir
+	command.Env, err = build.Context.EvaluateEnvironment()
+	if err != nil {
+		return "", fmt.Errorf("building environment: %v", err)
+	}
+	if pipe {
+		command.Stdin = os.Stdin
+		command.Stdout = os.Stdout
+		command.Stderr = os.Stderr
+		err = command.Run()
+		if err != nil {
+			return "", fmt.Errorf("executing command: %v", err)
+		}
+		return "", nil
+	} else {
+		bytes, err := command.CombinedOutput()
+		if err != nil {
+			return "", fmt.Errorf("executing command: %v", err)
+		}
+		return string(bytes), nil
+	}
+}
+
+type CommandScript struct {
+	Script string
+}
+
+func (c CommandScript) Run(build *build.Build, pipe bool) (string, error) {
+	shell, err := build.GetShell()
+	if err != nil {
+		return "", err
+	}
+	binary := shell[0]
+	arguments := shell[1:]
+	cmd, err := build.Context.EvaluateString(c.Script)
+	if err != nil {
+		return "", err
+	}
+	arguments = append(arguments, cmd)
+	command := exec.Command(binary, arguments...)
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("getting current working directory: %v", err)
+	}
+	command.Dir = dir
+	command.Env, err = build.Context.EvaluateEnvironment()
+	if err != nil {
+		return "", fmt.Errorf("building environment: %v", err)
+	}
+	if pipe {
+		command.Stdin = os.Stdin
+		command.Stdout = os.Stdout
+		command.Stderr = os.Stderr
+		err = command.Run()
+		if err != nil {
+			return "", fmt.Errorf("executing command: %v", err)
+		}
+		return "", nil
+	} else {
+		bytes, err := command.CombinedOutput()
+		if err != nil {
+			return "", fmt.Errorf("executing command: %v", err)
+		}
+		return string(bytes), nil
+	}
+}
+
+func NewCommands(build *build.Build, object interface{}) (*Commands, error) {
+	if !util.IsMap(object) {
+		m := map[string]interface{} {
+			"default": object,
+		}
+		return NewCommands(build, m)
+	}
+	commands := make(map[string]Command)
+	m, _ := util.ToMapStringInterface(object)
+	for os, cmd := range m {
+		if util.IsSlice(cmd) {
+			c, err := util.ToSliceString(cmd)
+			if err != nil {
+				return nil, err
+			}
+			commands[os] = CommandSingle{Parts: c}
+		} else if util.IsString(cmd) {
+			s := cmd.(string)
+			commands[os] = CommandScript{Script: s}
+		} else {
+			return nil, fmt.Errorf("command must a string or liste of strings")
+		}
+	}
+	return &Commands {
+		Build: build,
+		Commands: commands,
+	}, nil
 }
 
 func Shell(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"$", "="}
-	var err error
 	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err
 	}
-	var cmds map[string]string
-	if util.IsString(args["$"]) {
-		cmds = map[string]string {
-			"default": args["$"].(string),
-		}
-	} else if util.IsMap(args["$"]) {
-		cmds, err = util.ToMapStringString(args["$"])
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		fmt.Errorf("shell command must be a string or a map of strings")
+	commands, err := NewCommands(target.Build, args["$"])
+	if err != nil {
+		return nil, err
 	}
-	var output string
+	var variable string
 	var ok bool
 	if args.HasField("=") {
-		output, ok = args["="].(string)
+		variable, ok = args["="].(string)
 		if !ok {
 			return nil, fmt.Errorf("argument = of task $ must be a string")
 		}
 	}
 	return func() error {
-		_cmd, _ok := cmds[runtime.GOOS]
-		if !_ok {
-			_cmd, _ok = cmds["default"]
-			if !_ok {
-				return fmt.Errorf("no command found for '%s'", runtime.GOOS)
-			}
-		}
-		_cmd, _err := target.Build.Context.EvaluateString(_cmd)
-		if _err != nil {
-			return fmt.Errorf("processing $ argument: %v", _err)
-		}
-		_output, _err := target.Build.Context.EvaluateString(output)
+		_variable, _err := target.Build.Context.EvaluateString(variable)
 		if _err != nil {
 			return fmt.Errorf("processing output argument: %v", _err)
 		}
-		var _command *exec.Cmd
-		_shell, _err := target.Build.GetShell()
+		_output, _err := commands.Run(_variable == "")
 		if _err != nil {
 			return _err
 		}
-		_binary := _shell[0]
-		_arguments := _shell[1:]
-		_arguments = append(_arguments, _cmd)
-		_command = exec.Command(_binary, _arguments...)
-		_dir, _err := os.Getwd()
-		if _err != nil {
-			return fmt.Errorf("getting current working directory: %v", _err)
-		}
-		_command.Dir = _dir
-		_command.Env, _err = target.Build.Context.EvaluateEnvironment()
-		if _err != nil {
-			return fmt.Errorf("building environment: %v", _err)
-		}
-		if _output == "" {
-			_command.Stdin = os.Stdin
-			_command.Stdout = os.Stdout
-			_command.Stderr = os.Stderr
-			_err = _command.Run()
-			if _err != nil {
-				return fmt.Errorf("executing command: %v", _err)
-			}
-		} else {
-			_bytes, _err := _command.CombinedOutput()
-			target.Build.Context.SetProperty(output, strings.TrimSpace(string(_bytes)))
-			if _err != nil {
-				return fmt.Errorf("executing command: %v", _err)
-			}
+		if _variable != "" {
+			target.Build.Context.SetProperty(_variable, strings.TrimSpace(string(_output)))
 		}
 		return nil
 	}, nil
