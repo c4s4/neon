@@ -74,6 +74,7 @@ func (c Commands) Run(pipe bool) (string, error) {
 	}
 	output, err := command.Run(c.Build, pipe)
 	output = util.RemoveBlankLines(output)
+	output = strings.TrimSuffix(output, "\n")
 	return output, err
 }
 
@@ -219,7 +220,9 @@ func Shell(target *build.Target, args util.Object) (build.Task, error) {
 		}
 		_output, _err := commands.Run(_variable == "")
 		if _err != nil {
-			build.Message(_output)
+			if _output != "" {
+				build.Message(_output)
+			}
 			return _err
 		}
 		if _variable != "" {
