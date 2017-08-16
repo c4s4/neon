@@ -52,8 +52,8 @@ func ParseShell(object util.Object, build *Build) error {
 		}
 	} else {
 		build.Shell = map[string][]string {
-			"default": []string{"sh", "-c"},
-			"windows": []string{"cmd", "/c"},
+			"default": {"sh", "-c"},
+			"windows": {"cmd", "/c"},
 		}
 	}
 	return nil
