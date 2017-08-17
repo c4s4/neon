@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"neon/util"
-	"runtime"
 )
 
 // Parse singleton field of the build
@@ -25,16 +24,36 @@ func ParseSingleton(object util.Object, build *Build) error {
 // Parse shell field of the build
 func ParseShell(object util.Object, build *Build) error {
 	if object.HasField("shell") {
-		shell, err := object.GetListStrings("shell")
-		if err != nil {
-			return fmt.Errorf("getting shell interpreter: %v", err)
-		}
-		build.Shell = shell
-	} else {
-		if runtime.GOOS == "windows" {
-			build.Shell = []string{"cmd", "/c"}
+		field := object["shell"]
+		if util.IsMap(field) {
+			shell := make(map[string][]string)
+			mapInterface, err := util.ToMapStringInterface(field)
+			if err != nil {
+				return err
+			}
+			for os, v := range mapInterface {
+				s, err := util.ToSliceString(v)
+				if err != nil {
+					return err
+				}
+				shell[os] = s
+			}
+			build.Shell = shell
+		} else if util.IsSlice(field) {
+			slice, err := util.ToSliceString(field)
+			if err != nil {
+				return err
+			}
+			build.Shell = map[string][]string {
+				"default": slice,
+			}
 		} else {
-			build.Shell = []string{"sh", "-c"}
+			return fmt.Errorf("shell must be a list of strings or a map of list of strings")
+		}
+	} else {
+		build.Shell = map[string][]string {
+			"default": {"sh", "-c"},
+			"windows": {"cmd", "/c"},
 		}
 	}
 	return nil

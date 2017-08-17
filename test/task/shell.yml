@@ -11,7 +11,48 @@ targets:
     steps:
     - if: '_OS != "windows"'
       then:
+      # test shell
       - $: 'echo "TEST"'
+        =: 'result'
+      - |
+        if result != "TEST" {
+          throw("$ test failure")
+        } else {
+          println("$ test success")
+        }
+      # test command
+      - $: ['echo', 'TEST']
+        =: 'result'
+      - |
+        if result != "TEST" {
+          throw("$ test failure")
+        } else {
+          println("$ test success")
+        }
+      # test shell with property
+      - 'message = "foo"'
+      - $: 'echo "#{message}"'
+        =: 'result'
+      - |
+        if result != "foo" {
+          throw("$ test failure")
+        } else {
+          println("$ test success")
+        }
+      # test command with property
+      - 'message = "foo"'
+      - $: ['echo', '#{message}']
+        =: 'result'
+      - |
+        if result != "foo" {
+          throw("$ test failure")
+        } else {
+          println("$ test success")
+        }
+      # test shell per OS
+      - $:
+          default: 'echo "TEST"'
+          windows: 'fail'
         =: 'result'
       - |
         if result != "TEST" {

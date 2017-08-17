@@ -8,7 +8,9 @@ Execute a command and return output and value.
 
 Arguments:
 
-- $: command to run.
+- $: command to run as a string or a list of strings. You can also provide a
+  map of commands per operating system ("default" defines command to run on
+  operating systems that are not in the map).
 - =: name of the variable to store trimed output into (optional, output to
   console if not set).
 
@@ -17,6 +19,24 @@ Examples:
     # execute ls command and get result in 'files' variable
     - $: 'ls'
       =: 'files'
+    # execute dir command on windows and ls on other OS
+    - $:
+    	windows: 'dir'
+    	default: 'ls'
+    # execute command as a list of strings
+    - $:
+    	- 'ls''
+    	- '-al'
+
+Notes:
+
+- Commands defined as a string run in the shell defined by shell field at the
+  root of the build file (or 'sh -c' on Unix and 'cmd /c' on Windows by
+  default).
+- Defining a command as a list of strings is useful on Windows. Default shell on
+  Windows is 'cmd' which can't properly manage arguments with spaces.
+- Argument of a command defined as a list won't be expanded by shell. Thus
+  $USER won't be expanded for instance.
 
 assert
 ------
