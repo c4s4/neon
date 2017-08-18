@@ -108,6 +108,22 @@ A build file is a YAML map. First level fields are the following:
   single instance of the build is running. This is an integer. This should be
   between *1024* and *65535* (or between *1* and *65535* if the build is
   running as root).
+- **shell** defines the command to execute to run a shell task. This command is
+  defined as a list (such as `["sh", "-c"]` or `["cmd", "/c"]` for instance).
+  The command to run in the shell will be added as the last argument.
+  If you define a single command, this will run for all environments. You may
+  instead define the shell as a map of command per environment. For instance:
+	```yaml
+	shell:
+	  windows: ['cmd', '/c']
+	  default: ['sh', '-c']
+	```
+  This will define a shell for windows and for other environments. Thus, if
+  you deine a single command (say `['sh', '-c']`), this is equivalent to:
+	```yaml
+	shell:
+	  default: ['sh', '-c']
+	```
 - **properties** is a map of properties of the build file. See section
   *Properties* for more information about build properties.
 - **configuration** is a list of YAML files to load as build properties.
