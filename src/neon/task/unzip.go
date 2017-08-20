@@ -73,7 +73,7 @@ func UnzipFile(file, dir string) error {
 	for _, file := range reader.File {
 		readCloser, err := file.Open()
 		if err != nil {
-			return fmt.Errorf("opening zip file %s: %v", file, err)
+			return fmt.Errorf("opening zip file %s: %v", file.Name, err)
 		}
 		defer readCloser.Close()
 		target := filepath.Join(dir, file.Name)
