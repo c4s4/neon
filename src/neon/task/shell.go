@@ -33,9 +33,7 @@ Examples:
     	windows: 'dir'
     	default: 'ls'
     # execute command as a list of strings
-    - $:
-    	- 'ls''
-    	- '-al'
+    - $: ['ls', '-al']
 
 Notes:
 
@@ -49,11 +47,14 @@ Notes:
 	}
 }
 
+// Commands lists commands by operating system
 type Commands struct {
 	Build    *build.Build
 	Commands map[string]Command
 }
 
+// GetCommand return a command depending on current operating system and
+// default command
 func (c Commands) GetCommand() (Command, error) {
 	for system, command := range c.Commands {
 		if system != "default" && system == runtime.GOOS {
@@ -67,6 +68,9 @@ func (c Commands) GetCommand() (Command, error) {
 	return command, nil
 }
 
+// Run execute a command and return its output and an error (if command
+// returned a value different from 0). Arguments:
+// - pipe tells if we should print the output of the command on the console.
 func (c Commands) Run(pipe bool) (string, error) {
 	command, err := c.GetCommand()
 	if err != nil {
@@ -78,15 +82,19 @@ func (c Commands) Run(pipe bool) (string, error) {
 	return output, err
 }
 
+// Command is the interface for a command.
 type Command interface {
 	Run(build *build.Build, pipe bool) (string, error)
 }
 
-type CommandSingle struct {
+// CommandList is a command as a list with executable and arguments.
+type CommandList struct {
 	Parts []string
 }
 
-func (c CommandSingle) Run(build *build.Build, pipe bool) (string, error) {
+// Run execute the command and returns its output and an error. Arguments:
+// - pipe tells if we should print output of the command on the console.
+func (c CommandList) Run(build *build.Build, pipe bool) (string, error) {
 	parts := make([]string, len(c.Parts))
 	var err error
 	for i := 0; i < len(c.Parts); i++ {
@@ -123,11 +131,14 @@ func (c CommandSingle) Run(build *build.Build, pipe bool) (string, error) {
 	}
 }
 
-type CommandScript struct {
+// CommandShell is a command to run in a shell and is made of a single string.
+type CommandShell struct {
 	Script string
 }
 
-func (c CommandScript) Run(build *build.Build, pipe bool) (string, error) {
+// Run execute the command and returns its output and an error. Arguments:
+// - pipe tells if we should print output of the command on the console.
+func (c CommandShell) Run(build *build.Build, pipe bool) (string, error) {
 	shell, err := build.GetShell()
 	if err != nil {
 		return "", err
@@ -167,6 +178,9 @@ func (c CommandScript) Run(build *build.Build, pipe bool) (string, error) {
 	}
 }
 
+// NewCommands parses a step of the build file to build a command. Arguments:
+// - build is a reference to the build.
+// - object is the parsed step.
 func NewCommands(build *build.Build, object interface{}) (*Commands, error) {
 	if !util.IsMap(object) {
 		m := map[string]interface{}{
@@ -182,10 +196,10 @@ func NewCommands(build *build.Build, object interface{}) (*Commands, error) {
 			if err != nil {
 				return nil, err
 			}
-			commands[os] = CommandSingle{Parts: c}
+			commands[os] = CommandList{Parts: c}
 		} else if util.IsString(cmd) {
 			s := cmd.(string)
-			commands[os] = CommandScript{Script: s}
+			commands[os] = CommandShell{Script: s}
 		} else {
 			return nil, fmt.Errorf("command must a string or liste of strings")
 		}
@@ -196,6 +210,11 @@ func NewCommands(build *build.Build, object interface{}) (*Commands, error) {
 	}, nil
 }
 
+// Shell is the function to build a shell task.
+// Arguments:
+// - target in which will run the task.
+// - args of the task.
+// Returns the task and an error if any.
 func Shell(target *build.Target, args util.Object) (build.Task, error) {
 	fields := []string{"$", "="}
 	if err := CheckFields(args, fields, fields[:1]); err != nil {
