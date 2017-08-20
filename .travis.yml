@@ -7,6 +7,6 @@ install:
 - go get github.com/mitchellh/gox
 script:
 - cp -r $HOME/gopath/src/github.com/c4s4/neon $HOME/gopath/src/
+- ls $HOME/gopath/src/
 - cd $HOME/gopath
-- ls $HOME/gopath/src/github.com/c4s4/neon
 - go test neon/...
