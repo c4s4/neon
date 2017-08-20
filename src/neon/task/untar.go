@@ -82,7 +82,7 @@ func UntarFile(file, dir string) error {
 		gzipReader, err := gzip.NewReader(reader)
 		defer gzipReader.Close()
 		if err != nil {
-			return fmt.Errorf("unzipping tar file: %v", file, err)
+			return fmt.Errorf("unzipping tar file: %v", err)
 		}
 		tarReader = tar.NewReader(gzipReader)
 	} else {

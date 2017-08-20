@@ -155,7 +155,7 @@ func Request(target *build.Target, args util.Object) (build.Task, error) {
 		}
 		_request, _err := http.NewRequest(_method, _url, bytes.NewBuffer([]byte(_body)))
 		if _err != nil {
-			return fmt.Errorf("building request: %v", _url, _err)
+			return fmt.Errorf("building request: %v", _err)
 		}
 		for _name, _value := range _headers {
 			_request.Header.Set(_name, _value)

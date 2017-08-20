@@ -33,7 +33,7 @@ func ToSliceString(object interface{}) ([]string, error) {
 		for i := 0; i < slice.Len(); i++ {
 			value := slice.Index(i)
 			if value.Kind() != reflect.String {
-				fmt.Errorf("must be a slice of strings")
+				return nil, fmt.Errorf("must be a slice of strings")
 			}
 			result[i] = value.Interface().(string)
 		}
