@@ -8,4 +8,5 @@ install:
 script:
 - cp -r $HOME/gopath/src/github.com/c4s4/neon $HOME/gopath/src/
 - cd $HOME/gopath
+- ls $HOME/gopath/src/neon/build
 - go test neon/...
