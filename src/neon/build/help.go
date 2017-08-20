@@ -39,7 +39,7 @@ func (build *Build) Info() error {
 		}
 	}
 	// print context scripts
-	if len(build.Config) > 0 {
+	if len(build.Scripts) > 0 {
 		Message("")
 		Message("context:")
 		for _, script := range build.Scripts {
