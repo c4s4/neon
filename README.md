@@ -1,6 +1,13 @@
 NeON
 ====
 
+[![Build Status](https://travis-ci.org/c4s4/neon.svg?branch=master)](https://travis-ci.org/c4s4/neon)
+[![Code Quality](https://goreportcard.com/badge/github.com/c4s4/neon)](https://goreportcard.com/report/github.com/c4s4/neon)
+<!--
+[![Coverage Report](https://coveralls.io/repos/github/c4s4/neon/badge.svg?branch=master)](https://coveralls.io/github/c4s4/neon?branch=master)
+-->
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 - Project :   <https://github.com/c4s4/changelog>.
 - Downloads : <https://github.com/c4s4/changelog/releases>.
 
