@@ -11,6 +11,19 @@ import (
 	"unicode/utf8"
 )
 
+// ToString returns a string from an interface
+func ToString(object interface{}) (string, error) {
+	str := reflect.ValueOf(object)
+	if str.Kind() == reflect.Interface {
+		str = str.Elem()
+	}
+	if str.Kind() == reflect.String {
+		return str.Interface().(string), nil
+	} else {
+		return "", fmt.Errorf("%#v is not a string", str)
+	}
+}
+
 // Return interface as a list of interfaces
 func ToList(object interface{}) ([]interface{}, error) {
 	slice := reflect.ValueOf(object)
@@ -31,11 +44,11 @@ func ToSliceString(object interface{}) ([]string, error) {
 	if slice.Kind() == reflect.Slice {
 		result := make([]string, slice.Len())
 		for i := 0; i < slice.Len(); i++ {
-			value := slice.Index(i)
-			if value.Kind() != reflect.String {
-				return nil, fmt.Errorf("must be a slice of strings")
+			value := slice.Index(i).Interface()
+			var err error
+			if result[i], err = ToString(value); err != nil {
+				return nil, err
 			}
-			result[i] = value.Interface().(string)
 		}
 		return result, nil
 	} else {
