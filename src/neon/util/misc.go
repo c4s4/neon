@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net"
 	"reflect"
-	"time"
-	"unicode/utf8"
+	"regexp"
 	"runtime"
 	"testing"
-	"regexp"
+	"time"
+	"unicode/utf8"
 )
 
 // Return interface as a list of interfaces
@@ -24,6 +24,7 @@ func ToList(object interface{}) ([]interface{}, error) {
 		return nil, fmt.Errorf("must be a list")
 	}
 }
+
 // ToSliceString return interface as a slice of strings.
 func ToSliceString(object interface{}) ([]string, error) {
 	slice := reflect.ValueOf(object)
@@ -143,7 +144,7 @@ func Singleton(port int) error {
 
 // Tells if we are running on windows
 func Windows() bool {
-	return 	runtime.GOOS == "windows"
+	return runtime.GOOS == "windows"
 }
 
 // Make an assertion for testing purpose

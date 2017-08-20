@@ -9,8 +9,8 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
-	"strings"
 	"runtime"
+	"strings"
 )
 
 const (

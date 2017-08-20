@@ -27,7 +27,7 @@ Examples:
 
 func Keys(themap map[interface{}]interface{}) []interface{} {
 	keys := make([]interface{}, 0, len(themap))
-	for key, _ := range themap {
+	for key := range themap {
 		keys = append(keys, key)
 	}
 	return keys

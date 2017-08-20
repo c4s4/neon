@@ -65,7 +65,7 @@ func (build *Build) Info() error {
 	}
 	// print build environment
 	var names []string
-	for name, _ := range build.Context.Environment {
+	for name := range build.Context.Environment {
 		names = append(names, name)
 	}
 	length = util.MaxLength(names)
@@ -81,7 +81,7 @@ func (build *Build) Info() error {
 	// print targets documentation
 	targets := build.GetTargets()
 	names = make([]string, 0)
-	for name, _ := range targets {
+	for name := range targets {
 		names = append(names, name)
 	}
 	length = util.MaxLength(names)
@@ -112,7 +112,7 @@ func PrintProperty(name, doc string, depends []string, length int) {
 // Print build targets
 func (build *Build) PrintTargets() {
 	var targets []string
-	for name, _ := range build.GetTargets() {
+	for name := range build.GetTargets() {
 		targets = append(targets, name)
 	}
 	sort.Strings(targets)
@@ -122,7 +122,7 @@ func (build *Build) PrintTargets() {
 // Print tasks
 func PrintTasks() {
 	var tasks []string
-	for name, _ := range TaskMap {
+	for name := range TaskMap {
 		tasks = append(tasks, name)
 	}
 	sort.Strings(tasks)
@@ -142,7 +142,7 @@ func PrintHelpTask(task string) {
 // Print builtins
 func PrintBuiltins() {
 	var builtins []string
-	for name, _ := range BuiltinMap {
+	for name := range BuiltinMap {
 		builtins = append(builtins, name)
 	}
 	sort.Strings(builtins)

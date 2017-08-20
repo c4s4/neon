@@ -3,9 +3,9 @@ package build
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"neon/util"
 	"strings"
 	"unicode/utf8"
-	"neon/util"
 )
 
 const (

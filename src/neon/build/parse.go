@@ -44,14 +44,14 @@ func ParseShell(object util.Object, build *Build) error {
 			if err != nil {
 				return err
 			}
-			build.Shell = map[string][]string {
+			build.Shell = map[string][]string{
 				"default": slice,
 			}
 		} else {
 			return fmt.Errorf("shell must be a list of strings or a map of list of strings")
 		}
 	} else {
-		build.Shell = map[string][]string {
+		build.Shell = map[string][]string{
 			"default": {"sh", "-c"},
 			"windows": {"cmd", "/c"},
 		}

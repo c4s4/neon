@@ -133,13 +133,13 @@ func Copy(target *build.Target, args util.Object) (build.Task, error) {
 		build.Message("Copying %d file(s)", len(_sources))
 		if _tofile != "" {
 			file := filepath.Join(_dir, _sources[0])
-		 	_err = util.CopyFile(file, _tofile)
+			_err = util.CopyFile(file, _tofile)
 			if _err != nil {
 				return fmt.Errorf("copying file: %v", _err)
 			}
 		}
 		if _toDir != "" {
-		 	_err = util.CopyFilesToDir(_dir, _sources, _toDir, flat)
+			_err = util.CopyFilesToDir(_dir, _sources, _toDir, flat)
 			if _err != nil {
 				return fmt.Errorf("copying file: %v", _err)
 			}

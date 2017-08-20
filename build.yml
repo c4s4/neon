@@ -27,6 +27,12 @@ targets:
       - print: 'Running build file "#{file}"'
       - $: 'bin/neon -file "test/#{file}"'
 
+  fmt:
+    doc: Reformat code
+    steps:
+    - print: 'Reformating code'
+    - $: [gofmt, -s, -w, src/neon/]
+
   bin:
     doc: 'Build neon binary'
     steps:
