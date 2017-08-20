@@ -23,7 +23,7 @@ func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 	}
 	err := object.CheckFields([]string{"doc", "depends", "steps"})
 	if err != nil {
-		return nil, fmt.Errorf("parsing target '%s': %v", name, err)
+		return nil, err
 	}
 	if err := ParseTargetDoc(object, target); err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func ParseTargetDoc(object util.Object, target *Target) error {
 	if object.HasField("doc") {
 		doc, err := object.GetString("doc")
 		if err != nil {
-			return fmt.Errorf("parsing target '%s': doc field must be a string", target.Name)
+			return fmt.Errorf("doc field must be a string", target.Name)
 		}
 		target.Doc = doc
 	}
@@ -54,7 +54,7 @@ func ParseTargetDepends(object util.Object, target *Target) error {
 	if object.HasField("depends") {
 		depends, err := object.GetListStringsOrString("depends")
 		if err != nil {
-			return fmt.Errorf("parsing target '%s': depends field must be a string or list of strings", target.Name)
+			return fmt.Errorf("depends field must be a string or list of strings")
 		}
 		target.Depends = depends
 	}

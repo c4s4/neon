@@ -67,7 +67,7 @@ func ParseSteps(target *build.Target, object util.Object, field string) ([]build
 	for _, element := range list {
 		step, err := build.NewStep(target, element)
 		if err != nil {
-			return nil, fmt.Errorf("parsing target '%s': %v", target.Name, err)
+			return nil, err
 		}
 		steps = append(steps, step)
 	}
