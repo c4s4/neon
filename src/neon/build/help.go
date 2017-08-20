@@ -15,8 +15,8 @@ func (build *Build) Info() error {
 		Message("doc: %s", build.Doc)
 	}
 	if len(build.Default) > 0 {
-		defauls := "[" + strings.Join(build.Default, ", ") + "]"
-		Message("default: %s", defauls)
+		defaults := "[" + strings.Join(build.Default, ", ") + "]"
+		Message("default: %s", defaults)
 	}
 	Message("repository: %s", build.Repository)
 	if build.Singleton != 0 {
