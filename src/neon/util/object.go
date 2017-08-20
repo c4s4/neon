@@ -202,7 +202,7 @@ func (object Object) Copy() Object {
 func (object Object) Fields() []string {
 	fields := make([]string, len(object))
 	index := 0
-	for name, _ := range object {
+	for name := range object {
 		fields[index] = name
 		index++
 	}
@@ -212,7 +212,7 @@ func (object Object) Fields() []string {
 
 // Tells if object has given field
 func (object Object) HasField(field string) bool {
-	for name, _ := range object {
+	for name := range object {
 		if name == field {
 			return true
 		}

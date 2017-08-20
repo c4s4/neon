@@ -6,8 +6,8 @@ import (
 	"neon/util"
 	"os"
 	"os/exec"
-	"strings"
 	"runtime"
+	"strings"
 )
 
 func init() {
@@ -169,7 +169,7 @@ func (c CommandScript) Run(build *build.Build, pipe bool) (string, error) {
 
 func NewCommands(build *build.Build, object interface{}) (*Commands, error) {
 	if !util.IsMap(object) {
-		m := map[string]interface{} {
+		m := map[string]interface{}{
 			"default": object,
 		}
 		return NewCommands(build, m)
@@ -190,8 +190,8 @@ func NewCommands(build *build.Build, object interface{}) (*Commands, error) {
 			return nil, fmt.Errorf("command must a string or liste of strings")
 		}
 	}
-	return &Commands {
-		Build: build,
+	return &Commands{
+		Build:    build,
 		Commands: commands,
 	}, nil
 }

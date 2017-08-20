@@ -7,8 +7,8 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
-	"strings"
 	"regexp"
+	"strings"
 )
 
 const (

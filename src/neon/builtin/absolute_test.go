@@ -2,8 +2,8 @@ package builtin
 
 import (
 	"neon/util"
-	"testing"
 	"strings"
+	"testing"
 )
 
 func TestAbsolute(t *testing.T) {

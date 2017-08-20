@@ -8,9 +8,9 @@ import (
 	"neon/build"
 	"neon/util"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
-	"path"
 )
 
 func init() {

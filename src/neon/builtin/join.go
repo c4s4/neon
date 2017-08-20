@@ -2,8 +2,8 @@ package builtin
 
 import (
 	"neon/build"
-	"strings"
 	"reflect"
+	"strings"
 )
 
 func init() {
