@@ -64,8 +64,14 @@ func ToMapStringString(object interface{}) (map[string]string, error) {
 	}
 	result := make(map[string]string)
 	for _, key := range value.MapKeys() {
-		keyString := key.Interface().(string)
-		valueString := value.MapIndex(key).Interface().(string)
+		keyString, err := ToString(key.Interface())
+		if err != nil {
+			return nil, err
+		}
+		valueString, err := ToString(value.MapIndex(key).Interface())
+		if err != nil {
+			return nil, err
+		}
 		result[keyString] = valueString
 	}
 	return result, nil
@@ -80,7 +86,10 @@ func ToMapStringInterface(object interface{}) (map[string]interface{}, error) {
 	}
 	result := make(map[string]interface{})
 	for _, key := range value.MapKeys() {
-		keyString := key.Interface().(string)
+		keyString, err := ToString(key.Interface())
+		if err != nil {
+			return nil, err
+		}
 		valueInterface := value.MapIndex(key).Interface()
 		result[keyString] = valueInterface
 	}

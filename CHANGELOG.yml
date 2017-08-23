@@ -1,5 +1,11 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 0.10.0
+  date:    2017-08-00
+  summary: ???
+  changed:
+  - "Task replace takes a map instead of pattern and with arguments."
+
 - version: 0.9.0
   date:    2017-08-18
   summary: Script and shell task refactoring
