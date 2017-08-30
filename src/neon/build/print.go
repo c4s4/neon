@@ -58,13 +58,21 @@ func PrintError(text string) {
 }
 
 // Print string with arguments in given color
-func printColor(format string, fields ...interface{}) {
-	fmt.Fprintf(color.Output, format, fields...)
-	fmt.Println()
+func printColor(text string, fields ...interface{}) {
+	if len(fields) > 0 {
+		fmt.Fprintf(color.Output, text, fields...)
+		fmt.Println()
+	} else {
+		fmt.Println(text)
+	}
 }
 
 // Print string with arguments in grey
-func printGrey(format string, fields ...interface{}) {
-	fmt.Printf(format, fields...)
-	fmt.Println()
+func printGrey(text string, fields ...interface{}) {
+	if len(fields) > 0 {
+		fmt.Printf(text, fields...)
+		fmt.Println()
+	} else {
+		fmt.Println(text)
+	}
 }
