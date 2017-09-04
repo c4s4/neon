@@ -8,8 +8,8 @@ NeON
 [![Coverage Report](https://coveralls.io/repos/github/c4s4/neon/badge.svg?branch=master)](https://coveralls.io/github/c4s4/neon?branch=master)
 -->
 
-- Project :   <https://github.com/c4s4/changelog>.
-- Downloads : <https://github.com/c4s4/changelog/releases>.
+- Project :   <https://github.com/c4s4/neon>.
+- Downloads : <https://github.com/c4s4/neon/releases>.
 
 NeON is a build tool the way it should be.
 
