@@ -24,9 +24,7 @@ Examples:
     	windows: 'dir'
     	default: 'ls'
     # execute command as a list of strings
-    - $:
-    	- 'ls''
-    	- '-al'
+    - $: ['ls', '-al']
 
 Notes:
 
@@ -371,9 +369,8 @@ Replace pattern in text files.
 
 Arguments:
 
-- replace: the list of globs of files to work with (as a string or list of strings).
-- pattern: the text to replace.
-- with: the replacement text.
+- replace: the globs of files to work with (as a string or list of strings).
+- with: map with replacements.
 - dir: the root directory for glob (as a string, optional).
 - exclude: globs of files to exclude (as a string or list of strings,
   optional).
@@ -382,8 +379,7 @@ Examples:
 
     # replace foo with bar in file test.txt
     - replace: "test.txt"
-      pattern: "foo"
-      with: "bar"
+      with:    {"foo": "bar"}
 
 request
 -------
@@ -706,7 +702,7 @@ Examples:
 
     // escape given URL
     escapeurl("/foo bar")
-    // returns: "/foo%!b(MISSING)ar"
+    // returns: "/foo%20bar"
 
 exists
 ------
@@ -1112,7 +1108,7 @@ Returns:
 Examples:
 
     // unescape given URL
-    escapeurl("foo%!b(MISSING)ar")
+    escapeurl("foo%20bar")
     // returns: "foo bar"
 
 unixpath
