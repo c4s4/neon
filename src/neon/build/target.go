@@ -82,11 +82,11 @@ func ParseTargetSteps(object util.Object, target *Target) error {
 }
 
 // Run target
-func (target *Target) Run() error {
-	target.Build.Stack.Push(target.Name)
+func (target *Target) Run(context *Context) error {
+	context.Stack.Push(target.Name)
 	for _, name := range target.Depends {
-		if !target.Build.Stack.Contains(name) {
-			err := target.Build.RunTarget(name)
+		if !context.Stack.Contains(name) {
+			err := target.Build.RunTarget(name, context)
 			if err != nil {
 				return err
 			}
@@ -97,26 +97,26 @@ func (target *Target) Run() error {
 	if err != nil {
 		return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
 	}
-	target.Build.Index = NewIndex()
+	context.Index = NewIndex()
 	for index, step := range target.Steps {
-		target.Build.Index.Set(index)
-		err := step.Run()
+		context.Index.Set(index)
+		err := step.Run(context)
 		if err != nil {
-			return fmt.Errorf("in step %s: %v", target.Build.Index.String(), err)
+			return fmt.Errorf("in step %s: %v", context.Index.String(), err)
 		}
 	}
 	return nil
 }
 
 // Run target steps
-func (target *Target) RunSteps() error {
-	target.Build.Stack.Push(target.Name)
-	target.Build.Index = NewIndex()
+func (target *Target) RunSteps(context *Context) error {
+	context.Stack.Push(target.Name)
+	context.Index = NewIndex()
 	for index, step := range target.Steps {
-		target.Build.Index.Set(index)
-		err := step.Run()
+		context.Index.Set(index)
+		err := step.Run(context)
 		if err != nil {
-			return fmt.Errorf("in step %s: %v", target.Build.Index.String(), err)
+			return fmt.Errorf("in step %s: %v", context.Index.String(), err)
 		}
 	}
 	return nil

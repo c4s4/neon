@@ -31,8 +31,8 @@ func Super(target *build.Target, args util.Object) (build.Task, error) {
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err
 	}
-	return func() error {
-		ok, err := target.Build.RunParentTarget(target.Name)
+	return func(context *build.Context) error {
+		ok, err := target.Build.RunParentTarget(target.Name, context)
 		if err != nil {
 			return err
 		}

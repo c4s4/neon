@@ -40,10 +40,7 @@ type Build struct {
 	Properties  util.Object
 	Environment map[string]string
 	Targets     map[string]*Target
-	Context     *Context
 	Parents     []*Build
-	Index       *Index
-	Stack       *Stack
 }
 
 // Make a build from a build file
@@ -107,6 +104,7 @@ func NewBuild(file string) (*Build, error) {
 	if err := ParseTargets(object, build); err != nil {
 		return nil, err
 	}
+	build.SetDir(base)
 	return build, nil
 }
 
@@ -169,59 +167,11 @@ func (build *Build) GetTargetByName(name string) *Target {
 	return nil
 }
 
-// Initialize build:
-// - Set build dir and change to it
-// - Create context and set it for build
-func (build *Build) Init() error {
-	os.Chdir(build.Dir)
-	context, err := NewContext(build)
-	if err != nil {
-		return fmt.Errorf("evaluating context: %v", err)
-	}
-	build.SetDir(build.Dir)
-	build.SetContext(context)
-	build.SetStack(NewStack())
-	return nil
-}
-
-// Parse extends field of the build
-func (build *Build) LoadParents() error {
-	var parents []*Build
-	for _, extend := range build.Extends {
-		file := build.PluginPath(extend)
-		parent, err := NewBuild(file)
-		if err != nil {
-			if err != nil {
-				return fmt.Errorf("loading parent build file '%s': %v", extend, err)
-			}
-		}
-		parents = append(parents, parent)
-	}
-	build.Parents = parents
-	return nil
-}
-
 // Set the build directory, propagating to parents
 func (build *Build) SetDir(dir string) {
-	build.Dir = dir
+    build.Dir = dir
 	for _, parent := range build.Parents {
 		parent.SetDir(dir)
-	}
-}
-
-// Set the build context, propagating to parents
-func (build *Build) SetContext(context *Context) {
-	build.Context = context
-	for _, parent := range build.Parents {
-		parent.SetContext(context)
-	}
-}
-
-// Set the build stack, propagating to parents
-func (build *Build) SetStack(stack *Stack) {
-	build.Stack = stack
-	for _, parent := range build.Parents {
-		parent.SetStack(stack)
 	}
 }
 
@@ -261,6 +211,10 @@ func (build *Build) GetDefault() []string {
 
 // Run build given targets. If no target is given, run default one.
 func (build *Build) Run(targets []string) error {
+	context, err := NewContext(build)
+	if err != nil {
+		return err
+	}
 	if len(targets) == 0 {
 		targets = build.GetDefault()
 		if len(targets) == 0 {
@@ -268,7 +222,7 @@ func (build *Build) Run(targets []string) error {
 		}
 	}
 	for _, target := range targets {
-		err := build.RunTarget(target)
+		err := build.RunTarget(target, context)
 		if err != nil {
 			return err
 		}
@@ -277,12 +231,12 @@ func (build *Build) Run(targets []string) error {
 }
 
 // Run given target
-func (build *Build) RunTarget(name string) error {
+func (build *Build) RunTarget(name string, context *Context) error {
 	target := build.GetTargetByName(name)
 	if target == nil {
 		return fmt.Errorf("target '%s' not found", name)
 	}
-	err := target.Run()
+	err := target.Run(context)
 	if err != nil {
 		return fmt.Errorf("running target '%s': %v", name, err)
 	}
@@ -290,17 +244,17 @@ func (build *Build) RunTarget(name string) error {
 }
 
 // Run parent target
-func (build *Build) RunParentTarget(name string) (bool, error) {
+func (build *Build) RunParentTarget(name string, context *Context) (bool, error) {
 	for _, parent := range build.Parents {
 		target := parent.GetTargetByName(name)
 		if target != nil {
-			err := target.RunSteps()
+			err := target.RunSteps(context)
 			if err != nil {
 				return true, fmt.Errorf("running target '%s': %v", name, err)
 			}
 			return true, nil
 		} else {
-			ok, err := parent.RunParentTarget(name)
+			ok, err := parent.RunParentTarget(name, context)
 			if ok || err != nil {
 				return ok, err
 			}

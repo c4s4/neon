@@ -53,9 +53,9 @@ func For(target *build.Target, args util.Object) (build.Task, error) {
 	if err != nil {
 		return nil, err
 	}
-	return func() error {
+	return func(context *build.Context) error {
 		if expression != "" {
-			_result, _err := target.Build.Context.EvaluateExpression(expression)
+			_result, _err := context.VM.EvaluateExpression(expression)
 			if _err != nil {
 				return fmt.Errorf("evaluating in field of for loop: %v", _err)
 			}
@@ -65,8 +65,8 @@ func For(target *build.Target, args util.Object) (build.Task, error) {
 			}
 		}
 		for _, _value := range _list {
-			target.Build.Context.SetProperty(variable, _value)
-			_err := RunSteps(target.Build, steps)
+			context.VM.SetProperty(variable, _value)
+			_err := RunSteps(steps, context)
 			if _err != nil {
 				return _err
 			}

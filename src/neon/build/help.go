@@ -10,6 +10,10 @@ import (
 
 // Print help on build
 func (build *Build) Info() error {
+	context, err := NewContext(build)
+	if err != nil {
+		return err
+	}
 	// print build information
 	if build.Doc != "" {
 		Message("doc: %s", build.Doc)
@@ -47,12 +51,12 @@ func (build *Build) Info() error {
 		}
 	}
 	// print build properties
-	length := util.MaxLength(build.Context.Properties)
-	if len(build.Context.Properties) > 0 {
+	length := util.MaxLength(context.VM.Properties)
+	if len(context.VM.Properties) > 0 {
 		Message("")
 		Message("properties:")
-		for _, name := range build.Context.Properties {
-			value, err := build.Context.GetProperty(name)
+		for _, name := range context.VM.Properties {
+			value, err := context.VM.GetProperty(name)
 			if err != nil {
 				return fmt.Errorf("getting property '%s': %v", name, err)
 			}
@@ -65,16 +69,16 @@ func (build *Build) Info() error {
 	}
 	// print build environment
 	var names []string
-	for name := range build.Context.Environment {
+	for name := range context.VM.Environment {
 		names = append(names, name)
 	}
 	length = util.MaxLength(names)
 	sort.Strings(names)
-	if len(build.Context.Environment) > 0 {
+	if len(context.VM.Environment) > 0 {
 		Message("")
 		Message("environment:")
 		for _, name := range names {
-			value := "\"" + build.Context.Environment[name] + "\""
+			value := "\"" + context.VM.Environment[name] + "\""
 			PrintProperty(name, value, []string{}, length)
 		}
 	}

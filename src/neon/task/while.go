@@ -38,9 +38,9 @@ func While(target *build.Target, args util.Object) (build.Task, error) {
 	if err != nil {
 		return nil, err
 	}
-	return func() error {
+	return func(context *build.Context) error {
 		for {
-			_result, _err := target.Build.Context.EvaluateExpression(condition)
+			_result, _err := context.VM.EvaluateExpression(condition)
 			if _err != nil {
 				return fmt.Errorf("evaluating 'while' field of 'while' loop: %v", _err)
 			}
@@ -51,7 +51,7 @@ func While(target *build.Target, args util.Object) (build.Task, error) {
 			if !_loop {
 				break
 			}
-			_err = RunSteps(target.Build, steps)
+			_err = RunSteps(steps, context)
 			if _err != nil {
 				return _err
 			}

@@ -31,8 +31,8 @@ func Assert(target *build.Target, args util.Object) (build.Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("evaluating assert construct: %v", err)
 	}
-	return func() error {
-		_result, _err := target.Build.Context.EvaluateExpression(assertion)
+	return func(context *build.Context) error {
+		_result, _err := context.VM.EvaluateExpression(assertion)
 		if _err != nil {
 			return fmt.Errorf("evaluating 'assert' condition: %v", _err)
 		}

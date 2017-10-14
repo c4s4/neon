@@ -71,12 +71,12 @@ func (c Commands) GetCommand() (Command, error) {
 // Run execute a command and return its output and an error (if command
 // returned a value different from 0). Arguments:
 // - pipe tells if we should print the output of the command on the console.
-func (c Commands) Run(pipe bool) (string, error) {
+func (c Commands) Run(pipe bool, context *build.Context) (string, error) {
 	command, err := c.GetCommand()
 	if err != nil {
 		return "", err
 	}
-	output, err := command.Run(c.Build, pipe)
+	output, err := command.Run(c.Build, pipe, context)
 	output = util.RemoveBlankLines(output)
 	output = strings.TrimSuffix(output, "\n")
 	return output, err
@@ -84,7 +84,7 @@ func (c Commands) Run(pipe bool) (string, error) {
 
 // Command is the interface for a command.
 type Command interface {
-	Run(build *build.Build, pipe bool) (string, error)
+	Run(build *build.Build, pipe bool, context *build.Context) (string, error)
 }
 
 // CommandList is a command as a list with executable and arguments.
@@ -94,11 +94,11 @@ type CommandList struct {
 
 // Run execute the command and returns its output and an error. Arguments:
 // - pipe tells if we should print output of the command on the console.
-func (c CommandList) Run(build *build.Build, pipe bool) (string, error) {
+func (c CommandList) Run(build *build.Build, pipe bool, context *build.Context) (string, error) {
 	parts := make([]string, len(c.Parts))
 	var err error
 	for i := 0; i < len(c.Parts); i++ {
-		parts[i], err = build.Context.EvaluateString(c.Parts[i])
+		parts[i], err = context.VM.EvaluateString(c.Parts[i])
 		if err != nil {
 			return "", err
 		}
@@ -109,7 +109,7 @@ func (c CommandList) Run(build *build.Build, pipe bool) (string, error) {
 		return "", fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
-	command.Env, err = build.Context.EvaluateEnvironment()
+	command.Env, err = context.VM.EvaluateEnvironment()
 	if err != nil {
 		return "", fmt.Errorf("building environment: %v", err)
 	}
@@ -138,14 +138,14 @@ type CommandShell struct {
 
 // Run execute the command and returns its output and an error. Arguments:
 // - pipe tells if we should print output of the command on the console.
-func (c CommandShell) Run(build *build.Build, pipe bool) (string, error) {
+func (c CommandShell) Run(build *build.Build, pipe bool, context *build.Context) (string, error) {
 	shell, err := build.GetShell()
 	if err != nil {
 		return "", err
 	}
 	binary := shell[0]
 	arguments := shell[1:]
-	cmd, err := build.Context.EvaluateString(c.Script)
+	cmd, err := context.VM.EvaluateString(c.Script)
 	if err != nil {
 		return "", err
 	}
@@ -156,7 +156,7 @@ func (c CommandShell) Run(build *build.Build, pipe bool) (string, error) {
 		return "", fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
-	command.Env, err = build.Context.EvaluateEnvironment()
+	command.Env, err = context.VM.EvaluateEnvironment()
 	if err != nil {
 		return "", fmt.Errorf("building environment: %v", err)
 	}
@@ -232,12 +232,12 @@ func Shell(target *build.Target, args util.Object) (build.Task, error) {
 			return nil, fmt.Errorf("argument = of task $ must be a string")
 		}
 	}
-	return func() error {
-		_variable, _err := target.Build.Context.EvaluateString(variable)
+	return func(context *build.Context) error {
+		_variable, _err := context.VM.EvaluateString(variable)
 		if _err != nil {
 			return fmt.Errorf("processing output argument: %v", _err)
 		}
-		_output, _err := commands.Run(_variable == "")
+		_output, _err := commands.Run(_variable == "", context)
 		if _err != nil {
 			if _output != "" {
 				build.Message(_output)
@@ -245,7 +245,7 @@ func Shell(target *build.Target, args util.Object) (build.Task, error) {
 			return _err
 		}
 		if _variable != "" {
-			target.Build.Context.SetProperty(_variable, strings.TrimSpace(string(_output)))
+			context.VM.SetProperty(_variable, strings.TrimSpace(string(_output)))
 		}
 		return nil
 	}, nil

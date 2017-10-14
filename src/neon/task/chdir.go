@@ -36,8 +36,8 @@ func Chdir(target *build.Target, args util.Object) (build.Task, error) {
 	if !ok {
 		return nil, fmt.Errorf("argument to task chdir must be a string")
 	}
-	return func() error {
-		_directory, _err := target.Build.Context.EvaluateString(dir)
+	return func(context *build.Context) error {
+		_directory, _err := context.VM.EvaluateString(dir)
 		build.Message("Changing to directory '%s'", _directory)
 		if _err != nil {
 			return fmt.Errorf("processing chdir argument: %v", _err)

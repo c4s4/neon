@@ -41,14 +41,14 @@ func Unzip(target *build.Target, args util.Object) (build.Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("argument todir of task unzip must be a string")
 	}
-	return func() error {
+	return func(context *build.Context) error {
 		// evaluate arguments
 		var _err error
-		_file, _err := target.Build.Context.EvaluateString(file)
+		_file, _err := context.VM.EvaluateString(file)
 		if _err != nil {
 			return fmt.Errorf("evaluating source zip file: %v", _err)
 		}
-		_todir, _err := target.Build.Context.EvaluateString(todir)
+		_todir, _err := context.VM.EvaluateString(todir)
 		if _err != nil {
 			return fmt.Errorf("evaluating destination directory: %v", _err)
 		}

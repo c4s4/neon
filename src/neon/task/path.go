@@ -57,28 +57,28 @@ func Path(target *build.Target, args util.Object) (build.Task, error) {
 			return nil, fmt.Errorf("argument exclude ot task path must be string or list of strings")
 		}
 	}
-	return func() error {
+	return func(context *build.Context) error {
 		// evaluate arguments
-		_dir, _err := target.Build.Context.EvaluateString(dir)
+		_dir, _err := context.VM.EvaluateString(dir)
 		if _err != nil {
 			return fmt.Errorf("evaluating destination directory: %v", _err)
 		}
 		_includes := make([]string, len(includes))
 		for _index, _include := range includes {
-			_includes[_index], _err = target.Build.Context.EvaluateString(_include)
+			_includes[_index], _err = context.VM.EvaluateString(_include)
 			if _err != nil {
 				return fmt.Errorf("evaluating includes: %v", _err)
 			}
 		}
 		_excludes := make([]string, len(excludes))
 		for _index, _exclude := range excludes {
-			_excludes[_index], _err = target.Build.Context.EvaluateString(_exclude)
+			_excludes[_index], _err = context.VM.EvaluateString(_exclude)
 			if _err != nil {
 				return fmt.Errorf("evaluating excludes: %v", _err)
 			}
 		}
 		// find source files
-		_files, _err := target.Build.Context.FindFiles(_dir, _includes, _excludes, true)
+		_files, _err := context.VM.FindFiles(_dir, _includes, _excludes, true)
 		if _err != nil {
 			return fmt.Errorf("getting source files for path task: %v", _err)
 		}
@@ -87,7 +87,7 @@ func Path(target *build.Target, args util.Object) (build.Task, error) {
 		}
 		build.Message("Building path with %d file(s)", len(_files))
 		path := strings.Join(_files, string(filepath.ListSeparator))
-		target.Build.Context.SetProperty(to, path)
+		context.VM.SetProperty(to, path)
 		return nil
 	}, nil
 }

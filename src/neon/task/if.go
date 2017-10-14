@@ -48,8 +48,8 @@ func If(target *build.Target, args util.Object) (build.Task, error) {
 			return nil, err
 		}
 	}
-	return func() error {
-		_result, _err := target.Build.Context.EvaluateExpression(condition)
+	return func(context *build.Context) error {
+		_result, _err := context.VM.EvaluateExpression(condition)
 		if _err != nil {
 			return fmt.Errorf("evaluating 'if' condition: %v", _err)
 		}
@@ -58,12 +58,12 @@ func If(target *build.Target, args util.Object) (build.Task, error) {
 			return fmt.Errorf("evaluating if condition: must return a bool")
 		}
 		if _boolean {
-			_err := RunSteps(target.Build, thenSteps)
+			_err := RunSteps(thenSteps, context)
 			if _err != nil {
 				return _err
 			}
 		} else {
-			_err := RunSteps(target.Build, elseSteps)
+			_err := RunSteps(elseSteps, context)
 			if _err != nil {
 				return _err
 			}

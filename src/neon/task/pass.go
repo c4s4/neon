@@ -30,7 +30,7 @@ func Pass(target *build.Target, args util.Object) (build.Task, error) {
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err
 	}
-	return func() error {
+	return func(context *build.Context) error {
 		return nil
 	}, nil
 }

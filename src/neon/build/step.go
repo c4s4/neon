@@ -8,7 +8,7 @@ import (
 
 // A step has a Run() method
 type Step interface {
-	Run() error
+	Run(context *Context) error
 }
 
 // Make a step inside given target
@@ -39,8 +39,8 @@ func NewScriptStep(target *Target, script string) (Step, error) {
 }
 
 // Run a script step using Anko VM.
-func (step ScriptStep) Run() error {
-	_, err := step.Target.Build.Context.EvaluateExpression(step.Script)
+func (step ScriptStep) Run(context *Context) error {
+	_, err := context.VM.EvaluateExpression(step.Script)
 	if err != nil {
 		return fmt.Errorf("evaluating script: %v", err)
 	}
@@ -79,6 +79,6 @@ func NewTaskStep(target *Target, m map[interface{}]interface{}) (Step, error) {
 }
 
 // Run a task step, calling the function for the step
-func (step TaskStep) Run() error {
-	return step.Task()
+func (step TaskStep) Run(context *Context) error {
+	return step.Task(context)
 }

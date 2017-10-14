@@ -36,8 +36,8 @@ func Throw(target *build.Target, args util.Object) (build.Task, error) {
 	if !ok {
 		return nil, fmt.Errorf("argument of throw print must be a string")
 	}
-	return func() error {
-		_message, _err := target.Build.Context.EvaluateString(message)
+	return func(context *build.Context) error {
+		_message, _err := context.VM.EvaluateString(message)
 		if _err != nil {
 			return fmt.Errorf("processing thow argument: %v", _err)
 		}

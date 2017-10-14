@@ -38,12 +38,12 @@ func Link(target *build.Target, args util.Object) (build.Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("argument to of task link must be a string")
 	}
-	return func() error {
-		_source, _err := target.Build.Context.EvaluateString(s)
+	return func(context *build.Context) error {
+		_source, _err := context.VM.EvaluateString(s)
 		if _err != nil {
 			return fmt.Errorf("processing link argument: %v", _err)
 		}
-		_dest, _err := target.Build.Context.EvaluateString(d)
+		_dest, _err := context.VM.EvaluateString(d)
 		if _err != nil {
 			return fmt.Errorf("processing to argument of link task: %v", _err)
 		}
