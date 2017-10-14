@@ -169,7 +169,7 @@ func (build *Build) GetTargetByName(name string) *Target {
 
 // Set the build directory, propagating to parents
 func (build *Build) SetDir(dir string) {
-    build.Dir = dir
+	build.Dir = dir
 	for _, parent := range build.Parents {
 		parent.SetDir(dir)
 	}

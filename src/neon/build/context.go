@@ -1,24 +1,24 @@
 package build
 
 import (
-    "fmt"
+	"fmt"
 )
 
 type Context struct {
-    VM    *VM
-    Index *Index
-    Stack *Stack
+	VM    *VM
+	Index *Index
+	Stack *Stack
 }
 
 func NewContext(build *Build) (*Context, error) {
-    vm, err := NewVM(build)
-    if err != nil {
-        return nil, fmt.Errorf("evaluating context: %v", err)
-    }
-    context := Context{
-        VM: vm,
-        Index: NewIndex(),
-        Stack: NewStack(),
-    }
-    return &context, nil
+	vm, err := NewVM(build)
+	if err != nil {
+		return nil, fmt.Errorf("evaluating context: %v", err)
+	}
+	context := Context{
+		VM:    vm,
+		Index: NewIndex(),
+		Stack: NewStack(),
+	}
+	return &context, nil
 }
