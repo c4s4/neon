@@ -104,8 +104,6 @@ func main() {
 		err = build.SetCommandLineProperties(props)
 		PrintError(err, 3)
 	}
-	err = build.Init()
-	PrintError(err, 4)
 	if targs {
 		build.PrintTargets()
 	} else if info {

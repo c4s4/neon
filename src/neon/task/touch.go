@@ -39,10 +39,10 @@ func Touch(target *build.Target, args util.Object) (build.Task, error) {
 	if err != nil {
 		return nil, fmt.Errorf("argument to task touch must be a string or list of strings")
 	}
-	return func() error {
+	return func(context *build.Context) error {
 		build.Message("Touching %d file(s)", len(files))
 		for _, _file := range files {
-			_path, _err := target.Build.Context.EvaluateString(_file)
+			_path, _err := context.VM.EvaluateString(_file)
 			if _err != nil {
 				return fmt.Errorf("processing touch argument: %v", _err)
 			}

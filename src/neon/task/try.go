@@ -56,42 +56,42 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 	if err != nil {
 		return nil, err
 	}
-	return func() error {
-		_depth := target.Build.Index.Len()
-		target.Build.Context.SetProperty("_error", "")
+	return func(context *build.Context) error {
+		_depth := context.Index.Len()
+		context.VM.SetProperty("_error", "")
 		var _tryError error
 		var _catchError error
 		var _finallyError error
-		_tryError = RunSteps(target.Build, trySteps)
+		_tryError = RunSteps(trySteps, context)
 		if _tryError != nil {
-			for target.Build.Index.Len() > _depth {
-				target.Build.Index.Shrink()
+			for context.Index.Len() > _depth {
+				context.Index.Shrink()
 			}
 			if len(catchSteps) > 0 || (len(catchSteps) == 0 && len(finallySteps) == 0) {
-				target.Build.Context.SetProperty("_error", _tryError.Error())
+				context.VM.SetProperty("_error", _tryError.Error())
 				_tryError = nil
-				_catchError = RunSteps(target.Build, catchSteps)
+				_catchError = RunSteps(catchSteps, context)
 				if _catchError != nil {
-					for target.Build.Index.Len() > _depth {
-						target.Build.Index.Shrink()
+					for context.Index.Len() > _depth {
+						context.Index.Shrink()
 					}
 				}
 			}
 		}
-		_finallyError = RunSteps(target.Build, finallySteps)
+		_finallyError = RunSteps(finallySteps, context)
 		if _finallyError != nil {
-			for target.Build.Index.Len() > _depth {
-				target.Build.Index.Shrink()
+			for context.Index.Len() > _depth {
+				context.Index.Shrink()
 			}
-			target.Build.Context.SetProperty("_error", _finallyError.Error())
+			context.VM.SetProperty("_error", _finallyError.Error())
 			return _finallyError
 		}
 		if _catchError != nil {
-			target.Build.Context.SetProperty("_error", _catchError.Error())
+			context.VM.SetProperty("_error", _catchError.Error())
 			return _catchError
 		}
 		if _tryError != nil {
-			target.Build.Context.SetProperty("_error", _tryError.Error())
+			context.VM.SetProperty("_error", _tryError.Error())
 			return _tryError
 		}
 		return nil

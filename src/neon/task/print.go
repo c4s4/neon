@@ -31,8 +31,8 @@ func Print(target *build.Target, args util.Object) (build.Task, error) {
 	if !ok {
 		return nil, fmt.Errorf("argument of task print must be a string")
 	}
-	return func() error {
-		_message, _err := target.Build.Context.EvaluateString(message)
+	return func(context *build.Context) error {
+		_message, _err := context.VM.EvaluateString(message)
 		if _err != nil {
 			return fmt.Errorf("processing print argument: %v", _err)
 		}

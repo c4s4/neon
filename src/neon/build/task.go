@@ -5,7 +5,7 @@ import (
 )
 
 // A task is a function that returns an error
-type Task func() error
+type Task func(context *Context) error
 
 // A task constructor is a function that returns a task and an error
 type TaskConstructor func(target *Target, args util.Object) (Task, error)

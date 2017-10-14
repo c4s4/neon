@@ -72,24 +72,24 @@ func Prompt(target *build.Target, args util.Object) (build.Task, error) {
 			return nil, fmt.Errorf("argument error of task prompt must be a string")
 		}
 	}
-	return func() error {
-		_message, _err := target.Build.Context.EvaluateString(message)
+	return func(context *build.Context) error {
+		_message, _err := context.VM.EvaluateString(message)
 		if _err != nil {
 			return fmt.Errorf("processing prompt argument: %v", _err)
 		}
-		_to, _err := target.Build.Context.EvaluateString(to)
+		_to, _err := context.VM.EvaluateString(to)
 		if _err != nil {
 			return fmt.Errorf("evaluating destination variable: %v", _err)
 		}
-		_default, _err := target.Build.Context.EvaluateString(def)
+		_default, _err := context.VM.EvaluateString(def)
 		if _err != nil {
 			return fmt.Errorf("evaluating default value: %v", _err)
 		}
-		_pattern, _err := target.Build.Context.EvaluateString(pattern)
+		_pattern, _err := context.VM.EvaluateString(pattern)
 		if _err != nil {
 			return fmt.Errorf("evaluating input regular expression: %v", _err)
 		}
-		_errorMessage, _err := target.Build.Context.EvaluateString(errorMessage)
+		_errorMessage, _err := context.VM.EvaluateString(errorMessage)
 		if _err != nil {
 			return fmt.Errorf("evaluating error message: %v", _err)
 		}
@@ -116,7 +116,7 @@ func Prompt(target *build.Target, args util.Object) (build.Task, error) {
 				}
 			} else {
 				done = true
-				target.Build.Context.SetProperty(_to, string(_value))
+				context.VM.SetProperty(_to, string(_value))
 			}
 		}
 		return nil

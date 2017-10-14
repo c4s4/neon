@@ -44,19 +44,19 @@ func Time(target *build.Target, args util.Object) (build.Task, error) {
 			return nil, fmt.Errorf("argument to of task time must be a string")
 		}
 	}
-	return func() error {
-		_to, _err := target.Build.Context.EvaluateString(to)
+	return func(context *build.Context) error {
+		_to, _err := context.VM.EvaluateString(to)
 		if _err != nil {
 			return fmt.Errorf("evaluating property: %v", _err)
 		}
 		_start := time.Now()
-		_err = RunSteps(target.Build, steps)
+		_err = RunSteps(steps, context)
 		if _err != nil {
 			return _err
 		}
 		_duration := time.Now().Sub(_start).Seconds()
 		if to != "" {
-			target.Build.Context.SetProperty(_to, _duration)
+			context.VM.SetProperty(_to, _duration)
 		} else {
 			build.Message("Duration: %gs", _duration)
 		}

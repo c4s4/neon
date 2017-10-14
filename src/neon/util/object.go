@@ -91,21 +91,20 @@ func (object Object) GetListStrings(field string) ([]string, error) {
 	if !ok {
 		return make([]string, 0), nil
 	}
-	err := fmt.Errorf("field must be a map with string keys")
 	slice := reflect.ValueOf(thing)
 	if slice.Kind() == reflect.Slice {
 		result := make([]string, slice.Len())
 		for i := 0; i < slice.Len(); i++ {
 			value := slice.Index(i)
-			str, ok := value.Interface().(string)
-			if !ok {
+			str, err := ToString(value.Interface())
+			if err != nil {
 				return nil, err
 			}
 			result[i] = str
 		}
 		return result, nil
 	} else {
-		return nil, err
+		return nil, fmt.Errorf("field must be a map with string keys")
 	}
 }
 
@@ -115,24 +114,26 @@ func (object Object) GetListStringsOrString(field string) ([]string, error) {
 	if !ok {
 		return make([]string, 0), nil
 	}
-	err := fmt.Errorf("field must be a map with string keys")
 	slice := reflect.ValueOf(thing)
 	if slice.Kind() == reflect.Slice {
 		result := make([]string, slice.Len())
 		for i := 0; i < slice.Len(); i++ {
 			value := slice.Index(i)
-			str, ok := value.Interface().(string)
-			if !ok {
+			str, err := ToString(value.Interface())
+			if err != nil {
 				return nil, err
 			}
 			result[i] = str
 		}
 		return result, nil
 	} else if slice.Kind() == reflect.String {
-		str, _ := slice.Interface().(string)
+		str, err := ToString(slice.Interface())
+		if err != nil {
+			return nil, err
+		}
 		return []string{str}, nil
 	} else {
-		return nil, err
+		return nil, fmt.Errorf("field must be a map with string keys")
 	}
 }
 
@@ -151,25 +152,15 @@ func (object Object) GetObject(field string) (Object, error) {
 
 // Get an object field as a map string string
 func (object Object) GetMapStringString(field string) (map[string]string, error) {
-	err := fmt.Errorf("field must be a map string string")
 	value, ok := object[field]
 	if !ok {
 		return nil, fmt.Errorf("field '%s' not found", field)
 	}
-	v := reflect.ValueOf(value)
-	if v.Kind() == reflect.Map {
-		result := make(map[string]string)
-		for _, key := range v.MapKeys() {
-			str, ok := key.Interface().(string)
-			if !ok {
-				return nil, err
-			}
-			result[str] = v.MapIndex(key).String()
-		}
-		return result, nil
-	} else {
-		return nil, err
+	result, err := ToMapStringString(value)
+	if err != nil {
+		return nil, fmt.Errorf("field must be a map string string")
 	}
+	return result, nil
 }
 
 // Check that object has no field whose name is not in given list

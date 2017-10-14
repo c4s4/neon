@@ -67,23 +67,23 @@ func ParseSteps(target *build.Target, object util.Object, field string) ([]build
 	for _, element := range list {
 		step, err := build.NewStep(target, element)
 		if err != nil {
-			return nil, fmt.Errorf("parsing target '%s': %v", target.Name, err)
+			return nil, err
 		}
 		steps = append(steps, step)
 	}
 	return steps, nil
 }
 
-func RunSteps(build *build.Build, steps []build.Step) error {
-	build.Index.Expand()
+func RunSteps(steps []build.Step, context *build.Context) error {
+	context.Index.Expand()
 	for index, step := range steps {
-		build.Index.Set(index)
-		err := step.Run()
+		context.Index.Set(index)
+		err := step.Run(context)
 		if err != nil {
 			return err
 		}
 	}
-	build.Index.Shrink()
+	context.Index.Shrink()
 	return nil
 }
 

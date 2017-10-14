@@ -49,12 +49,12 @@ func Write(target *build.Target, args util.Object) (build.Task, error) {
 			return nil, fmt.Errorf("argument append of task write must be a boolean")
 		}
 	}
-	return func() error {
-		_filename, _err := target.Build.Context.EvaluateString(file)
+	return func(context *build.Context) error {
+		_filename, _err := context.VM.EvaluateString(file)
 		if _err != nil {
 			return fmt.Errorf("processing write argument: %v", _err)
 		}
-		_text, _err := target.Build.Context.EvaluateString(source)
+		_text, _err := context.VM.EvaluateString(source)
 		if _err != nil {
 			return fmt.Errorf("processing text argument: %v", _err)
 		}

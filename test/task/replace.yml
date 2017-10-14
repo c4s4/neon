@@ -13,17 +13,18 @@ targets:
     - write: "#{BUILD_DIR}/replace/test.txt"
       text: "Hello World!"
     - replace: "#{BUILD_DIR}/replace/test.txt"
-      pattern: "World"
-      with: "You"
+      with: {"World": "You"}
     - |
       ioutil = import("io/ioutil")
       filepath = import("path/filepath")
       file = filepath.Join(BUILD_DIR, "replace", "test.txt")
       content, err = ioutil.ReadFile(file)
       if err != nil {
+        println("ERROR")
         throw("Write test failure")
       }
       if toString(content) != "Hello You!" {
+        println("ERROR:", toString(content))
         throw("Write test failure")
       }
       println("Write test sucess")
