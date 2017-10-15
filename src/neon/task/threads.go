@@ -57,7 +57,7 @@ func Threads(target *build.Target, args util.Object) (build.Task, error) {
 		for _, _d := range data {
 			_data <- _d
 		}
-		_threads, _err := context.VM.EvaluateExpression(threads)
+		_threads, _err := context.EvaluateExpression(threads)
 		if _err != nil {
 			return fmt.Errorf("evaluating 'threads' field: %v", _err)
 		}

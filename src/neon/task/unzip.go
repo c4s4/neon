@@ -44,11 +44,11 @@ func Unzip(target *build.Target, args util.Object) (build.Task, error) {
 	return func(context *build.Context) error {
 		// evaluate arguments
 		var _err error
-		_file, _err := context.VM.EvaluateString(file)
+		_file, _err := context.EvaluateString(file)
 		if _err != nil {
 			return fmt.Errorf("evaluating source zip file: %v", _err)
 		}
-		_todir, _err := context.VM.EvaluateString(todir)
+		_todir, _err := context.EvaluateString(todir)
 		if _err != nil {
 			return fmt.Errorf("evaluating destination directory: %v", _err)
 		}

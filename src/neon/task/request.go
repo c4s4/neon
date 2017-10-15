@@ -103,15 +103,15 @@ func Request(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func(context *build.Context) error {
 		// evaluate arguments
-		_url, _err := context.VM.EvaluateString(url)
+		_url, _err := context.EvaluateString(url)
 		if _err != nil {
 			return fmt.Errorf("evaluating url: %v", _err)
 		}
-		_method, _err := context.VM.EvaluateString(method)
+		_method, _err := context.EvaluateString(method)
 		if _err != nil {
 			return fmt.Errorf("evaluating method: %v", _err)
 		}
-		_result, _err := context.VM.EvaluateExpression(headers)
+		_result, _err := context.EvaluateExpression(headers)
 		if _err != nil {
 			return fmt.Errorf("evaluating headers: %v", _err)
 		}
@@ -119,30 +119,30 @@ func Request(target *build.Target, args util.Object) (build.Task, error) {
 		if _err != nil {
 			return fmt.Errorf("evaluating headers: %v", _err)
 		}
-		_str, _err := context.VM.EvaluateString(body)
+		_str, _err := context.EvaluateString(body)
 		if _err != nil {
 			return fmt.Errorf("evaluating body: %v", _err)
 		}
 		_body := []byte(_str)
-		_file, _err := context.VM.EvaluateString(file)
+		_file, _err := context.EvaluateString(file)
 		if _err != nil {
 			return fmt.Errorf("evaluating file: %v", _err)
 		}
 		if _file != "" {
 			_file = util.ExpandAndJoinToRoot(target.Build.Dir, _file)
 		}
-		_status, _err := context.VM.EvaluateString(status)
+		_status, _err := context.EvaluateString(status)
 		if _err != nil {
 			return fmt.Errorf("evaluating status: %v", _err)
 		}
 		if _status == "" {
 			_status = DEFAULT_STATUS
 		}
-		_username, _err := context.VM.EvaluateString(username)
+		_username, _err := context.EvaluateString(username)
 		if _err != nil {
 			return fmt.Errorf("evaluating username: %v", _err)
 		}
-		_password, _err := context.VM.EvaluateString(password)
+		_password, _err := context.EvaluateString(password)
 		if _err != nil {
 			return fmt.Errorf("evaluating password: %v", _err)
 		}
@@ -170,13 +170,13 @@ func Request(target *build.Target, args util.Object) (build.Task, error) {
 		}
 		defer _response.Body.Close()
 		_response_status := strconv.Itoa(_response.StatusCode)
-		context.VM.SetProperty("_status", _response_status)
-		context.VM.SetProperty("_headers", _response.Header)
+		context.SetProperty("_status", _response_status)
+		context.SetProperty("_headers", _response.Header)
 		_response_body, _err := ioutil.ReadAll(_response.Body)
 		if _err != nil {
 			return fmt.Errorf("reading response body: %v", _err)
 		}
-		context.VM.SetProperty("_body", string(_response_body))
+		context.SetProperty("_body", string(_response_body))
 		if _response_status != _status {
 			return fmt.Errorf("bad response status: %s", _response_status)
 		}

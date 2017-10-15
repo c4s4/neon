@@ -58,7 +58,7 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func(context *build.Context) error {
 		_depth := context.Index.Len()
-		context.VM.SetProperty("_error", "")
+		context.SetProperty("_error", "")
 		var _tryError error
 		var _catchError error
 		var _finallyError error
@@ -68,7 +68,7 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 				context.Index.Shrink()
 			}
 			if len(catchSteps) > 0 || (len(catchSteps) == 0 && len(finallySteps) == 0) {
-				context.VM.SetProperty("_error", _tryError.Error())
+				context.SetProperty("_error", _tryError.Error())
 				_tryError = nil
 				_catchError = RunSteps(catchSteps, context)
 				if _catchError != nil {
@@ -83,15 +83,15 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 			for context.Index.Len() > _depth {
 				context.Index.Shrink()
 			}
-			context.VM.SetProperty("_error", _finallyError.Error())
+			context.SetProperty("_error", _finallyError.Error())
 			return _finallyError
 		}
 		if _catchError != nil {
-			context.VM.SetProperty("_error", _catchError.Error())
+			context.SetProperty("_error", _catchError.Error())
 			return _catchError
 		}
 		if _tryError != nil {
-			context.VM.SetProperty("_error", _tryError.Error())
+			context.SetProperty("_error", _tryError.Error())
 			return _tryError
 		}
 		return nil

@@ -98,7 +98,7 @@ func (c CommandList) Run(build *build.Build, pipe bool, context *build.Context) 
 	parts := make([]string, len(c.Parts))
 	var err error
 	for i := 0; i < len(c.Parts); i++ {
-		parts[i], err = context.VM.EvaluateString(c.Parts[i])
+		parts[i], err = context.EvaluateString(c.Parts[i])
 		if err != nil {
 			return "", err
 		}
@@ -109,7 +109,7 @@ func (c CommandList) Run(build *build.Build, pipe bool, context *build.Context) 
 		return "", fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
-	command.Env, err = context.VM.EvaluateEnvironment()
+	command.Env, err = context.EvaluateEnvironment(build)
 	if err != nil {
 		return "", fmt.Errorf("building environment: %v", err)
 	}
@@ -145,7 +145,7 @@ func (c CommandShell) Run(build *build.Build, pipe bool, context *build.Context)
 	}
 	binary := shell[0]
 	arguments := shell[1:]
-	cmd, err := context.VM.EvaluateString(c.Script)
+	cmd, err := context.EvaluateString(c.Script)
 	if err != nil {
 		return "", err
 	}
@@ -156,7 +156,7 @@ func (c CommandShell) Run(build *build.Build, pipe bool, context *build.Context)
 		return "", fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
-	command.Env, err = context.VM.EvaluateEnvironment()
+	command.Env, err = context.EvaluateEnvironment(build)
 	if err != nil {
 		return "", fmt.Errorf("building environment: %v", err)
 	}
@@ -233,7 +233,7 @@ func Shell(target *build.Target, args util.Object) (build.Task, error) {
 		}
 	}
 	return func(context *build.Context) error {
-		_variable, _err := context.VM.EvaluateString(variable)
+		_variable, _err := context.EvaluateString(variable)
 		if _err != nil {
 			return fmt.Errorf("processing output argument: %v", _err)
 		}
@@ -245,7 +245,7 @@ func Shell(target *build.Target, args util.Object) (build.Task, error) {
 			return _err
 		}
 		if _variable != "" {
-			context.VM.SetProperty(_variable, strings.TrimSpace(string(_output)))
+			context.SetProperty(_variable, strings.TrimSpace(string(_output)))
 		}
 		return nil
 	}, nil

@@ -64,30 +64,30 @@ func Chmod(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func(context *build.Context) error {
 		// evaluate arguments
-		_dir, _err := context.VM.EvaluateString(dir)
+		_dir, _err := context.EvaluateString(dir)
 		if _err != nil {
 			return fmt.Errorf("evaluating directory: %v", _err)
 		}
-		_mode, _err := context.VM.EvaluateString(mode)
+		_mode, _err := context.EvaluateString(mode)
 		if _err != nil {
 			return fmt.Errorf("evaluating _mode: %v", _err)
 		}
 		_includes := make([]string, len(includes))
 		for index, _include := range includes {
-			_includes[index], err = context.VM.EvaluateString(_include)
+			_includes[index], err = context.EvaluateString(_include)
 			if err != nil {
 				return fmt.Errorf("evaluating includes: %v", err)
 			}
 		}
 		_excludes := make([]string, len(excludes))
 		for index, _exclude := range excludes {
-			_excludes[index], err = context.VM.EvaluateString(_exclude)
+			_excludes[index], err = context.EvaluateString(_exclude)
 			if err != nil {
 				return fmt.Errorf("evaluating excludes: %v", err)
 			}
 		}
 		// find source files
-		_files, _err := context.VM.FindFiles(_dir, _includes, _excludes, true)
+		_files, _err := context.FindFiles(_dir, _includes, _excludes, true)
 		if _err != nil {
 			return fmt.Errorf("getting source files for chmod task: %v", _err)
 		}
