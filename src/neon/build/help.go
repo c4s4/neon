@@ -9,11 +9,7 @@ import (
 )
 
 // Print help on build
-func (build *Build) Info() error {
-	context, err := NewContext(build)
-	if err != nil {
-		return err
-	}
+func (build *Build) Info(context *Context) error {
 	// print build information
 	if build.Doc != "" {
 		Message("doc: %s", build.Doc)

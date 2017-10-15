@@ -107,9 +107,14 @@ func main() {
 	if targs {
 		build.PrintTargets()
 	} else if info {
-		err = build.Info()
+		context, err := _build.NewContext(build)
+		PrintError(err, 4)
+		err = build.Info(context)
+		PrintError(err, 4)
 	} else {
-		err = build.Run(targets)
+		context, err := _build.NewContext(build)
+		err = build.Run(context, targets)
+		PrintError(err, 5)
 		duration := time.Now().Sub(start)
 		if timeit || duration.Seconds() > 10 {
 			_build.Message("Build duration: %s", duration.String())
