@@ -58,6 +58,7 @@ func NewVM(build *Build) (*VM, error) {
 func (context *VM) SetInitialProperties(object util.Object) error {
 	context.SetProperty("_OS", runtime.GOOS)
 	context.SetProperty("_ARCH", runtime.GOARCH)
+	context.SetProperty("_NCPU", runtime.NumCPU())
 	context.SetProperty("_BASE", context.Build.Dir)
 	context.SetProperty("_HERE", context.Build.Here)
 	todo := object.Fields()
