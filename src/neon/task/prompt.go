@@ -110,9 +110,9 @@ func Prompt(target *build.Target, args util.Object) (build.Task, error) {
 			}
 			if pattern != "" && !regexp.MustCompile(_pattern).MatchString(_value) {
 				if _errorMessage != "" {
-					build.Message(_errorMessage)
+					context.Message(_errorMessage)
 				} else {
-					build.Message("value '%s' doesn't match pattern '%s'", _value, _pattern)
+					context.Message("value '%s' doesn't match pattern '%s'", _value, _pattern)
 				}
 			} else {
 				done = true

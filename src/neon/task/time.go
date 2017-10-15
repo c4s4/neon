@@ -58,7 +58,7 @@ func Time(target *build.Target, args util.Object) (build.Task, error) {
 		if to != "" {
 			context.VM.SetProperty(_to, _duration)
 		} else {
-			build.Message("Duration: %gs", _duration)
+			context.Message("Duration: %gs", _duration)
 		}
 		return nil
 	}, nil

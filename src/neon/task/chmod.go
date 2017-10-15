@@ -98,7 +98,7 @@ func Chmod(target *build.Target, args util.Object) (build.Task, error) {
 		if len(_files) < 1 {
 			return nil
 		}
-		build.Message("Changing %d file(s) mode to %s", len(_files), _mode)
+		context.Message("Changing %d file(s) mode to %s", len(_files), _mode)
 		for _, _file := range _files {
 			if _dir != "" {
 				_file = filepath.Join(_dir, _file)

@@ -22,3 +22,7 @@ func NewContext(build *Build) (*Context, error) {
 	}
 	return &context, nil
 }
+
+func (context *Context) Message(text string, args ...interface{}) {
+	printGrey(text, args...)
+}

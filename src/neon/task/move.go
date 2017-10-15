@@ -129,7 +129,7 @@ func Move(target *build.Target, args util.Object) (build.Task, error) {
 		if len(_sources) < 1 {
 			return nil
 		}
-		build.Message("Moving %d file(s)", len(_sources))
+		context.Message("Moving %d file(s)", len(_sources))
 		if _tofile != "" {
 			_file := filepath.Join(_dir, _sources[0])
 			if _file != _tofile {

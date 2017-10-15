@@ -240,7 +240,7 @@ func Shell(target *build.Target, args util.Object) (build.Task, error) {
 		_output, _err := commands.Run(_variable == "", context)
 		if _err != nil {
 			if _output != "" {
-				build.Message(_output)
+				context.Message(_output)
 			}
 			return _err
 		}
