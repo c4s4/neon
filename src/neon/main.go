@@ -69,48 +69,45 @@ func main() {
 	_build.Grey = grey
 	if tasks {
 		_build.PrintTasks()
-		os.Exit(0)
+		return
 	} else if task != "" {
 		_build.PrintHelpTask(task)
-		os.Exit(0)
+		return
 	} else if builtins {
 		_build.PrintBuiltins()
-		os.Exit(0)
+		return
 	} else if builtin != "" {
 		_build.PrintHelpBuiltin(builtin)
-		os.Exit(0)
+		return
 	} else if refs {
 		_build.PrintReference()
-		os.Exit(0)
+		return
 	} else if version {
 		_build.Message(VERSION)
-		os.Exit(0)
+		return
 	}
 	// options that do require we load build file
 	path, err := FindBuildFile(file)
 	PrintError(err, 1)
 	build, err := _build.NewBuild(path)
-	if build != nil && install != "" {
-		err = build.Install(install)
-		if err == nil {
-			os.Exit(0)
-		} else {
-			_build.Message("ERROR " + err.Error())
-			os.Exit(6)
-		}
-	}
 	PrintError(err, 2)
 	if props != "" {
 		err = build.SetCommandLineProperties(props)
 		PrintError(err, 3)
 	}
-	if targs {
+	if install != "" {
+		err = build.Install(install)
+		PrintError(err, 6)
+		return
+	} else if targs {
 		build.PrintTargets()
+		return
 	} else if info {
 		context, err := _build.NewContext(build)
 		PrintError(err, 4)
 		err = build.Info(context)
 		PrintError(err, 4)
+		return
 	} else {
 		context, err := _build.NewContext(build)
 		err = build.Run(context, targets)
@@ -119,11 +116,9 @@ func main() {
 		if timeit || duration.Seconds() > 10 {
 			_build.Message("Build duration: %s", duration.String())
 		}
-		if err == nil {
-			_build.PrintOk()
-		} else {
-			PrintError(err, 5)
-		}
+		PrintError(err, 5)
+		_build.PrintOk()
+		return
 	}
 }
 
