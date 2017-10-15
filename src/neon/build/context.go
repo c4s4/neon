@@ -80,7 +80,7 @@ func (context *Context) Copy(index int, data interface{}) *Context {
 func (context *Context) setInitialProperties(build *Build, object util.Object) error {
 	context.SetProperty("_OS", runtime.GOOS)
 	context.SetProperty("_ARCH", runtime.GOARCH)
-	context.SetProperty("_CPUS", runtime.NumCPU())
+	context.SetProperty("_NCPU", runtime.NumCPU())
 	context.SetProperty("_BASE", build.Dir)
 	context.SetProperty("_HERE", build.Here)
 	todo := object.Fields()
