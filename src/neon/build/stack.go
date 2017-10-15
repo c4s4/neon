@@ -36,3 +36,12 @@ func (stack *Stack) Push(target string) {
 func (stack *Stack) ToString() string {
 	return strings.Join(stack.Targets, " -> ")
 }
+
+// Copy return a copy of the stack
+func (stack *Stack) Copy() *Stack {
+	copy := make([]string, len(stack.Targets))
+	for i := 0; i < len(stack.Targets); i++ {
+		copy[i] = stack.Targets[i]
+	}
+	return &Stack{copy}
+}

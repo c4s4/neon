@@ -48,3 +48,12 @@ func (index *Index) String() string {
 func (index *Index) Len() int {
 	return len(index.Index)
 }
+
+// Copy return a copy of the index
+func (index *Index) Copy() *Index {
+	copy := make([]int, len(index.Index))
+	for i := 0; i < len(index.Index); i++ {
+		copy[i] = index.Index[i]
+	}
+	return &Index{copy}
+}
