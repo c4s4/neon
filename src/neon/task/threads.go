@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"neon/build"
 	"neon/util"
-	"sync"
 	"strconv"
+	"sync"
 )
 
 func init() {
