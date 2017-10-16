@@ -109,6 +109,7 @@ func main() {
 		PrintError(err, 4)
 		return
 	} else {
+		os.Chdir(build.Dir)
 		context, err := _build.NewContext(build)
 		PrintError(err, 5)
 		err = build.Run(context, targets)
