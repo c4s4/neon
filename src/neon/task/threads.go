@@ -20,6 +20,12 @@ Arguments:
 - data: a list filled with values to pass to threads in _data property.
 - steps: the steps to run in threads.
 
+Note:
+
+This task sets two properties :
+- _data with the data for each thread.
+- _thread with the thread number (starting with 0)
+
 Examples:
 
     # compute squares of 10 first integers in threads
@@ -68,6 +74,7 @@ func Threads(target *build.Target, args util.Object) (build.Task, error) {
 		_error := make(chan error, _nbThreads)
 		var _waitGroup sync.WaitGroup
 		_waitGroup.Add(_nbThreads)
+		context.Message("Starting %d threads", _nbThreads)
 		for _i := 0; _i < _nbThreads; _i++ {
 			go RunThread(steps, context, _i, _data, &_waitGroup, _error)
 		}

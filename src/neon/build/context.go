@@ -66,13 +66,14 @@ func (context *Context) Copy(index int, data interface{}) *Context {
 		environment[name] = value
 	}
 	copy := Context{
-		VM:          context.VM.NewEnv(),
+		VM:          context.VM.Copy(),
 		Properties:  properties,
 		Environment: environment,
 		Index:       context.Index.Copy(),
 		Stack:       context.Stack.Copy(),
 	}
-	context.SetProperty("_data", index)
+	copy.SetProperty("_thread", index)
+	copy.SetProperty("_data", data)
 	return &copy
 }
 
