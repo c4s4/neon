@@ -110,6 +110,7 @@ func main() {
 		return
 	} else {
 		context, err := _build.NewContext(build)
+		PrintError(err, 5)
 		err = build.Run(context, targets)
 		PrintError(err, 5)
 		duration := time.Now().Sub(start)
