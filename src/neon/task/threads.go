@@ -96,8 +96,7 @@ func RunThread(steps []build.Step, ctx *build.Context, index int, data chan inte
 	ctx.Message("Thread %d started", index)
 	defer ctx.Message("Thread %d done", index)
 	defer wg.Done()
-	stop := false
-	for stop == false {
+	for {
 		select {
 		case datum, ok := <-data:
 			if ok {
@@ -106,13 +105,13 @@ func RunThread(steps []build.Step, ctx *build.Context, index int, data chan inte
 				err := RunSteps(steps, threadContext)
 				if err != nil {
 					errors <- err
-					stop = true
+					return
 				}
 			} else {
-				stop = true
+				return
 			}
 		default:
-			stop = true
+			return
 		}
 	}
 }
