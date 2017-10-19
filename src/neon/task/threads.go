@@ -50,15 +50,31 @@ func Threads(target *build.Target, args util.Object) (build.Task, error) {
 		}
 		threads = strconv.Itoa(threadInt)
 	}
-	data, err := args.GetList("data")
+	var data []interface{}
+	var expression string
+	data, err = args.GetList("data")
 	if err != nil {
-		return nil, fmt.Errorf("'data' field of 'threads' must be a list")
+		expression, err = args.GetString("data")
+		if err != nil {
+			return nil, fmt.Errorf("'data' field of 'threads' must be a list or an expression returning a list")
+		}
 	}
 	steps, err := ParseSteps(target, args, "steps")
 	if err != nil {
 		return nil, err
 	}
 	return func(context *build.Context) error {
+		if data == nil {
+			_result, _err := context.EvaluateExpression(expression)
+			if err != nil {
+				return fmt.Errorf("evaluating 'data' field: %v", _err)
+			}
+			var _ok bool
+			data, _ok = _result.([]interface{})
+			if !_ok {
+				return fmt.Errorf("expression in 'data' field must return a list")
+			}
+		}
 		_data := make(chan interface{}, len(data))
 		for _, _d := range data {
 			_data <- _d
@@ -67,10 +83,11 @@ func Threads(target *build.Target, args util.Object) (build.Task, error) {
 		if _err != nil {
 			return fmt.Errorf("evaluating 'threads' field: %v", _err)
 		}
-		_nbThreads, _ok := _threads.(int)
+		_nbThreads64, _ok := _threads.(int64)
 		if !_ok {
 			return fmt.Errorf("'threads' field must result as an integer")
 		}
+		_nbThreads := int(_nbThreads64)
 		_error := make(chan error, _nbThreads)
 		var _waitGroup sync.WaitGroup
 		_waitGroup.Add(_nbThreads)
