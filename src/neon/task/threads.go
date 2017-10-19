@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"neon/build"
 	"neon/util"
-	"strconv"
 	"sync"
 )
 
@@ -42,19 +41,20 @@ func Threads(target *build.Target, args util.Object) (build.Task, error) {
 	if err := CheckFields(args, fields, fields); err != nil {
 		return nil, err
 	}
-	threads, err := args.GetString("threads")
+	var threads int
+	var threadExpression string
+	threads, err := args.GetInteger("threads")
 	if err != nil {
-		threadInt, err := args.GetInteger("threads")
+		threadExpression, err = args.GetString("threads")
 		if err != nil {
 			return nil, fmt.Errorf("'threads' field must be an integer or an expression")
 		}
-		threads = strconv.Itoa(threadInt)
 	}
 	var data []interface{}
-	var expression string
+	var dataExpression string
 	data, err = args.GetList("data")
 	if err != nil {
-		expression, err = args.GetString("data")
+		dataExpression, err = args.GetString("data")
 		if err != nil {
 			return nil, fmt.Errorf("'data' field of 'threads' must be a list or an expression returning a list")
 		}
@@ -65,7 +65,7 @@ func Threads(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func(context *build.Context) error {
 		if data == nil {
-			_result, _err := context.EvaluateExpression(expression)
+			_result, _err := context.EvaluateExpression(dataExpression)
 			if err != nil {
 				return fmt.Errorf("evaluating 'data' field: %v", _err)
 			}
@@ -79,20 +79,25 @@ func Threads(target *build.Target, args util.Object) (build.Task, error) {
 		for _, _d := range data {
 			_data <- _d
 		}
-		_threads, _err := context.EvaluateExpression(threads)
-		if _err != nil {
-			return fmt.Errorf("evaluating 'threads' field: %v", _err)
+		if threadExpression != "" {
+			_threads, _err := context.EvaluateExpression(threadExpression)
+			if _err != nil {
+				return fmt.Errorf("evaluating 'threads' field: %v", _err)
+			}
+			switch _t := _threads.(type) {
+			case int:
+				threads = _t
+			case int64:
+				threads = int(_t)
+			default:
+				return fmt.Errorf("'threads' field must result as an integer")
+			}
 		}
-		_nbThreads64, _ok := _threads.(int64)
-		if !_ok {
-			return fmt.Errorf("'threads' field must result as an integer")
-		}
-		_nbThreads := int(_nbThreads64)
-		_error := make(chan error, _nbThreads)
+		_error := make(chan error, threads)
 		var _waitGroup sync.WaitGroup
-		_waitGroup.Add(_nbThreads)
-		context.Message("Starting %d threads", _nbThreads)
-		for _i := 0; _i < _nbThreads; _i++ {
+		_waitGroup.Add(threads)
+		context.Message("Starting %d threads", threads)
+		for _i := 0; _i < threads; _i++ {
 			go RunThread(steps, context, _i, _data, &_waitGroup, _error)
 		}
 		_waitGroup.Wait()
