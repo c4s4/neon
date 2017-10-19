@@ -56,7 +56,7 @@ func NewContext(build *Build) (*Context, error) {
 	return context, nil
 }
 
-func (context *Context) Copy(index int, data interface{}) *Context {
+func (context *Context) Copy() *Context {
 	properties := make([]string, len(context.Properties))
 	for i := 0; i < len(context.Properties); i++ {
 		properties[i] = context.Properties[i]
@@ -72,8 +72,6 @@ func (context *Context) Copy(index int, data interface{}) *Context {
 		Index:       context.Index.Copy(),
 		Stack:       context.Stack.Copy(),
 	}
-	copy.SetProperty("_thread", index)
-	copy.SetProperty("_data", data)
 	return &copy
 }
 
