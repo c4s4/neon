@@ -193,31 +193,39 @@ func PathToWindows(path string) string {
 }
 
 // Find files in the context:
-// - dir: the search root directory
+// - dir: the search root directory (current dir if empty)
 // - includes: the list of globs to include
 // - excludes: the list of globs to exclude
 // - folder: tells if we should include folders
 // Return the list of files as a slice of strings
 func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, error) {
+    var err error
+    if dir == "" {
+        dir = "."
+    }
+    if !DirExists(dir) {
+        return nil, fmt.Errorf("search root directory '%s' not found", dir)
+    }
     dir = ExpandUserHome(dir)
-    if dir != "" {
-        oldDir, err := os.Getwd()
-        if err != nil {
-            return nil, fmt.Errorf("getting working directory: %v", err)
-        }
-        defer os.Chdir(oldDir)
-        err = os.Chdir(dir)
-        if err != nil {
-            return nil, nil
-        }
+    abs, err := filepath.Abs(dir)
+    if err != nil {
+        return nil, err
     }
     var included []string
     for _, include := range includes {
-        included = append(included, ExpandUserHome(include))
+        include = ExpandUserHome(include)
+        if !filepath.IsAbs(include) {
+            include = filepath.Join(abs, include)
+        }
+        included = append(included, include)
     }
     var excluded []string
     for _, exclude := range excludes {
-        excluded = append(excluded, ExpandUserHome(exclude))
+        exclude = ExpandUserHome(exclude)
+        if !filepath.IsAbs(exclude) {
+            exclude = filepath.Join(abs, exclude)
+        }
+        excluded = append(excluded, exclude)
     }
     var candidates []string
     for _, include := range included {
@@ -227,7 +235,8 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
             if err != nil {
                 return nil, fmt.Errorf("stating file: %v", err)
             }
-            if stat.Mode().IsRegular() || folder {
+            if stat.Mode().IsRegular() ||
+                (stat.Mode().IsDir() && folder) {
                 candidates = append(candidates, file)
             }
         }
@@ -251,5 +260,11 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
         files = candidates
     }
     sort.Strings(files)
+    for index, file := range files {
+        files[index], err = filepath.Rel(abs, file)
+        if err != nil {
+            return nil, err
+        }
+    }
     return files, nil
 }
