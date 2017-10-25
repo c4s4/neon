@@ -463,6 +463,33 @@ Notes:
 - If archive filename ends with gz (with a name such as foo.tar.gz or foo.tgz)
   the tar archive is compressed with gzip.
 
+threads
+-------
+
+Run steps in threads.
+
+Arguments:
+
+- threads: the number of threads to run. You can set it to _NCPU for the number
+  of CPUs.
+- data: a list filled with values to pass to threads in _data property.
+- steps: the steps to run in threads.
+
+Note:
+
+This task sets two properties :
+- _data with the data for each thread.
+- _thread with the thread number (starting with 0)
+
+Examples:
+
+    # compute squares of 10 first integers in threads
+    - threads: _NCPU
+      data:    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+      steps:
+	  - 'square = _data * _data'
+	  - print: '#{_data}^2 = #{square}'
+
 throw
 -----
 
