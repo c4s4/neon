@@ -1,12 +1,11 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
 - version: 0.10.0
-  date:    2017-10-14
-  summary: Task replace change, code refactoring
+  date:    2017-10-25
+  summary: Threads and task replace change
   added:
   - "New thread task to run multiple threads in a build."
   changed:
-  - "Code refactoring regarding build context."
   - "Task replace takes a map instead of pattern and with arguments."
 
 - version: 0.9.0
