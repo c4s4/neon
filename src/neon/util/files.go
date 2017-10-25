@@ -204,7 +204,7 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
         dir = "."
     }
     if !DirExists(dir) {
-        return nil, fmt.Errorf("search root directory '%s' not found", dir)
+        return nil, nil
     }
     dir = ExpandUserHome(dir)
     abs, err := filepath.Abs(dir)
