@@ -33,7 +33,7 @@ func Cat(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument of task cat must be a string")
 	}
 	return func(context *build.Context) error {
-		_eval, _err := context.VM.EvaluateString(file)
+		_eval, _err := context.EvaluateString(file)
 		if _err != nil {
 			return fmt.Errorf("processing cat argument: %v", _err)
 		}
@@ -41,7 +41,7 @@ func Cat(target *build.Target, args util.Object) (build.Task, error) {
 		if _err != nil {
 			return fmt.Errorf("printing _content of file '%s': %v", _eval, _err)
 		}
-		build.Message(string(_content))
+		context.Message(string(_content))
 		return nil
 	}, nil
 }

@@ -40,7 +40,7 @@ func NewScriptStep(target *Target, script string) (Step, error) {
 
 // Run a script step using Anko VM.
 func (step ScriptStep) Run(context *Context) error {
-	_, err := context.VM.EvaluateExpression(step.Script)
+	_, err := context.EvaluateExpression(step.Script)
 	if err != nil {
 		return fmt.Errorf("evaluating script: %v", err)
 	}

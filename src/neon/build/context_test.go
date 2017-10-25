@@ -6,15 +6,15 @@ import (
 )
 
 func TestGetEnvironmentSimple(t *testing.T) {
-	context := &VM{
+	build := &Build{
+		Dir: "dir",
+	}
+	context := &Context{
 		Environment: map[string]string{
 			"FOO": "BAR",
 		},
-		Build: &Build{
-			Dir: "dir",
-		},
 	}
-	env, err := context.EvaluateEnvironment()
+	env, err := context.EvaluateEnvironment(build)
 	if err != nil {
 		t.Errorf("Error getting environment: %v", err)
 	}
@@ -27,15 +27,15 @@ func TestGetEnvironmentSimple(t *testing.T) {
 }
 
 func TestGetEnvironmentComplex(t *testing.T) {
-	context := &VM{
+	build := &Build{
+		Dir: "dir",
+	}
+	context := &Context{
 		Environment: map[string]string{
 			"FOO": "BAR:${HOME}",
 		},
-		Build: &Build{
-			Dir: "dir",
-		},
 	}
-	env, err := context.EvaluateEnvironment()
+	env, err := context.EvaluateEnvironment(build)
 	if err != nil {
 		t.Errorf("Error getting environment: %v", err)
 	}

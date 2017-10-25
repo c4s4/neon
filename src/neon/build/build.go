@@ -210,11 +210,7 @@ func (build *Build) GetDefault() []string {
 }
 
 // Run build given targets. If no target is given, run default one.
-func (build *Build) Run(targets []string) error {
-	context, err := NewContext(build)
-	if err != nil {
-		return err
-	}
+func (build *Build) Run(context *Context, targets []string) error {
 	if len(targets) == 0 {
 		targets = build.GetDefault()
 		if len(targets) == 0 {

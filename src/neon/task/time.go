@@ -45,7 +45,7 @@ func Time(target *build.Target, args util.Object) (build.Task, error) {
 		}
 	}
 	return func(context *build.Context) error {
-		_to, _err := context.VM.EvaluateString(to)
+		_to, _err := context.EvaluateString(to)
 		if _err != nil {
 			return fmt.Errorf("evaluating property: %v", _err)
 		}
@@ -56,9 +56,9 @@ func Time(target *build.Target, args util.Object) (build.Task, error) {
 		}
 		_duration := time.Now().Sub(_start).Seconds()
 		if to != "" {
-			context.VM.SetProperty(_to, _duration)
+			context.SetProperty(_to, _duration)
 		} else {
-			build.Message("Duration: %gs", _duration)
+			context.Message("Duration: %gs", _duration)
 		}
 		return nil
 	}, nil

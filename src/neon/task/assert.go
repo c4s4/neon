@@ -32,7 +32,7 @@ func Assert(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("evaluating assert construct: %v", err)
 	}
 	return func(context *build.Context) error {
-		_result, _err := context.VM.EvaluateExpression(assertion)
+		_result, _err := context.EvaluateExpression(assertion)
 		if _err != nil {
 			return fmt.Errorf("evaluating 'assert' condition: %v", _err)
 		}

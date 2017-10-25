@@ -33,11 +33,11 @@ func MkDir(target *build.Target, args util.Object) (build.Task, error) {
 		return nil, fmt.Errorf("argument to task mkdir must be a string")
 	}
 	return func(context *build.Context) error {
-		_directory, _err := context.VM.EvaluateString(dir)
+		_directory, _err := context.EvaluateString(dir)
 		if _err != nil {
 			return fmt.Errorf("processing mkdir argument: %v", _err)
 		}
-		build.Message("Making directory '%s'", _directory)
+		context.Message("Making directory '%s'", _directory)
 		_err = os.MkdirAll(_directory, DIR_FILE_MODE)
 		if _err != nil {
 			return fmt.Errorf("making directory '%s': %s", _directory, _err)

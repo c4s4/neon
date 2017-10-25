@@ -50,11 +50,11 @@ func Write(target *build.Target, args util.Object) (build.Task, error) {
 		}
 	}
 	return func(context *build.Context) error {
-		_filename, _err := context.VM.EvaluateString(file)
+		_filename, _err := context.EvaluateString(file)
 		if _err != nil {
 			return fmt.Errorf("processing write argument: %v", _err)
 		}
-		_text, _err := context.VM.EvaluateString(source)
+		_text, _err := context.EvaluateString(source)
 		if _err != nil {
 			return fmt.Errorf("processing text argument: %v", _err)
 		}

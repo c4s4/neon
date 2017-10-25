@@ -73,23 +73,23 @@ func Prompt(target *build.Target, args util.Object) (build.Task, error) {
 		}
 	}
 	return func(context *build.Context) error {
-		_message, _err := context.VM.EvaluateString(message)
+		_message, _err := context.EvaluateString(message)
 		if _err != nil {
 			return fmt.Errorf("processing prompt argument: %v", _err)
 		}
-		_to, _err := context.VM.EvaluateString(to)
+		_to, _err := context.EvaluateString(to)
 		if _err != nil {
 			return fmt.Errorf("evaluating destination variable: %v", _err)
 		}
-		_default, _err := context.VM.EvaluateString(def)
+		_default, _err := context.EvaluateString(def)
 		if _err != nil {
 			return fmt.Errorf("evaluating default value: %v", _err)
 		}
-		_pattern, _err := context.VM.EvaluateString(pattern)
+		_pattern, _err := context.EvaluateString(pattern)
 		if _err != nil {
 			return fmt.Errorf("evaluating input regular expression: %v", _err)
 		}
-		_errorMessage, _err := context.VM.EvaluateString(errorMessage)
+		_errorMessage, _err := context.EvaluateString(errorMessage)
 		if _err != nil {
 			return fmt.Errorf("evaluating error message: %v", _err)
 		}
@@ -110,13 +110,13 @@ func Prompt(target *build.Target, args util.Object) (build.Task, error) {
 			}
 			if pattern != "" && !regexp.MustCompile(_pattern).MatchString(_value) {
 				if _errorMessage != "" {
-					build.Message(_errorMessage)
+					context.Message(_errorMessage)
 				} else {
-					build.Message("value '%s' doesn't match pattern '%s'", _value, _pattern)
+					context.Message("value '%s' doesn't match pattern '%s'", _value, _pattern)
 				}
 			} else {
 				done = true
-				context.VM.SetProperty(_to, string(_value))
+				context.SetProperty(_to, string(_value))
 			}
 		}
 		return nil

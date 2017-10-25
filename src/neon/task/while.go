@@ -40,7 +40,7 @@ func While(target *build.Target, args util.Object) (build.Task, error) {
 	}
 	return func(context *build.Context) error {
 		for {
-			_result, _err := context.VM.EvaluateExpression(condition)
+			_result, _err := context.EvaluateExpression(condition)
 			if _err != nil {
 				return fmt.Errorf("evaluating 'while' field of 'while' loop: %v", _err)
 			}
