@@ -74,19 +74,6 @@ func ParseSteps(target *build.Target, object util.Object, field string) ([]build
 	return steps, nil
 }
 
-func RunSteps(steps []build.Step, context *build.Context) error {
-	context.Index.Expand()
-	for index, step := range steps {
-		context.Index.Set(index)
-		err := step.Run(context)
-		if err != nil {
-			return err
-		}
-	}
-	context.Index.Shrink()
-	return nil
-}
-
 func SanitizeName(filename string) string {
 	if len(filename) > 1 && filename[1] == ':' &&
 		runtime.GOOS == "windows" {

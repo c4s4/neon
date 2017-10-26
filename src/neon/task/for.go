@@ -66,7 +66,7 @@ func For(target *build.Target, args util.Object) (build.Task, error) {
 		}
 		for _, _value := range _list {
 			context.SetProperty(variable, _value)
-			_err := RunSteps(steps, context)
+			_err := context.Run(steps)
 			if _err != nil {
 				return _err
 			}
