@@ -36,7 +36,7 @@ Notes:
 }
 
 func Find(dir string, patterns ...string) []string {
-	files, err := util.FindFiles(dir, patterns, nil, false)
+	files, err := util.FindFiles(dir, patterns, nil, true)
 	if err != nil {
 		return nil
 	}
