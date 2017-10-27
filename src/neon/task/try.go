@@ -62,7 +62,7 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 		var _tryError error
 		var _catchError error
 		var _finallyError error
-		_tryError = RunSteps(trySteps, context)
+		_tryError = context.Run(trySteps)
 		if _tryError != nil {
 			for context.Index.Len() > _depth {
 				context.Index.Shrink()
@@ -70,7 +70,7 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 			if len(catchSteps) > 0 || (len(catchSteps) == 0 && len(finallySteps) == 0) {
 				context.SetProperty("_error", _tryError.Error())
 				_tryError = nil
-				_catchError = RunSteps(catchSteps, context)
+				_catchError = context.Run(catchSteps)
 				if _catchError != nil {
 					for context.Index.Len() > _depth {
 						context.Index.Shrink()
@@ -78,7 +78,7 @@ func Try(target *build.Target, args util.Object) (build.Task, error) {
 				}
 			}
 		}
-		_finallyError = RunSteps(finallySteps, context)
+		_finallyError = context.Run(finallySteps)
 		if _finallyError != nil {
 			for context.Index.Len() > _depth {
 				context.Index.Shrink()

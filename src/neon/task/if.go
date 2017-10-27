@@ -58,12 +58,12 @@ func If(target *build.Target, args util.Object) (build.Task, error) {
 			return fmt.Errorf("evaluating if condition: must return a bool")
 		}
 		if _boolean {
-			_err := RunSteps(thenSteps, context)
+			_err := context.Run(thenSteps)
 			if _err != nil {
 				return _err
 			}
 		} else {
-			_err := RunSteps(elseSteps, context)
+			_err := context.Run(elseSteps)
 			if _err != nil {
 				return _err
 			}

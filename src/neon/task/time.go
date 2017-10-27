@@ -50,7 +50,7 @@ func Time(target *build.Target, args util.Object) (build.Task, error) {
 			return fmt.Errorf("evaluating property: %v", _err)
 		}
 		_start := time.Now()
-		_err = RunSteps(steps, context)
+		_err = context.Run(steps)
 		if _err != nil {
 			return _err
 		}
