@@ -11,8 +11,6 @@ import (
 	"sort"
 	"strings"
 
-	"strconv"
-
 	anko_core "github.com/mattn/anko/builtins"
 	"github.com/mattn/anko/parser"
 	"github.com/mattn/anko/vm"
@@ -25,7 +23,6 @@ type Context struct {
 	Environment map[string]string
 	Index       *Index
 	Stack       *Stack
-	Thread      *int
 }
 
 // NewContext make a new build context
@@ -62,7 +59,6 @@ func NewContext(build *Build) (*Context, error) {
 // NewThreadContext builds a context in a thread
 func (context *Context) NewThreadContext(thread int, data interface{}) *Context {
 	copy := context.Copy()
-	copy.Thread = &thread
 	copy.SetProperty("_thread", thread)
 	copy.SetProperty("_data", data)
 	return copy
@@ -213,7 +209,7 @@ func (context *Context) EvaluateString(text string) (string, error) {
 	r := regexp.MustCompile(`#{.*?}`)
 	var errors []error
 	replaced := r.ReplaceAllStringFunc(text, func(expression string) string {
-		name := expression[2 : len(expression)-1]
+		name := expression[2: len(expression)-1]
 		var value interface{}
 		value, err := context.EvaluateExpression(name)
 		if err != nil {
@@ -257,7 +253,7 @@ func (context *Context) EvaluateEnvironment(build *Build) ([]string, error) {
 		value := context.Environment[name]
 		r := regexp.MustCompile(`[$#]{.*?}`)
 		replaced := r.ReplaceAllStringFunc(value, func(expression string) string {
-			name := expression[2 : len(expression)-1]
+			name := expression[2: len(expression)-1]
 			if expression[0:1] == "$" {
 				value, ok := environment[name]
 				if !ok {
@@ -331,10 +327,6 @@ func (context *Context) FindFiles(dir string, includes, excludes []string, folde
 
 // Message print a message on the console
 func (context *Context) Message(text string, args ...interface{}) {
-	if context.Thread != nil {
-		prefix := strconv.Itoa(*context.Thread) + "| "
-		text = prefix + strings.Replace(text, "\n", "\n"+prefix, -1)
-	}
 	Message(text, args...)
 }
 
