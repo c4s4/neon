@@ -123,7 +123,7 @@ func RunThread(steps []build.Step, ctx *build.Context, index int, data chan inte
 		case datum, ok := <-data:
 			if ok {
 				threadContext := ctx.NewThreadContext(index, datum)
-				threadContext.Message("run with '%v'", datum)
+				threadContext.Message("Thread iteration with data '%v'", datum)
 				err := threadContext.Run(steps)
 				if err != nil {
 					errors <- err
