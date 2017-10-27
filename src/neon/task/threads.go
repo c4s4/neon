@@ -122,9 +122,9 @@ func RunThread(steps []build.Step, ctx *build.Context, index int, data chan inte
 		select {
 		case datum, ok := <-data:
 			if ok {
-				ctx.Message("Thread %d run with param: %v", index, datum)
-				threadContext := build.NewThreadContext(ctx, index, datum)
-				err := threadContext.Context.Run(steps)
+				threadContext := ctx.NewThreadContext(index, datum)
+				threadContext.Message("run with '%v'", datum)
+				err := threadContext.Run(steps)
 				if err != nil {
 					errors <- err
 					return

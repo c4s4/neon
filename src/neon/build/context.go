@@ -11,6 +11,8 @@ import (
 	"sort"
 	"strings"
 
+	"strconv"
+
 	anko_core "github.com/mattn/anko/builtins"
 	"github.com/mattn/anko/parser"
 	"github.com/mattn/anko/vm"
@@ -23,6 +25,7 @@ type Context struct {
 	Environment map[string]string
 	Index       *Index
 	Stack       *Stack
+	Thread      *int
 }
 
 // NewContext make a new build context
@@ -54,6 +57,15 @@ func NewContext(build *Build) (*Context, error) {
 		return nil, fmt.Errorf("evaluating properties: %v", err)
 	}
 	return context, nil
+}
+
+// NewThreadContext builds a context in a thread
+func (context *Context) NewThreadContext(thread int, data interface{}) *Context {
+	copy := context.Copy()
+	copy.Thread = &thread
+	copy.SetProperty("_thread", thread)
+	copy.SetProperty("_data", data)
+	return copy
 }
 
 func (context *Context) Copy() *Context {
@@ -319,6 +331,10 @@ func (context *Context) FindFiles(dir string, includes, excludes []string, folde
 
 // Message print a message on the console
 func (context *Context) Message(text string, args ...interface{}) {
+	if context.Thread != nil {
+		prefix := strconv.Itoa(*context.Thread) + "| "
+		text = prefix + strings.Replace(text, "\n", "\n"+prefix, -1)
+	}
 	Message(text, args...)
 }
 
