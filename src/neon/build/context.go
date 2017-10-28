@@ -57,10 +57,10 @@ func NewContext(build *Build) (*Context, error) {
 }
 
 // NewThreadContext builds a context in a thread
-func (context *Context) NewThreadContext(thread int, data interface{}) *Context {
+func (context *Context) NewThreadContext(thread int, input interface{}, output interface{}) *Context {
 	copy := context.Copy()
 	copy.SetProperty("_thread", thread)
-	copy.SetProperty("_data", data)
+	copy.SetProperty("_input", input)
 	return copy
 }
 
@@ -209,7 +209,7 @@ func (context *Context) EvaluateString(text string) (string, error) {
 	r := regexp.MustCompile(`#{.*?}`)
 	var errors []error
 	replaced := r.ReplaceAllStringFunc(text, func(expression string) string {
-		name := expression[2: len(expression)-1]
+		name := expression[2 : len(expression)-1]
 		var value interface{}
 		value, err := context.EvaluateExpression(name)
 		if err != nil {
@@ -253,7 +253,7 @@ func (context *Context) EvaluateEnvironment(build *Build) ([]string, error) {
 		value := context.Environment[name]
 		r := regexp.MustCompile(`[$#]{.*?}`)
 		replaced := r.ReplaceAllStringFunc(value, func(expression string) string {
-			name := expression[2: len(expression)-1]
+			name := expression[2 : len(expression)-1]
 			if expression[0:1] == "$" {
 				value, ok := environment[name]
 				if !ok {
