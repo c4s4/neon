@@ -472,7 +472,7 @@ Arguments:
 
 - threads: the number of threads to run. You can set it to _NCPU for the number
   of CPUs.
-- input: a list filled with values to pass to threads in _data property.
+- input: a list filled with values to pass to threads in _input property.
 - steps: the steps to run in threads.
 
 Note:
@@ -481,8 +481,9 @@ This task sets two properties :
 - _thread with the thread number (starting with 0)
 - _input with the input for each thread.
 
-If threads must output something, it should write it in _output. After threads
-are done, _output will contain a list of all the outputs of threads.
+If threads must output something, they must write it in _output property.
+After threads are done, _output will contain a list of all the outputs of
+threads.
 
 Examples:
 
@@ -490,9 +491,8 @@ Examples:
     - threads: _NCPU
       input:   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
       steps:
-	  - 'square = _data * _data'
-	  - '_output <- square'
-	  - print: '#{_data}^2 = #{square}'
+	  - '_output = _data * _data'
+	  - print: '#{_data}^2 = #{_output}'
 	# print squares on the console
 	- print: '#{_output}'
 
