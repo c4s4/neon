@@ -2,8 +2,8 @@ package builtin
 
 import (
 	"neon/build"
-	"sort"
 	"neon/util"
+	"sort"
 )
 
 func init() {
