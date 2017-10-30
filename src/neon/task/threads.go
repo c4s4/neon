@@ -18,6 +18,8 @@ Arguments:
   of CPUs.
 - input: a list filled with values to pass to threads in _input property.
 - steps: the steps to run in threads.
+- verbose: tells if threads information should be printed on console (optional,
+  boolean that defaults to false).
 
 Note:
 
@@ -25,9 +27,16 @@ This task sets two properties :
 - _thread with the thread number (starting with 0)
 - _input with the input for each thread.
 
+Context of the build is cloned in each thread so that you can read and write
+properties, they won't affect other threads. But all properties will be lost
+when thread is done.
+
 If threads must output something, they must write it in _output property.
 After threads are done, _output will contain a list of all the outputs of
 threads.
+
+Don't change current directory in threads as it would affect other threads as
+well.
 
 Examples:
 
@@ -35,16 +44,16 @@ Examples:
     - threads: _NCPU
       input:   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
       steps:
-      - '_output = _data * _data'
-      - print: '#{_data}^2 = #{_output}'
+      - '_output = _input * _input'
+      - print: '#{_input}^2 = #{_output}'
     # print squares on the console
     - print: '#{_output}'`,
 	}
 }
 
 func Threads(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"threads", "input", "steps"}
-	if err := CheckFields(args, fields, fields); err != nil {
+	fields := []string{"threads", "input", "steps", "verbose"}
+	if err := CheckFields(args, fields, fields[:3]); err != nil {
 		return nil, err
 	}
 	var threads int
@@ -68,6 +77,13 @@ func Threads(target *build.Target, args util.Object) (build.Task, error) {
 	steps, err := ParseSteps(target, args, "steps")
 	if err != nil {
 		return nil, err
+	}
+	var verbose bool
+	if args.HasField("verbose") {
+		verbose, err = args.GetBoolean("verbose")
+		if err != nil {
+			return nil, fmt.Errorf("argument 'verbose' of task 'threads' must be a boolean")
+		}
 	}
 	return func(context *build.Context) error {
 		if input == nil {
@@ -102,10 +118,12 @@ func Threads(target *build.Target, args util.Object) (build.Task, error) {
 		_error := make(chan error, threads)
 		var _waitGroup sync.WaitGroup
 		_waitGroup.Add(threads)
-		context.Message("Starting %d threads", threads)
+		if verbose {
+			context.Message("Starting %d threads", threads)
+		}
 		_output := make(chan interface{}, len(input))
 		for _i := 0; _i < threads; _i++ {
-			go RunThread(steps, context, _i, _input, _output, &_waitGroup, _error)
+			go RunThread(steps, context, _i, _input, _output, &_waitGroup, _error, verbose)
 		}
 		_waitGroup.Wait()
 		var _out []interface{}
@@ -137,16 +155,20 @@ func Threads(target *build.Target, args util.Object) (build.Task, error) {
 }
 
 func RunThread(steps []build.Step, ctx *build.Context, index int, input chan interface{}, output chan interface{},
-	wg *sync.WaitGroup, errors chan error) {
-	ctx.Message("Thread %d started", index)
-	defer ctx.Message("Thread %d done", index)
+	wg *sync.WaitGroup, errors chan error, verbose bool) {
+	if verbose {
+		ctx.Message("Thread %d started", index)
+		defer ctx.Message("Thread %d done", index)
+	}
 	defer wg.Done()
 	for {
 		select {
 		case arg, ok := <-input:
 			if ok {
 				threadContext := ctx.NewThreadContext(index, arg, output)
-				threadContext.Message("Thread %d iteration with input '%v'", index, arg)
+				if verbose {
+					threadContext.Message("Thread %d iteration with input '%v'", index, arg)
+				}
 				err := threadContext.Run(steps)
 				out, _ := threadContext.GetProperty("_output")
 				if err != nil {
@@ -155,6 +177,9 @@ func RunThread(steps []build.Step, ctx *build.Context, index int, input chan int
 				}
 				if out != nil {
 					output <- out
+					if verbose {
+						threadContext.Message("Thread %d output '%v'", index, out)
+					}
 				}
 			} else {
 				return

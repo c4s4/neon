@@ -474,6 +474,8 @@ Arguments:
   of CPUs.
 - input: a list filled with values to pass to threads in _input property.
 - steps: the steps to run in threads.
+- verbose: tells if threads information should be printed on console (optional,
+  boolean that defaults to false).
 
 Note:
 
@@ -481,9 +483,16 @@ This task sets two properties :
 - _thread with the thread number (starting with 0)
 - _input with the input for each thread.
 
+Context of the build is cloned in each thread so that you can read and write
+properties, they won't affect other threads. But all properties will be lost
+when thread is done.
+
 If threads must output something, they must write it in _output property.
 After threads are done, _output will contain a list of all the outputs of
 threads.
+
+Don't change current directory in threads as it would affect other threads as
+well.
 
 Examples:
 
@@ -491,8 +500,8 @@ Examples:
     - threads: _NCPU
       input:   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
       steps:
-      - '_output = _data * _data'
-      - print: '#{_data}^2 = #{_output}'
+      - '_output = _input * _input'
+      - print: '#{_input}^2 = #{_output}'
     # print squares on the console
     - print: '#{_output}'
 
