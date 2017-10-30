@@ -4,7 +4,7 @@
   date:    2017-10-30
   summary: Threads and task replace change
   added:
-  - "New thread task to run multiple threads in a build."
+  - "New threads task to run multiple threads in a build."
   changed:
   - "Task replace takes a map instead of pattern and with arguments."
 
