@@ -113,7 +113,6 @@ func main() {
 		context, err := _build.NewContext(build)
 		PrintError(err, 5)
 		err = build.Run(context, targets)
-		PrintError(err, 5)
 		duration := time.Now().Sub(start)
 		if timeit || duration.Seconds() > 10 {
 			_build.Message("Build duration: %s", duration.String())
