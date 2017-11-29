@@ -87,3 +87,9 @@ targets:
     depends: [clean, test, integ, refs, archive]
     steps:
     - super:
+
+  windows:
+    steps:
+    - mkdir: '#{BUILD_DIR}/bin/'
+    - $: ['gox', '-ldflags', '-X main.VERSION=#{VERSION}', '-osarch=windows/386',
+          '-output=#{BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', '#{NAME}']

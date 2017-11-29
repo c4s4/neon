@@ -19,8 +19,11 @@ func (build *Build) Info(context *Context) error {
 		Message("default: %s", defaults)
 	}
 	Message("repository: %s", build.Repository)
-	if build.Singleton != 0 {
-		Message("singleton: %d", build.Singleton)
+	if build.Singleton != "" {
+		port, err := context.EvaluateExpression(build.Singleton)
+		if err == nil {
+			Message("singleton: %d", port)
+		}
 	}
 	// print parent build files
 	if len(build.Parents) > 0 {

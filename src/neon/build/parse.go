@@ -4,17 +4,19 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"neon/util"
+	"strconv"
 )
 
 // Parse singleton field of the build
 func ParseSingleton(object util.Object, build *Build) error {
 	if object.HasField("singleton") {
-		port, err := object.GetInteger("singleton")
+		port, err := object.GetString("singleton")
 		if err != nil {
-			return fmt.Errorf("getting singleton port: %v", err)
-		}
-		if err := util.Singleton(port); err != nil {
-			return fmt.Errorf("another instance of the build is already running")
+			portInt, err := object.GetInteger("singleton")
+			if err != nil {
+				return fmt.Errorf("getting singleton port: field 'singleton' must be a string or an integer")
+			}
+			port = strconv.Itoa(portInt)
 		}
 		build.Singleton = port
 	}

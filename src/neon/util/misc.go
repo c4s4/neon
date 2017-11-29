@@ -2,12 +2,10 @@ package util
 
 import (
 	"fmt"
-	"net"
 	"reflect"
 	"regexp"
 	"runtime"
 	"testing"
-	"time"
 	"unicode/utf8"
 )
 
@@ -146,22 +144,6 @@ func MaxLength(lines []string) int {
 		}
 	}
 	return length
-}
-
-// Run a TCP server on given port to ensure that a single instance is running
-// on a machine. Fails if another instance is already running.
-func Singleton(port int) error {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-	if err != nil {
-		return err
-	}
-	go func() {
-		for {
-			listener.Accept()
-			time.Sleep(100 * time.Millisecond)
-		}
-	}()
-	return nil
 }
 
 // Tells if we are running on windows
