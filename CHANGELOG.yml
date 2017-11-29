@@ -1,7 +1,7 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
 - version: 0.10.0
-  date:    2017-10-30
+  date:    2017-11-29
   summary: Threads and task replace change
   added:
   - "New threads task to run multiple threads in a build."
