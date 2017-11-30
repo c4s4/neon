@@ -106,6 +106,45 @@ Examples:
       mode: "0755"
       exclude: "**/bar.sh"
 
+classpath
+---------
+
+Build a Java classpath.
+
+Arguments:
+
+- classpath: the name of the property to set with classpath.
+- classes: a list of class directories to add in classpath (optional).
+# TODO
+- jarfiles: a glob or list of globs of jar files to add to classpath (optional).
+- dependencies: a list of dependency files to add to classpath (optional).
+- repositories: a list of repository URLs to get dependencies from (optional,
+  defaults to 'http://repo1.maven.org/maven2').
+- scope: the classpath scope (optional, defaults to 'runtime').
+
+Examples:
+
+	# build classpath with classes in build/classes directory
+	- classpath: 'classpath'
+	  classes:   'build/classes'
+    # build classpath with jar files in lib directory
+    - classpath: 'classpath'
+      jarfiles:  'lib/*.jar'
+	# build classpath with a dependencies file
+	- classpath:    'classpath'
+	  dependencies: 'dependencies.yml'
+
+Notes:
+
+Dependency files should list dependencies as follows:
+
+	- group:    junit
+      artifact: junit
+      version:  4.12
+	  scope:    test
+
+Scopes may be runtime (default), compile, test or provided.
+
 copy
 ----
 
@@ -205,6 +244,31 @@ Examples:
       - print: "hello"
       else:
       - print: "world"
+
+javac
+-----
+
+Compile Java source files.
+
+Arguments:
+
+- javac: the glob for Java source files.
+- source: directory for source files.
+- exclude: glob for source files to exclude (optional).
+- dest: destination directory for generated classes.
+- cp: classpath for compilation.
+
+Examples:
+
+	# compile Java source files in src directory
+	- javac:  '**/*.java'
+	  source: 'src'
+	  dest:   'build/classes'
+	# compile Java source files in src directory with given classpath
+	- javac:  '**/*.java'
+	  source: 'src'
+	  dest:   'build/classes'
+	  cp:     '#{classpath}'
 
 link
 ----
@@ -474,6 +538,8 @@ Arguments:
   of CPUs.
 - input: a list filled with values to pass to threads in _input property.
 - steps: the steps to run in threads.
+- verbose: tells if threads information should be printed on console (optional,
+  boolean that defaults to false).
 
 Note:
 
@@ -481,9 +547,16 @@ This task sets two properties :
 - _thread with the thread number (starting with 0)
 - _input with the input for each thread.
 
+Context of the build is cloned in each thread so that you can read and write
+properties, they won't affect other threads. But all properties will be lost
+when thread is done.
+
 If threads must output something, they must write it in _output property.
 After threads are done, _output will contain a list of all the outputs of
 threads.
+
+Don't change current directory in threads as it would affect other threads as
+well.
 
 Examples:
 
@@ -491,8 +564,8 @@ Examples:
     - threads: _NCPU
       input:   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
       steps:
-      - '_output = _data * _data'
-      - print: '#{_data}^2 = #{_output}'
+      - '_output = _input * _input'
+      - print: '#{_input}^2 = #{_output}'
     # print squares on the console
     - print: '#{_output}'
 

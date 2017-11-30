@@ -83,17 +83,17 @@ func UnzipFile(file, dir string) error {
 			destination := filepath.Dir(target)
 			if _, err := os.Stat(destination); err != nil {
 				if err := os.MkdirAll(destination, 0755); err != nil {
-					return fmt.Errorf("creating destination director %s: %v", target, err)
+					return fmt.Errorf("creating destination directory '%s': %v", target, err)
 				}
 			}
 			dest, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
 			if err != nil {
-				return fmt.Errorf("creating destination file %s: %v", target, err)
+				return fmt.Errorf("creating destination file '%s': %v", target, err)
 			}
 			defer dest.Close()
 			_, err = io.Copy(dest, readCloser)
 			if err != nil {
-				return fmt.Errorf("copying to destination file %s: %v", target, err)
+				return fmt.Errorf("copying to destination file '%s': %v", target, err)
 			}
 		}
 	}

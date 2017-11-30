@@ -11,6 +11,8 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"net"
+	"time"
 )
 
 const (
@@ -32,7 +34,7 @@ type Build struct {
 	Default     []string
 	Doc         string
 	Repository  string
-	Singleton   int
+	Singleton   string
 	Shell       map[string][]string
 	Scripts     []string
 	Extends     []string
@@ -211,6 +213,9 @@ func (build *Build) GetDefault() []string {
 
 // Run build given targets. If no target is given, run default one.
 func (build *Build) Run(context *Context, targets []string) error {
+	if err := build.Listen(context); err != nil {
+		return err
+	}
 	if len(targets) == 0 {
 		targets = build.GetDefault()
 		if len(targets) == 0 {
@@ -321,4 +326,31 @@ func (build *Build) GetShell() ([]string, error) {
 		return nil, fmt.Errorf("no shell found for '%s'", runtime.GOOS)
 	}
 	return shell, nil
+}
+
+// Run a TCP server on given port to ensure that a single instance is running
+// on a machine. Fails if another instance is already running on same port.
+func (build *Build) Listen(context *Context) error {
+	if build.Singleton == "" {
+		return nil
+	}
+	singleton, err := context.EvaluateExpression(build.Singleton)
+	if err != nil {
+		return fmt.Errorf("evaluating singleton port expression '%s': %v", build.Singleton, err)
+	}
+	port, ok := singleton.(int)
+	if !ok {
+		return fmt.Errorf("singleton port expression '%s' must return an integer", build.Singleton)
+	}
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		return fmt.Errorf("another instance of the build is already running")
+	}
+	go func() {
+		for {
+			listener.Accept()
+			time.Sleep(100 * time.Millisecond)
+		}
+	}()
+	return nil
 }
