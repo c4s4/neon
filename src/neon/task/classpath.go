@@ -17,8 +17,8 @@ Arguments:
 
 - classpath: the name of the property to set with classpath.
 - classes: a list of class directories to add in classpath (optional).
+- jars: a glob or list of globs of jar files to add to classpath (optional).
 # TODO
-- jarfiles: a glob or list of globs of jar files to add to classpath (optional).
 - dependencies: a list of dependency files to add to classpath (optional).
 - repositories: a list of repository URLs to get dependencies from (optional,
   defaults to 'http://repo1.maven.org/maven2').
@@ -31,7 +31,7 @@ Examples:
 	  classes:   'build/classes'
     # build classpath with jar files in lib directory
     - classpath: 'classpath'
-      jarfiles:  'lib/*.jar'
+      jars:      'lib/*.jar'
 	# build classpath with a dependencies file
 	- classpath:    'classpath'
 	  dependencies: 'dependencies.yml'
@@ -50,8 +50,8 @@ Scopes may be runtime (default), compile, test or provided.`,
 }
 
 func Classpath(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"classpath", "classes"}
-	if err := CheckFields(args, fields, fields); err != nil {
+	fields := []string{"classpath", "classes", "jars"}
+	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err
 	}
 	classpath, err := args.GetString("classpath")
@@ -63,6 +63,13 @@ func Classpath(target *build.Target, args util.Object) (build.Task, error) {
 		classes, err = args.GetListStringsOrString("classes")
 		if err != nil {
 			return nil, fmt.Errorf("argument classes of task classpath must be a string or list of strings")
+		}
+	}
+	var jars []string
+	if args.HasField("jars") {
+		jars, err = args.GetListStringsOrString("jars")
+		if err != nil {
+			return nil, fmt.Errorf("argument jars of task classpath must be a string or list of strings")
 		}
 	}
 	return func(context *build.Context) error {
@@ -79,8 +86,13 @@ func Classpath(target *build.Target, args util.Object) (build.Task, error) {
 			}
 			_classes = append(_classes, _c)
 		}
+		_jars, _err := context.FindFiles(".", jars, nil, false)
+		if _err != nil {
+			return fmt.Errorf("finding jar files: %v", _err)
+		}
 		// evaluate classpath
-		_path := strings.Join(_classes, string(os.PathListSeparator))
+		_elements := append(_classes, _jars...)
+		_path := strings.Join(_elements, string(os.PathListSeparator))
 		context.SetProperty(_classpath, _path)
 		return nil
 	}, nil
