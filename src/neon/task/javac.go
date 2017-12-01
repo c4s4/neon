@@ -60,6 +60,13 @@ func Javac(target *build.Target, args util.Object) (build.Task, error) {
 			return nil, fmt.Errorf("argument exclude must be a string or list of strings")
 		}
 	}
+	var cp string
+	if args.HasField("cp") {
+		cp, err = args.GetString("cp")
+		if err != nil {
+			return nil, fmt.Errorf("argument cp must be a string")
+		}
+	}
 	return func(context *build.Context) error {
 		// find java source files
 		_source, _err := context.EvaluateString(source)
@@ -80,9 +87,16 @@ func Javac(target *build.Target, args util.Object) (build.Task, error) {
 		if _err != nil {
 			return fmt.Errorf("finding java source files: %v", _err)
 		}
+		_cp, _err := context.EvaluateString(cp)
+		if _err != nil {
+			return fmt.Errorf("evaluating classpath: %v", _err)
+		}
 		// run javac command
 		context.Message("Compiling %d Java source file(s)", len(_sources))
 		_args := []string{"-d", _dest}
+		if _cp != "" {
+			_args = append(_args, []string{"-cp", _cp}...)
+		}
 		for _, _s := range _sources {
 			_args = append(_args, path.Join(_source, _s))
 		}
