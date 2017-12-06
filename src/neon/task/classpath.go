@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"net/http"
 	"io"
+	"path"
 )
 
 var LOCAL_REPOSITORY = util.ExpandUserHome("~/.java/repository")
@@ -32,6 +33,7 @@ Arguments:
   scope).
 - repositories: a list of repository URLs to get dependencies from (optional,
   defaults to 'http://repo1.maven.org/maven2').
+- todir: to copy jar files to given directory (optional).
 
 Examples:
 
@@ -44,6 +46,10 @@ Examples:
 	# build classpath with a dependencies file
 	- classpath:    'classpath'
 	  dependencies: 'dependencies.yml'
+	# copy classpath's jar files to 'build/lib' directory
+	- classpath:    _
+	  dependencies: 'dependencies.yml'
+      todir:        'build/lib'
 
 Notes:
 
@@ -60,7 +66,7 @@ dependency will be included for classpath with these scopes.`,
 }
 
 func Classpath(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"classpath", "classes", "jars", "dependencies", "scopes", "repositories"}
+	fields := []string{"classpath", "classes", "jars", "dependencies", "scopes", "repositories", "todir"}
 	if err := CheckFields(args, fields, fields[:1]); err != nil {
 		return nil, err
 	}
@@ -101,6 +107,13 @@ func Classpath(target *build.Target, args util.Object) (build.Task, error) {
 		repositories, err = args.GetListStringsOrString("repositories")
 		if err != nil {
 			return nil, fmt.Errorf("argument repositories of task classpath must be a string or list of strings")
+		}
+	}
+	var todir string
+	if args.HasField("todir") {
+		todir, err = args.GetString("todir")
+		if err != nil {
+			return nil, fmt.Errorf("argument todir of task classpath must be a string")
 		}
 	}
 	return func(context *build.Context) error {
@@ -145,6 +158,10 @@ func Classpath(target *build.Target, args util.Object) (build.Task, error) {
 			}
 			_repositories = append(_repositories, _r)
 		}
+		_todir, _err := context.EvaluateString(todir)
+		if _err != nil {
+			return fmt.Errorf("evaluating destination directory: %v", _err)
+		}
 		// get dependencies
 		_deps, _err := getDependencies(_dependencies, _scopes, _repositories, context)
 		if _err != nil {
@@ -157,6 +174,19 @@ func Classpath(target *build.Target, args util.Object) (build.Task, error) {
 		_elements = append(_elements, _deps...)
 		_path := strings.Join(_elements, string(os.PathListSeparator))
 		context.SetProperty(_classpath, _path)
+		// copy jar files to destination directory
+		if _todir != "" {
+			var _jars []string
+			for _, _element := range _elements {
+				if strings.HasSuffix(_element, ".jar") {
+					_jars = append(_jars, _element)
+				}
+			}
+			_err = copyJarsToDir(_jars, _todir)
+			if err != nil {
+				return fmt.Errorf("copying jar files to destination directory: %v", _err)
+			}
+		}
 		return nil
 	}, nil
 }
@@ -276,4 +306,18 @@ func selected(classpath, dependency []string) bool {
 		}
 	}
 	return false
+}
+
+func copyJarsToDir(jars []string, dir string) error {
+	if !util.DirExists(dir) {
+		os.MkdirAll(dir, util.DIR_FILE_MODE)
+	}
+	for _, jar := range jars {
+		dest := path.Join(dir, path.Base(jar))
+		err := util.CopyFile(jar, dest)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
