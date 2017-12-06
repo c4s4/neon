@@ -52,7 +52,7 @@ Dependency files should list dependencies as follows:
 	- group:    junit
       artifact: junit
       version:  4.12
-	  scopes:   test
+	  scopes:   [test]
 
 Scopes is optional. If not set, dependency will always be included. If set,
 dependency will be included for classpath with these scopes.`,
@@ -218,7 +218,7 @@ func downloadDependency(dependency Dependency, repositories []string, context *b
 	var err error
 	for _, repository := range repositories {
 		url := dependency.Path(repository)
-		err = download(path, url, repository)
+		err = download(path, url)
 		if err == nil {
 			return nil
 		}
@@ -226,7 +226,7 @@ func downloadDependency(dependency Dependency, repositories []string, context *b
 	return err
 }
 
-func download(path, url string, repository string) error {
+func download(path, url string) error {
 	response, err := http.Get(url)
 	if err != nil {
 		return fmt.Errorf("getting '%s': %v", url, err)
@@ -264,9 +264,12 @@ func (d *Dependency) String() string {
 
 type Dependencies []Dependency
 
-func selected(scopes1, scopes2 []string) bool {
-	for _, scope1 := range scopes1 {
-		for _, scope2 := range scopes2 {
+func selected(classpath, dependency []string) bool {
+	if dependency == nil {
+		return true
+	}
+	for _, scope1 := range classpath {
+		for _, scope2 := range dependency {
 			if scope1 == scope2 {
 				return true
 			}
