@@ -285,7 +285,7 @@ type Dependency struct {
 }
 
 func (d *Dependency) Path(root string) string {
-	return fmt.Sprintf("%s/%s/%s/%s/%s-%s.jar", root, d.Group, d.Artifact, d.Version, d.Artifact, d.Version)
+	return fmt.Sprintf("%s/%s/%s/%s/%s-%s.jar", root, strings.Replace(d.Group, ".", "/", -1), d.Artifact, d.Version, d.Artifact, d.Version)
 }
 
 func (d *Dependency) String() string {
