@@ -15,7 +15,7 @@ import (
 )
 
 var LOCAL_REPOSITORY = util.ExpandUserHome("~/.java/repository")
-var DEFAULT_REPOSITORY = "http://repo1.maven.org/maven2"
+var DEFAULT_REPOSITORY = "http://central.maven.org/maven2"
 
 func init() {
 	build.TaskMap["classpath"] = build.TaskDescriptor{
