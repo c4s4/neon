@@ -87,7 +87,7 @@ func ParseDoc(object util.Object, build *Build) error {
 
 // Parse repository field of the build
 func ParseRepository(object util.Object, build *Build) error {
-	build.Repository = REPO_ROOT
+	build.Repository = DEFAULT_REPO
 	if object.HasField("repository") {
 		repository, err := object.GetString("repository")
 		if err != nil {

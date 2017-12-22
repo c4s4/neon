@@ -16,7 +16,7 @@ import (
 
 const (
 	// location of the repository root
-	REPO_ROOT = "~/.neon"
+	DEFAULT_REPO = "~/.neon"
 	// regexp for plugin name
 	RE_PLUGIN = `[\w-]+/[\w-]+`
 )

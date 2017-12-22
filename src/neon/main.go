@@ -32,7 +32,7 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 	builtin := flag.String("builtin", "", "Print help on given builtin")
 	refs := flag.Bool("refs", false, "Print tasks and builtins reference")
 	install := flag.String("install", "", "Install given plugin")
-	repo := flag.String("repo", "~/.neon", "Neon plugin repository")
+	repo := flag.String("repo", _build.DEFAULT_REPO, "Neon plugin repository for installation")
 	grey := flag.Bool("grey", false, "Print on terminal without colors")
 	flag.Parse()
 	targets := flag.Args()
