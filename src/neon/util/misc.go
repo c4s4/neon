@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"regexp"
 	"runtime"
-	"testing"
 	"unicode/utf8"
 )
 
@@ -149,13 +148,6 @@ func MaxLength(lines []string) int {
 // Tells if we are running on windows
 func Windows() bool {
 	return runtime.GOOS == "windows"
-}
-
-// Make an assertion for testing purpose
-func Assert(actual, expected string, t *testing.T) {
-	if actual != expected {
-		t.Errorf("actual \"%s\" != expected \"%s\"", actual, expected)
-	}
 }
 
 // RemoveBlankLines removes blank lines of given string.
