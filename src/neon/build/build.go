@@ -5,7 +5,6 @@ import (
 	"gopkg.in/yaml.v2"
 	"neon/util"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -284,34 +283,6 @@ func (build *Build) PluginName(name string) string {
 	} else {
 		return ""
 	}
-}
-
-// Install given plugin
-func (build *Build) Install(plugin string) error {
-	re := regexp.MustCompile(`^` + RE_PLUGIN + `$`)
-	if !re.MatchString(plugin) {
-		return fmt.Errorf("plugin name '%s' is invalid", plugin)
-	}
-	path := build.PluginPath(plugin)
-	if util.DirExists(path) {
-		Message("Plugin '%s' already installed in '%s'", plugin, path)
-		return nil
-	}
-	absolute := util.ExpandUserHome(path)
-	repo := "git://github.com/" + plugin + ".git"
-	command := exec.Command("git", "clone", repo, absolute)
-	Message("Running command '%s'...", strings.Join(command.Args, " "))
-	output, err := command.CombinedOutput()
-	if err != nil {
-		re = regexp.MustCompile("\n\n")
-		message := re.ReplaceAllString(string(output), "\n")
-		message = strings.TrimSpace(message)
-		Message(message)
-		return fmt.Errorf("installing plugin '%s'", plugin)
-	} else {
-		Message("Plugin '%s' installed in '%s'", plugin, path)
-	}
-	return nil
 }
 
 // GetShell return shell for current os.
