@@ -5,6 +5,9 @@
   summary: Added Java tasks
   added:
   - "Added classpath, javac and java tasks."
+  - "Added -repo path option to set repo location for plugin installation."
+  fixed:
+  - "Fixed -install foo/bar command line option."
 
 - version: 0.10.0
   date:    2017-11-29
