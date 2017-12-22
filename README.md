@@ -57,4 +57,15 @@ var VERSION = "UNKNOWN"
 This will product the *neon* binary for your platform and OS in the project
 directory.
 
+Contributors
+------------
+
+Active contributors are:
+
+- [Michel Casabianca](mailto:casa@sweetohm.net)
+- [Alexandre Hu](mailto:a.hu@dalloz.fr)
+
+Please feel free to contribute and send your patches or pull requests, they
+will be reviewed and integrated as soon as possible.
+
 *Enjoy!*
