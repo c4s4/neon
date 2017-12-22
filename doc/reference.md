@@ -115,12 +115,14 @@ Arguments:
 
 - classpath: the name of the property to set with classpath.
 - classes: a list of class directories to add in classpath (optional).
-# TODO
-- jarfiles: a glob or list of globs of jar files to add to classpath (optional).
+- jars: a glob or list of globs of jar files to add to classpath (optional).
 - dependencies: a list of dependency files to add to classpath (optional).
+- scopes: the classpath scope (optional, if set will take dependencies without
+  scope and listed scopes, if not set, will only take dependencies without
+  scope).
 - repositories: a list of repository URLs to get dependencies from (optional,
   defaults to 'http://repo1.maven.org/maven2').
-- scope: the classpath scope (optional, defaults to 'runtime').
+- todir: to copy jar files to given directory (optional).
 
 Examples:
 
@@ -129,10 +131,14 @@ Examples:
 	  classes:   'build/classes'
     # build classpath with jar files in lib directory
     - classpath: 'classpath'
-      jarfiles:  'lib/*.jar'
+      jars:      'lib/*.jar'
 	# build classpath with a dependencies file
 	- classpath:    'classpath'
 	  dependencies: 'dependencies.yml'
+	# copy classpath's jar files to 'build/lib' directory
+	- classpath:    _
+	  dependencies: 'dependencies.yml'
+      todir:        'build/lib'
 
 Notes:
 
@@ -141,9 +147,10 @@ Dependency files should list dependencies as follows:
 	- group:    junit
       artifact: junit
       version:  4.12
-	  scope:    test
+	  scopes:   [test]
 
-Scopes may be runtime (default), compile, test or provided.
+Scopes is optional. If not set, dependency will always be included. If set,
+dependency will be included for classpath with these scopes.
 
 copy
 ----
@@ -244,6 +251,24 @@ Examples:
       - print: "hello"
       else:
       - print: "world"
+
+java
+----
+
+Run Java virtual machine.
+
+Arguments:
+
+- javac: the main Java class name.
+- cp: classpath for runtime.
+- args: command line arguments (optional).
+
+Examples:
+
+	# run class foo.Bar with arguments foo and bar
+	- javac: 'foo.Bar'
+	  cp:    'build/classes'
+      args:  ['foo', 'bar']
 
 javac
 -----
