@@ -1,0 +1,25 @@
+doc: Built file to test builtin contains
+default: builtin_contains
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_contains:
+    doc: Test the contains builtin function
+    steps:
+    - |
+      s = contains(["foo", "bar"], "bar")
+      if !s {
+        throw("contains test failure")
+      } else {
+        println("Contains test success")
+      }
+    - |
+      s = contains(["foo", "bar"], "toto")
+      if s {
+        throw("contains test failure")
+      } else {
+        println("Contains test success")
+      }
