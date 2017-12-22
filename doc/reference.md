@@ -797,6 +797,26 @@ Examples:
     path = absolute("foo/../bar/spam.txt")
     // returns: "/home/user/build/bar/spam.txt"
 
+contains
+--------
+
+Contains strings.
+
+Arguments:
+
+- List of strings to search into.
+- Seached string.
+
+Returns:
+
+- A boolean telling if the string is contained in the list.
+
+Examples:
+
+    // Tell if the list contains "bar"
+    contains(["foo", "bar"], "bar")
+    // returns: true
+
 directory
 ---------
 
