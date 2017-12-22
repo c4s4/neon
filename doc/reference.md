@@ -106,6 +106,52 @@ Examples:
       mode: "0755"
       exclude: "**/bar.sh"
 
+classpath
+---------
+
+Build a Java classpath.
+
+Arguments:
+
+- classpath: the name of the property to set with classpath.
+- classes: a list of class directories to add in classpath (optional).
+- jars: a glob or list of globs of jar files to add to classpath (optional).
+- dependencies: a list of dependency files to add to classpath (optional).
+- scopes: the classpath scope (optional, if set will take dependencies without
+  scope and listed scopes, if not set, will only take dependencies without
+  scope).
+- repositories: a list of repository URLs to get dependencies from (optional,
+  defaults to 'http://repo1.maven.org/maven2').
+- todir: to copy jar files to given directory (optional).
+
+Examples:
+
+	# build classpath with classes in build/classes directory
+	- classpath: 'classpath'
+	  classes:   'build/classes'
+    # build classpath with jar files in lib directory
+    - classpath: 'classpath'
+      jars:      'lib/*.jar'
+	# build classpath with a dependencies file
+	- classpath:    'classpath'
+	  dependencies: 'dependencies.yml'
+	# copy classpath's jar files to 'build/lib' directory
+	- classpath:    _
+	  dependencies: 'dependencies.yml'
+      todir:        'build/lib'
+
+Notes:
+
+Dependency files should list dependencies as follows:
+
+	- group:    junit
+      artifact: junit
+      version:  4.12
+	  scopes:   [test]
+
+Scopes is optional. If not set, dependency will always be included. If set,
+dependency will be included for classpath with these scopes.
+
 copy
 ----
 
@@ -205,6 +251,49 @@ Examples:
       - print: "hello"
       else:
       - print: "world"
+
+java
+----
+
+Run Java virtual machine.
+
+Arguments:
+
+- javac: the main Java class name.
+- cp: classpath for runtime.
+- args: command line arguments (optional).
+
+Examples:
+
+	# run class foo.Bar with arguments foo and bar
+	- javac: 'foo.Bar'
+	  cp:    'build/classes'
+      args:  ['foo', 'bar']
+
+javac
+-----
+
+Compile Java source files.
+
+Arguments:
+
+- javac: the glob for Java source files.
+- source: directory for source files.
+- exclude: glob for source files to exclude (optional).
+- dest: destination directory for generated classes.
+- cp: classpath for compilation.
+
+Examples:
+
+	# compile Java source files in src directory
+	- javac:  '**/*.java'
+	  source: 'src'
+	  dest:   'build/classes'
+	# compile Java source files in src directory with given classpath
+	- javac:  '**/*.java'
+	  source: 'src'
+	  dest:   'build/classes'
+	  cp:     '#{classpath}'
 
 link
 ----
