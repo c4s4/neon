@@ -10,7 +10,7 @@ properties:
   WIN_SHARE: '/home/casa/misc/shared'
   LIBRARIES:
   - 'gopkg.in/yaml.v2'
-  - 'github.com/mattn/anko'
+  - 'github.com/c4s4/anko'
   - 'github.com/mattn/go-zglob'
   - 'github.com/fatih/color'
   - 'github.com/mitchellh/gox'

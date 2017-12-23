@@ -1,7 +1,7 @@
 package build
 
 import (
-	"github.com/mattn/anko/vm"
+	"github.com/c4s4/anko/vm"
 )
 
 // Descriptor for a builtin function
