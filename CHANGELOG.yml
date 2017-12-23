@@ -6,6 +6,7 @@
   added:
   - "Added classpath, javac and java tasks."
   - "Added -repo path option to set repo location for plugin installation."
+  - "Added builtin contains, thanks to Alexandre Hu."
   fixed:
   - "Fixed -install foo/bar command line option."
 

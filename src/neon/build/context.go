@@ -10,10 +10,9 @@ import (
 	"runtime"
 	"sort"
 	"strings"
-
-	anko_core "github.com/mattn/anko/builtins"
-	"github.com/mattn/anko/parser"
-	"github.com/mattn/anko/vm"
+	anko_core "github.com/c4s4/anko/builtins"
+	"github.com/c4s4/anko/parser"
+	"github.com/c4s4/anko/vm"
 )
 
 // Build context
