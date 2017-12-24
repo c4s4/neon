@@ -126,28 +126,28 @@ Arguments:
 
 Examples:
 
-	# build classpath with classes in build/classes directory
-	- classpath: 'classpath'
-	  classes:   'build/classes'
+    # build classpath with classes in build/classes directory
+    - classpath: 'classpath'
+      classes:   'build/classes'
     # build classpath with jar files in lib directory
     - classpath: 'classpath'
       jars:      'lib/*.jar'
-	# build classpath with a dependencies file
-	- classpath:    'classpath'
-	  dependencies: 'dependencies.yml'
-	# copy classpath's jar files to 'build/lib' directory
-	- classpath:    _
-	  dependencies: 'dependencies.yml'
+    # build classpath with a dependencies file
+    - classpath:    'classpath'
+      dependencies: 'dependencies.yml'
+    # copy classpath's jar files to 'build/lib' directory
+    - classpath:    _
+      dependencies: 'dependencies.yml'
       todir:        'build/lib'
 
 Notes:
 
 Dependency files should list dependencies as follows:
 
-	- group:    junit
+    - group:    junit
       artifact: junit
       version:  4.12
-	  scopes:   [test]
+      scopes:   [test]
 
 Scopes is optional. If not set, dependency will always be included. If set,
 dependency will be included for classpath with these scopes.
@@ -265,9 +265,9 @@ Arguments:
 
 Examples:
 
-	# run class foo.Bar with arguments foo and bar
-	- javac: 'foo.Bar'
-	  cp:    'build/classes'
+    # run class foo.Bar with arguments foo and bar
+    - javac: 'foo.Bar'
+      cp:    'build/classes'
       args:  ['foo', 'bar']
 
 javac
@@ -285,15 +285,15 @@ Arguments:
 
 Examples:
 
-	# compile Java source files in src directory
-	- javac:  '**/*.java'
-	  source: 'src'
-	  dest:   'build/classes'
-	# compile Java source files in src directory with given classpath
-	- javac:  '**/*.java'
-	  source: 'src'
-	  dest:   'build/classes'
-	  cp:     '#{classpath}'
+    # compile Java source files in src directory
+    - javac:  '**/*.java'
+      source: 'src'
+      dest:   'build/classes'
+    # compile Java source files in src directory with given classpath
+    - javac:  '**/*.java'
+      source: 'src'
+      dest:   'build/classes'
+      cp:     '#{classpath}'
 
 link
 ----

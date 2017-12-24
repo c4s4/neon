@@ -1,7 +1,7 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
 - version: 0.11.0
-  date:    2017-12-23
+  date:    2017-12-24
   summary: Added Java tasks
   added:
   - "Added classpath, javac and java tasks."
