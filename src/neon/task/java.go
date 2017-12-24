@@ -21,9 +21,9 @@ Arguments:
 
 Examples:
 
-	# run class foo.Bar with arguments foo and bar
-	- javac: 'foo.Bar'
-	  cp:    'build/classes'
+    # run class foo.Bar with arguments foo and bar
+    - javac: 'foo.Bar'
+      cp:    'build/classes'
       args:  ['foo', 'bar']`,
 	}
 }

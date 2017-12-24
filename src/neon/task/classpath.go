@@ -2,16 +2,16 @@ package task
 
 import (
 	"fmt"
+	"gopkg.in/yaml.v2"
+	"io"
+	"io/ioutil"
 	"neon/build"
 	"neon/util"
-	"strings"
-	"os"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"path/filepath"
 	"net/http"
-	"io"
+	"os"
 	"path"
+	"path/filepath"
+	"strings"
 )
 
 var LOCAL_REPOSITORY = util.ExpandUserHome("~/.java/repository")
@@ -37,28 +37,28 @@ Arguments:
 
 Examples:
 
-	# build classpath with classes in build/classes directory
-	- classpath: 'classpath'
-	  classes:   'build/classes'
+    # build classpath with classes in build/classes directory
+    - classpath: 'classpath'
+      classes:   'build/classes'
     # build classpath with jar files in lib directory
     - classpath: 'classpath'
       jars:      'lib/*.jar'
-	# build classpath with a dependencies file
-	- classpath:    'classpath'
-	  dependencies: 'dependencies.yml'
-	# copy classpath's jar files to 'build/lib' directory
-	- classpath:    _
-	  dependencies: 'dependencies.yml'
+    # build classpath with a dependencies file
+    - classpath:    'classpath'
+      dependencies: 'dependencies.yml'
+    # copy classpath's jar files to 'build/lib' directory
+    - classpath:    _
+      dependencies: 'dependencies.yml'
       todir:        'build/lib'
 
 Notes:
 
 Dependency files should list dependencies as follows:
 
-	- group:    junit
+    - group:    junit
       artifact: junit
       version:  4.12
-	  scopes:   [test]
+      scopes:   [test]
 
 Scopes is optional. If not set, dependency will always be included. If set,
 dependency will be included for classpath with these scopes.`,

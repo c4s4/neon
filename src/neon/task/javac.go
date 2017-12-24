@@ -24,15 +24,15 @@ Arguments:
 
 Examples:
 
-	# compile Java source files in src directory
-	- javac:  '**/*.java'
-	  source: 'src'
-	  dest:   'build/classes'
-	# compile Java source files in src directory with given classpath
-	- javac:  '**/*.java'
-	  source: 'src'
-	  dest:   'build/classes'
-	  cp:     '#{classpath}'`,
+    # compile Java source files in src directory
+    - javac:  '**/*.java'
+      source: 'src'
+      dest:   'build/classes'
+    # compile Java source files in src directory with given classpath
+    - javac:  '**/*.java'
+      source: 'src'
+      dest:   'build/classes'
+      cp:     '#{classpath}'`,
 	}
 }
 
