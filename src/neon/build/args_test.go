@@ -3,6 +3,7 @@ package build
 import (
 	"testing"
 	"reflect"
+	"fmt"
 )
 
 type TestArgs struct {
@@ -101,16 +102,43 @@ func TestFieldIs(t *testing.T) {
 	}
 }
 
-func TestTask(t *testing.T) {
+// This test demonstrates how to check task parameters, fill them with
+// arguments from build file, define a task and call it with parameters
+func TestTaskCall(t *testing.T) {
+	// task arguments as parsed in build file
 	args := map[string]interface{} {
 		"print": "Hello World!",
 	}
+	// task arguments type
 	type PrintArgs struct {
 		Print string
 	}
+	// the task function
+	print := func(ctx *Context, args interface{}) error {
+		params := args.(*PrintArgs)
+		fmt.Println(params.Print)
+		return nil
+	}
+	// the task argument type
+	//var typ reflect.Type = reflect.TypeOf(PrintArgs{})
+	// get an instance of arguments type
+	//var params reflect.Value = reflect.New(typ).Elem()
 	params := PrintArgs{}
+	// validate task arguments
 	err := ValidateTaskArgs(args, &params)
 	if err != nil {
-		t.Errorf("failed test task: %v", err)
+		t.Errorf("failed args validation: %v", err)
+	}
+	// evaluate task arguments
+	err = EvaluateTaskArgs(args, &params, nil)
+	if err != nil {
+		t.Errorf("failed args evaluation: %v", err)
+	}
+	if params.Print != "Hello World!" {
+		t.Errorf("bad args values: %v", err)
+	}
+	err = print(nil, &params)
+	if err != nil {
+		t.Errorf("error calling task: %v", err)
 	}
 }

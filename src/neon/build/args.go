@@ -16,6 +16,9 @@ type TaskArgs map[string]interface{}
 // NOTE: supported tags in argument types are:
 // - optional: field might not be provided
 func ValidateTaskArgs(args TaskArgs, params interface{}) error {
+	if reflect.TypeOf(params).Kind() != reflect.Ptr {
+		return fmt.Errorf("params must be a pointer on a struct")
+	}
 	st := reflect.TypeOf(params).Elem()
 	if st.Kind() != reflect.Struct {
 		return fmt.Errorf("params must be a pointer on a struct")
