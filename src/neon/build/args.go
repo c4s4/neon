@@ -51,13 +51,23 @@ func EvaluateTaskArgs(args TaskArgs, argsStruct interface{}, context *Context) e
 	value := reflect.ValueOf(argsStruct).Elem()
 	for i:=0; i<value.NumField(); i++ {
 		name := strings.ToLower(st.Field(i).Name)
-		switch value.Field(i).Interface().(type) {
-		case int:
-			value.Field(i).SetInt(int64(args[name].(int)))
-		case int64:
-			value.Field(i).SetInt(args[name].(int64))
-		case string:
-			value.Field(i).SetString(args[name].(string))
+		if args[name] != nil {
+			switch value.Field(i).Interface().(type) {
+			case bool:
+				value.Field(i).SetBool(args[name].(bool))
+			case int:
+				value.Field(i).SetInt(int64(args[name].(int)))
+			case int64:
+				value.Field(i).SetInt(args[name].(int64))
+			case float32:
+				value.Field(i).SetFloat(float64(args[name].(float32)))
+			case float64:
+				value.Field(i).SetFloat(args[name].(float64))
+			case string:
+				value.Field(i).SetString(args[name].(string))
+			default:
+				return fmt.Errorf("argument type '%s' is not managed", st.Field(i).Type)
+			}
 		}
 	}
 	return nil

@@ -1,16 +1,22 @@
 package build
 
-import "testing"
+import (
+	"testing"
+)
 
 type TestArgs struct {
-	Test string
-	Num  int `optional`
+	Bool   bool    `optional`
+	Int    int     `optional`
+	Float  float64 `optional`
+	String string
 }
 
 func TestValidateTaskArgsNominal(t *testing.T) {
 	argsi := make(map[string]interface{})
-	argsi["test"] = "Hello World!"
-	argsi["num"] = 3
+	argsi["bool"] = true
+	argsi["int"] = 3
+	argsi["float"] = 3.14
+	argsi["string"] = "Hello World!"
 	err := ValidateTaskArgs(argsi, TestArgs{})
 	if err != nil {
 		t.Errorf("failed args validation: %#v", err)
@@ -19,16 +25,16 @@ func TestValidateTaskArgsNominal(t *testing.T) {
 
 func TestValidateTaskArgsMissingArg(t *testing.T) {
 	argsi := make(map[string]interface{})
-	argsi["num"] = 3
+	argsi["int"] = 3
 	err := ValidateTaskArgs(argsi, TestArgs{})
-	if err == nil || err.Error() != "missing mandatory field 'test'" {
-		t.Errorf("failed args validation")
+	if err == nil || err.Error() != "missing mandatory field 'string'" {
+		t.Errorf("failed args validation: %v", err)
 	}
 }
 
 func TestValidateTaskArgsMissingArgOptional(t *testing.T) {
 	argsi := make(map[string]interface{})
-	argsi["test"] = "Hello World!"
+	argsi["string"] = "Hello World!"
 	err := ValidateTaskArgs(argsi, TestArgs{})
 	if err != nil {
 		t.Errorf("failed args validation: %#v", err)
@@ -37,23 +43,24 @@ func TestValidateTaskArgsMissingArgOptional(t *testing.T) {
 
 func TestValidateTaskArgsBadType(t *testing.T) {
 	argsi := make(map[string]interface{})
-	argsi["test"] = 1
+	argsi["string"] = 1
 	err := ValidateTaskArgs(argsi, TestArgs{})
-	if err == nil || err.Error() != "field 'test' must be of type 'string' ('int' provided)" {
+	if err == nil || err.Error() != "field 'string' must be of type 'string' ('int' provided)" {
 		t.Errorf("failed args validation")
 	}
 }
 
 func TestEvaluateTaskArgsNominal(t *testing.T) {
 	argsi := make(map[string]interface{})
-	argsi["test"] = "Hello World!"
-	argsi["num"] = 3
+	argsi["bool"] = true
+	argsi["int"] = 3
+	argsi["string"] = "Hello World!"
 	args := TestArgs{}
 	err := EvaluateTaskArgs(argsi, &args, nil)
 	if err != nil {
 		t.Errorf("failed args evaluation: %#v", err)
 	}
-	if args.Test != "Hello World!" || args.Num != 3 {
+	if args.String != "Hello World!" || args.Int != 3 || !args.Bool {
 		t.Errorf("failed args evaluation: %#v", args)
 	}
 }
