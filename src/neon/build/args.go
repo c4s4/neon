@@ -1,35 +1,78 @@
 package build
 
 import (
-	"neon/util"
 	"reflect"
 	"fmt"
 	"strings"
 )
 
-func ParseArgs(object *util.Object, args interface{}) (interface{}, error){
-	st := reflect.TypeOf(args)
-	value := reflect.ValueOf(args)
+// Type for task arguments as parsed in build file
+type TaskArgs map[string]interface{}
+
+// Validate task arguments against task arguments definition
+// - args: task arguments parsed in build file
+// - argsType: instance of the task arguments type
+// Return: an error (detailing the fault) if arguments are illegal
+// NOTE: supported tags in argument types are:
+// - optional: field might not be provided
+func ValidateTaskArgs(args TaskArgs, argsType interface{}) error {
+	st := reflect.TypeOf(argsType)
 	if st.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("args must be a struct")
+		return fmt.Errorf("argsType must be a struct")
 	}
-	for i := 0; i < st.NumField(); i++ {
+	for i:=0; i<st.NumField(); i++ {
 		field := st.Field(i)
-		tagMandatory := field.Tag.Get("mandatory")
-		if tagMandatory != "true" && tagMandatory != "false" {
-			return nil, fmt.Errorf("tag 'mandatory' must be 'true' or 'false'")
+		// check field is not missing
+		argName := strings.ToLower(field.Name)
+		if _, ok := args[argName]; !ok {
+			if !FieldIs(field, "optional") {
+				return fmt.Errorf("missing mandatory field '%s'", argName)
+			}
 		}
-		mandatory := tagMandatory == "true"
-		var name string
-		tagName := field.Tag.Get("name")
-		if tagName == "" {
-			name = strings.ToLower(field.Name)
-		} else {
-			name = tagName
-		}
-		if object.HasField(name) {
-			value.
+		// check field type
+		value := args[argName]
+		valueType := reflect.TypeOf(value)
+		if field.Type != valueType {
+			if !FieldIs(field, "optional") {
+				return fmt.Errorf("field '%s' must be of type '%s' ('%s' provided)", argName, field.Type, valueType)
+			}
 		}
 	}
-	return args, nil
+	return nil
+}
+
+// Evaluate task arguments in given context to fill empty arguments
+// - args: task arguments parsed in build file
+// - argsStruct: pointer to the instance of the task arguments type to fill
+// - context: the build context to evaluate arguments into
+// Return: an error if something went wrong
+func EvaluateTaskArgs(args TaskArgs, argsStruct interface{}, context *Context) error {
+	st := reflect.TypeOf(argsStruct).Elem()
+	value := reflect.ValueOf(argsStruct).Elem()
+	for i:=0; i<value.NumField(); i++ {
+		name := strings.ToLower(st.Field(i).Name)
+		switch value.Field(i).Interface().(type) {
+		case int:
+			value.Field(i).SetInt(int64(args[name].(int)))
+		case int64:
+			value.Field(i).SetInt(args[name].(int64))
+		case string:
+			value.Field(i).SetString(args[name].(string))
+		}
+	}
+	return nil
+}
+
+// FieldIs tells if given field tag contains quality
+// - field: the struct field
+// - quality: the tested quality (such as "optional")
+func FieldIs(field reflect.StructField, quality string) bool {
+	tag := string(field.Tag)
+	qualities := strings.Split(tag, ",")
+	for _, q := range qualities {
+		if strings.TrimSpace(q) == quality {
+			return true
+		}
+	}
+	return false
 }
