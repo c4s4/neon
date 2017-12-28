@@ -11,14 +11,14 @@ type TaskArgs map[string]interface{}
 
 // Validate task arguments against task arguments definition
 // - args: task arguments parsed in build file
-// - argsType: instance of the task arguments type
+// - params: instance of the task arguments type
 // Return: an error (detailing the fault) if arguments are illegal
 // NOTE: supported tags in argument types are:
 // - optional: field might not be provided
-func ValidateTaskArgs(args TaskArgs, argsType interface{}) error {
-	st := reflect.TypeOf(argsType)
+func ValidateTaskArgs(args TaskArgs, params interface{}) error {
+	st := reflect.TypeOf(params).Elem()
 	if st.Kind() != reflect.Struct {
-		return fmt.Errorf("argsType must be a struct")
+		return fmt.Errorf("params must be a pointer on a struct")
 	}
 	for i:=0; i<st.NumField(); i++ {
 		field := st.Field(i)
@@ -43,31 +43,16 @@ func ValidateTaskArgs(args TaskArgs, argsType interface{}) error {
 
 // Evaluate task arguments in given context to fill empty arguments
 // - args: task arguments parsed in build file
-// - argsStruct: pointer to the instance of the task arguments type to fill
+// - params: pointer to the instance of the task arguments type to fill
 // - context: the build context to evaluate arguments into
 // Return: an error if something went wrong
-func EvaluateTaskArgs(args TaskArgs, argsStruct interface{}, context *Context) error {
-	st := reflect.TypeOf(argsStruct).Elem()
-	value := reflect.ValueOf(argsStruct).Elem()
+func EvaluateTaskArgs(args TaskArgs, params interface{}, context *Context) error {
+	st := reflect.TypeOf(params).Elem()
+	value := reflect.ValueOf(params).Elem()
 	for i:=0; i<value.NumField(); i++ {
 		name := strings.ToLower(st.Field(i).Name)
 		if args[name] != nil {
-			switch value.Field(i).Interface().(type) {
-			case bool:
-				value.Field(i).SetBool(args[name].(bool))
-			case int:
-				value.Field(i).SetInt(int64(args[name].(int)))
-			case int64:
-				value.Field(i).SetInt(args[name].(int64))
-			case float32:
-				value.Field(i).SetFloat(float64(args[name].(float32)))
-			case float64:
-				value.Field(i).SetFloat(args[name].(float64))
-			case string:
-				value.Field(i).SetString(args[name].(string))
-			default:
-				return fmt.Errorf("argument type '%s' is not managed", st.Field(i).Type)
-			}
+			value.Field(i).Set(reflect.ValueOf(args[name]))
 		}
 	}
 	return nil
