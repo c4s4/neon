@@ -24,7 +24,7 @@ func TestValidateTaskArgsNominal(t *testing.T) {
 		"array": []string{"foo", "bar"},
 		"map": map[string]string{"foo": "bar"},
 	}
-	err := ValidateTaskArgs(args, &TestArgs{})
+	err := ValidateTaskArgs(args, reflect.TypeOf(TestArgs{}))
 	if err != nil {
 		t.Errorf("failed args validation: %#v", err)
 	}
@@ -34,7 +34,7 @@ func TestValidateTaskArgsMissingArg(t *testing.T) {
 	args := map[string]interface{} {
 		"int": 3,
 	}
-	err := ValidateTaskArgs(args, &TestArgs{})
+	err := ValidateTaskArgs(args, reflect.TypeOf(TestArgs{}))
 	if err == nil || err.Error() != "missing mandatory field 'string'" {
 		t.Errorf("failed args validation: %v", err)
 	}
@@ -44,7 +44,7 @@ func TestValidateTaskArgsMissingArgOptional(t *testing.T) {
 	args := map[string]interface{} {
 		"string": "Hello World!",
 	}
-	err := ValidateTaskArgs(args, &TestArgs{})
+	err := ValidateTaskArgs(args, reflect.TypeOf(TestArgs{}))
 	if err != nil {
 		t.Errorf("failed args validation: %#v", err)
 	}
@@ -54,7 +54,7 @@ func TestValidateTaskArgsBadType(t *testing.T) {
 	args := map[string]interface{} {
 		"string": 1,
 	}
-	err := ValidateTaskArgs(args, &TestArgs{})
+	err := ValidateTaskArgs(args, reflect.TypeOf(TestArgs{}))
 	if err == nil || err.Error() != "field 'string' must be of type 'string' ('int' provided)" {
 		t.Errorf("failed args validation")
 	}
@@ -69,8 +69,8 @@ func TestEvaluateTaskArgsNominal(t *testing.T) {
 		"array": []string{"foo", "bar"},
 		"map": map[string]string{"foo": "bar"},
 	}
-	params := TestArgs{}
-	err := EvaluateTaskArgs(args, &params, nil)
+	res, err := EvaluateTaskArgs(args, reflect.TypeOf(TestArgs{}), nil)
+	params := res.(TestArgs)
 	if err != nil {
 		t.Errorf("failed args evaluation: %#v", err)
 	}
@@ -115,29 +115,26 @@ func TestTaskCall(t *testing.T) {
 	}
 	// the task function
 	print := func(ctx *Context, args interface{}) error {
-		params := args.(*PrintArgs)
+		params := args.(PrintArgs)
 		fmt.Println(params.Print)
 		return nil
 	}
-	// the task argument type
-	//var typ reflect.Type = reflect.TypeOf(PrintArgs{})
-	// get an instance of arguments type
-	//var params reflect.Value = reflect.New(typ).Elem()
-	params := PrintArgs{}
+	// task arguments type
+	typ := reflect.TypeOf(PrintArgs{})
 	// validate task arguments
-	err := ValidateTaskArgs(args, &params)
+	err := ValidateTaskArgs(args, typ)
 	if err != nil {
 		t.Errorf("failed args validation: %v", err)
 	}
 	// evaluate task arguments
-	err = EvaluateTaskArgs(args, &params, nil)
+	params, err := EvaluateTaskArgs(args, typ, nil)
 	if err != nil {
 		t.Errorf("failed args evaluation: %v", err)
 	}
-	if params.Print != "Hello World!" {
+	if params.(PrintArgs).Print != "Hello World!" {
 		t.Errorf("bad args values: %v", err)
 	}
-	err = print(nil, &params)
+	err = print(nil, params)
 	if err != nil {
 		t.Errorf("error calling task: %v", err)
 	}

@@ -11,20 +11,16 @@ type TaskArgs map[string]interface{}
 
 // Validate task arguments against task arguments definition
 // - args: task arguments parsed in build file
-// - params: instance of the task arguments type
+// - typ: the type of the arguments
 // Return: an error (detailing the fault) if arguments are illegal
 // NOTE: supported tags in argument types are:
 // - optional: field might not be provided
-func ValidateTaskArgs(args TaskArgs, params interface{}) error {
-	if reflect.TypeOf(params).Kind() != reflect.Ptr {
+func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
+	if typ.Kind() != reflect.Struct {
 		return fmt.Errorf("params must be a pointer on a struct")
 	}
-	st := reflect.TypeOf(params).Elem()
-	if st.Kind() != reflect.Struct {
-		return fmt.Errorf("params must be a pointer on a struct")
-	}
-	for i:=0; i<st.NumField(); i++ {
-		field := st.Field(i)
+	for i:=0; i<typ.NumField(); i++ {
+		field := typ.Field(i)
 		// check field is not missing
 		argName := strings.ToLower(field.Name)
 		if _, ok := args[argName]; !ok {
@@ -49,16 +45,15 @@ func ValidateTaskArgs(args TaskArgs, params interface{}) error {
 // - params: pointer to the instance of the task arguments type to fill
 // - context: the build context to evaluate arguments into
 // Return: an error if something went wrong
-func EvaluateTaskArgs(args TaskArgs, params interface{}, context *Context) error {
-	st := reflect.TypeOf(params).Elem()
-	value := reflect.ValueOf(params).Elem()
+func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interface{}, error) {
+	value := reflect.New(typ).Elem()
 	for i:=0; i<value.NumField(); i++ {
-		name := strings.ToLower(st.Field(i).Name)
+		name := strings.ToLower(typ.Field(i).Name)
 		if args[name] != nil {
 			value.Field(i).Set(reflect.ValueOf(args[name]))
 		}
 	}
-	return nil
+	return value.Interface(), nil
 }
 
 // FieldIs tells if given field tag contains quality
