@@ -78,9 +78,9 @@ func EvaluateTaskArgs(args TaskArgs, argsStruct interface{}, context *Context) e
 // - quality: the tested quality (such as "optional")
 func FieldIs(field reflect.StructField, quality string) bool {
 	tag := string(field.Tag)
-	qualities := strings.Split(tag, ",")
+	qualities := strings.Split(tag, " ")
 	for _, q := range qualities {
-		if strings.TrimSpace(q) == quality {
+		if q == quality {
 			return true
 		}
 	}

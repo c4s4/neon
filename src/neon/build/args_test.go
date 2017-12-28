@@ -2,6 +2,7 @@ package build
 
 import (
 	"testing"
+	"reflect"
 )
 
 type TestArgs struct {
@@ -62,5 +63,22 @@ func TestEvaluateTaskArgsNominal(t *testing.T) {
 	}
 	if args.String != "Hello World!" || args.Int != 3 || !args.Bool {
 		t.Errorf("failed args evaluation: %#v", args)
+	}
+}
+
+func TestFieldIs(t *testing.T) {
+	field := reflect.StructField{Tag: "test"}
+	if !FieldIs(field, "test") {
+		t.Errorf("failed FieldIs test")
+	}
+	if FieldIs(field, "foo") {
+		t.Errorf("failed FieldIs test")
+	}
+	field = reflect.StructField{Tag: "foo bar"}
+	if !FieldIs(field, "foo") || !FieldIs(field, "bar") {
+		t.Errorf("failed FieldIs test")
+	}
+	if FieldIs(field, "test") {
+		t.Errorf("failed FieldIs test")
 	}
 }
