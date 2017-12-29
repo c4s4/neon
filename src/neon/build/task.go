@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"fmt"
 	"strings"
+	"neon/util"
 )
 
 // character for expressions
@@ -31,6 +32,8 @@ type TaskFunc func(ctx *Context, args interface{}) error
 // Return: an error (detailing the fault) if arguments are illegal
 // NOTE: supported tags in argument types are:
 // - optional: field might not be provided
+// - file: expand user home on field if string
+// - expression: evaluate field as an expression, even if not starting with =
 func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 	if typ.Kind() != reflect.Struct {
 		return fmt.Errorf("params must be a pointer on a struct")
@@ -68,8 +71,9 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 		name := strings.ToLower(typ.Field(i).Name)
 		if args[name] != nil {
 			val := args[name]
-			// evaluate strings and expressions
-			if reflect.TypeOf(args[name]).Kind() == reflect.String {
+			field := typ.Field(i)
+			// evaluate expressions in context
+			if reflect.TypeOf(val).Kind() == reflect.String {
 				str := args[name].(string)
 				if strings.HasPrefix(str, CHAR_EXPRESSION) {
 					// if starts with '=' this is an expression
@@ -77,15 +81,32 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 					if err != nil {
 						return nil, err
 					}
-				} else {
-					// if doesn't start with '=' this is a string
-					if strings.HasPrefix(str, `\`+CHAR_EXPRESSION) {
-						str = str[1:]
-					}
-					val, err = context.EvaluateString(str)
+				}
+			}
+			// evaluate strings to replace "={expression}" with its value
+			if reflect.TypeOf(val).Kind() == reflect.String {
+				str := args[name].(string)
+				// replace '\=' with '='
+				if strings.HasPrefix(str, `\`+CHAR_EXPRESSION) {
+					str = str[1:]
+				}
+				// evaluate string
+				str, err = context.EvaluateString(str)
+				if err != nil {
+					return nil, err
+				}
+				// expand home if field tagged 'file'
+				if FieldIs(field, "file") {
+					str = util.ExpandUserHome(str)
+				}
+				// evaluate string if field tagged 'expression'
+				if FieldIs(field, "expression") {
+					val, err = context.EvaluateExpression(str)
 					if err != nil {
 						return nil, err
 					}
+				} else {
+					val = str
 				}
 			}
 			// put value in params
