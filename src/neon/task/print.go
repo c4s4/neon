@@ -7,6 +7,7 @@ import (
 
 func init() {
 	build.AddTask(build.TaskDesc {
+		Name: "print",
 		Func: Print,
 		Args: reflect.TypeOf(PrintArgs{}),
 		Help: `Print a message on the console.

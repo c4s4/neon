@@ -91,14 +91,21 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 			val := args[name]
 			field := typ.Field(i)
 			// evaluate expressions in context
-			if reflect.TypeOf(val).Kind() == reflect.String {
+			if reflect.TypeOf(val).Kind() == reflect.String &&
+				(IsExpression(args[name].(string)) || FieldIs(field, FIELD_EXPRESSION)) {
 				str := args[name].(string)
 				if IsExpression(str) {
-					// if starts with '=' this is an expression
-					val, err = context.EvaluateExpression(str[1:])
-					if err != nil {
-						return nil, err
-					}
+					str = str[1:]
+				}
+				val, err = context.EvaluateExpression(str)
+				if err != nil {
+					return nil, err
+				}
+				expected := field.Type
+				actual := reflect.TypeOf(val)
+				if actual != expected {
+					return nil, fmt.Errorf("bad expression return type, expected '%s' but '%s' was returned",
+						expected.Name(), actual.Name())
 				}
 			}
 			// evaluate strings to replace "={expression}" with its value
@@ -117,15 +124,7 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 				if FieldIs(field, FIELD_FILE) {
 					str = util.ExpandUserHome(str)
 				}
-				// evaluate string if field tagged 'expression'
-				if FieldIs(field, FIELD_EXPRESSION) {
-					val, err = context.EvaluateExpression(str)
-					if err != nil {
-						return nil, err
-					}
-				} else {
-					val = str
-				}
+				val = str
 			}
 			// put value in params
 			value.Field(i).Set(reflect.ValueOf(val))
