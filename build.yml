@@ -22,7 +22,7 @@ targets:
     steps:
     - print: "Running integration tests"
     - for: 'file'
-      in:  'find("test", "**/print.yml", "**/cat.yml", "**/touch.yml", "**/mkdir.yml", "**/chdir.yml", "**/chmod.yml")'
+      in:  'find("test", "**/print.yml", "**/cat.yml", "**/touch.yml", "**/mkdir.yml", "**/chdir.yml", "**/chmod.yml", "**/copy.yml")'
       # assert
       do:
       - print: 'Running build file "#{file}"'
