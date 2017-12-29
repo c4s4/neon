@@ -20,7 +20,7 @@ type TaskDesc struct {
 type TaskArgs map[interface{}]interface{}
 
 // Type for task function called to run task
-type TaskFunc func(ctx *Context, args TaskArgs) error
+type TaskFunc func(ctx *Context, args interface{}) error
 
 // Validate task arguments against task arguments definition
 // - args: task arguments parsed in build file

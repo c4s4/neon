@@ -50,14 +50,14 @@ func (step ScriptStep) Run(context *Context) error {
 // Structure for a task step
 type TaskStep struct {
 	Target *Target
-	Func   TaskFunc
+	Desc   TaskDesc
 	Args   TaskArgs
 }
 
 // Make a task step
-func NewTaskStep(target *Target, args map[interface{}]interface{}) (Step, error) {
+func NewTaskStep(target *Target, args TaskArgs) (Step, error) {
 	for name, desc := range TaskMap {
-		for field, _ := range args {
+		for field := range args {
 			if name == field {
 				err := ValidateTaskArgs(args, desc.Args)
 				if err != nil {
@@ -65,7 +65,7 @@ func NewTaskStep(target *Target, args map[interface{}]interface{}) (Step, error)
 				}
 				step := TaskStep{
 					Target: target,
-					Func:   desc.Func,
+					Desc:   desc,
 					Args:   args,
 				}
 				return step, nil
@@ -73,7 +73,7 @@ func NewTaskStep(target *Target, args map[interface{}]interface{}) (Step, error)
 		}
 	}
 	var fields []string
-	for field, _ := range args {
+	for field := range args {
 		fields = append(fields, field.(string))
 	}
 	fields = sort.StringSlice(fields)
@@ -82,5 +82,9 @@ func NewTaskStep(target *Target, args map[interface{}]interface{}) (Step, error)
 
 // Run a task step, calling the function for the step
 func (step TaskStep) Run(context *Context) error {
-	return step.Func(context, step.Args)
+	params, err := EvaluateTaskArgs(step.Args, step.Desc.Args, context)
+	if err != nil {
+		return err
+	}
+	return step.Desc.Func(context, params)
 }
