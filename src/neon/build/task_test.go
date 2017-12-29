@@ -16,7 +16,7 @@ type TestArgs struct {
 }
 
 func TestValidateTaskArgsNominal(t *testing.T) {
-	args := map[string]interface{} {
+	args := TaskArgs {
 		"string": "Hello World!",
 		"bool": true,
 		"int": 3,
@@ -31,7 +31,7 @@ func TestValidateTaskArgsNominal(t *testing.T) {
 }
 
 func TestValidateTaskArgsMissingArg(t *testing.T) {
-	args := map[string]interface{} {
+	args := TaskArgs {
 		"int": 3,
 	}
 	err := ValidateTaskArgs(args, reflect.TypeOf(TestArgs{}))
@@ -41,7 +41,7 @@ func TestValidateTaskArgsMissingArg(t *testing.T) {
 }
 
 func TestValidateTaskArgsMissingArgOptional(t *testing.T) {
-	args := map[string]interface{} {
+	args := TaskArgs {
 		"string": "Hello World!",
 	}
 	err := ValidateTaskArgs(args, reflect.TypeOf(TestArgs{}))
@@ -51,7 +51,7 @@ func TestValidateTaskArgsMissingArgOptional(t *testing.T) {
 }
 
 func TestValidateTaskArgsBadType(t *testing.T) {
-	args := map[string]interface{} {
+	args := TaskArgs {
 		"string": 1,
 	}
 	err := ValidateTaskArgs(args, reflect.TypeOf(TestArgs{}))
@@ -61,7 +61,7 @@ func TestValidateTaskArgsBadType(t *testing.T) {
 }
 
 func TestEvaluateTaskArgsNominal(t *testing.T) {
-	args := map[string]interface{} {
+	args := TaskArgs {
 		"string": "Hello World!",
 		"bool": true,
 		"int": 3,
@@ -106,7 +106,7 @@ func TestFieldIs(t *testing.T) {
 // arguments from build file, define a task and call it with parameters
 func TestTaskCall(t *testing.T) {
 	// task arguments as parsed in build file
-	args := map[string]interface{} {
+	args := TaskArgs {
 		"print": "Hello World!",
 	}
 	// task arguments type

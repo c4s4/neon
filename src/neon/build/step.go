@@ -2,8 +2,8 @@ package build
 
 import (
 	"fmt"
-	"neon/util"
 	"strings"
+	"sort"
 )
 
 // A step has a Run() method
@@ -50,35 +50,37 @@ func (step ScriptStep) Run(context *Context) error {
 // Structure for a task step
 type TaskStep struct {
 	Target *Target
-	Task   Task
+	Func   TaskFunc
+	Args   TaskArgs
 }
 
 // Make a task step
-func NewTaskStep(target *Target, m map[interface{}]interface{}) (Step, error) {
-	object, err := util.NewObject(m)
-	if err != nil {
-		return nil, fmt.Errorf("a task must be a map with string keys")
-	}
-	fields := object.Fields()
-	for name, descriptor := range TaskMap {
-		for _, field := range fields {
+func NewTaskStep(target *Target, args map[interface{}]interface{}) (Step, error) {
+	for name, desc := range TaskMap {
+		for field, _ := range args {
 			if name == field {
-				task, err := descriptor.Constructor(target, object)
+				err := ValidateTaskArgs(args, desc.Args)
 				if err != nil {
 					return nil, fmt.Errorf("parsing task '%s': %v", name, err)
 				}
 				step := TaskStep{
 					Target: target,
-					Task:   task,
+					Func:   desc.Func,
+					Args:   args,
 				}
 				return step, nil
 			}
 		}
 	}
+	var fields []string
+	for field, _ := range args {
+		fields = append(fields, field.(string))
+	}
+	fields = sort.StringSlice(fields)
 	return nil, fmt.Errorf("unknown task '%s'", strings.Join(fields, "/"))
 }
 
 // Run a task step, calling the function for the step
 func (step TaskStep) Run(context *Context) error {
-	return step.Task(context)
+	return step.Func(context, step.Args)
 }

@@ -138,7 +138,7 @@ func PrintHelpTask(task string) {
 	if found {
 		Message(descriptor.Help)
 	} else {
-		Message("Task '%s' was not found", task)
+		Message("Func '%s' was not found", task)
 	}
 }
 
