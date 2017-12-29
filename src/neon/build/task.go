@@ -17,6 +17,8 @@ const (
 	FIELD_FILE = "file"
 	// field is an expression
 	FIELD_EXPRESSION = "expression"
+	// wrap single values in arrays if necessary
+	FIELD_WRAP = "wrap"
 )
 
 // Map that gives constructor for given task name
@@ -55,24 +57,48 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 	for i:=0; i<typ.NumField(); i++ {
 		field := typ.Field(i)
 		// check field is not missing
-		argName := strings.ToLower(field.Name)
-		if _, ok := args[argName]; !ok {
+		name := strings.ToLower(field.Name)
+		if _, ok := args[name]; !ok {
 			if !FieldIs(field, FIELD_OPTIONAL) {
-				return fmt.Errorf("missing mandatory field '%s'", argName)
+				return fmt.Errorf("missing mandatory field '%s'", name)
 			}
 		}
 		// check field type
-		value := args[argName]
-		valueType := reflect.TypeOf(value)
-		if !(field.Type == valueType || (value == nil && FieldIs(field, FIELD_OPTIONAL))) {
-			// if expression deffer type check after evaluation
-			if !(valueType.Kind() == reflect.String &&
-				 (IsExpression(value.(string)) || FieldIs(field, FIELD_EXPRESSION))) {
-				return fmt.Errorf("field '%s' must be of type '%s' ('%s' provided)", argName, field.Type, valueType)
-			}
+		if !CheckType(field, args[name]) {
+			return fmt.Errorf("field '%s' must be of type '%s' ('%s' provided)",
+				name, field.Type, reflect.TypeOf(args[name]))
 		}
 	}
 	return nil
+}
+
+// CheckType checks that given value is compatible with field type
+// - field: the field of the parameters as reflect.StructField
+// - value: the value of the argument
+// Return: a bool that tells if type is OK
+func CheckType(field reflect.StructField, value interface{}) bool {
+	valueType := reflect.TypeOf(value)
+	// if types are identical, it's OK
+	if field.Type == valueType {
+		return true
+	}
+	// if field is optional and argument nil, it's OK
+	if FieldIs(field, FIELD_OPTIONAL) && value == nil {
+		return true
+	}
+	// if argument is an expression it's OK whatever the type
+	if valueType.Kind() == reflect.String &&
+		IsExpression(value.(string)) &&
+		FieldIs(field, FIELD_EXPRESSION) {
+			return true
+	}
+	// if type of field is slic of the type of the argument and wrap, it's OK
+	if field.Type.Kind() == reflect.Slice &&
+		reflect.SliceOf(valueType) == field.Type &&
+		FieldIs(field, FIELD_WRAP) {
+			return true
+	}
+	return false
 }
 
 // Evaluate task arguments in given context to fill empty arguments
@@ -125,6 +151,14 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 					str = util.ExpandUserHome(str)
 				}
 				val = str
+			}
+			// wrap values if necessary
+			if FieldIs(field, FIELD_WRAP) {
+				if !(reflect.TypeOf(val).Kind() == reflect.Slice) {
+					slice := reflect.New(field.Type).Elem()
+					reflect.Append(slice, reflect.ValueOf(val))
+					val = slice.Interface()
+				}
 			}
 			// put value in params
 			value.Field(i).Set(reflect.ValueOf(val))

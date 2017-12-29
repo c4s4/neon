@@ -12,5 +12,5 @@ targets:
     - mkdir: "#{BUILD_DIR}/chmod"
     - touch: "#{BUILD_DIR}/chmod/test.txt"
     - chmod: "test.txt"
-      dir: "#{BUILD_DIR}/chmod"
-      mode: "0755"
+      dir:   "#{BUILD_DIR}/chmod"
+      mode:  0755
