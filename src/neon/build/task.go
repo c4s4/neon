@@ -72,13 +72,13 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 			if reflect.TypeOf(args[name]).Kind() == reflect.String {
 				str := args[name].(string)
 				if strings.HasPrefix(str, CHAR_EXPRESSION) {
-					// if starts with ':' this is an expression
+					// if starts with '=' this is an expression
 					val, err = context.EvaluateExpression(str[1:])
 					if err != nil {
 						return nil, err
 					}
 				} else {
-					// if doesn't start with ':' this is a string
+					// if doesn't start with '=' this is a string
 					if strings.HasPrefix(str, `\`+CHAR_EXPRESSION) {
 						str = str[1:]
 					}
