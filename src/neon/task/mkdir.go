@@ -1,17 +1,16 @@
-// +build ignore
-
 package task
 
 import (
 	"fmt"
 	"neon/build"
-	"neon/util"
 	"os"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["mkdir"] = build.TaskDescriptor{
-		Constructor: MkDir,
+	build.TaskMap["mkdir"] = build.TaskDesc {
+		Func: Mkdir,
+		Args: reflect.TypeOf(MkdirArgs{}),
 		Help: `Make a directory.
 
 Arguments:
@@ -25,25 +24,16 @@ Examples:
 	}
 }
 
-func MkDir(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"mkdir"}
-	if err := CheckFields(args, fields, fields); err != nil {
-		return nil, err
+type MkdirArgs struct {
+	Mkdir string `file`
+}
+
+func Mkdir(context *build.Context, args interface{}) error {
+	params := args.(MkdirArgs)
+	context.Message("Making directory '%s'", params.Mkdir)
+	err := os.MkdirAll(params.Mkdir, DIR_FILE_MODE)
+	if err != nil {
+		return fmt.Errorf("making directory '%s': %s", params.Mkdir, err)
 	}
-	dir, ok := args["mkdir"].(string)
-	if !ok {
-		return nil, fmt.Errorf("argument to task mkdir must be a string")
-	}
-	return func(context *build.Context) error {
-		_directory, _err := context.EvaluateString(dir)
-		if _err != nil {
-			return fmt.Errorf("processing mkdir argument: %v", _err)
-		}
-		context.Message("Making directory '%s'", _directory)
-		_err = os.MkdirAll(_directory, DIR_FILE_MODE)
-		if _err != nil {
-			return fmt.Errorf("making directory '%s': %s", _directory, _err)
-		}
-		return nil
-	}, nil
+	return nil
 }
