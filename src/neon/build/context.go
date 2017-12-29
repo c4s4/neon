@@ -149,58 +149,30 @@ func (context *Context) EvaluateExpression(source string) (interface{}, error) {
 // Evaluate a given object, that is replace '#{foo}' in strings with the value
 // of property foo
 func (context *Context) EvaluateObject(object interface{}) (interface{}, error) {
-	switch value := object.(type) {
-	case string:
-		evaluated, err := context.EvaluateString(value)
+	// we replace #{expression} in strings with the result of the expression
+	if reflect.TypeOf(object).Kind() == reflect.String {
+		evaluated, err := context.EvaluateString(object.(string))
 		if err != nil {
 			return nil, err
 		}
 		return evaluated, nil
-	case bool:
-		return value, nil
-	case int:
-		return value, nil
-	case int32:
-		return value, nil
-	case int64:
-		return value, nil
-	case float64:
-		return value, nil
-	default:
-		if value == nil {
-			return nil, nil
-		}
-		switch reflect.TypeOf(object).Kind() {
-		case reflect.Slice:
-			slice := reflect.ValueOf(object)
-			elements := make([]interface{}, slice.Len())
-			for index := 0; index < slice.Len(); index++ {
-				val, err := context.EvaluateObject(slice.Index(index).Interface())
-				if err != nil {
-					return nil, err
-				}
-				elements[index] = val
-			}
-			return elements, nil
-		case reflect.Map:
-			dict := reflect.ValueOf(object)
-			elements := make(map[interface{}]interface{})
-			for _, key := range dict.MapKeys() {
-				keyEval, err := context.EvaluateObject(key.Interface())
-				if err != nil {
-					return nil, err
-				}
-				valueEval, err := context.EvaluateObject(dict.MapIndex(key).Interface())
-				if err != nil {
-					return nil, err
-				}
-				elements[keyEval] = valueEval
-			}
-			return elements, nil
-		default:
-			return nil, fmt.Errorf("no serializer for type '%T'", object)
-		}
 	}
+	// we go inside slices and maps to process strings
+	if reflect.TypeOf(object).Kind() == reflect.Slice ||
+		reflect.TypeOf(object).Kind() == reflect.Map {
+		value := reflect.ValueOf(object)
+		for i:=0; i<value.Len(); i++ {
+			index := value.Index(i)
+			evaluated, err := context.EvaluateObject(index)
+			if err != nil {
+				return nil, err
+			}
+			index.Set(reflect.ValueOf(evaluated))
+		}
+		return object, nil
+	}
+	// else we do nothing
+	return object, nil
 }
 
 // Evaluate a string by replacing '#{foo}' with value of property foo

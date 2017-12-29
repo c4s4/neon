@@ -134,17 +134,17 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 						expected.Name(), actual.Name())
 				}
 			}
+			// evaluate arguments
+			val, err = context.EvaluateObject(val)
+			if err != nil {
+				return nil, err
+			}
 			// evaluate strings to replace "={expression}" with its value
 			if reflect.TypeOf(val).Kind() == reflect.String {
 				str := args[name].(string)
 				// replace '\=' with '='
 				if strings.HasPrefix(str, `\`+CHAR_EXPRESSION) {
 					str = str[1:]
-				}
-				// evaluate string
-				str, err = context.EvaluateString(str)
-				if err != nil {
-					return nil, err
 				}
 				// expand home if field tagged 'file'
 				if FieldIs(field, FIELD_FILE) {
