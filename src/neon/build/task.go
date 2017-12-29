@@ -61,9 +61,11 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 
 // Evaluate task arguments in given context to fill empty arguments
 // - args: task arguments parsed in build file
-// - params: pointer to the instance of the task arguments type to fill
+// - typ: the type of the arguments
 // - context: the build context to evaluate arguments into
-// Return: an error if something went wrong
+// Return:
+// - result: as an interface{}
+// - error: if something went wrong
 func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interface{}, error) {
 	var err error
 	value := reflect.New(typ).Elem()
