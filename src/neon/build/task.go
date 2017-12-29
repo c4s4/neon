@@ -6,6 +6,9 @@ import (
 	"strings"
 )
 
+// character for expressions
+const CHAR_EXPRESSION = `=`
+
 // Map that gives constructor for given task name
 var TaskMap map[string]TaskDesc = make(map[string]TaskDesc)
 
@@ -59,11 +62,34 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 // - context: the build context to evaluate arguments into
 // Return: an error if something went wrong
 func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interface{}, error) {
+	var err error
 	value := reflect.New(typ).Elem()
 	for i:=0; i<value.NumField(); i++ {
 		name := strings.ToLower(typ.Field(i).Name)
 		if args[name] != nil {
-			value.Field(i).Set(reflect.ValueOf(args[name]))
+			val := args[name]
+			// evaluate strings and expressions
+			if reflect.TypeOf(args[name]).Kind() == reflect.String {
+				str := args[name].(string)
+				if strings.HasPrefix(str, CHAR_EXPRESSION) {
+					// if starts with ':' this is an expression
+					val, err = context.EvaluateExpression(str[1:])
+					if err != nil {
+						return nil, err
+					}
+				} else {
+					// if doesn't start with ':' this is a string
+					if strings.HasPrefix(str, `\`+CHAR_EXPRESSION) {
+						str = str[1:]
+					}
+					val, err = context.EvaluateString(str)
+					if err != nil {
+						return nil, err
+					}
+				}
+			}
+			// put value in params
+			value.Field(i).Set(reflect.ValueOf(val))
 		}
 	}
 	return value.Interface(), nil
