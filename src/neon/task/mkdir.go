@@ -8,7 +8,8 @@ import (
 )
 
 func init() {
-	build.TaskMap["mkdir"] = build.TaskDesc {
+	build.AddTask(build.TaskDesc {
+		Name: "mkdir",
 		Func: Mkdir,
 		Args: reflect.TypeOf(MkdirArgs{}),
 		Help: `Make a directory.
@@ -21,7 +22,7 @@ Examples:
 
     # create a directory 'build'
     - mkdir: "build"`,
-	}
+	})
 }
 
 type MkdirArgs struct {

@@ -8,7 +8,8 @@ import (
 )
 
 func init() {
-	build.TaskMap["cat"] = build.TaskDesc {
+	build.AddTask(build.TaskDesc {
+		Name: "cat",
 		Func: Cat,
 		Args: reflect.TypeOf(CatArgs{}),
 		Help: `Print the content of e given file on the console.
@@ -21,7 +22,7 @@ Examples:
 
     # print content of LICENSE file on the console
     - cat: "LICENSE"`,
-	}
+	})
 }
 
 type CatArgs struct {

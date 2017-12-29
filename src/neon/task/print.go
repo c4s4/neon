@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	build.TaskMap["print"] = build.TaskDesc {
+	build.AddTask(build.TaskDesc {
 		Func: Print,
 		Args: reflect.TypeOf(PrintArgs{}),
 		Help: `Print a message on the console.
@@ -19,7 +19,7 @@ Examples:
 
     # say hello
     - print: "Hello World!"`,
-	}
+	})
 }
 
 type PrintArgs struct {

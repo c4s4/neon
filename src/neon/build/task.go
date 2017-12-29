@@ -8,16 +8,33 @@ import (
 )
 
 // character for expressions
-const CHAR_EXPRESSION = `=`
+const (
+	// character that start expressions
+	CHAR_EXPRESSION = "="
+	// field might not be provided
+	FIELD_OPTIONAL = "optional"
+	// field is a file name that is expanded for user home
+	FIELD_FILE = "file"
+	// field is an expression
+	FIELD_EXPRESSION = "expression"
+)
 
 // Map that gives constructor for given task name
 var TaskMap map[string]TaskDesc = make(map[string]TaskDesc)
 
+func AddTask(task TaskDesc) {
+	if _, ok := TaskMap[task.Name]; ok {
+		panic(fmt.Errorf("task '%s' already defined", task.Name))
+	}
+	TaskMap[task.Name] = task
+}
+
 // A task descriptor is made of a task constructor and an help string
 type TaskDesc struct {
-	Args        reflect.Type
-	Func        TaskFunc
-	Help        string
+	Name string
+	Args reflect.Type
+	Func TaskFunc
+	Help string
 }
 
 // Type for task arguments as parsed in build file
@@ -31,9 +48,6 @@ type TaskFunc func(ctx *Context, args interface{}) error
 // - typ: the type of the arguments
 // Return: an error (detailing the fault) if arguments are illegal
 // NOTE: supported tags in argument types are:
-// - optional: field might not be provided
-// - file: expand user home on field if string
-// - expression: evaluate field as an expression, even if not starting with =
 func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 	if typ.Kind() != reflect.Struct {
 		return fmt.Errorf("params must be a pointer on a struct")
@@ -43,15 +57,17 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 		// check field is not missing
 		argName := strings.ToLower(field.Name)
 		if _, ok := args[argName]; !ok {
-			if !FieldIs(field, "optional") {
+			if !FieldIs(field, FIELD_OPTIONAL) {
 				return fmt.Errorf("missing mandatory field '%s'", argName)
 			}
 		}
 		// check field type
 		value := args[argName]
 		valueType := reflect.TypeOf(value)
-		if field.Type != valueType {
-			if !FieldIs(field, "optional") {
+		if !(field.Type == valueType || (value == nil && FieldIs(field, FIELD_OPTIONAL))) {
+			// if expression deffer type check after evaluation
+			if !(valueType.Kind() == reflect.String &&
+				 (IsExpression(value.(string)) || FieldIs(field, FIELD_EXPRESSION))) {
 				return fmt.Errorf("field '%s' must be of type '%s' ('%s' provided)", argName, field.Type, valueType)
 			}
 		}
@@ -77,7 +93,7 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 			// evaluate expressions in context
 			if reflect.TypeOf(val).Kind() == reflect.String {
 				str := args[name].(string)
-				if strings.HasPrefix(str, CHAR_EXPRESSION) {
+				if IsExpression(str) {
 					// if starts with '=' this is an expression
 					val, err = context.EvaluateExpression(str[1:])
 					if err != nil {
@@ -98,11 +114,11 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 					return nil, err
 				}
 				// expand home if field tagged 'file'
-				if FieldIs(field, "file") {
+				if FieldIs(field, FIELD_FILE) {
 					str = util.ExpandUserHome(str)
 				}
 				// evaluate string if field tagged 'expression'
-				if FieldIs(field, "expression") {
+				if FieldIs(field, FIELD_EXPRESSION) {
 					val, err = context.EvaluateExpression(str)
 					if err != nil {
 						return nil, err
@@ -130,4 +146,11 @@ func FieldIs(field reflect.StructField, quality string) bool {
 		}
 	}
 	return false
+}
+
+// IsExpression tells if given string is an expression
+// - s: the string to test
+// Return: a bool that tells if the string is an expression
+func IsExpression(s string) bool {
+	return s[0:1] == CHAR_EXPRESSION && s[1:2] != "{"
 }

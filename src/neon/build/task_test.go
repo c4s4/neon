@@ -102,6 +102,18 @@ func TestFieldIs(t *testing.T) {
 	}
 }
 
+func TestIsExpression(t *testing.T) {
+	if !IsExpression("=foo") {
+		t.Errorf("failed IsExpression test")
+	}
+	if IsExpression("foo") {
+		t.Errorf("failed IsExpression test")
+	}
+	if IsExpression("={foo}") {
+		t.Errorf("failed IsExpression test")
+	}
+}
+
 // This test demonstrates how to check task parameters, fill them with
 // arguments from build file, define a task and call it with parameters
 func TestTaskCall(t *testing.T) {

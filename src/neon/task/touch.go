@@ -11,7 +11,8 @@ import (
 )
 
 func init() {
-	build.TaskMap["touch"] = build.TaskDesc {
+	build.AddTask(build.TaskDesc {
+		Name: "touch",
 		Func: Touch,
 		Args: reflect.TypeOf(TouchArgs{}),
 		Help: `Touch a file (create it or change its time).
@@ -29,7 +30,7 @@ Notes:
 
 - If the file already exists it changes it modification time.
 - If the file doesn't exist, it creates an empty file.`,
-	}
+	})
 }
 
 type TouchArgs struct {

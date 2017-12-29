@@ -84,7 +84,7 @@ func NewTaskStep(target *Target, args TaskArgs) (Step, error) {
 func (step TaskStep) Run(context *Context) error {
 	params, err := EvaluateTaskArgs(step.Args, step.Desc.Args, context)
 	if err != nil {
-		return err
+		return fmt.Errorf("in task '%s': %v", step.Desc.Name, err)
 	}
 	return step.Desc.Func(context, params)
 }
