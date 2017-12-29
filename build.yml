@@ -1,5 +1,5 @@
 doc:     'Build file to build neon'
-default: [clean, bin, test]
+default: [clean, bin, test, integ]
 extends: c4s4/build/go-app.yml
 
 properties:
@@ -22,7 +22,7 @@ targets:
     steps:
     - print: "Running integration tests"
     - for: 'file'
-      in:  'find("test", "**/*.yml")'
+      in:  'find("test", "**/print.yml")'
       do:
       - print: 'Running build file "#{file}"'
       - $: 'bin/neon -file "test/#{file}"'
