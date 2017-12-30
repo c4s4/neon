@@ -39,6 +39,8 @@ type TouchArgs struct {
 
 func Touch(context *build.Context, args interface{}) error {
 	params := args.(TouchArgs)
+	// DEBUG
+	fmt.Printf("%#v\n", params)
 	for _, file := range params.Touch {
 		if util.FileExists(file) {
 			time := time.Now()

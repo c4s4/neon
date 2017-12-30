@@ -118,8 +118,8 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 			field := typ.Field(i)
 			// evaluate expressions in context
 			if reflect.TypeOf(val).Kind() == reflect.String &&
-				(IsExpression(args[name].(string)) || FieldIs(field, FIELD_EXPRESSION)) {
-				str := args[name].(string)
+				(IsExpression(val.(string)) || FieldIs(field, FIELD_EXPRESSION)) {
+				str := val.(string)
 				if IsExpression(str) {
 					str = str[1:]
 				}
@@ -141,7 +141,7 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 			}
 			// evaluate strings to replace "={expression}" with its value
 			if reflect.TypeOf(val).Kind() == reflect.String {
-				str := args[name].(string)
+				str := val.(string)
 				// replace '\=' with '='
 				if strings.HasPrefix(str, `\`+CHAR_EXPRESSION) {
 					str = str[1:]
@@ -153,12 +153,10 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 				val = str
 			}
 			// wrap values if necessary
-			if FieldIs(field, FIELD_WRAP) {
-				if !(reflect.TypeOf(val).Kind() == reflect.Slice) {
-					slice := reflect.New(field.Type).Elem()
-					reflect.Append(slice, reflect.ValueOf(val))
-					val = slice.Interface()
-				}
+			if FieldIs(field, FIELD_WRAP) && !(reflect.TypeOf(val).Kind() == reflect.Slice) {
+				slice := reflect.New(field.Type).Elem()
+				slice = reflect.Append(slice, reflect.ValueOf(val))
+				val = slice.Interface()
 			}
 			// put value in params
 			value.Field(i).Set(reflect.ValueOf(val))
