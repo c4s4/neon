@@ -158,3 +158,26 @@ func TestEvaluateEnvironmentComplex(t *testing.T) {
 	}
 	t.Error("Environment variable FOO not set correctly")
 }
+
+func TestGetSetProperty(t *testing.T) {
+	context := NewContext()
+	context.SetProperty("foo", "bar")
+	if p, err := context.GetProperty("foo"); p != "bar" || err != nil {
+		t.Fail()
+	}
+}
+
+func TestEvaluateExpression(t *testing.T) {
+	context := NewContext()
+	_, err := context.EvaluateExpression(`foo = "BAR"`)
+	if err != nil {
+		t.Fail()
+	}
+	r, err := context.GetProperty("foo")
+	if err != nil || r != "BAR" {
+		t.Fail()
+	}
+	if r, err = context.EvaluateExpression(`1+2`); err != nil || r != int64(3) {
+		t.Fail()
+	}
+}

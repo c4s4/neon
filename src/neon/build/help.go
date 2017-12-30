@@ -50,7 +50,7 @@ func (build *Build) Info(context *Context) error {
 		}
 	}
 	// print build properties
-	length := util.MaxLength(build.Properties.Fields())
+	length := util.MaxLineLength(build.Properties.Fields())
 	if len(build.Properties) > 0 {
 		Message("")
 		Message("properties:")
@@ -71,7 +71,7 @@ func (build *Build) Info(context *Context) error {
 	for name := range build.Environment {
 		names = append(names, name)
 	}
-	length = util.MaxLength(names)
+	length = util.MaxLineLength(names)
 	sort.Strings(names)
 	if len(build.Environment) > 0 {
 		Message("")
@@ -87,7 +87,7 @@ func (build *Build) Info(context *Context) error {
 	for name := range targets {
 		names = append(names, name)
 	}
-	length = util.MaxLength(names)
+	length = util.MaxLineLength(names)
 	sort.Strings(names)
 	if len(names) > 0 {
 		Message("")

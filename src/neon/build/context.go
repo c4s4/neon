@@ -3,7 +3,6 @@ package build
 import (
 	"fmt"
 	"io/ioutil"
-	"neon/util"
 	"os"
 	"reflect"
 	"regexp"
@@ -164,7 +163,7 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return util.ValueToInterface(value), nil
+	return value.Interface(), nil
 }
 
 // EvaluateExpression evaluate given expression in the context
@@ -177,7 +176,7 @@ func (context *Context) EvaluateExpression(expression string) (interface{}, erro
 	if err != nil {
 		return nil, FormatScriptError(err)
 	}
-	return util.ValueToInterface(value), nil
+	return value.Interface(), nil
 }
 
 // EvaluateString replaces '#{expression}' with the value of the expression
