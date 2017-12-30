@@ -23,6 +23,12 @@ const (
 	PROPERTY_HERE   = "_HERE"
 	PROPERTY_THREAD = "_thread"
 	PROPERTY_INPUT  = "_input"
+	ENVIRONMENT_SEP = "="
+)
+
+var (
+	REGEXP_EXP = regexp.MustCompile(`[#=]{.*?}`)
+	REGEXP_ENV = regexp.MustCompile(`[$#=]{.*?}`)
 )
 
 // Context is the context of the build
@@ -173,11 +179,14 @@ func (context *Context) EvaluateExpression(expression string) (interface{}, erro
 	return util.ValueToInterface(value), nil
 }
 
-// Evaluate a string by replacing '#{foo}' with value of property foo
+// EvaluateString replaces '#{expression}' with the value of the expression
+// - text: the string to evaluate
+// Return:
+// - evaluated string
+// - an error if something went wrong
 func (context *Context) EvaluateString(text string) (string, error) {
-	r := regexp.MustCompile(`#{.*?}`)
 	var errors []error
-	replaced := r.ReplaceAllStringFunc(text, func(expression string) string {
+	replaced := REGEXP_EXP.ReplaceAllStringFunc(text, func(expression string) string {
 		name := expression[2 : len(expression)-1]
 		var value interface{}
 		value, err := context.EvaluateExpression(name)
@@ -202,8 +211,11 @@ func (context *Context) EvaluateString(text string) (string, error) {
 	}
 }
 
-// Evaluate a given object, that is replace '#{foo}' in strings with the value
-// of property foo
+// EvaluateRecursive recursively evaluates strings in a structure
+// - object: the object to evaluate
+// Return:
+// - evaluated structure
+// - an error if something went wrong
 func (context *Context) EvaluateObject(object interface{}) (interface{}, error) {
 	// we replace #{expression} in strings with the result of the expression
 	if reflect.TypeOf(object).Kind() == reflect.String {
@@ -231,11 +243,15 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 	return object, nil
 }
 
-// Evaluate environment in context and return it as a slice of strings
+// EvaluateEnvironment evaluates environment variables in the context
+// - build: the build with environment to evaluate
+// Return:
+// - evaluated environment as a slice of strings
+// - an error if something went wrong
 func (context *Context) EvaluateEnvironment(build *Build) ([]string, error) {
 	environment := make(map[string]string)
 	for _, line := range os.Environ() {
-		index := strings.Index(line, "=")
+		index := strings.Index(line, ENVIRONMENT_SEP)
 		name := line[:index]
 		value := line[index+1:]
 		environment[name] = value
@@ -249,8 +265,7 @@ func (context *Context) EvaluateEnvironment(build *Build) ([]string, error) {
 	sort.Strings(variables)
 	for _, name := range variables {
 		value := build.Environment[name]
-		r := regexp.MustCompile(`[$#]{.*?}`)
-		replaced := r.ReplaceAllStringFunc(value, func(expression string) string {
+		replaced := REGEXP_ENV.ReplaceAllStringFunc(value, func(expression string) string {
 			name := expression[2 : len(expression)-1]
 			if expression[0:1] == "$" {
 				value, ok := environment[name]
@@ -279,7 +294,8 @@ func (context *Context) EvaluateEnvironment(build *Build) ([]string, error) {
 	return lines, nil
 }
 
-// Run steps in context
+// RunSteps runs a list of steps in context
+// Return: an error if something went wrong
 func (context *Context) Run(steps []Step) error {
 	context.Index.Expand()
 	for index, step := range steps {
