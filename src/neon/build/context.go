@@ -217,7 +217,7 @@ func (context *Context) EvaluateString(text string) (string, error) {
 // - evaluated structure
 // - an error if something went wrong
 func (context *Context) EvaluateObject(object interface{}) (interface{}, error) {
-	// we replace #{expression} in strings with the result of the expression
+	// we replace expressions in strings
 	if reflect.TypeOf(object).Kind() == reflect.String {
 		evaluated, err := context.EvaluateString(object.(string))
 		if err != nil {
@@ -225,17 +225,36 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 		}
 		return evaluated, nil
 	}
-	// we go inside slices and maps to process strings
-	if reflect.TypeOf(object).Kind() == reflect.Slice ||
-		reflect.TypeOf(object).Kind() == reflect.Map {
+	// we iterate through slices
+	if reflect.TypeOf(object).Kind() == reflect.Slice {
 		value := reflect.ValueOf(object)
 		for i:=0; i<value.Len(); i++ {
 			index := value.Index(i)
-			evaluated, err := context.EvaluateObject(index)
+			evaluated, err := context.EvaluateObject(index.Interface())
 			if err != nil {
 				return nil, err
 			}
 			index.Set(reflect.ValueOf(evaluated))
+		}
+		return object, nil
+	}
+	// we iterate through maps
+	if reflect.TypeOf(object).Kind() == reflect.Map {
+		value := reflect.ValueOf(object)
+		keys := value.MapKeys()
+		for i:=0; i<len(keys); i++ {
+			key := keys[i]
+			keyEval, err := context.EvaluateObject(key.Interface())
+			if err != nil {
+				return nil, err
+			}
+			val := value.MapIndex(key)
+			valEval, err := context.EvaluateObject(val.Interface())
+			if err != nil {
+				return nil, err
+			}
+			value.SetMapIndex(key, reflect.Value{})
+			value.SetMapIndex(reflect.ValueOf(keyEval), reflect.ValueOf(valEval))
 		}
 		return object, nil
 	}

@@ -3,9 +3,114 @@ package build
 import (
 	"strings"
 	"testing"
+	"reflect"
 )
 
-func TestGetEnvironmentSimple(t *testing.T) {
+func TestEvaluateString(t *testing.T) {
+	context := NewContext()
+	if actual, err := context.EvaluateString(`foo`); err != nil || actual != `foo` {
+		t.Errorf("TestEvaluateString failure")
+	}
+	if actual, err := context.EvaluateString(`foo #{"bar"}`); err != nil || actual != `foo bar` {
+		t.Errorf("TestEvaluateString failure")
+	}
+	if actual, err := context.EvaluateString(`foo ={"bar"}`); err != nil || actual != `foo bar` {
+		t.Errorf("TestEvaluateString failure")
+	}
+	if actual, err := context.EvaluateString(`foo ={1+1}`); err != nil || actual != `foo 2` {
+		t.Errorf("TestEvaluateString failure")
+	}
+}
+
+func TestEvaluateStringWithProperties(t *testing.T) {
+	context := NewContext()
+	properties := map[string]interface{}{
+		"FOO": "foo",
+		"BAR": "bar",
+	}
+	build := &Build {
+		Dir:        "dir",
+		Here:       "here",
+		Properties: properties,
+	}
+	context.InitProperties(build)
+	if actual, err := context.EvaluateString(`foo`); err != nil || actual != `foo` {
+		t.Errorf("TestEvaluateStringWithProperties failure")
+	}
+	if actual, err := context.EvaluateString(`={FOO} bar`); err != nil || actual != `foo bar` {
+		t.Errorf("TestEvaluateStringWithProperties failure")
+	}
+	if actual, err := context.EvaluateString(`={FOO} ={BAR}`); err != nil || actual != `foo bar` {
+		t.Errorf("TestEvaluateStringWithProperties failure")
+	}
+	if _, err := context.EvaluateString(`={XXX}`); err == nil || err.Error() != `Undefined symbol 'XXX' (at line 1, column 1)` {
+		t.Errorf("TestEvaluateStringWithProperties failure")
+	}
+}
+
+func TestEvaluateSliceWithProperties(t *testing.T) {
+	context := NewContext()
+	properties := map[string]interface{}{
+		"FOO": "foo",
+		"BAR": "bar",
+	}
+	build := &Build{
+		Dir:        "dir",
+		Here:       "here",
+		Properties: properties,
+	}
+	context.InitProperties(build)
+	actual, err := context.EvaluateObject([]string{`={FOO} BAR`, `FOO ={BAR}`})
+	if err != nil {
+		t.Fail()
+	}
+	if reflect.TypeOf(actual).Kind() != reflect.Slice {
+		t.Fail()
+	}
+	value := reflect.ValueOf(actual)
+	if value.Len() != 2 {
+		t.Fail()
+	}
+	if value.Index(0) == reflect.ValueOf(`foo BAR`) {
+		t.Fail()
+	}
+	if value.Index(1) == reflect.ValueOf(`FOO bar`) {
+		t.Fail()
+	}
+}
+
+func TestEvaluateMapWithProperties(t *testing.T) {
+	context := NewContext()
+	properties := map[string]interface{}{
+		"FOO": "foo",
+		"BAR": "bar",
+	}
+	build := &Build{
+		Dir:        "dir",
+		Here:       "here",
+		Properties: properties,
+	}
+	context.InitProperties(build)
+	actual, err := context.EvaluateObject(map[string]string{"={FOO}": "BAR", "FOO": "={BAR}"})
+	if err != nil {
+		t.Fail()
+	}
+	if reflect.TypeOf(actual).Kind() != reflect.Map {
+		t.Fail()
+	}
+	value := reflect.ValueOf(actual)
+	if value.Len() != 2 {
+		t.Fail()
+	}
+	if value.MapIndex(reflect.ValueOf("foo")) == reflect.ValueOf("BAR") {
+		t.Fail()
+	}
+	if value.MapIndex(reflect.ValueOf("FOO")) == reflect.ValueOf("bar") {
+		t.Fail()
+	}
+}
+
+func TestEvaluateEnvironmentSimple(t *testing.T) {
 	context := NewContext()
 	build := &Build{
 		Dir: "dir",
@@ -25,7 +130,7 @@ func TestGetEnvironmentSimple(t *testing.T) {
 	t.Error("Env FOO=BAR not found")
 }
 
-func TestGetEnvironmentComplex(t *testing.T) {
+func TestEvaluateEnvironmentComplex(t *testing.T) {
 	context := NewContext()
 	build := &Build{
 		Dir: "dir",
