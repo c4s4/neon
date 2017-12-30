@@ -19,7 +19,7 @@ func NewStep(target *Target, step interface{}) (Step, error) {
 	case map[interface{}]interface{}:
 		return NewTaskStep(target, step)
 	default:
-		return nil, fmt.Errorf("step must be string or map")
+		return nil, fmt.Errorf("a step must be a string or a map")
 	}
 }
 

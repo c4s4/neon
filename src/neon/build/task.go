@@ -101,7 +101,7 @@ func CheckType(field reflect.StructField, value interface{}) bool {
 	return false
 }
 
-// Evaluate task arguments in given context to fill empty arguments
+// Build task arguments from task params and return it
 // - args: task arguments parsed in build file
 // - typ: the type of the arguments
 // - context: the build context to evaluate arguments into
