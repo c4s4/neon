@@ -64,7 +64,7 @@ func TestEvaluateSliceWithProperties(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
-	if reflect.TypeOf(actual).Kind() != reflect.Slice {
+	if reflect.TypeOf(actual) != reflect.SliceOf(reflect.TypeOf("")) {
 		t.Fail()
 	}
 	value := reflect.ValueOf(actual)
@@ -95,7 +95,7 @@ func TestEvaluateMapWithProperties(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
-	if reflect.TypeOf(actual).Kind() != reflect.Map {
+	if reflect.TypeOf(actual) != reflect.TypeOf(make(map[string]string)) {
 		t.Fail()
 	}
 	value := reflect.ValueOf(actual)
