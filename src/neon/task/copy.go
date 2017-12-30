@@ -56,7 +56,7 @@ type CopyArgs struct {
 func Copy(context *build.Context, args interface{}) error {
 	params := args.(CopyArgs)
 	// find source files
-	sources, err := context.FindFiles(params.Dir, params.Copy, params.Exclude, false)
+	sources, err := util.FindFiles(params.Dir, params.Copy, params.Exclude, false)
 	if err != nil {
 		return fmt.Errorf("getting source files for copy task: %v", err)
 	}

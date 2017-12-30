@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	util "neon/util"
 )
 
 func init() {
@@ -52,7 +53,7 @@ type ChmodArgs struct {
 
 func Chmod(context *build.Context, args interface{}) error {
 	params := args.(ChmodArgs)
-	files, err := context.FindFiles(params.Dir, params.Chmod, params.Exclude, true)
+	files, err := util.FindFiles(params.Dir, params.Chmod, params.Exclude, true)
 	if err != nil {
 		return fmt.Errorf("getting source files for chmod task: %v", err)
 	}

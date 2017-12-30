@@ -140,12 +140,18 @@ func (context *Context) InitProperties(build *Build) error {
 	return nil
 }
 
-// Set property with given to given value
+// SetProperty sets given property in context
+// - name: the name of the property
+// - value: the value of the property
 func (context *Context) SetProperty(name string, value interface{}) {
 	context.VM.Define(name, value)
 }
 
-// Get property value with given name
+// GetProperty returns value of given property
+// - name: the name of the property
+// Return:
+// - the value of the property
+// - an error if something went wrong
 func (context *Context) GetProperty(name string) (interface{}, error) {
 	value, err := context.VM.Get(name)
 	if err != nil {
@@ -154,42 +160,17 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 	return util.ValueToInterface(value), nil
 }
 
-// Evaluate given expression in context and return its value
-func (context *Context) EvaluateExpression(source string) (interface{}, error) {
-	value, err := context.VM.Execute(source)
+// EvaluateExpression evaluate given expression in the context
+// - expression: the expression to evaluate
+// Return:
+// - the return value of the expression
+// - an error if something went wrong
+func (context *Context) EvaluateExpression(expression string) (interface{}, error) {
+	value, err := context.VM.Execute(expression)
 	if err != nil {
 		return nil, FormatScriptError(err)
 	}
 	return util.ValueToInterface(value), nil
-}
-
-// Evaluate a given object, that is replace '#{foo}' in strings with the value
-// of property foo
-func (context *Context) EvaluateObject(object interface{}) (interface{}, error) {
-	// we replace #{expression} in strings with the result of the expression
-	if reflect.TypeOf(object).Kind() == reflect.String {
-		evaluated, err := context.EvaluateString(object.(string))
-		if err != nil {
-			return nil, err
-		}
-		return evaluated, nil
-	}
-	// we go inside slices and maps to process strings
-	if reflect.TypeOf(object).Kind() == reflect.Slice ||
-		reflect.TypeOf(object).Kind() == reflect.Map {
-		value := reflect.ValueOf(object)
-		for i:=0; i<value.Len(); i++ {
-			index := value.Index(i)
-			evaluated, err := context.EvaluateObject(index)
-			if err != nil {
-				return nil, err
-			}
-			index.Set(reflect.ValueOf(evaluated))
-		}
-		return object, nil
-	}
-	// else we do nothing
-	return object, nil
 }
 
 // Evaluate a string by replacing '#{foo}' with value of property foo
@@ -219,6 +200,35 @@ func (context *Context) EvaluateString(text string) (string, error) {
 	} else {
 		return replaced, nil
 	}
+}
+
+// Evaluate a given object, that is replace '#{foo}' in strings with the value
+// of property foo
+func (context *Context) EvaluateObject(object interface{}) (interface{}, error) {
+	// we replace #{expression} in strings with the result of the expression
+	if reflect.TypeOf(object).Kind() == reflect.String {
+		evaluated, err := context.EvaluateString(object.(string))
+		if err != nil {
+			return nil, err
+		}
+		return evaluated, nil
+	}
+	// we go inside slices and maps to process strings
+	if reflect.TypeOf(object).Kind() == reflect.Slice ||
+		reflect.TypeOf(object).Kind() == reflect.Map {
+		value := reflect.ValueOf(object)
+		for i:=0; i<value.Len(); i++ {
+			index := value.Index(i)
+			evaluated, err := context.EvaluateObject(index)
+			if err != nil {
+				return nil, err
+			}
+			index.Set(reflect.ValueOf(evaluated))
+		}
+		return object, nil
+	}
+	// else we do nothing
+	return object, nil
 }
 
 // Evaluate environment in context and return it as a slice of strings
@@ -283,42 +293,16 @@ func (context *Context) Run(steps []Step) error {
 	return nil
 }
 
-// Find files in the context:
-// - dir: the search root directory
-// - includes: the list of globs to include
-// - excludes: the list of globs to exclude
-// - folder: tells if we should include folders
-// Return the list of files as a slice of strings
-func (context *Context) FindFiles(dir string, includes, excludes []string, folder bool) ([]string, error) {
-	dir, err := context.EvaluateString(dir)
-	if err != nil {
-		return nil, fmt.Errorf("evaluating source directory: %v", err)
-	}
-	var included []string
-	for _, include := range includes {
-		pattern, err := context.EvaluateString(include)
-		if err != nil {
-			return nil, fmt.Errorf("evaluating pattern: %v", err)
-		}
-		included = append(included, pattern)
-	}
-	var excluded []string
-	for _, exclude := range excludes {
-		pattern, err := context.EvaluateString(exclude)
-		if err != nil {
-			return nil, fmt.Errorf("evaluating pattern: %v", err)
-		}
-		excluded = append(excluded, pattern)
-	}
-	return util.FindFiles(dir, included, excluded, folder)
-}
-
 // Message print a message on the console
+// - text: the text to print on console
+// - args: a slice of string arguments (as for fmt.Printf())
 func (context *Context) Message(text string, args ...interface{}) {
 	Message(text, args...)
 }
 
 // FormatScriptError adds line and column numbers on parser or vm errors.
+// - err: the error to process
+// Return: the processed error
 func FormatScriptError(err error) error {
 	if e, ok := err.(*parser.Error); ok {
 		return fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
