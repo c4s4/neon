@@ -15,86 +15,103 @@ import (
 	"github.com/c4s4/anko/vm"
 )
 
-// Build context
+const (
+	PROPERTY_OS     = "_OS"
+	PROPERTY_ARCH   = "_ARCH"
+	PROPERTY_NCPU   = "_NCPU"
+	PROPERTY_BASE   = "_BASE"
+	PROPERTY_HERE   = "_HERE"
+	PROPERTY_THREAD = "_thread"
+	PROPERTY_INPUT  = "_input"
+)
+
+// Context is the context of the build
+// - VM: Anko VM that holds build properties
+// - Index: tracks steps index while running build
+// - Stack: tracks targets calls
 type Context struct {
-	VM          *vm.Env
-	Properties  []string
-	Environment map[string]string
-	Index       *Index
-	Stack       *Stack
+	VM    *vm.Env
+	Index *Index
+	Stack *Stack
 }
 
 // NewContext make a new build context
-func NewContext(build *Build) (*Context, error) {
+// Return: a pointer to the context
+func NewContext() *Context {
 	v := vm.NewEnv()
 	anko_core.LoadAllBuiltins(v)
 	LoadBuiltins(v)
-	properties := build.GetProperties()
-	environment := build.GetEnvironment()
 	context := &Context{
 		VM:          v,
-		Properties:  properties.Fields(),
-		Environment: environment,
 		Index:       NewIndex(),
 		Stack:       NewStack(),
 	}
-	for _, script := range build.Scripts {
-		source, err := ioutil.ReadFile(script)
-		if err != nil {
-			return nil, fmt.Errorf("reading script '%s': %v", script, err)
-		}
-		_, err = v.Execute(string(source))
-		if err != nil {
-			return nil, fmt.Errorf("evaluating script '%s': %v", script, FormatScriptError(err))
-		}
-	}
-	err := context.setInitialProperties(build, properties)
-	if err != nil {
-		return nil, fmt.Errorf("evaluating properties: %v", err)
-	}
-	return context, nil
+	return context
 }
 
-// NewThreadContext builds a context in a thread
+// NewThreadContext builds a context for a thread by copying the build context
+// - thread: the number of the thread, starting with 0
+// - input: the thread input
+// - ouput: the thread output
+// Return: a pointer to the context
 func (context *Context) NewThreadContext(thread int, input interface{}, output interface{}) *Context {
-	copy := context.Copy()
-	copy.SetProperty("_thread", thread)
-	copy.SetProperty("_input", input)
-	return copy
-}
-
-func (context *Context) Copy() *Context {
-	properties := make([]string, len(context.Properties))
-	for i := 0; i < len(context.Properties); i++ {
-		properties[i] = context.Properties[i]
-	}
-	environment := make(map[string]string)
-	for name, value := range context.Environment {
-		environment[name] = value
-	}
-	copy := Context{
+	copy := &Context{
 		VM:          context.VM.Copy(),
-		Properties:  properties,
-		Environment: environment,
 		Index:       context.Index.Copy(),
 		Stack:       context.Stack.Copy(),
 	}
-	return &copy
+	copy.SetProperty(PROPERTY_THREAD, thread)
+	copy.SetProperty(PROPERTY_INPUT, input)
+	return copy
 }
 
-// Set initial build properties
-func (context *Context) setInitialProperties(build *Build, object util.Object) error {
-	context.SetProperty("_OS", runtime.GOOS)
-	context.SetProperty("_ARCH", runtime.GOARCH)
-	context.SetProperty("_NCPU", runtime.NumCPU())
-	context.SetProperty("_BASE", build.Dir)
-	context.SetProperty("_HERE", build.Here)
-	todo := object.Fields()
+// Init initializes context with build
+// - build: the build
+// Return: an error if something went wrong
+func (context *Context) Init(build *Build) error {
+	err := context.InitScripts(build)
+	if err != nil {
+		return fmt.Errorf("loading scripts: %v", err)
+	}
+	err = context.InitProperties(build)
+	if err != nil {
+		return fmt.Errorf("evaluating properties: %v", err)
+	}
+	return nil
+}
+
+// InitScript loads build scripts in context
+// - build: the build
+// Return: an error if something went wrong
+func (context *Context) InitScripts(build *Build) error {
+	for _, script := range build.Scripts {
+		source, err := ioutil.ReadFile(script)
+		if err != nil {
+			return fmt.Errorf("reading script '%s': %v", script, err)
+		}
+		_, err = context.VM.Execute(string(source))
+		if err != nil {
+			return fmt.Errorf("evaluating script '%s': %v", script, FormatScriptError(err))
+		}
+	}
+	return nil
+}
+
+// InitProperties sets build properties
+// - build: the build
+// Return: an error if something went wrong
+func (context *Context) InitProperties(build *Build) error {
+	context.SetProperty(PROPERTY_OS, runtime.GOOS)
+	context.SetProperty(PROPERTY_ARCH, runtime.GOARCH)
+	context.SetProperty(PROPERTY_NCPU, runtime.NumCPU())
+	context.SetProperty(PROPERTY_BASE, build.Dir)
+	context.SetProperty(PROPERTY_HERE, build.Here)
+	todo := build.Properties.Fields()
 	var crash error
 	for len(todo) > 0 {
 		var done []string
 		for _, name := range todo {
-			value := object[name]
+			value := build.Properties[name]
 			eval, err := context.EvaluateObject(value)
 			if err == nil {
 				context.SetProperty(name, eval)
@@ -213,15 +230,15 @@ func (context *Context) EvaluateEnvironment(build *Build) ([]string, error) {
 		value := line[index+1:]
 		environment[name] = value
 	}
-	environment["_BASE"] = build.Dir
-	environment["_HERE"] = build.Here
+	environment[PROPERTY_BASE] = build.Dir
+	environment[PROPERTY_HERE] = build.Here
 	var variables []string
-	for name := range context.Environment {
+	for name := range build.Environment {
 		variables = append(variables, name)
 	}
 	sort.Strings(variables)
 	for _, name := range variables {
-		value := context.Environment[name]
+		value := build.Environment[name]
 		r := regexp.MustCompile(`[$#]{.*?}`)
 		replaced := r.ReplaceAllStringFunc(value, func(expression string) string {
 			name := expression[2 : len(expression)-1]

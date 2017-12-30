@@ -50,11 +50,11 @@ func (build *Build) Info(context *Context) error {
 		}
 	}
 	// print build properties
-	length := util.MaxLength(context.Properties)
-	if len(context.Properties) > 0 {
+	length := util.MaxLength(build.Properties.Fields())
+	if len(build.Properties) > 0 {
 		Message("")
 		Message("properties:")
-		for _, name := range context.Properties {
+		for name, _ := range build.Properties {
 			value, err := context.GetProperty(name)
 			if err != nil {
 				return fmt.Errorf("getting property '%s': %v", name, err)
@@ -68,16 +68,16 @@ func (build *Build) Info(context *Context) error {
 	}
 	// print build environment
 	var names []string
-	for name := range context.Environment {
+	for name := range build.Environment {
 		names = append(names, name)
 	}
 	length = util.MaxLength(names)
 	sort.Strings(names)
-	if len(context.Environment) > 0 {
+	if len(build.Environment) > 0 {
 		Message("")
 		Message("environment:")
 		for _, name := range names {
-			value := "\"" + context.Environment[name] + "\""
+			value := "\"" + build.Environment[name] + "\""
 			PrintProperty(name, value, []string{}, length)
 		}
 	}

@@ -6,10 +6,9 @@ import (
 )
 
 func TestGetEnvironmentSimple(t *testing.T) {
+	context := NewContext()
 	build := &Build{
 		Dir: "dir",
-	}
-	context := &Context{
 		Environment: map[string]string{
 			"FOO": "BAR",
 		},
@@ -27,10 +26,9 @@ func TestGetEnvironmentSimple(t *testing.T) {
 }
 
 func TestGetEnvironmentComplex(t *testing.T) {
+	context := NewContext()
 	build := &Build{
 		Dir: "dir",
-	}
-	context := &Context{
 		Environment: map[string]string{
 			"FOO": "BAR:${HOME}",
 		},
