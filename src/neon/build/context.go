@@ -24,6 +24,7 @@ const (
 	PROPERTY_THREAD = "_thread"
 	PROPERTY_INPUT  = "_input"
 	ENVIRONMENT_SEP = "="
+	ENVIRONMENT_VAR = "$"
 )
 
 var (
@@ -286,7 +287,7 @@ func (context *Context) EvaluateEnvironment(build *Build) ([]string, error) {
 		value := build.Environment[name]
 		replaced := REGEXP_ENV.ReplaceAllStringFunc(value, func(expression string) string {
 			name := expression[2 : len(expression)-1]
-			if expression[0:1] == "$" {
+			if expression[0:1] == ENVIRONMENT_VAR {
 				value, ok := environment[name]
 				if !ok {
 					return expression
@@ -307,7 +308,7 @@ func (context *Context) EvaluateEnvironment(build *Build) ([]string, error) {
 	}
 	var lines []string
 	for name, value := range environment {
-		line := name + "=" + value
+		line := name + ENVIRONMENT_SEP + value
 		lines = append(lines, line)
 	}
 	return lines, nil
