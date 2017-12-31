@@ -224,7 +224,7 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 			return nil, err
 		}
 		return evaluated, nil
-	}
+	} else
 	// we iterate through slices
 	if reflect.TypeOf(object).Kind() == reflect.Slice {
 		value := reflect.ValueOf(object)
@@ -237,7 +237,7 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 			index.Set(reflect.ValueOf(evaluated))
 		}
 		return object, nil
-	}
+	} else
 	// we iterate through maps
 	if reflect.TypeOf(object).Kind() == reflect.Map {
 		value := reflect.ValueOf(object)
@@ -257,9 +257,11 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 			value.SetMapIndex(reflect.ValueOf(keyEval), reflect.ValueOf(valEval))
 		}
 		return object, nil
-	}
+	} else
 	// else we do nothing
-	return object, nil
+	{
+		return object, nil
+	}
 }
 
 // EvaluateEnvironment evaluates environment variables in the context
