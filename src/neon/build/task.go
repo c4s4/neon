@@ -214,7 +214,7 @@ func CopyValue(orig, dest reflect.Value) {
 	} else
 	// other types
 	{
-		dest.Set(orig.Convert(dest.Type()))
+		dest.Set(orig)
 	}
 }
 
