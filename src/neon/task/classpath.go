@@ -15,8 +15,11 @@ import (
 	"reflect"
 )
 
+const (
+	DEFAULT_REPOSITORY = "http://central.maven.org/maven2"
+)
+
 var LOCAL_REPOSITORY = util.ExpandUserHome("~/.java/repository")
-var DEFAULT_REPOSITORY = "http://central.maven.org/maven2"
 
 func init() {
 	build.AddTask(build.TaskDesc {
