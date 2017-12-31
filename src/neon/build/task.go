@@ -78,10 +78,6 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 // Return: a bool that tells if type is OK
 func CheckType(field reflect.StructField, value interface{}) bool {
 	valueType := reflect.TypeOf(value)
-	// if types are identical, it's OK
-	if field.Type == valueType {
-		return true
-	}
 	// if field is optional and argument nil, it's OK
 	if FieldIs(field, FIELD_OPTIONAL) && value == nil {
 		return true
@@ -98,6 +94,30 @@ func CheckType(field reflect.StructField, value interface{}) bool {
 		FieldIs(field, FIELD_WRAP) {
 			return true
 	}
+	// check that value is of given type
+	return ValueOfType(value, field.Type)
+}
+
+// ValueOfType tells if a value is of given type
+// - value: the value to test as an interface{}
+// - type: the type to check as a reflect.Type
+// Return: a bool telling if value is of given type
+func ValueOfType(value interface{}, typ reflect.Type) bool {
+	// if value is of given type it's true
+	if reflect.TypeOf(value) == typ {
+		return true
+	}
+	// if value and type are slices, test elements
+	if reflect.TypeOf(value).Kind() == reflect.Slice && typ.Kind() == reflect.Slice {
+		return ValueOfType(reflect.ValueOf(value).Index(0).Interface(), typ.Elem())
+	}
+	// if value and type are maps, test key and value
+	if reflect.TypeOf(value).Kind() == reflect.Map && typ.Kind() == reflect.Map {
+		key := reflect.ValueOf(value).MapKeys()[0].Interface()
+		val := reflect.ValueOf(value).MapIndex(reflect.ValueOf(key)).Interface()
+		return ValueOfType(key, typ.Key()) && ValueOfType(val, typ.Elem())
+	}
+	// else return false
 	return false
 }
 

@@ -151,3 +151,19 @@ func TestTaskCall(t *testing.T) {
 		t.Errorf("error calling task: %v", err)
 	}
 }
+
+func TestValueOfType(t *testing.T) {
+	if !ValueOfType(1, reflect.TypeOf(1)) {
+		t.Fail()
+	}
+	if !ValueOfType("foo", reflect.TypeOf("foo")) {
+		t.Fail()
+	}
+	if !ValueOfType([]interface{}{"foo", "bar"}, reflect.TypeOf([]string{"foo"})) {
+		t.Fail()
+	}
+	if !ValueOfType(map[string]interface{}{"foo": "bar"},
+					reflect.TypeOf(map[string]string{"foo": "bar"})) {
+		t.Fail()
+	}
+}
