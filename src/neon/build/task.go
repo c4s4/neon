@@ -11,6 +11,10 @@ import (
 const (
 	// character that start expressions
 	CHAR_EXPRESSION = "="
+	// expression curly brace
+	CURLY_EXPRESSION = "{"
+	// tag separator
+	TAG_SEPARATOR = " "
 	// field might not be provided
 	FIELD_OPTIONAL = "optional"
 	// field is a file name that is expanded for user home
@@ -179,10 +183,39 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 				val = slice.Interface()
 			}
 			// put value in params
-			value.Field(i).Set(reflect.ValueOf(val))
+			CopyValue(reflect.ValueOf(val), value.Field(i))
 		}
 	}
 	return value.Interface(), nil
+}
+
+// CopyValue copy given avlue in another
+// - orig: origin value
+// - dest: destination value
+func CopyValue(orig, dest reflect.Value) {
+	// DEBUG
+	fmt.Printf(">>>>>>>>>> %v - %v\n", orig, dest)
+	fmt.Printf("<<<<<<<<<< %v - %v\n", orig.Type(), dest.Type())
+	// loop on slices
+	if orig.Type().Kind() == reflect.Slice && dest.Type().Kind() == reflect.Slice {
+		new := reflect.MakeSlice(dest.Type(), orig.Len(), orig.Len())
+		for i:=0; i<orig.Len(); i++ {
+			CopyValue(orig.Index(i), new.Index(i))
+		}
+		dest.Set(new)
+	} else
+	// loop on maps
+	if orig.Type().Kind() == reflect.Map && dest.Type().Kind() == reflect.Map {
+		new := reflect.MakeMap(orig.Type())
+		for _, key := range orig.MapKeys() {
+			new.SetMapIndex(key, orig.MapIndex(key))
+		}
+		dest.Set(new)
+	} else
+	// other types
+	{
+		dest.Set(orig.Convert(dest.Type()))
+	}
 }
 
 // FieldIs tells if given field tag contains quality
@@ -190,7 +223,7 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 // - quality: the tested quality (such as "optional")
 func FieldIs(field reflect.StructField, quality string) bool {
 	tag := string(field.Tag)
-	qualities := strings.Split(tag, " ")
+	qualities := strings.Split(tag, TAG_SEPARATOR)
 	for _, q := range qualities {
 		if q == quality {
 			return true
@@ -203,5 +236,5 @@ func FieldIs(field reflect.StructField, quality string) bool {
 // - s: the string to test
 // Return: a bool that tells if the string is an expression
 func IsExpression(s string) bool {
-	return s[0:1] == CHAR_EXPRESSION && s[1:2] != "{"
+	return s[0:1] == CHAR_EXPRESSION && s[1:2] != CURLY_EXPRESSION
 }
