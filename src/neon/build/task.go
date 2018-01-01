@@ -99,27 +99,27 @@ func CheckType(field reflect.StructField, value interface{}) bool {
 			return true
 	}
 	// check that value is of given type
-	return ValueOfType(value, field.Type)
+	return IsValueOfType(value, field.Type)
 }
 
-// ValueOfType tells if a value is of given type
+// IsValueOfType tells if a value is of given type
 // - value: the value to test as an interface{}
 // - type: the type to check as a reflect.Type
 // Return: a bool telling if value is of given type
-func ValueOfType(value interface{}, typ reflect.Type) bool {
+func IsValueOfType(value interface{}, typ reflect.Type) bool {
 	// if value is of given type it's true
 	if reflect.TypeOf(value) == typ {
 		return true
 	}
 	// if value and type are slices, test elements
 	if reflect.TypeOf(value).Kind() == reflect.Slice && typ.Kind() == reflect.Slice {
-		return ValueOfType(reflect.ValueOf(value).Index(0).Interface(), typ.Elem())
+		return IsValueOfType(reflect.ValueOf(value).Index(0).Interface(), typ.Elem())
 	}
 	// if value and type are maps, test key and value
 	if reflect.TypeOf(value).Kind() == reflect.Map && typ.Kind() == reflect.Map {
 		key := reflect.ValueOf(value).MapKeys()[0].Interface()
 		val := reflect.ValueOf(value).MapIndex(reflect.ValueOf(key)).Interface()
-		return ValueOfType(key, typ.Key()) && ValueOfType(val, typ.Elem())
+		return IsValueOfType(key, typ.Key()) && IsValueOfType(val, typ.Elem())
 	}
 	// else return false
 	return false
