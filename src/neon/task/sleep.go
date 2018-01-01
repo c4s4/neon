@@ -1,17 +1,16 @@
-// +build ignore
-
 package task
 
 import (
-	"fmt"
 	"neon/build"
-	"neon/util"
 	"time"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["sleep"] = build.TaskDescriptor{
-		Constructor: Sleep,
+	build.AddTask(build.TaskDesc {
+		Name: "sleep",
+		Func: Sleep,
+		Args: reflect.TypeOf(SleepArgs{}),
 		Help: `Sleep a given number of seconds.
 		
 Arguments:
@@ -24,26 +23,16 @@ Examples:
     - sleep: 1.5
     # sleep for 3 seconds
     - sleep: 3`,
-	}
+	})
 }
 
-func Sleep(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"sleep"}
-	if err := CheckFields(args, fields, fields); err != nil {
-		return nil, err
-	}
-	var duration float64
-	switch time := args["sleep"].(type) {
-	case int:
-		duration = float64(time)
-	case float64:
-		duration = time
-	default:
-		return nil, fmt.Errorf("argument of task sleep must be a float or an int")
-	}
-	return func(context *build.Context) error {
-		context.Message("Sleeping for %g seconds...", duration)
-		time.Sleep(time.Duration(duration) * time.Second)
-		return nil
-	}, nil
+type SleepArgs struct {
+	Sleep float64
+}
+
+func Sleep(context *build.Context, args interface{}) error {
+	params := args.(SleepArgs)
+	context.Message("Sleeping for %g seconds...", params.Sleep)
+	time.Sleep(time.Duration(params.Sleep) * time.Second)
+	return nil
 }

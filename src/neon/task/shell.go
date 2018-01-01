@@ -1,5 +1,3 @@
-// +build ignore
-
 package task
 
 import (
@@ -10,11 +8,14 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["$"] = build.TaskDescriptor{
-		Constructor: Shell,
+	build.AddTask(build.TaskDesc {
+		Name: "shell",
+		Func: Shell,
+		Args: reflect.TypeOf(ShellArgs{}),
 		Help: `Execute a command and return output and value.
 
 Arguments:
@@ -46,7 +47,34 @@ Notes:
   Windows is 'cmd' which can't properly manage arguments with spaces.
 - Argument of a command defined as a list won't be expanded by shell. Thus
   $USER won't be expanded for instance.`,
+	})
+}
+
+type ShellArgs struct {
+	Shell []string `wrap name="$"`
+	To    string   `optional name="="`
+}
+
+func Shell(context *build.Context, args interface{}) error {
+	params := args.(ShellArgs)
+	// FIXME
+	//commands, err := NewCommands(context.Build, params.Shell)
+	var commands *Commands = nil
+	var err error = nil
+	if err != nil {
+		return err
 	}
+	output, err := commands.Run(params.To == "", context)
+	if err != nil {
+		if output != "" {
+			context.Message(output)
+		}
+		return err
+	}
+	if params.To != "" {
+		context.SetProperty(params.To, strings.TrimSpace(string(output)))
+	}
+	return nil
 }
 
 // Commands lists commands by operating system
@@ -209,46 +237,5 @@ func NewCommands(build *build.Build, object interface{}) (*Commands, error) {
 	return &Commands{
 		Build:    build,
 		Commands: commands,
-	}, nil
-}
-
-// Shell is the function to build a shell task.
-// Arguments:
-// - target in which will run the task.
-// - args of the task.
-// Returns the task and an error if any.
-func Shell(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"$", "="}
-	if err := CheckFields(args, fields, fields[:1]); err != nil {
-		return nil, err
-	}
-	commands, err := NewCommands(target.Build, args["$"])
-	if err != nil {
-		return nil, err
-	}
-	var variable string
-	var ok bool
-	if args.HasField("=") {
-		variable, ok = args["="].(string)
-		if !ok {
-			return nil, fmt.Errorf("argument = of task $ must be a string")
-		}
-	}
-	return func(context *build.Context) error {
-		_variable, _err := context.EvaluateString(variable)
-		if _err != nil {
-			return fmt.Errorf("processing output argument: %v", _err)
-		}
-		_output, _err := commands.Run(_variable == "", context)
-		if _err != nil {
-			if _output != "" {
-				context.Message(_output)
-			}
-			return _err
-		}
-		if _variable != "" {
-			context.SetProperty(_variable, strings.TrimSpace(string(_output)))
-		}
-		return nil
 	}, nil
 }

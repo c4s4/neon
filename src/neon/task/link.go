@@ -1,17 +1,17 @@
-// +build ignore
-
 package task
 
 import (
 	"fmt"
 	"neon/build"
-	"neon/util"
 	"os"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["link"] = build.TaskDescriptor{
-		Constructor: Link,
+	build.AddTask(build.TaskDesc {
+		Name: "link",
+		Func: Link,
+		Args: reflect.TypeOf(LinkArgs{}),
 		Help: `Create a symbolic link.
 
 Arguments:
@@ -24,36 +24,20 @@ Examples:
     # create a link from file foo to bar
     - link: "foo"
       to: "bar"`,
-	}
+	})
 }
 
-func Link(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"link", "to"}
-	if err := CheckFields(args, fields, fields); err != nil {
-		return nil, err
-	}
-	s, err := args.GetString("link")
+type LinkArgs struct {
+	Link string `file`
+	To   string `file`
+}
+
+func Link(context *build.Context, args interface{}) error {
+	params := args.(LinkArgs)
+	context.Message("Linking file '%s' to '%s'", params.Link, params.To)
+	err := os.Symlink(params.Link, params.To)
 	if err != nil {
-		return nil, fmt.Errorf("argument link must be a string")
+		return fmt.Errorf("linking files: %v", err)
 	}
-	d, err := args.GetString("to")
-	if err != nil {
-		return nil, fmt.Errorf("argument to of task link must be a string")
-	}
-	return func(context *build.Context) error {
-		_source, _err := context.EvaluateString(s)
-		if _err != nil {
-			return fmt.Errorf("processing link argument: %v", _err)
-		}
-		_dest, _err := context.EvaluateString(d)
-		if _err != nil {
-			return fmt.Errorf("processing to argument of link task: %v", _err)
-		}
-		context.Message("Linking file '%s' to '%s'", _source, _dest)
-		_err = os.Symlink(_source, _dest)
-		if _err != nil {
-			return fmt.Errorf("linking files: %v", _err)
-		}
-		return nil
-	}, nil
+	return nil
 }

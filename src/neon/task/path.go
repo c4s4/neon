@@ -1,5 +1,3 @@
-// +build ignore
-
 package task
 
 import (
@@ -8,11 +6,14 @@ import (
 	"neon/util"
 	"path/filepath"
 	"strings"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["path"] = build.TaskDescriptor{
-		Constructor: Path,
+	build.AddTask(build.TaskDesc {
+		Name: "path",
+		Func: Path,
+		Args: reflect.TypeOf(PathArgs{}),
 		Help: `Build a path from files and put it in a variable.
 
 Arguments:
@@ -29,67 +30,27 @@ Examples:
     # build classpath with jar files in lib directory
     - path: "lib/*.jar"
       to: "classpath"`,
-	}
+	})
 }
 
-func Path(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"path", "to", "dir", "exclude"}
-	if err := CheckFields(args, fields, fields[:2]); err != nil {
-		return nil, err
-	}
-	includes, err := args.GetListStringsOrString("path")
+type PathArgs struct {
+	Path []string    `file wrap`
+	To   string
+	Dir  string      `file optional`
+	Exclude []string `optional file wrap`
+}
+
+func Path(context *build.Context, args interface{}) error {
+	params := args.(PathArgs)
+	files, err := util.FindFiles(params.Dir, params.Path, params.Exclude, true)
 	if err != nil {
-		return nil, fmt.Errorf("argument path must be a string or list of strings")
+		return fmt.Errorf("getting source files for path task: %v", err)
 	}
-	to, err := args.GetString("to")
-	if err != nil {
-		return nil, fmt.Errorf("argument to of task replace must be a string")
-	}
-	var dir string
-	if args.HasField("dir") {
-		dir, err = args.GetString("dir")
-		if err != nil {
-			return nil, fmt.Errorf("argument dir of task path must be a string")
-		}
-	}
-	var excludes []string
-	if args.HasField("exclude") {
-		excludes, err = args.GetListStringsOrString("exclude")
-		if err != nil {
-			return nil, fmt.Errorf("argument exclude ot task path must be string or list of strings")
-		}
-	}
-	return func(context *build.Context) error {
-		// evaluate arguments
-		_dir, _err := context.EvaluateString(dir)
-		if _err != nil {
-			return fmt.Errorf("evaluating destination directory: %v", _err)
-		}
-		_includes := make([]string, len(includes))
-		for _index, _include := range includes {
-			_includes[_index], _err = context.EvaluateString(_include)
-			if _err != nil {
-				return fmt.Errorf("evaluating includes: %v", _err)
-			}
-		}
-		_excludes := make([]string, len(excludes))
-		for _index, _exclude := range excludes {
-			_excludes[_index], _err = context.EvaluateString(_exclude)
-			if _err != nil {
-				return fmt.Errorf("evaluating excludes: %v", _err)
-			}
-		}
-		// find source files
-		_files, _err := context.FindFiles(_dir, _includes, _excludes, true)
-		if _err != nil {
-			return fmt.Errorf("getting source files for path task: %v", _err)
-		}
-		if len(_files) < 1 {
-			return nil
-		}
-		context.Message("Building path with %d file(s)", len(_files))
-		path := strings.Join(_files, string(filepath.ListSeparator))
-		context.SetProperty(to, path)
+	if len(files) < 1 {
 		return nil
-	}, nil
+	}
+	context.Message("Building path with %d file(s)", len(files))
+	path := strings.Join(files, string(filepath.ListSeparator))
+	context.SetProperty(params.To, path)
+	return nil
 }
