@@ -1,7 +1,6 @@
 package task
 
 import (
-	"path/filepath"
 	"runtime"
 	"strings"
 )
@@ -16,7 +15,7 @@ func SanitizeName(filename string) string {
 		runtime.GOOS == "windows" {
 		filename = filename[2:]
 	}
-	filename = filepath.ToSlash(filename)
+	filename = strings.Replace(filename, `\`, `/`, -1)
 	filename = strings.TrimLeft(filename, "/.")
 	return strings.Replace(filename, "../", "", -1)
 }
