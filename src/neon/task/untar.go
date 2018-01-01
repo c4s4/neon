@@ -1,5 +1,3 @@
-// +build ignore
-
 package task
 
 import (
@@ -8,15 +6,17 @@ import (
 	"fmt"
 	"io"
 	"neon/build"
-	"neon/util"
 	"os"
 	"path/filepath"
 	"strings"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["untar"] = build.TaskDescriptor{
-		Constructor: Untar,
+	build.AddTask(build.TaskDesc {
+		Name: "untar",
+		Func: Untar,
+		Args: reflect.TypeOf(UntarArgs{}),
 		Help: `Expand a tar file in a directory.
 
 Arguments:
@@ -34,42 +34,22 @@ Notes:
 
 - If archive filename ends with gz (with a name such as foo.tar.gz or foo.tgz)
   the tar archive is uncompressed with gzip.`,
-	}
+	})
 }
 
-func Untar(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"untar", "todir"}
-	if err := CheckFields(args, fields, fields); err != nil {
-		return nil, err
-	}
-	file, err := args.GetString("untar")
+type UntarArgs struct {
+	Untar string `file`
+	Todir string `file`
+}
+
+func Untar(context *build.Context, args interface{}) error {
+	params := args.(UntarArgs)
+	context.Message("Untarring archive '%s' to directory '%s'...", params.Untar, params.Todir)
+	err := UntarFile(params.Untar, params.Todir)
 	if err != nil {
-		return nil, fmt.Errorf("argument untar must be a string")
+		return fmt.Errorf("expanding archive: %v", err)
 	}
-	todir, err := args.GetString("todir")
-	if err != nil {
-		return nil, fmt.Errorf("argument todir of task untar must be a string")
-	}
-	return func(context *build.Context) error {
-		// evaluate arguments
-		var _err error
-		_file, _err := context.EvaluateString(file)
-		if _err != nil {
-			return fmt.Errorf("evaluating source tar file: %v", _err)
-		}
-		_todir, _err := context.EvaluateString(todir)
-		if _err != nil {
-			return fmt.Errorf("evaluating destination directory: %v", _err)
-		}
-		_file = util.ExpandUserHome(_file)
-		_todir = util.ExpandUserHome(_todir)
-		context.Message("Untarring archive '%s' to directory '%s'...", _file, _todir)
-		_err = UntarFile(_file, _todir)
-		if _err != nil {
-			return fmt.Errorf("expanding archive: %v", _err)
-		}
-		return nil
-	}, nil
+	return nil
 }
 
 // Untar given file to a directory

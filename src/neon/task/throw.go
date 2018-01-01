@@ -1,16 +1,16 @@
-// +build ignore
-
 package task
 
 import (
 	"fmt"
 	"neon/build"
-	"neon/util"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["throw"] = build.TaskDescriptor{
-		Constructor: Throw,
+	build.AddTask(build.TaskDesc {
+		Name: "throw",
+		Func: Throw,
+		Args: reflect.TypeOf(ThrowArgs{}),
 		Help: `Throws an error.
 
 Arguments:
@@ -26,23 +26,14 @@ Notes:
 
 - The error message will be printed on the console as the source of the build
   failure.`,
-	}
+	})
 }
 
-func Throw(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"throw"}
-	if err := CheckFields(args, fields, fields); err != nil {
-		return nil, err
-	}
-	message, ok := args["throw"].(string)
-	if !ok {
-		return nil, fmt.Errorf("argument of throw print must be a string")
-	}
-	return func(context *build.Context) error {
-		_message, _err := context.EvaluateString(message)
-		if _err != nil {
-			return fmt.Errorf("processing thow argument: %v", _err)
-		}
-		return fmt.Errorf(_message)
-	}, nil
+type ThrowArgs struct {
+	Throw string
+}
+
+func Throw(context *build.Context, args interface{}) error {
+	params := args.(ThrowArgs)
+	return fmt.Errorf(params.Throw)
 }

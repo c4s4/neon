@@ -1,5 +1,3 @@
-// +build ignore
-
 package task
 
 import (
@@ -11,11 +9,14 @@ import (
 	"neon/util"
 	"os"
 	"path/filepath"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["zip"] = build.TaskDescriptor{
-		Constructor: Zip,
+	build.AddTask(build.TaskDesc {
+		Name: "zip",
+		Func: Zip,
+		Args: reflect.TypeOf(ZipArgs{}),
 		Help: `Create a Zip archive.
 
 Arguments:
@@ -32,90 +33,31 @@ Examples:
     # zip files in build directory in file named build.zip
     - zip: "build/**/*"
       tofile: "build.zip"`,
-	}
+	})
 }
 
-func Zip(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"zip", "tofile", "dir", "exclude", "prefix"}
-	if err := CheckFields(args, fields, fields[:2]); err != nil {
-		return nil, err
-	}
-	includes, err := args.GetListStringsOrString("zip")
+type ZipArgs struct {
+	Zip     []string `file wrap`
+	Dir     string   `optional file`
+	Exclude []string `optional file wrap`
+	Tofile  string   `optional file`
+	Prefix  string   `optional`
+}
+
+func Zip(context *build.Context, args interface{}) error {
+	params := args.(ZipArgs)
+	files, err := util.FindFiles(params.Dir, params.Zip, params.Exclude, false)
 	if err != nil {
-		return nil, fmt.Errorf("argument zip must be a string or list of strings")
+		return fmt.Errorf("getting source files for zip task: %v", err)
 	}
-	var tofile string
-	if args.HasField("tofile") {
-		tofile, err = args.GetString("tofile")
+	if len(files) > 0 {
+		context.Message("Zipping %d file(s) in '%s'", len(files), params.Tofile)
+		err = WriteZip(params.Dir, files, params.Prefix, params.Tofile)
 		if err != nil {
-			return nil, fmt.Errorf("argument to of task zip must be a string")
+			return fmt.Errorf("zipping files: %v", err)
 		}
 	}
-	var dir string
-	if args.HasField("dir") {
-		dir, err = args.GetString("dir")
-		if err != nil {
-			return nil, fmt.Errorf("argument dir of task zip must be a string")
-		}
-	}
-	var excludes []string
-	if args.HasField("exclude") {
-		excludes, err = args.GetListStringsOrString("exclude")
-		if err != nil {
-			return nil, fmt.Errorf("argument exclude must be string or list of strings")
-		}
-	}
-	var prefix string
-	if args.HasField("prefix") {
-		prefix, err = args.GetString("prefix")
-		if err != nil {
-			return nil, fmt.Errorf("argument prefix of task zip must be a string")
-		}
-	}
-	return func(context *build.Context) error {
-		// evaluate arguments
-		var _err error
-		_includes := make([]string, len(includes))
-		for _index, _include := range includes {
-			_includes[_index], _err = context.EvaluateString(_include)
-			if _err != nil {
-				return fmt.Errorf("evaluating includes: %v", _err)
-			}
-		}
-		_excludes := make([]string, len(excludes))
-		for _index, _exclude := range excludes {
-			_excludes[_index], _err = context.EvaluateString(_exclude)
-			if _err != nil {
-				return fmt.Errorf("evaluating excludes: %v", _err)
-			}
-		}
-		_tofile, _err := context.EvaluateString(tofile)
-		if _err != nil {
-			return fmt.Errorf("evaluating destination file: %v", _err)
-		}
-		_dir, _err := context.EvaluateString(dir)
-		if _err != nil {
-			return fmt.Errorf("evaluating source directory: %v", _err)
-		}
-		_prefix, _err := context.EvaluateString(prefix)
-		if _err != nil {
-			return fmt.Errorf("evaluating destination file: %v", _err)
-		}
-		// find source files
-		_files, _err := context.FindFiles(_dir, _includes, _excludes, false)
-		if _err != nil {
-			return fmt.Errorf("getting source files for zip task: %v", _err)
-		}
-		if len(_files) > 0 {
-			context.Message("Zipping %d file(s) in '%s'", len(_files), _tofile)
-			// zip files
-			_err = WriteZip(_dir, _files, _prefix, _tofile)
-			if _err != nil {
-				return fmt.Errorf("zipping files: %v", _err)
-			}
-		}
-		return nil
-	}, nil
+	return nil
 }
 
 func WriteZip(dir string, files []string, prefix, to string) error {
