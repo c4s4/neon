@@ -90,8 +90,7 @@ func NewBuild(file string) (*Build, error) {
 		return nil, err
 	}
 	if err := ParseExtends(object, build); err != nil {
-		// we return build because it can be used to install plugin
-		return build, err
+		return nil, err
 	}
 	if err := ParseProperties(object, build); err != nil {
 		return nil, err
