@@ -2,18 +2,18 @@ doc: Built file to test tasks
 default: task_replace
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
   task_replace:
     doc: Test task replace
     steps:
-    - mkdir: "#{BUILD_DIR}/replace"
-    - write: "#{BUILD_DIR}/replace/test.txt"
-      text: "Hello World!"
-    - replace: "#{BUILD_DIR}/replace/test.txt"
-      with: {"World": "You"}
+    - mkdir: '={BUILD_DIR}/replace'
+    - write: '={BUILD_DIR}/replace/test.txt'
+      text:  'Hello World!'
+    - replace: '={BUILD_DIR}/replace/test.txt'
+      with:    {'World': 'You'}
     - |
       ioutil = import("io/ioutil")
       filepath = import("path/filepath")
