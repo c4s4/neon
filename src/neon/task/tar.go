@@ -44,9 +44,9 @@ Notes:
 }
 
 type TarArgs struct {
-	Tar     []string `file`
+	Tar     []string `file wrap`
 	Dir     string   `optional file`
-	Exclude []string `optional file`
+	Exclude []string `optional file wrap`
 	Tofile  string   `file`
 	Prefix  string   `optional`
 }
