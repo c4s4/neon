@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "mkdir",
 		Func: Mkdir,
 		Args: reflect.TypeOf(MkdirArgs{}),

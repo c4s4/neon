@@ -3,14 +3,14 @@ package task
 import (
 	"fmt"
 	"neon/build"
+	util "neon/util"
 	"os"
 	"path/filepath"
 	"reflect"
-	util "neon/util"
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "chmod",
 		Func: Chmod,
 		Args: reflect.TypeOf(ChmodArgs{}),
@@ -45,9 +45,9 @@ Notes:
 }
 
 type ChmodArgs struct {
-	Chmod []string   `file wrap`
-	Mode  int
-	Dir   string     `file optional`
+	Chmod   []string `file wrap`
+	Mode    int
+	Dir     string   `file optional`
 	Exclude []string `optional`
 }
 

@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "assert",
 		Func: Assert,
 		Args: reflect.TypeOf(AssertArgs{}),

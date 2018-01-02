@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "super",
 		Func: Super,
 		Args: reflect.TypeOf(SuperArgs{}),
@@ -27,17 +27,17 @@ Notes:
 	})
 }
 
-type SuperArgs struct {}
+type SuperArgs struct{}
 
 func Super(context *build.Context, args interface{}) error {
 	/*
-	ok, err := target.Build.RunParentTarget(target.Name, context)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return fmt.Errorf("no target '%s' found in parent build files", target.Name)
-	}
+		ok, err := target.Build.RunParentTarget(target.Name, context)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return fmt.Errorf("no target '%s' found in parent build files", target.Name)
+		}
 	*/
 	return nil
 }

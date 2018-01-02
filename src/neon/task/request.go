@@ -15,7 +15,7 @@ const (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "request",
 		Func: Request,
 		Args: reflect.TypeOf(RequestArgs{}),

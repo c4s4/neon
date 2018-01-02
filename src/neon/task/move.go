@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "move",
 		Func: Move,
 		Args: reflect.TypeOf(MoveArgs{}),

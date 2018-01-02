@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "delete",
 		Func: Delete,
 		Args: reflect.TypeOf(DeleteArgs{}),

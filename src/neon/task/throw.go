@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "throw",
 		Func: Throw,
 		Args: reflect.TypeOf(ThrowArgs{}),

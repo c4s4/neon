@@ -10,12 +10,12 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strings"
 	"reflect"
+	"strings"
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "tar",
 		Func: Tar,
 		Args: reflect.TypeOf(TarArgs{}),

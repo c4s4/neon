@@ -5,12 +5,12 @@ import (
 	"neon/build"
 	"neon/util"
 	"path/filepath"
-	"strings"
 	"reflect"
+	"strings"
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "path",
 		Func: Path,
 		Args: reflect.TypeOf(PathArgs{}),
@@ -34,9 +34,9 @@ Examples:
 }
 
 type PathArgs struct {
-	Path []string    `file wrap`
-	To   string
-	Dir  string      `file optional`
+	Path    []string `file wrap`
+	To      string
+	Dir     string   `file optional`
 	Exclude []string `optional file wrap`
 }
 

@@ -54,7 +54,7 @@ func (build *Build) Info(context *Context) error {
 	if len(build.Properties) > 0 {
 		Message("")
 		Message("properties:")
-		for name, _ := range build.Properties {
+		for name := range build.Properties {
 			value, err := context.GetProperty(name)
 			if err != nil {
 				return fmt.Errorf("getting property '%s': %v", name, err)

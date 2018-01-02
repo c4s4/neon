@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "java",
 		Func: Java,
 		Args: reflect.TypeOf(JavaArgs{}),

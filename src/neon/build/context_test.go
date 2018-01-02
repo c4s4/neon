@@ -1,9 +1,9 @@
 package build
 
 import (
+	"reflect"
 	"strings"
 	"testing"
-	"reflect"
 )
 
 func TestEvaluateString(t *testing.T) {
@@ -28,7 +28,7 @@ func TestEvaluateStringWithProperties(t *testing.T) {
 		"FOO": "foo",
 		"BAR": "bar",
 	}
-	build := &Build {
+	build := &Build{
 		Dir:        "dir",
 		Here:       "here",
 		Properties: properties,

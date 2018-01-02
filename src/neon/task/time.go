@@ -2,12 +2,12 @@ package task
 
 import (
 	"neon/build"
-	"time"
 	"reflect"
+	"time"
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "time",
 		Func: Time,
 		Args: reflect.TypeOf(TimeArgs{}),

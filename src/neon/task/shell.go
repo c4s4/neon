@@ -6,35 +6,29 @@ import (
 	"neon/util"
 	"os"
 	"os/exec"
+	"reflect"
 	"runtime"
 	"strings"
-	"reflect"
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
-		Name: "shell",
+	build.AddTask(build.TaskDesc{
+		Name: "$",
 		Func: Shell,
 		Args: reflect.TypeOf(ShellArgs{}),
 		Help: `Execute a command and return output and value.
 
 Arguments:
 
-- $: command to run as a string or a list of strings. You can also provide a
-  map of commands per operating system ("default" defines command to run on
-  operating systems that are not in the map).
-- =: name of the variable to store trimed output into (optional, output to
+- $: command to run as a string or a list of strings.
+- =: name of the variable to store trimmed output into (optional, output to
   console if not set).
 
 Examples:
 
     # execute ls command and get result in 'files' variable
-    - $: 'ls'
+    - $: 'ls -al'
       =: 'files'
-    # execute dir command on windows and ls on other OS
-    - $:
-    	windows: 'dir'
-    	default: 'ls'
     # execute command as a list of strings
     - $: ['ls', '-al']
 
@@ -51,16 +45,15 @@ Notes:
 }
 
 type ShellArgs struct {
-	Shell []string `wrap name="$"`
-	To    string   `optional name="="`
+	Shell []string `name:"$" wrap`
+	To    string   `name:"=" optional`
 }
 
 func Shell(context *build.Context, args interface{}) error {
 	params := args.(ShellArgs)
 	// FIXME
 	//commands, err := NewCommands(context.Build, params.Shell)
-	var commands *Commands = nil
-	var err error = nil
+	commands, err := NewCommands(nil, params.Shell)
 	if err != nil {
 		return err
 	}
@@ -80,12 +73,12 @@ func Shell(context *build.Context, args interface{}) error {
 // Commands lists commands by operating system
 type Commands struct {
 	Build    *build.Build
-	Commands map[string]Command
+	Commands map[string]CommandFunc
 }
 
 // GetCommand return a command depending on current operating system and
 // default command
-func (c Commands) GetCommand() (Command, error) {
+func (c Commands) GetCommand() (CommandFunc, error) {
 	for system, command := range c.Commands {
 		if system != "default" && system == runtime.GOOS {
 			return command, nil
@@ -113,7 +106,7 @@ func (c Commands) Run(pipe bool, context *build.Context) (string, error) {
 }
 
 // Command is the interface for a command.
-type Command interface {
+type CommandFunc interface {
 	Run(build *build.Build, pipe bool, context *build.Context) (string, error)
 }
 
@@ -218,7 +211,7 @@ func NewCommands(build *build.Build, object interface{}) (*Commands, error) {
 		}
 		return NewCommands(build, m)
 	}
-	commands := make(map[string]Command)
+	commands := make(map[string]CommandFunc)
 	m, _ := util.ToMapStringInterface(object)
 	for os, cmd := range m {
 		if util.IsSlice(cmd) {

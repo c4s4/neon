@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "javac",
 		Func: Javac,
 		Args: reflect.TypeOf(JavacArgs{}),

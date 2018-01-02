@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "while",
 		Func: While,
 		Args: reflect.TypeOf(WhileArgs{}),

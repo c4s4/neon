@@ -6,12 +6,12 @@ import (
 	"neon/build"
 	"neon/util"
 	"path/filepath"
-	"strings"
 	"reflect"
+	"strings"
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "replace",
 		Func: Replace,
 		Args: reflect.TypeOf(ReplaceArgs{}),
@@ -34,10 +34,10 @@ Examples:
 }
 
 type ReplaceArgs struct {
-	Replace []string          `file wrap`
+	Replace []string `file wrap`
 	With    map[string]string
-	Dir     string            `optional file`
-	Exclude []string          `optional file`
+	Dir     string   `optional file`
+	Exclude []string `optional file`
 }
 
 func Replace(context *build.Context, args interface{}) error {

@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "pass",
 		Func: Pass,
 		Args: reflect.TypeOf(PassArgs{}),
@@ -27,7 +27,7 @@ Notes:
 	})
 }
 
-type PassArgs struct {}
+type PassArgs struct{}
 
 func Pass(context *build.Context, args interface{}) error {
 	return nil

@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"neon/build"
 	"os"
+	"reflect"
 	"regexp"
 	"strings"
-	"reflect"
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "prompt",
 		Func: Prompt,
 		Args: reflect.TypeOf(PromptArgs{}),

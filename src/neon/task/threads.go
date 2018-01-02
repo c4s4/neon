@@ -2,12 +2,12 @@ package task
 
 import (
 	"neon/build"
-	"sync"
 	"reflect"
+	"sync"
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "threads",
 		Func: Threads,
 		Args: reflect.TypeOf(ThreadsArgs{}),

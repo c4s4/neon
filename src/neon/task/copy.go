@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "copy",
 		Func: Copy,
 		Args: reflect.TypeOf(CopyArgs{}),

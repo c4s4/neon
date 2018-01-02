@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "read",
 		Func: Read,
 		Args: reflect.TypeOf(ReadArgs{}),

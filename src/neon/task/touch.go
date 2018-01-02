@@ -6,12 +6,12 @@ import (
 	"neon/build"
 	"neon/util"
 	"os"
-	"time"
 	"reflect"
+	"time"
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "touch",
 		Func: Touch,
 		Args: reflect.TypeOf(TouchArgs{}),

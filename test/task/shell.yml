@@ -49,14 +49,3 @@ targets:
         } else {
           println("$ test success")
         }
-      # test shell per OS
-      - $:
-          default: 'echo "TEST"'
-          windows: 'fail'
-        =: 'result'
-      - |
-        if result != "TEST" {
-          throw("$ test failure")
-        } else {
-          println("$ test success")
-        }

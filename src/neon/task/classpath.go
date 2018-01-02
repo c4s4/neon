@@ -11,8 +11,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strings"
 	"reflect"
+	"strings"
 )
 
 const (
@@ -22,7 +22,7 @@ const (
 var LOCAL_REPOSITORY = util.ExpandUserHome("~/.java/repository")
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "classpath",
 		Func: Classpath,
 		Args: reflect.TypeOf(ClasspathArgs{}),

@@ -2,9 +2,9 @@ package build
 
 import (
 	"fmt"
-	"strings"
-	"sort"
 	"reflect"
+	"sort"
+	"strings"
 )
 
 // A step has a Run() method
@@ -48,8 +48,8 @@ func (step ScriptStep) Run(context *Context) error {
 
 // Structure for a task step
 type TaskStep struct {
-	Desc   TaskDesc
-	Args   TaskArgs
+	Desc TaskDesc
+	Args TaskArgs
 }
 
 // Make a task step
@@ -63,8 +63,8 @@ func NewTaskStep(args TaskArgs) (Step, error) {
 					return nil, fmt.Errorf("parsing task '%s': %v", name, err)
 				}
 				step := TaskStep{
-					Desc:   desc,
-					Args:   args,
+					Desc: desc,
+					Args: args,
 				}
 				return step, nil
 			}

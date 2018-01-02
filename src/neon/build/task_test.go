@@ -1,9 +1,9 @@
 package build
 
 import (
-	"testing"
-	"reflect"
 	"fmt"
+	"reflect"
+	"testing"
 )
 
 type TestArgs struct {
@@ -16,13 +16,13 @@ type TestArgs struct {
 }
 
 func TestValidateTaskArgsNominal(t *testing.T) {
-	args := TaskArgs {
+	args := TaskArgs{
 		"string": "Hello World!",
-		"bool": true,
-		"int": 3,
-		"float": 3.14,
-		"array": []string{"foo", "bar"},
-		"map": map[string]string{"foo": "bar"},
+		"bool":   true,
+		"int":    3,
+		"float":  3.14,
+		"array":  []string{"foo", "bar"},
+		"map":    map[string]string{"foo": "bar"},
 	}
 	err := ValidateTaskArgs(args, reflect.TypeOf(TestArgs{}))
 	if err != nil {
@@ -31,7 +31,7 @@ func TestValidateTaskArgsNominal(t *testing.T) {
 }
 
 func TestValidateTaskArgsMissingArg(t *testing.T) {
-	args := TaskArgs {
+	args := TaskArgs{
 		"int": 3,
 	}
 	err := ValidateTaskArgs(args, reflect.TypeOf(TestArgs{}))
@@ -41,7 +41,7 @@ func TestValidateTaskArgsMissingArg(t *testing.T) {
 }
 
 func TestValidateTaskArgsMissingArgOptional(t *testing.T) {
-	args := TaskArgs {
+	args := TaskArgs{
 		"string": "Hello World!",
 	}
 	err := ValidateTaskArgs(args, reflect.TypeOf(TestArgs{}))
@@ -51,7 +51,7 @@ func TestValidateTaskArgsMissingArgOptional(t *testing.T) {
 }
 
 func TestValidateTaskArgsBadType(t *testing.T) {
-	args := TaskArgs {
+	args := TaskArgs{
 		"string": 1,
 	}
 	err := ValidateTaskArgs(args, reflect.TypeOf(TestArgs{}))
@@ -61,13 +61,13 @@ func TestValidateTaskArgsBadType(t *testing.T) {
 }
 
 func TestEvaluateTaskArgsNominal(t *testing.T) {
-	args := TaskArgs {
+	args := TaskArgs{
 		"string": "Hello World!",
-		"bool": true,
-		"int": 3,
-		"float": 3.14,
-		"array": []string{"foo", "bar"},
-		"map": map[string]string{"foo": "bar"},
+		"bool":   true,
+		"int":    3,
+		"float":  3.14,
+		"array":  []string{"foo", "bar"},
+		"map":    map[string]string{"foo": "bar"},
 	}
 	res, err := EvaluateTaskArgs(args, reflect.TypeOf(TestArgs{}), nil)
 	params := res.(TestArgs)
@@ -118,7 +118,7 @@ func TestIsExpression(t *testing.T) {
 // arguments from build file, define a task and call it with parameters
 func TestTaskCall(t *testing.T) {
 	// task arguments as parsed in build file
-	args := TaskArgs {
+	args := TaskArgs{
 		"print": "Hello World!",
 	}
 	// task arguments type
@@ -163,7 +163,7 @@ func TestValueOfType(t *testing.T) {
 		t.Fail()
 	}
 	if !IsValueOfType(map[string]interface{}{"foo": "bar"},
-					reflect.TypeOf(map[string]string{"foo": "bar"})) {
+		reflect.TypeOf(map[string]string{"foo": "bar"})) {
 		t.Fail()
 	}
 }

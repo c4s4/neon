@@ -8,12 +8,12 @@ import (
 	"neon/build"
 	"os"
 	"path/filepath"
-	"strings"
 	"reflect"
+	"strings"
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "untar",
 		Func: Untar,
 		Args: reflect.TypeOf(UntarArgs{}),

@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "zip",
 		Func: Zip,
 		Args: reflect.TypeOf(ZipArgs{}),

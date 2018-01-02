@@ -1,10 +1,10 @@
 package build
 
 import (
-	"reflect"
 	"fmt"
-	"strings"
 	"neon/util"
+	"reflect"
+	"strings"
 )
 
 // character for expressions
@@ -25,10 +25,12 @@ const (
 	FIELD_WRAP = "wrap"
 	// field is a list of steps
 	FIELD_STEPS = "steps"
+	// field has a different name
+	FIELD_NAME = "name"
 )
 
 // Map that gives constructor for given task name
-var TaskMap map[string]TaskDesc = make(map[string]TaskDesc)
+var TaskMap = make(map[string]TaskDesc)
 
 func AddTask(task TaskDesc) {
 	if _, ok := TaskMap[task.Name]; ok {
@@ -56,14 +58,17 @@ type TaskFunc func(ctx *Context, args interface{}) error
 // - typ: type of the arguments
 // Return: an error (detailing the fault) if arguments are illegal
 // NOTE: supported tags in argument types are:
-func ValidateTaskArgs(args TaskArgs, typ reflect.Type,) error {
+func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 	if typ.Kind() != reflect.Struct {
 		return fmt.Errorf("params must be a pointer on a struct")
 	}
-	for i:=0; i<typ.NumField(); i++ {
+	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
-		// check field is not missing
 		name := strings.ToLower(field.Name)
+		if field.Tag.Get(FIELD_NAME) != "" {
+			name = field.Tag.Get(FIELD_NAME)
+		}
+		// check field is not missing
 		if _, ok := args[name]; !ok {
 			if !FieldIs(field, FIELD_OPTIONAL) {
 				return fmt.Errorf("missing mandatory field '%s'", name)
@@ -110,14 +115,14 @@ func CheckType(field reflect.StructField, value interface{}) bool {
 	// if argument is an expression it's OK whatever the type
 	if valueType.Kind() == reflect.String &&
 		(IsExpression(value.(string)) ||
-		FieldIs(field, FIELD_EXPRESSION)) {
-			return true
+			FieldIs(field, FIELD_EXPRESSION)) {
+		return true
 	}
 	// if type of field is slice of the type of the argument and wrap, it's OK
 	if field.Type.Kind() == reflect.Slice &&
 		reflect.SliceOf(valueType) == field.Type &&
 		FieldIs(field, FIELD_WRAP) {
-			return true
+		return true
 	}
 	// if type is slice and argument is steps, it's OK
 	if field.Type.Kind() == reflect.Slice &&
@@ -161,7 +166,7 @@ func IsValueOfType(value interface{}, typ reflect.Type) bool {
 func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interface{}, error) {
 	var err error
 	value := reflect.New(typ).Elem()
-	for i:=0; i<value.NumField(); i++ {
+	for i := 0; i < value.NumField(); i++ {
 		name := strings.ToLower(typ.Field(i).Name)
 		if args[name] != nil {
 			val := args[name]
@@ -222,7 +227,7 @@ func CopyValue(orig, dest reflect.Value) {
 	// loop on slices
 	if orig.Type().Kind() == reflect.Slice && dest.Type().Kind() == reflect.Slice {
 		new := reflect.MakeSlice(dest.Type(), orig.Len(), orig.Len())
-		for i:=0; i<orig.Len(); i++ {
+		for i := 0; i < orig.Len(); i++ {
 			CopyValue(orig.Index(i), new.Index(i))
 		}
 		dest.Set(new)

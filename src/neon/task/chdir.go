@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "chdir",
 		Func: Chdir,
 		Args: reflect.TypeOf(ChdirArgs{}),

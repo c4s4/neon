@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "try",
 		Func: Try,
 		Args: reflect.TypeOf(TryArgs{}),
@@ -46,7 +46,6 @@ type TryArgs struct {
 	Catch   []build.Step `optional steps`
 	Finally []build.Step `optional steps`
 }
-
 
 func Try(context *build.Context, args interface{}) error {
 	params := args.(TryArgs)

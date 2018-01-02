@@ -2,6 +2,9 @@ package build
 
 import (
 	"fmt"
+	anko_core "github.com/c4s4/anko/builtins"
+	"github.com/c4s4/anko/parser"
+	"github.com/c4s4/anko/vm"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -9,9 +12,6 @@ import (
 	"runtime"
 	"sort"
 	"strings"
-	anko_core "github.com/c4s4/anko/builtins"
-	"github.com/c4s4/anko/parser"
-	"github.com/c4s4/anko/vm"
 )
 
 const (
@@ -48,9 +48,9 @@ func NewContext() *Context {
 	anko_core.LoadAllBuiltins(v)
 	LoadBuiltins(v)
 	context := &Context{
-		VM:          v,
-		Index:       NewIndex(),
-		Stack:       NewStack(),
+		VM:    v,
+		Index: NewIndex(),
+		Stack: NewStack(),
 	}
 	return context
 }
@@ -62,9 +62,9 @@ func NewContext() *Context {
 // Return: a pointer to the context
 func (context *Context) NewThreadContext(thread int, input interface{}, output interface{}) *Context {
 	copy := &Context{
-		VM:          context.VM.Copy(),
-		Index:       context.Index.Copy(),
-		Stack:       context.Stack.Copy(),
+		VM:    context.VM.Copy(),
+		Index: context.Index.Copy(),
+		Stack: context.Stack.Copy(),
 	}
 	copy.SetProperty(PROPERTY_THREAD, thread)
 	copy.SetProperty(PROPERTY_INPUT, input)
@@ -228,7 +228,7 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 	// we iterate through slices
 	if reflect.TypeOf(object).Kind() == reflect.Slice {
 		value := reflect.ValueOf(object)
-		for i:=0; i<value.Len(); i++ {
+		for i := 0; i < value.Len(); i++ {
 			index := value.Index(i)
 			evaluated, err := context.EvaluateObject(index.Interface())
 			if err != nil {
@@ -242,7 +242,7 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 	if reflect.TypeOf(object).Kind() == reflect.Map {
 		value := reflect.ValueOf(object)
 		keys := value.MapKeys()
-		for i:=0; i<len(keys); i++ {
+		for i := 0; i < len(keys); i++ {
 			key := keys[i]
 			keyEval, err := context.EvaluateObject(key.Interface())
 			if err != nil {

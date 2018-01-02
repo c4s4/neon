@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	build.AddTask(build.TaskDesc {
+	build.AddTask(build.TaskDesc{
 		Name: "for",
 		Func: For,
 		Args: reflect.TypeOf(ForArgs{}),
