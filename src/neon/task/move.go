@@ -18,30 +18,28 @@ func init() {
 
 Arguments:
 
-- move: the list of globs of files to move (as a string or list of strings).
-- dir: the root directory for glob (as a string, optional).
-- exclude: globs of files to exclude (as a string or list of strings,
-  optional).
-- tofile: the file to move to (as a string, optional, only if glob selects a
-  single file).
-- todir: directory to move file(s) to (as a string, optional).
-- flat: tells if files should be flatten in destination directory (as a boolean,
-  optional, defaults to true).
+- move: globs of files to move (strings, file, wrap)
+- dir: root directory for globs (string, optional, file).
+- exclude: globs of files to exclude (strings, optional, file, wrap).
+- tofile: file to move file to (string, optional, file).
+- todir: directory to move file(s) to (string, optional, file).
+- flat: tells if files should be flatten in destination directory, defaults to
+  false (boolean, optional).
 
 Examples:
 
     # move file foo to bar
-    - move:   "foo"
-      tofile: "bar"
+    - move:   'foo'
+      tofile: 'bar'
     # move text files in directory 'book' (except 'foo.txt') to directory 'text'
-    - move: "**/*.txt"
-      dir: "book"
-      exclude: "**/foo.txt"
-      todir: "text"
-    # move all go sources to directory 'src', preserving directory structure
-    - move: "**/*.go"
-      todir: "src"
-      flat: false`,
+    - move:    '**/*.txt'
+      dir:     'book'
+      exclude: '**/foo.txt'
+      todir:   'text'
+    # move all go sources to directory 'src', flattening structure
+    - move:  '**/*.go'
+      todir: 'src'
+      flat:  true`,
 	})
 }
 
