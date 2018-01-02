@@ -17,7 +17,7 @@ func NewStep(target *Target, step interface{}) (Step, error) {
 	case string:
 		return NewScriptStep(target, step)
 	case map[interface{}]interface{}:
-		return NewTaskStep(target, step)
+		return NewTaskStep(step)
 	default:
 		return nil, fmt.Errorf("a step must be a string or a map")
 	}
@@ -25,14 +25,12 @@ func NewStep(target *Target, step interface{}) (Step, error) {
 
 // A script step
 type ScriptStep struct {
-	Target *Target
 	Script string
 }
 
 // Make a script step
 func NewScriptStep(target *Target, script string) (Step, error) {
 	step := ScriptStep{
-		Target: target,
 		Script: script,
 	}
 	return step, nil
@@ -49,13 +47,13 @@ func (step ScriptStep) Run(context *Context) error {
 
 // Structure for a task step
 type TaskStep struct {
-	Target *Target
 	Desc   TaskDesc
 	Args   TaskArgs
 }
 
 // Make a task step
-func NewTaskStep(target *Target, args TaskArgs) (Step, error) {
+func NewTaskStep(args TaskArgs) (Step, error) {
+	// find the task in the map
 	for name, desc := range TaskMap {
 		for field := range args {
 			if name == field {
@@ -64,7 +62,6 @@ func NewTaskStep(target *Target, args TaskArgs) (Step, error) {
 					return nil, fmt.Errorf("parsing task '%s': %v", name, err)
 				}
 				step := TaskStep{
-					Target: target,
 					Desc:   desc,
 					Args:   args,
 				}
@@ -72,6 +69,7 @@ func NewTaskStep(target *Target, args TaskArgs) (Step, error) {
 			}
 		}
 	}
+	// task was not found, build error message
 	var fields []string
 	for field := range args {
 		fields = append(fields, field.(string))
