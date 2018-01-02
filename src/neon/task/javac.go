@@ -19,11 +19,11 @@ func init() {
 
 Arguments:
 
-- javac: the glob for Java source files.
-- source: directory for source files.
-- exclude: glob for source files to exclude (optional).
-- dest: destination directory for generated classes.
-- cp: classpath for compilation.
+- javac: glob of Java source files to compile (strings, file, wrap).
+- source: directory of source files (string, file).
+- exclude: glob of source files to exclude (strings, optional, file, wrap).
+- dest: destination directory for generated classes (string, file).
+- cp: classpath for compilation (string, optional).
 
 Examples:
 
@@ -35,7 +35,7 @@ Examples:
     - javac:  '**/*.java'
       source: 'src'
       dest:   'build/classes'
-      cp:     '#{classpath}'`,
+      cp:     =classpath`,
 	})
 }
 
@@ -78,8 +78,7 @@ func Javac(context *build.Context, args interface{}) error {
 		return fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
-	// FIXME
-	//command.Env, err = context.EvaluateEnvironment(target.Build)
+	command.Env, err = context.EvaluateEnvironment()
 	if err != nil {
 		return fmt.Errorf("building environment: %v", err)
 	}

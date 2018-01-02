@@ -17,9 +17,9 @@ func init() {
 
 Arguments:
 
-- javac: the main Java class name.
-- cp: classpath for runtime.
-- args: command line arguments (optional).
+- javac: main Java class name (string).
+- cp: classpath to run main class (string).
+- args: command line arguments (strings, optional, wrap).
 
 Examples:
 
@@ -33,7 +33,7 @@ Examples:
 type JavaArgs struct {
 	Java string
 	Cp   string
-	Args []string `optional`
+	Args []string `optional wrap`
 }
 
 func Java(context *build.Context, args interface{}) error {
@@ -46,8 +46,7 @@ func Java(context *build.Context, args interface{}) error {
 		return fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
-	// FIXME
-	//command.Env, err = context.EvaluateEnvironment(context.target.Build)
+	command.Env, err = context.EvaluateEnvironment()
 	if err != nil {
 		return fmt.Errorf("building environment: %v", err)
 	}
