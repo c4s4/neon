@@ -39,7 +39,12 @@ Examples:
     # move all go sources to directory 'src', flattening structure
     - move:  '**/*.go'
       todir: 'src'
-      flat:  true`,
+      flat:  true
+
+Notes:
+
+- Parameter 'tofile' is valid if only one file was selected by globs.
+- One and only one of parameters 'tofile' and 'todir' might be set.`,
 	})
 }
 
@@ -54,6 +59,10 @@ type MoveArgs struct {
 
 func Move(context *build.Context, args interface{}) error {
 	params := args.(MoveArgs)
+	if (params.Tofile != "" && params.Todir != "") ||
+		(params.Tofile == "" && params.Todir == "") {
+		return fmt.Errorf("one and only one of parameters 'tofile' an 'todir' may be set")
+	}
 	sources, err := util.FindFiles(params.Dir, params.Move, params.Exclude, true)
 	if err != nil {
 		return fmt.Errorf("getting source files for move task: %v", err)
