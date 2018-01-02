@@ -62,9 +62,6 @@ func Copy(context *build.Context, args interface{}) error {
 		(params.Tofile == "" && params.Todir == "") {
 		return fmt.Errorf("one and only one of parameters 'tofile' an 'todir' may be set")
 	}
-	if params.Tofile != "" || params.Todir != "" {
-		return fmt.Errorf("only one of parameters 'tofile' an 'todir' may be used")
-	}
 	sources, err := util.FindFiles(params.Dir, params.Copy, params.Exclude, false)
 	if err != nil {
 		return fmt.Errorf("getting source files for copy task: %v", err)
