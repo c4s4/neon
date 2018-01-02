@@ -14,9 +14,9 @@ func init() {
 
 Arguments:
 
-- if: the condition.
-- then: the steps to execute if the condition is true.
-- else: the steps to execute if the condition is false.
+- if: the condition (boolean, expression).
+- then: steps to execute if condition is true (steps).
+- else: steps to execute if condition is false (optional, steps).
 
 Examples:
 
