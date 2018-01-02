@@ -31,7 +31,7 @@ Examples:
 type WriteArgs struct {
 	Write  string `file`
 	Text   string `optional`
-	Append bool
+	Append bool   `optional`
 }
 
 func Write(context *build.Context, args interface{}) error {
