@@ -8,21 +8,15 @@ Execute a command and return output and value.
 
 Arguments:
 
-- $: command to run as a string or a list of strings. You can also provide a
-  map of commands per operating system ("default" defines command to run on
-  operating systems that are not in the map).
-- =: name of the variable to store trimed output into (optional, output to
+- $: command to run as a string or a list of strings.
+- =: name of the variable to store trimmed output into (optional, output to
   console if not set).
 
 Examples:
 
     # execute ls command and get result in 'files' variable
-    - $: 'ls'
+    - $: 'ls -al'
       =: 'files'
-    # execute dir command on windows and ls on other OS
-    - $:
-    	windows: 'dir'
-    	default: 'ls'
     # execute command as a list of strings
     - $: ['ls', '-al']
 
@@ -43,11 +37,11 @@ Make an assertion and fail if assertion condition is false.
 
 Arguments:
 
-- assert: the assertion to perform (as a script expression).
+- assert: the assertion to perform as an expression.
 
 Examples:
 
-    # assert that foo == "bar", and fail otherwize
+    # assert that foo == "bar", and fail otherwise
     - assert: 'foo == "bar"'
 
 cat
@@ -85,13 +79,13 @@ Notes:
 chmod
 -----
 
-Changes mode of files.
+Change mode of files.
 
 Arguments:
 
 - chmod: the list of globs of files to change mode (as a string or list of
   strings).
-- mode: the mode in octal form (such as '0755') as a string
+- mode: the mode in octal form (such as '0755') as an integer.
 - dir: the root directory for glob (as a string, optional, defaults to '.').
 - exclude: globs of files to exclude (as a string or list of strings,
   optional).
@@ -100,11 +94,18 @@ Examples:
 
     # make foo.sh executable for all users
     - chmod: "foo.sh"
-      mod: "0755"
+      mode:  0755
     # make all sh files in foo directory executable, except for bar.sh
-    - chmod: "**/*.sh"
-      mode: "0755"
+    - chmod:   "**/*.sh"
+      mode:    0755
       exclude: "**/bar.sh"
+
+Notes:
+- The mode is an integer, thus must not be surrounded with quotes, or it would
+  be a string and parsing of the task would fail.
+- We usually set mode with octal integers, starting with '0'. If you don't put
+  starting '0', this is decimal integer and you won't probably have expected
+  result.
 
 classpath
 ---------
@@ -167,7 +168,7 @@ Arguments:
   single file).
 - todir: directory to copy file(s) to (as a string, optional).
 - flat: tells if files should be flatten in destination directory (as a boolean,
-  optional, defaults to true).
+  optional, defaults to false).
 
 Examples:
 
@@ -477,6 +478,7 @@ Perform an HTTP request.
 
 Arguments:
 
+- request: the URL to request.
 - method: the request method (GET, POST, etc), defaults to "GET".
 - headers: request headers as an anko map.
 - body: the request body as a string.
@@ -639,12 +641,12 @@ Touch a file (create it or change its time).
 
 Arguments:
 
-- touch: the file or files to create.
+- touch: the file or list of files to touch.
 
 Examples:
 
     # create file in build directory
-    - touch: "#{BUILD_DIR}/foo"
+    - touch: ["#{BUILD_DIR}/foo", "#{BUILD_DIR}/bar"]
 
 Notes:
 
@@ -717,7 +719,7 @@ Arguments:
 Examples:
 
     # unzip foo.zip to build directory
-    - untar: "foo.zip"
+    - unzip: "foo.zip"
       todir: "build"
 
 while
