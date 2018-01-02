@@ -18,22 +18,21 @@ func init() {
 
 Arguments:
 
-- delete: glob to select files or directory to delete.
-- dir: the root directory for glob (as a string, optional).
-- exclude: globs of files to exclude (as a string or list of strings,
-  optional).
+- delete: glob of files or directories to delete (strings, file, wrap).
+- dir: root directory for globs (string, optional, file).
+- exclude: globs of files to exclude (strings, optional, file, wrap).
 
 Examples:
 
     # delete build directory
-    - delete: "#{BUILD_DIR}"
+    - delete: =BUILD_DIR
     # delete all XML files except 'foo.xml'
     - delete:  "**/*.xml"
       exclude: "**/foo.xml"
 
 Notes:
 
-- Handle with care, directories are deleted recursively!`,
+- Handle with care: if globs select directories, they are deleted recursively!`,
 	})
 }
 
