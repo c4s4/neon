@@ -18,12 +18,10 @@ func init() {
 
 Arguments:
 
-- chmod: the list of globs of files to change mode (as a string or list of
-  strings).
-- mode: the mode in octal form (such as '0755') as an integer.
-- dir: the root directory for glob (as a string, optional, defaults to '.').
-- exclude: globs of files to exclude (as a string or list of strings,
-  optional).
+- chmod: list of globs of files to change mode (strings, file, wrap).
+- mode: mode to change to (integer).
+- dir: the root directory for globs, defaults to '.' (string, optional, file).
+- exclude: globs of files to exclude (strings, optional, file, wrap).
 
 Examples:
 
@@ -36,6 +34,7 @@ Examples:
       exclude: "**/bar.sh"
 
 Notes:
+
 - The mode is an integer, thus must not be surrounded with quotes, or it would
   be a string and parsing of the task would fail.
 - We usually set mode with octal integers, starting with '0'. If you don't put
@@ -47,8 +46,8 @@ Notes:
 type ChmodArgs struct {
 	Chmod   []string `file wrap`
 	Mode    int
-	Dir     string   `file optional`
-	Exclude []string `optional`
+	Dir     string   `optional file`
+	Exclude []string `optional file wrap`
 }
 
 func Chmod(context *build.Context, args interface{}) error {

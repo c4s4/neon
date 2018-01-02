@@ -17,15 +17,13 @@ func init() {
 
 Arguments:
 
-- copy: the list of globs of files to copy (as a string or list of strings).
-- dir: the root directory for glob (as a string, optional).
-- exclude: globs of files to exclude (as a string or list of strings,
-  optional).
-- tofile: the file to copy to (as a string, optional, only if glob selects a
-  single file).
-- todir: directory to copy file(s) to (as a string, optional).
-- flat: tells if files should be flatten in destination directory (as a boolean,
-  optional, defaults to false).
+- copy: globs of files to copy (strings, file, wrap).
+- dir: root directory for globs, defaults to '.' (string, optional, file).
+- exclude: globs of files to exclude (strings, optional, file, wrap).
+- tofile: file to copy file to (string, optional, file).
+- todir: directory to copy files to (string, optional, file).
+- flat: tells if files should be flatten in destination directory, defaults to
+  false (boolean, optional).
 
 Examples:
 
@@ -40,7 +38,12 @@ Examples:
     # copy all go sources to directory 'src', preserving directory structure
     - copy: "**/*.go"
       todir: "src"
-      flat: false`,
+      flat: false
+
+Notes:
+
+- Parameter 'tofile' is valid if only one file was selected by globs.
+- One and only one of parameters 'tofile' and 'todir' might be set.`,
 	})
 }
 
@@ -55,7 +58,13 @@ type CopyArgs struct {
 
 func Copy(context *build.Context, args interface{}) error {
 	params := args.(CopyArgs)
-	// find source files
+	if (params.Tofile != "" && params.Todir != "") ||
+		(params.Tofile == "" && params.Todir == "") {
+		return fmt.Errorf("one and only one of parameters 'tofile' an 'todir' may be set")
+	}
+	if params.Tofile != "" || params.Todir != "" {
+		return fmt.Errorf("only one of parameters 'tofile' an 'todir' may be used")
+	}
 	sources, err := util.FindFiles(params.Dir, params.Copy, params.Exclude, false)
 	if err != nil {
 		return fmt.Errorf("getting source files for copy task: %v", err)

@@ -15,8 +15,7 @@ func init() {
 
 Arguments:
 
-- assert: the assertion to perform as a boolean or an expression returning a
-  boolean.
+- assert: the assertion to perform (boolean, expression).
 
 Examples:
 

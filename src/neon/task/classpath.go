@@ -2,7 +2,6 @@ package task
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	"neon/build"
@@ -13,6 +12,8 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -30,16 +31,18 @@ func init() {
 
 Arguments:
 
-- classpath: the name of the property to set with classpath.
-- classes: a list of class directories to add in classpath (optional).
-- jars: a glob or list of globs of jar files to add to classpath (optional).
-- dependencies: a list of dependency files to add to classpath (optional).
-- scopes: the classpath scope (optional, if set will take dependencies without
-  scope and listed scopes, if not set, will only take dependencies without
-  scope).
-- repositories: a list of repository URLs to get dependencies from (optional,
-  defaults to 'http://repo1.maven.org/maven2').
-- todir: to copy jar files to given directory (optional).
+- classpath: the property to set with classpath (string).
+- classes: class directories to add in classpath (strings, optional, file,
+  wrap).
+- jars: globs of jar files to add to classpath (strings, optional, file, wrap).
+- dependencies: dependency files to add to classpath (strings, optional, file,
+  wrap).
+- scopes: classpath scope (strings, optional, wrap). If set, will take
+  dependencies without scope and listed scopes, if not set, will only take
+  dependencies without scope).
+- repositories: repository URLs to get dependencies from, defaults to
+  'http://repo1.maven.org/maven2' (strings, optional, wrap).
+- todir: directory to copy jar files into (string, optional, file).
 
 Examples:
 
@@ -59,15 +62,15 @@ Examples:
 
 Notes:
 
-Dependency files should list dependencies as follows:
+- Dependency files should list dependencies with YAML syntax as follows:
 
     - group:    junit
       artifact: junit
       version:  4.12
       scopes:   [test]
 
-Scopes is optional. If not set, dependency will always be included. If set,
-dependency will be included for classpath with these scopes.`,
+- Scopes are optional. If not set, dependency will always be included. If set,
+  dependency will be included for classpath with these scopes.`,
 	})
 }
 
@@ -84,6 +87,14 @@ type ClasspathArgs struct {
 func Classpath(context *build.Context, args interface{}) error {
 	params := args.(ClasspathArgs)
 	// get dependencies
+	var err error
+	var jars []string
+	if len(params.Jars) > 0 {
+		jars, err = util.FindFiles("", params.Jars, []string{}, false)
+		if err != nil {
+			return fmt.Errorf("getting jars files: %v", err)
+		}
+	}
 	deps, err := getDependencies(params.Dependencies, params.Scopes, params.Repositories, context)
 	if err != nil {
 		return fmt.Errorf("getting dependencies: %v", err)
@@ -91,7 +102,7 @@ func Classpath(context *build.Context, args interface{}) error {
 	// evaluate classpath
 	var elements []string
 	elements = append(elements, params.Classes...)
-	elements = append(elements, params.Jars...)
+	elements = append(elements, jars...)
 	elements = append(elements, deps...)
 	path := strings.Join(elements, string(os.PathListSeparator))
 	context.SetProperty(params.Classpath, path)

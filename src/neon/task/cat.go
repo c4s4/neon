@@ -16,7 +16,7 @@ func init() {
 
 Arguments:
 
-- cat: the name of the file to print on console as a string.
+- cat: the name of the file to print on console (string, file).
 
 Examples:
 

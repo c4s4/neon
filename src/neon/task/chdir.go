@@ -16,7 +16,7 @@ func init() {
 
 Arguments:
 
-- chdir: the directory to change to (as a string).
+- chdir: the directory to change to (string, file).
 
 Examples:
 
@@ -35,10 +35,10 @@ type ChdirArgs struct {
 
 func Chdir(context *build.Context, args interface{}) error {
 	params := args.(ChdirArgs)
-	context.Message("Changing to directory '%s'", params.Chdir)
+	context.Message("Changing working directory to '%s'", params.Chdir)
 	err := os.Chdir(params.Chdir)
 	if err != nil {
-		return fmt.Errorf("changing to directory '%s': %s", params.Chdir, err)
+		return fmt.Errorf("changing working directory to '%s': %s", params.Chdir, err)
 	}
 	return nil
 }

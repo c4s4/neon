@@ -2,18 +2,18 @@ doc: Built file to test tasks
 default: task_chdir
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
   task_chdir:
     doc: Test task chdir
     steps:
-    - mkdir: "#{BUILD_DIR}"
+    - mkdir: '#{BUILD_DIR}'
     - |
       filepath = import("path/filepath")
       buildDir = filepath.Abs(BUILD_DIR)
-    - chdir: "#{BUILD_DIR}"
+    - chdir: '#{BUILD_DIR}'
     - |
       os = import("os")
       dir = os.Getwd()
