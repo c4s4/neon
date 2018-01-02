@@ -62,12 +62,15 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 	if typ.Kind() != reflect.Struct {
 		return fmt.Errorf("params must be a pointer on a struct")
 	}
+	var fields []string
+	// iterate on fields of the parameters types and check argument types
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
 		name := strings.ToLower(field.Name)
 		if field.Tag.Get(FIELD_NAME) != "" {
 			name = field.Tag.Get(FIELD_NAME)
 		}
+		fields = append(fields, name)
 		// check field is not missing
 		if _, ok := args[name]; !ok {
 			if !FieldIs(field, FIELD_OPTIONAL) {
@@ -97,6 +100,19 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 		if !CheckType(field, value) {
 			return fmt.Errorf("field '%s' must be of type '%s' ('%s' provided)",
 				name, field.Type, reflect.TypeOf(value))
+		}
+	}
+	// check that we don't have unknown args
+	for name := range args {
+		found := false
+		for _, n := range fields {
+			if n == name.(string) {
+				found = true
+				continue
+			}
+		}
+		if !found {
+			return fmt.Errorf("unknown parameter '%s'", name)
 		}
 	}
 	return nil
