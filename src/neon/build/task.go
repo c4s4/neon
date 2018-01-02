@@ -168,9 +168,12 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 	value := reflect.New(typ).Elem()
 	for i := 0; i < value.NumField(); i++ {
 		name := strings.ToLower(typ.Field(i).Name)
+		field := typ.Field(i)
+		if field.Tag.Get(FIELD_NAME) != "" {
+			name = field.Tag.Get(FIELD_NAME)
+		}
 		if args[name] != nil {
 			val := args[name]
-			field := typ.Field(i)
 			// evaluate expressions in context
 			if reflect.TypeOf(val).Kind() == reflect.String &&
 				(IsExpression(val.(string)) || FieldIs(field, FIELD_EXPRESSION)) {
