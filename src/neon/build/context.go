@@ -218,6 +218,10 @@ func (context *Context) EvaluateString(text string) (string, error) {
 // - evaluated structure
 // - an error if something went wrong
 func (context *Context) EvaluateObject(object interface{}) (interface{}, error) {
+	// if nil, return nil
+	if object == nil {
+		return nil, nil
+	} else
 	// we replace expressions in strings
 	if reflect.TypeOf(object).Kind() == reflect.String {
 		evaluated, err := context.EvaluateString(object.(string))

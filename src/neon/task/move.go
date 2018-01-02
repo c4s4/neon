@@ -47,7 +47,7 @@ Examples:
 
 type MoveArgs struct {
 	Move    []string `file wrap`
-	Dir     string   `file`
+	Dir     string   `optional file`
 	Exclude []string `optional file wrap`
 	Tofile  string   `optional file`
 	Todir   string   `optional file`

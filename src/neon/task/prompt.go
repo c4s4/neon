@@ -21,7 +21,7 @@ Arguments:
 
 - prompt: message to print at prompt. Should include a description of the
   expected pattern.
-- property: the name of the property to set.
+- to: the name of the property to set.
 - default: default value if user doesn't type anything. Written into square
   brackets after prompt message. Optional.
 - pattern: a regular expression for prompted value. If this pattern is not
@@ -41,11 +41,11 @@ Examples:
 }
 
 type PromptArgs struct {
-	Prompt   string
-	Property string
-	Default  string `optional`
-	Pattern  string `optional`
-	Error    string `optional`
+	Prompt  string
+	To      string
+	Default string `optional`
+	Pattern string `optional`
+	Error   string `optional`
 }
 
 func Prompt(context *build.Context, args interface{}) error {
@@ -74,7 +74,7 @@ func Prompt(context *build.Context, args interface{}) error {
 			}
 		} else {
 			done = true
-			context.SetProperty(params.Property, string(value))
+			context.SetProperty(params.To, string(value))
 		}
 	}
 	return nil
