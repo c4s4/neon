@@ -21,8 +21,10 @@ const (
 	FIELD_FILE = "file"
 	// field is an expression
 	FIELD_EXPRESSION = "expression"
-	// wrap single values in arrays if necessary
+	// field should be rapped in a slice of its type
 	FIELD_WRAP = "wrap"
+	// field is a list of steps
+	FIELD_STEPS = "steps"
 )
 
 // Map that gives constructor for given task name
@@ -51,10 +53,10 @@ type TaskFunc func(ctx *Context, args interface{}) error
 
 // Validate task arguments against task arguments definition
 // - args: task arguments parsed in build file
-// - typ: the type of the arguments
+// - typ: type of the arguments
 // Return: an error (detailing the fault) if arguments are illegal
 // NOTE: supported tags in argument types are:
-func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
+func ValidateTaskArgs(args TaskArgs, typ reflect.Type,) error {
 	if typ.Kind() != reflect.Struct {
 		return fmt.Errorf("params must be a pointer on a struct")
 	}
@@ -67,10 +69,29 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 				return fmt.Errorf("missing mandatory field '%s'", name)
 			}
 		}
+		value := args[name]
+		// parse steps fields
+		if FieldIs(field, "steps") && value != nil {
+			if !reflect.ValueOf(value).IsNil() {
+				if reflect.TypeOf(value).Kind() != reflect.Slice {
+					return fmt.Errorf("field '%s' must be a list of steps", name)
+				}
+				len := reflect.ValueOf(value).Len()
+				steps := make([]Step, len)
+				for i := 0; i < len; i++ {
+					step, err := NewStep(reflect.ValueOf(value).Index(i).Interface())
+					if err != nil {
+						return err
+					}
+					steps[i] = step
+				}
+				args[name] = steps
+			}
+		}
 		// check field type
-		if !CheckType(field, args[name]) {
+		if !CheckType(field, value) {
 			return fmt.Errorf("field '%s' must be of type '%s' ('%s' provided)",
-				name, field.Type, reflect.TypeOf(args[name]))
+				name, field.Type, reflect.TypeOf(value))
 		}
 	}
 	return nil
@@ -88,15 +109,20 @@ func CheckType(field reflect.StructField, value interface{}) bool {
 	}
 	// if argument is an expression it's OK whatever the type
 	if valueType.Kind() == reflect.String &&
-		IsExpression(value.(string)) &&
-		FieldIs(field, FIELD_EXPRESSION) {
+		(IsExpression(value.(string)) ||
+		FieldIs(field, FIELD_EXPRESSION)) {
 			return true
 	}
-	// if type of field is slic of the type of the argument and wrap, it's OK
+	// if type of field is slice of the type of the argument and wrap, it's OK
 	if field.Type.Kind() == reflect.Slice &&
 		reflect.SliceOf(valueType) == field.Type &&
 		FieldIs(field, FIELD_WRAP) {
 			return true
+	}
+	// if type is slice and argument is steps, it's OK
+	if field.Type.Kind() == reflect.Slice &&
+		FieldIs(field, FIELD_STEPS) {
+		return true
 	}
 	// check that value is of given type
 	return IsValueOfType(value, field.Type)

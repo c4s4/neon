@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"sort"
+	"reflect"
 )
 
 // A step has a Run() method
@@ -12,14 +13,14 @@ type Step interface {
 }
 
 // Make a step inside given target
-func NewStep(target *Target, step interface{}) (Step, error) {
+func NewStep(step interface{}) (Step, error) {
 	switch step := step.(type) {
 	case string:
-		return NewScriptStep(target, step)
+		return NewScriptStep(step)
 	case map[interface{}]interface{}:
 		return NewTaskStep(step)
 	default:
-		return nil, fmt.Errorf("a step must be a string or a map")
+		return nil, fmt.Errorf("a step must be a string or a map (%v provided)", reflect.TypeOf(step))
 	}
 }
 
@@ -29,7 +30,7 @@ type ScriptStep struct {
 }
 
 // Make a script step
-func NewScriptStep(target *Target, script string) (Step, error) {
+func NewScriptStep(script string) (Step, error) {
 	step := ScriptStep{
 		Script: script,
 	}

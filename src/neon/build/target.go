@@ -70,7 +70,7 @@ func ParseTargetSteps(object util.Object, target *Target) error {
 		}
 		var steps []Step
 		for index, object := range list {
-			step, err := NewStep(target, object)
+			step, err := NewStep(object)
 			if err != nil {
 				return fmt.Errorf("in step %d: %v", index+1, err)
 			}
