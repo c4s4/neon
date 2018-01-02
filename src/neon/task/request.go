@@ -23,22 +23,27 @@ func init() {
 
 Arguments:
 
-- request: the URL to request.
-- method: the request method (GET, POST, etc), defaults to "GET".
-- headers: request headers as an anko map.
-- body: the request body as a string.
-- file: the request body as a file.
-- status: expected status code, on error if different (defaults to 200).
-- username: user name for authentication.
-- password: user password for authentication.
-
-Response status code is stored in variable _status, response body is stored in
-variable _body and response headers in _headers.
+- request: URL to request (string).
+- method: request method ('GET', 'POST', etc), defaults to 'GET' (string,
+  optional).
+- headers: request headers (map with string keys and values, optional).
+- body: request body (string, optional).
+- file: request body as a file (string, optional, file).
+- username: user name for authentication (string, optional).
+- password: user password for authentication (string, optional).
+- status: expected status code, raise an error if different, defaults to 200
+  (int, optional).
 
 Examples:
 
     # get google.com
-    - request: "google.com"`,
+    - request: 'google.com'
+
+Notes:
+
+- Response status code is stored in variable _status.
+- Response body is stored in variable _body.
+- Response headers are stored in variable _headers.`,
 	})
 }
 
@@ -48,9 +53,9 @@ type RequestArgs struct {
 	Headers  map[string]string `optional`
 	Body     string            `optional`
 	File     string            `optional file`
-	Status   int               `optional`
 	Username string            `optional`
 	Password string            `optional`
+	Status   int               `optional`
 }
 
 func Request(context *build.Context, args interface{}) error {
@@ -71,7 +76,7 @@ func Request(context *build.Context, args interface{}) error {
 			return err
 		}
 	}
-	request, err := http.NewRequest(params.Method, params.Request, bytes.NewBuffer([]byte(body)))
+	request, err := http.NewRequest(method, params.Request, bytes.NewBuffer([]byte(body)))
 	if err != nil {
 		return fmt.Errorf("building request: %v", err)
 	}
@@ -94,8 +99,8 @@ func Request(context *build.Context, args interface{}) error {
 		return fmt.Errorf("reading response body: %v", err)
 	}
 	context.SetProperty("_body", string(responseBody))
-	if response.StatusCode != params.Status {
-		return fmt.Errorf("bad response status: %s", response.StatusCode)
+	if response.StatusCode != status {
+		return fmt.Errorf("bad response status: %d", response.StatusCode)
 	}
 	return nil
 }

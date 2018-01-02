@@ -1,0 +1,20 @@
+doc: Built file to test tasks
+default: pass
+
+properties:
+  BUILD_DIR: '../../build'
+
+targets:
+
+  pass:
+    doc: Default target that does nothing
+    steps:
+    - print: 'Request test skipped'
+
+  task_request:
+    doc: Test task request
+    steps:
+    # get Google home page and store it in a file
+    - mkdir: '={BUILD_DIR}/request'
+    - request: 'http://google.com'
+    - print: '={_body[0:77]+"..."}'
