@@ -32,7 +32,7 @@ Examples:
 type IfArgs struct {
 	If   bool         `expression`
 	Then []build.Step `steps`
-	Else []build.Step `steps`
+	Else []build.Step `optional steps`
 }
 
 func If(context *build.Context, args interface{}) error {
