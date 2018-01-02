@@ -11,11 +11,11 @@ func init() {
 		Name: "sleep",
 		Func: Sleep,
 		Args: reflect.TypeOf(SleepArgs{}),
-		Help: `Sleep a given number of seconds.
+		Help: `Sleep given number of seconds.
 		
 Arguments:
 
-- sleep: the duration to sleep in seconds as a float.
+- sleep: duration to sleep in seconds (float).
 
 Examples:
 
