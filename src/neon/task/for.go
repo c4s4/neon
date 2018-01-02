@@ -14,9 +14,10 @@ func init() {
 
 Arguments:
 
-- for: the name of the variable to set at each loop iteration.
-- in: the list of values or expression that generates this list.
-- do: the block of steps to execute at each loop iteration.
+- for: variable name to set at each loop iteration (string).
+- in: values or expression to generate values to iterate on (list or
+  expression).
+- do: steps to execute at each loop iteration (steps).
 
 Examples:
 
@@ -24,12 +25,12 @@ Examples:
     - for: file
       in:  ["foo", "bar"]
       do:
-    - touch: "#{file}"
+    - touch: =file
     # print first 10 integers
     - for: i
       in: range(10)
       do:
-      - print: "#{i}"`,
+      - print: '={i}'`,
 	})
 }
 

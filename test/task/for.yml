@@ -2,18 +2,18 @@ doc: Built file to test tasks
 default: task_for
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
   task_for:
-    doc: Test doc task
+    doc: Test for task
     steps:
     - 'sum = 0'
     - for: i
       in: [1, 2, 3]
       do:
-      - 'sum = sum + i'
+      - 'sum += i'
     - |
       if sum != 6 {
         throw("For test failure")
