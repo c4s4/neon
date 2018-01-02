@@ -16,25 +16,27 @@ func init() {
 
 Arguments:
 
-- mkdir: directory or list of directories to create.
+- mkdir: directories to create (strings, file, wrap).
 
 Examples:
 
     # create a directory 'build'
-    - mkdir: "build"`,
+    - mkdir: 'build'`,
 	})
 }
 
 type MkdirArgs struct {
-	Mkdir string `file`
+	Mkdir []string `file wrap`
 }
 
 func Mkdir(context *build.Context, args interface{}) error {
 	params := args.(MkdirArgs)
-	context.Message("Making directory '%s'", params.Mkdir)
-	err := os.MkdirAll(params.Mkdir, DIR_FILE_MODE)
-	if err != nil {
-		return fmt.Errorf("making directory '%s': %s", params.Mkdir, err)
+	for _, dir := range params.Mkdir {
+		context.Message("Making directory '%s'", dir)
+		err := os.MkdirAll(dir, DIR_FILE_MODE)
+		if err != nil {
+			return fmt.Errorf("making directory '%s': %s", dir, err)
+		}
 	}
 	return nil
 }
