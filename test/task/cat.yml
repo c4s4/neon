@@ -2,13 +2,14 @@ doc: Built file to test tasks
 default: task_cat
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
   task_cat:
     doc: Test task cat
     steps:
-    - mkdir: "={BUILD_DIR}/cat"
-    - touch: "={BUILD_DIR}/cat/test.txt"
-    - cat: "={BUILD_DIR}/cat/test.txt"
+    - mkdir: '={BUILD_DIR}/cat'
+    - write: '={BUILD_DIR}/cat/test.txt'
+      text:  'Write test success'
+    - cat:   '={BUILD_DIR}/cat/test.txt'
