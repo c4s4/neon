@@ -19,24 +19,24 @@ func init() {
 
 Arguments:
 
-- prompt: message to print at prompt. Should include a description of the
-  expected pattern.
-- to: the name of the property to set.
-- default: default value if user doesn't type anything. Written into square
-  brackets after prompt message. Optional.
+- prompt: message to print at prompt that include a description of expected
+  pattern (string).
+- to: name of the property to set (string).
+- default: default value if user doesn't type anything, written into square
+  brackets after prompt message (string, optional).
 - pattern: a regular expression for prompted value. If this pattern is not
-  matched, this task will prompt again. Optional, if no pattern is given, any
-  value is accepted.
-- error: the error message to print when pattern is not matched.
+  matched, this task will prompt again. If no pattern is given, any value is
+  accepted (string, optional).
+- error: error message to print when pattern is not matched (string, optional).
 
 Examples:
 
-    # returns: typed message
-    - prompt:  "Enter your age"
-      to:      "age"
-      default: "18"
-      pattern: "^\d+\s$"
-      error:   "Age must be a positive integer"`,
+    # prompt for age that is a positive number
+    - prompt:  'Enter your age'
+      to:      'age'
+      default: '18'
+      pattern: '^\d+$'
+      error:   'Age must be a positive integer'`,
 	})
 }
 
