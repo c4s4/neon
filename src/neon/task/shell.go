@@ -18,16 +18,16 @@ func init() {
 
 Arguments:
 
-- $: command to run as a string or a list of strings.
-- =: name of the variable to store trimmed output into (optional, output to
-  console if not set).
+- $: command to run (string or list of strings).
+- =: name of the variable to set with command output, output to console if not
+  set (string, optional).
 
 Examples:
 
     # execute ls command and get result in 'files' variable
     - $: 'ls -al'
       =: 'files'
-    # execute command as a list of strings
+    # execute command as a list of strings and output on console
     - $: ['ls', '-al']
 
 Notes:
@@ -62,9 +62,6 @@ func Shell(context *build.Context, args interface{}) error {
 	return nil
 }
 
-// Run execute a command and return its output and an error (if command
-// returned a value different from 0). Arguments:
-// - pipe tells if we should print the output of the command on the console.
 func Run(command []string, pipe bool, context *build.Context) (string, error) {
 	if len(command) == 0 {
 		return "", fmt.Errorf("empty command")
@@ -75,8 +72,6 @@ func Run(command []string, pipe bool, context *build.Context) (string, error) {
 	}
 }
 
-// Run execute the command and returns its output and an error. Arguments:
-// - pipe tells if we should print output of the command on the console.
 func RunList(cmd []string, pipe bool, context *build.Context) (string, error) {
 	command := exec.Command(cmd[0], cmd[1:]...)
 	dir, err := os.Getwd()
@@ -106,8 +101,6 @@ func RunList(cmd []string, pipe bool, context *build.Context) (string, error) {
 	}
 }
 
-// Run execute the command and returns its output and an error. Arguments:
-// - pipe tells if we should print output of the command on the console.
 func RunString(cmd string, pipe bool, context *build.Context) (string, error) {
 	shell, err := context.Build.GetShell()
 	if err != nil {
