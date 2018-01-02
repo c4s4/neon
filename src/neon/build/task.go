@@ -219,9 +219,6 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 // - orig: origin value
 // - dest: destination value
 func CopyValue(orig, dest reflect.Value) {
-	// DEBUG
-	fmt.Printf(">>>>>>>>>> %v - %v\n", orig, dest)
-	fmt.Printf("<<<<<<<<<< %v - %v\n", orig.Type(), dest.Type())
 	// loop on slices
 	if orig.Type().Kind() == reflect.Slice && dest.Type().Kind() == reflect.Slice {
 		new := reflect.MakeSlice(dest.Type(), orig.Len(), orig.Len())
@@ -237,6 +234,11 @@ func CopyValue(orig, dest reflect.Value) {
 			new.SetMapIndex(key, orig.MapIndex(key))
 		}
 		dest.Set(new)
+	} else
+	// get value of interfaces
+	// FIXME: probably not necessary
+	if orig.Kind() == reflect.Interface {
+		CopyValue(orig.Elem(), dest)
 	} else
 	// other types
 	{
