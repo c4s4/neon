@@ -229,14 +229,22 @@ func CopyValue(orig, dest reflect.Value) {
 	} else
 	// loop on maps
 	if orig.Type().Kind() == reflect.Map && dest.Type().Kind() == reflect.Map {
-		new := reflect.MakeMap(orig.Type())
+		keyType := dest.Type().Key()
+		valType := dest.Type().Elem()
+		new := reflect.MakeMap(reflect.MapOf(keyType, valType))
 		for _, key := range orig.MapKeys() {
-			new.SetMapIndex(key, orig.MapIndex(key))
+			if key.Type().Kind() == reflect.Interface {
+				key = key.Elem()
+			}
+			val := orig.MapIndex(key)
+			if val.Type().Kind() == reflect.Interface {
+				val = val.Elem()
+			}
+			new.SetMapIndex(key, val)
 		}
 		dest.Set(new)
 	} else
 	// get value of interfaces
-	// FIXME: probably not necessary
 	if orig.Kind() == reflect.Interface {
 		CopyValue(orig.Elem(), dest)
 	} else
