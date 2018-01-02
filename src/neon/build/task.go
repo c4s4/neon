@@ -103,16 +103,18 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 		}
 	}
 	// check that we don't have unknown args
-	for name := range args {
-		found := false
-		for _, n := range fields {
-			if n == name.(string) {
-				found = true
-				continue
+	if !(typ.NumField() == 0 && len(args) == 1) {
+		for name := range args {
+			found := false
+			for _, n := range fields {
+				if n == name {
+					found = true
+					continue
+				}
 			}
-		}
-		if !found {
-			return fmt.Errorf("unknown parameter '%s'", name)
+			if !found {
+				return fmt.Errorf("unknown parameter '%s'", name)
+			}
 		}
 	}
 	return nil
