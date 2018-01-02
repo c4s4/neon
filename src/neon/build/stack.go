@@ -32,6 +32,15 @@ func (stack *Stack) Push(target string) {
 	stack.Targets = append(stack.Targets, target)
 }
 
+// Get last target on stack
+func (stack *Stack) Last() string {
+	if len(stack.Targets) == 0 {
+		return ""
+	} else {
+		return stack.Targets[len(stack.Targets)-1]
+	}
+}
+
 // Return string representation of the stack ("foo -> bar -> spam" for instance)
 func (stack *Stack) ToString() string {
 	return strings.Join(stack.Targets, " -> ")

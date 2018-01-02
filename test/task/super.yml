@@ -1,0 +1,14 @@
+doc: Built file to test tasks
+default: task_super
+
+extends: './super-parent.yml'
+
+properties:
+  BUILD_DIR: '../../build'
+
+targets:
+
+  task_super:
+    doc: Test task super
+    steps:
+    - super:

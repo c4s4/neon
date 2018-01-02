@@ -20,4 +20,7 @@ func TestStack(t *testing.T) {
 	if stack.ToString() != "foo -> bar" {
 		t.Errorf("Error ToString: %v", stack.ToString())
 	}
+	if stack.Last() != "bar" {
+		t.Errorf("Error Last: %v", stack.Last())
+	}
 }

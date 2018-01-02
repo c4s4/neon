@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"neon/build"
 	"reflect"
 )
@@ -30,14 +31,12 @@ Notes:
 type SuperArgs struct{}
 
 func Super(context *build.Context, args interface{}) error {
-	/*
-		ok, err := target.Build.RunParentTarget(target.Name, context)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return fmt.Errorf("no target '%s' found in parent build files", target.Name)
-		}
-	*/
+	ok, err := context.Build.RunParentTarget(context.Stack.Last(), context)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("no target '%s' found in parent build files", context.Stack.Last())
+	}
 	return nil
 }
