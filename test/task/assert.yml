@@ -23,6 +23,20 @@ targets:
       - throw: 'Assert test failure'
       else:
       - print: 'Assert test success'
+    # assert on true expression starting with =
+    - assert: '=1 == 1'
+    - print: 'Assert test success'
+    # assert on false expression starting with =
+    - try:
+      - 'success = false'
+      - assert: '=1 == 2'
+      catch:
+      - 'success = true'
+    - if: '!success'
+      then:
+      - throw: 'Assert test failure'
+      else:
+      - print: 'Assert test success'
     # assert on true boolean
     - assert: true
     - print: 'Assert test success'
