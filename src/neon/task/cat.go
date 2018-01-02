@@ -12,11 +12,11 @@ func init() {
 		Name: "cat",
 		Func: Cat,
 		Args: reflect.TypeOf(CatArgs{}),
-		Help: `Print the content of e given file on the console.
+		Help: `Print the content of a given file on the console.
 
 Arguments:
 
-- cat: the file to print on console as a string.
+- cat: the name of the file to print on console as a string.
 
 Examples:
 
