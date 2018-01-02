@@ -18,18 +18,16 @@ func init() {
 
 Arguments:
 
-- path: the list of globs of files to build the path (as a string or list of
-  strings).
-- to: the variable to put path into.
-- dir: the root directory for glob (as a string, optional).
-- exclude: globs of files to exclude (as a string or list of strings,
-  optional).
+- path: globs of files to build the path (strings, file, wrap).
+- to: variable to put path into (string).
+- dir: root directory for globs, defaults to '.' (string, optional, file).
+- exclude: globs of files to exclude (strings, optional, file, wrap).
 
 Examples:
 
     # build classpath with jar files in lib directory
-    - path: "lib/*.jar"
-      to: "classpath"`,
+    - path: 'lib/*.jar'
+      to:   'classpath'`,
 	})
 }
 
