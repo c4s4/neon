@@ -16,14 +16,14 @@ func init() {
 
 Arguments:
 
-- link: the source file.
-- to: the destination of the link.
+- link: source file (string, file).
+- to: destination of the link (string, file).
 
 Examples:
 
-    # create a link from file foo to bar
-    - link: "foo"
-      to: "bar"`,
+    # create a link from file 'foo' to 'bar'
+    - link: 'foo''
+      to:   'bar''`,
 	})
 }
 
