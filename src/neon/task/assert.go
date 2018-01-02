@@ -11,11 +11,12 @@ func init() {
 		Name: "assert",
 		Func: Assert,
 		Args: reflect.TypeOf(AssertArgs{}),
-		Help: `Make an assertion and fail if assertion condition is false.
+		Help: `Make an assertion and fail if assertion is false.
 
 Arguments:
 
-- assert: the assertion to perform as an expression.
+- assert: the assertion to perform as a boolean or an expression returning a
+  boolean.
 
 Examples:
 
