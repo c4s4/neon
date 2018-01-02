@@ -43,8 +43,8 @@ Notes:
 
 type TryArgs struct {
 	Try     []build.Step `steps`
-	Catch   []build.Step `steps`
-	Finally []build.Step `steps`
+	Catch   []build.Step `optional steps`
+	Finally []build.Step `optional steps`
 }
 
 
