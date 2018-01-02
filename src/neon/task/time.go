@@ -31,7 +31,7 @@ Examples:
 
 type TimeArgs struct {
 	Time []build.Step `steps`
-	To   string
+	To   string       `optional`
 }
 
 func Time(context *build.Context, args interface{}) error {
