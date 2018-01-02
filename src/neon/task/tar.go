@@ -23,23 +23,22 @@ func init() {
 
 Arguments:
 
-- tar: the list of globs of files to tar (as a string or list of strings).
-- dir: the root directory for glob (as a string, optional).
-- exclude: globs of files to exclude (as a string or list of strings,
-  optional).
-- tofile: the name of the tar file to create as a string.
-- prefix: prefix directory in the archive.
+- tar: globs of files to tar (strings, file, wrap).
+- dir: root directory for glob, defaults to '.' (string, optional, file).
+- exclude: globs of files to exclude (strings, optional, file, wrap).
+- tofile: name of the tar file to create (string, file).
+- prefix: prefix directory in the archive (optional).
 
 Examples:
 
     # tar files in build directory in file named build.tar.gz
-    - tar: "build/**/*"
-      tofile: "build.tar.gz"
+    - tar:    'build/**/*'
+      tofile: 'build.tar.gz'
 
 Notes:
 
-- If archive filename ends with gz (with a name such as foo.tar.gz or foo.tgz)
-  the tar archive is compressed with gzip.`,
+- If archive filename ends with gz (with names such as 'foo.tar.gz' or
+  'foo.tgz') the tar archive is also gzip compressed.`,
 	})
 }
 
