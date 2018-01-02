@@ -16,14 +16,14 @@ func init() {
 
 Arguments:
 
-- read: the file to read as a string.
-- to: the name of the variable to set with the content.
+- read: file to read (string, file).
+- to: name of the variable to set with its content (string).
 
 Examples:
 
-    # put content of LICENSE file on license variable
-    - read: "LICENSE"
-      to: license`,
+    # put content of LICENSE file in license variable
+    - read: 'LICENSE'
+      to:   'license'`,
 	})
 }
 
