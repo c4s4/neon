@@ -7,7 +7,7 @@ import (
 )
 
 func TestEvaluateString(t *testing.T) {
-	context := NewContext()
+	context := NewContext(nil)
 	if actual, err := context.EvaluateString(`foo`); err != nil || actual != `foo` {
 		t.Errorf("TestEvaluateString failure")
 	}
@@ -23,7 +23,6 @@ func TestEvaluateString(t *testing.T) {
 }
 
 func TestEvaluateStringWithProperties(t *testing.T) {
-	context := NewContext()
 	properties := map[string]interface{}{
 		"FOO": "foo",
 		"BAR": "bar",
@@ -33,7 +32,8 @@ func TestEvaluateStringWithProperties(t *testing.T) {
 		Here:       "here",
 		Properties: properties,
 	}
-	context.InitProperties(build)
+	context := NewContext(build)
+	context.InitProperties()
 	if actual, err := context.EvaluateString(`foo`); err != nil || actual != `foo` {
 		t.Errorf("TestEvaluateStringWithProperties failure")
 	}
@@ -49,7 +49,6 @@ func TestEvaluateStringWithProperties(t *testing.T) {
 }
 
 func TestEvaluateSliceWithProperties(t *testing.T) {
-	context := NewContext()
 	properties := map[string]interface{}{
 		"FOO": "foo",
 		"BAR": "bar",
@@ -59,7 +58,8 @@ func TestEvaluateSliceWithProperties(t *testing.T) {
 		Here:       "here",
 		Properties: properties,
 	}
-	context.InitProperties(build)
+	context := NewContext(build)
+	context.InitProperties()
 	actual, err := context.EvaluateObject([]string{`={FOO} BAR`, `FOO ={BAR}`})
 	if err != nil {
 		t.Fail()
@@ -80,7 +80,6 @@ func TestEvaluateSliceWithProperties(t *testing.T) {
 }
 
 func TestEvaluateMapWithProperties(t *testing.T) {
-	context := NewContext()
 	properties := map[string]interface{}{
 		"FOO": "foo",
 		"BAR": "bar",
@@ -90,7 +89,8 @@ func TestEvaluateMapWithProperties(t *testing.T) {
 		Here:       "here",
 		Properties: properties,
 	}
-	context.InitProperties(build)
+	context := NewContext(build)
+	context.InitProperties()
 	actual, err := context.EvaluateObject(map[string]string{"={FOO}": "BAR", "FOO": "={BAR}"})
 	if err != nil {
 		t.Fail()
@@ -111,7 +111,7 @@ func TestEvaluateMapWithProperties(t *testing.T) {
 }
 
 func TestGetSetProperty(t *testing.T) {
-	context := NewContext()
+	context := NewContext(nil)
 	context.SetProperty("foo", "bar")
 	if p, err := context.GetProperty("foo"); p != "bar" || err != nil {
 		t.Fail()
@@ -119,7 +119,7 @@ func TestGetSetProperty(t *testing.T) {
 }
 
 func TestEvaluateExpression(t *testing.T) {
-	context := NewContext()
+	context := NewContext(nil)
 	_, err := context.EvaluateExpression(`foo = "BAR"`)
 	if err != nil {
 		t.Fail()
@@ -134,14 +134,14 @@ func TestEvaluateExpression(t *testing.T) {
 }
 
 func TestEvaluateEnvironmentSimple(t *testing.T) {
-	context := NewContext()
 	build := &Build{
 		Dir: "dir",
 		Environment: map[string]string{
 			"FOO": "BAR",
 		},
 	}
-	env, err := context.EvaluateEnvironment(build)
+	context := NewContext(build)
+	env, err := context.EvaluateEnvironment()
 	if err != nil {
 		t.Errorf("Error getting environment: %v", err)
 	}
@@ -154,14 +154,14 @@ func TestEvaluateEnvironmentSimple(t *testing.T) {
 }
 
 func TestEvaluateEnvironmentComplex(t *testing.T) {
-	context := NewContext()
 	build := &Build{
 		Dir: "dir",
 		Environment: map[string]string{
 			"FOO": "BAR:${HOME}",
 		},
 	}
-	env, err := context.EvaluateEnvironment(build)
+	context := NewContext(build)
+	env, err := context.EvaluateEnvironment()
 	if err != nil {
 		t.Errorf("Error getting environment: %v", err)
 	}

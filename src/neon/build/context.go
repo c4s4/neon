@@ -2,9 +2,6 @@ package build
 
 import (
 	"fmt"
-	anko_core "github.com/c4s4/anko/builtins"
-	"github.com/c4s4/anko/parser"
-	"github.com/c4s4/anko/vm"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -12,6 +9,10 @@ import (
 	"runtime"
 	"sort"
 	"strings"
+
+	anko_core "github.com/c4s4/anko/builtins"
+	"github.com/c4s4/anko/parser"
+	"github.com/c4s4/anko/vm"
 )
 
 const (
@@ -33,22 +34,25 @@ var (
 
 // Context is the context of the build
 // - VM: Anko VM that holds build properties
+// - Build: the current build
 // - Index: tracks steps index while running build
 // - Stack: tracks targets calls
 type Context struct {
 	VM    *vm.Env
+	Build *Build
 	Index *Index
 	Stack *Stack
 }
 
 // NewContext make a new build context
 // Return: a pointer to the context
-func NewContext() *Context {
+func NewContext(build *Build) *Context {
 	v := vm.NewEnv()
 	anko_core.LoadAllBuiltins(v)
 	LoadBuiltins(v)
 	context := &Context{
 		VM:    v,
+		Build: build,
 		Index: NewIndex(),
 		Stack: NewStack(),
 	}
@@ -72,14 +76,13 @@ func (context *Context) NewThreadContext(thread int, input interface{}, output i
 }
 
 // Init initializes context with build
-// - build: the build
 // Return: an error if something went wrong
-func (context *Context) Init(build *Build) error {
-	err := context.InitScripts(build)
+func (context *Context) Init() error {
+	err := context.InitScripts()
 	if err != nil {
 		return fmt.Errorf("loading scripts: %v", err)
 	}
-	err = context.InitProperties(build)
+	err = context.InitProperties()
 	if err != nil {
 		return fmt.Errorf("evaluating properties: %v", err)
 	}
@@ -87,10 +90,9 @@ func (context *Context) Init(build *Build) error {
 }
 
 // InitScript loads build scripts in context
-// - build: the build
 // Return: an error if something went wrong
-func (context *Context) InitScripts(build *Build) error {
-	for _, script := range build.Scripts {
+func (context *Context) InitScripts() error {
+	for _, script := range context.Build.Scripts {
 		source, err := ioutil.ReadFile(script)
 		if err != nil {
 			return fmt.Errorf("reading script '%s': %v", script, err)
@@ -104,20 +106,19 @@ func (context *Context) InitScripts(build *Build) error {
 }
 
 // InitProperties sets build properties
-// - build: the build
 // Return: an error if something went wrong
-func (context *Context) InitProperties(build *Build) error {
+func (context *Context) InitProperties() error {
 	context.SetProperty(PROPERTY_OS, runtime.GOOS)
 	context.SetProperty(PROPERTY_ARCH, runtime.GOARCH)
 	context.SetProperty(PROPERTY_NCPU, runtime.NumCPU())
-	context.SetProperty(PROPERTY_BASE, build.Dir)
-	context.SetProperty(PROPERTY_HERE, build.Here)
-	todo := build.Properties.Fields()
+	context.SetProperty(PROPERTY_BASE, context.Build.Dir)
+	context.SetProperty(PROPERTY_HERE, context.Build.Here)
+	todo := context.Build.Properties.Fields()
 	var crash error
 	for len(todo) > 0 {
 		var done []string
 		for _, name := range todo {
-			value := build.Properties[name]
+			value := context.Build.Properties[name]
 			eval, err := context.EvaluateObject(value)
 			if err == nil {
 				context.SetProperty(name, eval)
@@ -265,11 +266,10 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 }
 
 // EvaluateEnvironment evaluates environment variables in the context
-// - build: the build with environment to evaluate
 // Return:
 // - evaluated environment as a slice of strings
 // - an error if something went wrong
-func (context *Context) EvaluateEnvironment(build *Build) ([]string, error) {
+func (context *Context) EvaluateEnvironment() ([]string, error) {
 	environment := make(map[string]string)
 	for _, line := range os.Environ() {
 		index := strings.Index(line, ENVIRONMENT_SEP)
@@ -277,15 +277,15 @@ func (context *Context) EvaluateEnvironment(build *Build) ([]string, error) {
 		value := line[index+1:]
 		environment[name] = value
 	}
-	environment[PROPERTY_BASE] = build.Dir
-	environment[PROPERTY_HERE] = build.Here
+	environment[PROPERTY_BASE] = context.Build.Dir
+	environment[PROPERTY_HERE] = context.Build.Here
 	var variables []string
-	for name := range build.Environment {
+	for name := range context.Build.Environment {
 		variables = append(variables, name)
 	}
 	sort.Strings(variables)
 	for _, name := range variables {
-		value := build.Environment[name]
+		value := context.Build.Environment[name]
 		replaced := REGEXP_ENV.ReplaceAllStringFunc(value, func(expression string) string {
 			name := expression[2 : len(expression)-1]
 			if expression[0:1] == ENVIRONMENT_VAR {

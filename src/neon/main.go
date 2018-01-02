@@ -109,16 +109,16 @@ func main() {
 		build.PrintTargets()
 		return
 	} else if info {
-		context := _build.NewContext()
-		err = context.Init(build)
+		context := _build.NewContext(build)
+		err = context.Init()
 		PrintError(err, 4)
 		err = build.Info(context)
 		PrintError(err, 4)
 		return
 	} else {
 		os.Chdir(build.Dir)
-		context := _build.NewContext()
-		err = context.Init(build)
+		context := _build.NewContext(build)
+		err = context.Init()
 		PrintError(err, 5)
 		err = build.Run(context, targets)
 		duration := time.Now().Sub(start)
