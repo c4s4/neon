@@ -10,4 +10,4 @@ targets:
     doc: Test task sleep
     steps:
     - sleep: 0.1
-    - sleep: 1
+    - sleep: 1.0

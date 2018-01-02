@@ -15,14 +15,14 @@ func init() {
 		
 Arguments:
 
-- sleep: the duration to sleep in seconds as a float or integer.
+- sleep: the duration to sleep in seconds as a float.
 
 Examples:
 
     # sleep for 1.5 seconds
     - sleep: 1.5
-    # sleep for 3 seconds
-    - sleep: 3`,
+    # sleep for 3 seconds (3.0 as a float)
+    - sleep: 3.0`,
 	})
 }
 
