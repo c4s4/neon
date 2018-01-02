@@ -14,12 +14,12 @@ func init() {
 
 Arguments:
 
-- print: the text to print as a string.
+- print: text to print (string).
 
 Examples:
 
     # say hello
-    - print: "Hello World!"`,
+    - print: 'Hello World!'`,
 	})
 }
 
