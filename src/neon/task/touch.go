@@ -19,12 +19,12 @@ func init() {
 
 Arguments:
 
-- touch: the file or list of files to touch.
+- touch: files to touch (strings, file, wrap).
 
 Examples:
 
     # create file in build directory
-    - touch: ["#{BUILD_DIR}/foo", "#{BUILD_DIR}/bar"]
+    - touch: ['#{BUILD_DIR}/foo', '#{BUILD_DIR}/bar']
 
 Notes:
 
@@ -39,6 +39,7 @@ type TouchArgs struct {
 
 func Touch(context *build.Context, args interface{}) error {
 	params := args.(TouchArgs)
+	context.Message("Touching %d file(s)", len(params.Touch))
 	for _, file := range params.Touch {
 		if util.FileExists(file) {
 			time := time.Now()
