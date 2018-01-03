@@ -2,7 +2,7 @@ doc: Built file to test tasks
 default: task_throw
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
@@ -17,4 +17,4 @@ targets:
         then:
         - print: 'Throw task test success'
         else:
-        - throw: "Throw task test failure"
+        - throw: 'Throw task test failure'

@@ -15,17 +15,19 @@ func init() {
 
 Arguments:
 
-- throw: the message of the error.
+- throw: the message of the error (string).
 
 Examples:
 
-    # stop the build because tests don't run
-    - throw: "ERROR: tests don't run"
+    # stop the build because tests failed
+    - throw: "ERROR: tests failed"
 
 Notes:
 
-- The error message will be printed on the console as the source of the build
-  failure.`,
+- You can catch raised errors with try/catch/finally task.
+- Property _error is set with the error message.
+- If the error was not catch, the error message will be printed on the console
+  as the cause of the build failure.`,
 	})
 }
 
