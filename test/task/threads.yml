@@ -1,0 +1,21 @@
+doc: Built file to test tasks
+default: task_threads
+
+properties:
+  BUILD_DIR: '../../build'
+
+targets:
+
+  task_threads:
+    doc: Test task threads
+    steps:
+    # compute squares of 10 first integers in threads
+    - threads: =_NCPU
+      input:   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+      steps:
+      - '_output = _input * _input'
+      - print: '#{_input}^2 = #{_output}'
+    - |
+      sort = import("sort")
+      sort.Ints(_output)
+    - assert: 'toString(_output) == "[0 1 4 9 16 25 36 49 64 81]"'
