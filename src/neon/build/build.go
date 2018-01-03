@@ -2,7 +2,6 @@ package build
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"neon/util"
 	"net"
 	"os"
@@ -12,6 +11,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -104,6 +105,7 @@ func NewBuild(file string) (*Build, error) {
 	if err := ParseTargets(object, build); err != nil {
 		return nil, err
 	}
+	build.Properties = build.GetProperties()
 	build.SetDir(base)
 	return build, nil
 }
