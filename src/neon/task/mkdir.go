@@ -3,6 +3,7 @@ package task
 import (
 	"fmt"
 	"neon/build"
+	"neon/util"
 	"os"
 	"reflect"
 )
@@ -32,10 +33,12 @@ type MkdirArgs struct {
 func Mkdir(context *build.Context, args interface{}) error {
 	params := args.(MkdirArgs)
 	for _, dir := range params.Mkdir {
-		context.Message("Making directory '%s'", dir)
-		err := os.MkdirAll(dir, DIR_FILE_MODE)
-		if err != nil {
-			return fmt.Errorf("making directory '%s': %s", dir, err)
+		if !util.DirExists(dir) {
+			context.Message("Making directory '%s'", dir)
+			err := os.MkdirAll(dir, DIR_FILE_MODE)
+			if err != nil {
+				return fmt.Errorf("making directory '%s': %s", dir, err)
+			}
 		}
 	}
 	return nil
