@@ -15,17 +15,17 @@ func init() {
 
 Arguments:
 
-- time: the steps to measure execution duration.
-- to: the property to store duration in seconds as a float (optional,
-  print duration on console if not set).
+- time: steps we want to measure execution duration (steps).
+- to: property to store duration in seconds as a float, if not set, duration is
+  printed on the console (string, optional).
 
 Examples:
 
     # print duration to say hello
     - time:
-      - print: "Hello World!"
+      - print: 'Hello World!'
       to: duration
-    - print: 'duration: #{duration}s'`,
+    - print: 'duration: ={duration}s'`,
 	})
 }
 
