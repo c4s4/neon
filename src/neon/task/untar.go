@@ -21,18 +21,18 @@ func init() {
 
 Arguments:
 
-- untar: the tar file to expand.
-- todir: the destination directory.
+- untar: the tar file to expand (string, file).
+- todir: the destination directory (string, file).
 
 Examples:
 
     # untar foo.tar to build directory
-    - untar: "foo.tar"
-      todir: "build"
+    - untar: 'foo.tar'
+      todir: 'build'
 
 Notes:
 
-- If archive filename ends with gz (with a name such as foo.tar.gz or foo.tgz)
+- If archive filename ends with .gz (with a name such as foo.tar.gz or foo.tgz)
   the tar archive is uncompressed with gzip.`,
 	})
 }
@@ -52,7 +52,6 @@ func Untar(context *build.Context, args interface{}) error {
 	return nil
 }
 
-// Untar given file to a directory
 func UntarFile(file, dir string) error {
 	reader, err := os.Open(file)
 	if err != nil {
