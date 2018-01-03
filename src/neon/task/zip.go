@@ -21,18 +21,17 @@ func init() {
 
 Arguments:
 
-- zip: the list of globs of files to zip (as a string or list of strings).
-- dir: the root directory for glob (as a string, optional).
-- exclude: globs of files to exclude (as a string or list of strings,
-  optional).
-- tofile: the name of the Zip file to create as a string.
-- prefix: prefix directory in the archive.
+- zip: globs of files to zip (strings, file, wrap).
+- dir: root directory for globs, defaults to '.' (string, optional, file).
+- exclude: globs of files to exclude (strings, optional, file, wrap).
+- tofile: name of the Zip file to create (string, file).
+- prefix: prefix directory in the archive (string, optional).
 
 Examples:
 
-    # zip files in build directory in file named build.zip
-    - zip: "build/**/*"
-      tofile: "build.zip"`,
+    # zip files of build directory in file named build.zip
+    - zip:    'build/**/*'
+      tofile: 'build.zip'`,
 	})
 }
 
@@ -40,7 +39,7 @@ type ZipArgs struct {
 	Zip     []string `file wrap`
 	Dir     string   `optional file`
 	Exclude []string `optional file wrap`
-	Tofile  string   `optional file`
+	Tofile  string   `file`
 	Prefix  string   `optional`
 }
 
