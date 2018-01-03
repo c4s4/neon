@@ -19,14 +19,14 @@ func init() {
 
 Arguments:
 
-- unzip: the zip file to expand.
-- todir: the destination directory.
+- unzip: the zip file to expand (string, file).
+- todir: the destination directory (string, file).
 
 Examples:
 
     # unzip foo.zip to build directory
-    - unzip: "foo.zip"
-      todir: "build"`,
+    - unzip: 'foo.zip'
+      todir: 'build'`,
 	})
 }
 
@@ -45,7 +45,6 @@ func Unzip(context *build.Context, args interface{}) error {
 	return nil
 }
 
-// Unzip given file to a directory
 func UnzipFile(file, dir string) error {
 	reader, err := zip.OpenReader(file)
 	if err != nil {
