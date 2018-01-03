@@ -15,8 +15,8 @@ func init() {
 
 Arguments:
 
-- while: the condition that is evaluated at each loop.
-- do: steps that run while condition is true.
+- while: condition evaluated at each iteration (string).
+- do: steps that run while condition is true (steps).
 
 Examples:
 
@@ -37,11 +37,11 @@ func While(context *build.Context, args interface{}) error {
 	for {
 		result, err := context.EvaluateExpression(params.While)
 		if err != nil {
-			return fmt.Errorf("evaluating 'while' field of 'while' loop: %v", err)
+			return fmt.Errorf("evaluating 'while' expression: %v", err)
 		}
 		loop, ok := result.(bool)
 		if !ok {
-			return fmt.Errorf("evaluating 'while' condition: must return a bool")
+			return fmt.Errorf("evaluating 'while' expression: must return a bool")
 		}
 		if !loop {
 			break
