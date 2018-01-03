@@ -4,7 +4,7 @@ default: task_super
 extends: './super-parent.yml'
 
 properties:
-  BUILD_DIR: '../../build'
+  BAR: '={FOO} bar'
 
 targets:
 
