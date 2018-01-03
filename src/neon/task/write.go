@@ -12,19 +12,20 @@ func init() {
 		Name: "write",
 		Func: Write,
 		Args: reflect.TypeOf(WriteArgs{}),
-		Help: `Write text into a given file.
+		Help: `Write text into given file.
 
 Arguments:
 
-- write: the file to write into as a string.
-- text: the text to write into the file.
-- append: tells if we should append content to file (defaults to false).
+- write: file to write into (string, file).
+- text: text to write into the file (string, optional).
+- append: tells if we should append content to file, default to false (boolean,
+  optional).
 
 Examples:
 
     # write 'Hello World!' in file greetings.txt
-    - write: "greetings.txt"
-      text: "Hello World!"`,
+    - write: 'greetings.txt'
+      text:  'Hello World!'`,
 	})
 }
 
