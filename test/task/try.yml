@@ -2,7 +2,7 @@ doc: Built file to test tasks
 default: task_try
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
@@ -11,7 +11,7 @@ targets:
     steps:
     # simple try/catch: error is trapped in catch clause
     - try:
-      - throw: "Test"
+      - throw: 'Test'
       catch:
       - |
         if _error != "Test" {
@@ -21,10 +21,10 @@ targets:
         }
     # single try: execution continue, even if an error occurs
     - try:
-      - throw: "Try test failure"
+      - throw: 'Try test failure'
     # try/catch/finally: finally run whatever happens
     - try:
-      - throw: "Test"
+      - throw: 'Test'
       catch:
       - 'error = "catched"'
       finally:
