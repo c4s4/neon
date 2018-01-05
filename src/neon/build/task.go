@@ -79,11 +79,13 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 		}
 		value := args[name]
 		// parse steps fields
-		steps, err := NewSteps(value)
-		if err != nil {
-			return fmt.Errorf("parsing field '%s': %v", name, err)
+		if FieldIs(field, "steps") && value != nil {
+			steps, err := NewSteps(value)
+			if err != nil {
+				return fmt.Errorf("parsing field '%s': %v", name, err)
+			}
+			args[name] = steps
 		}
-		args[name] = steps
 		// check field type
 		if !CheckType(field, value) {
 			return fmt.Errorf("field '%s' must be of type '%s' ('%s' provided)",

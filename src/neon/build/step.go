@@ -91,17 +91,17 @@ func (step TaskStep) Run(context *Context) error {
 // Steps is a list of steps
 type Steps []Step
 
-func NewSteps(value interface{}) (Steps, error) {
-	if value == nil || reflect.ValueOf(value).IsNil() {
+func NewSteps(object interface{}) (Steps, error) {
+	if reflect.ValueOf(object).IsNil() {
 		return []Step{}, nil
 	}
-	if reflect.TypeOf(value).Kind() != reflect.Slice {
+	if reflect.TypeOf(object).Kind() != reflect.Slice {
 		return nil, fmt.Errorf("steps must be a slice")
 	}
-	len := reflect.ValueOf(value).Len()
+	len := reflect.ValueOf(object).Len()
 	steps := make([]Step, len)
 	for i := 0; i < len; i++ {
-		step, err := NewStep(reflect.ValueOf(value).Index(i).Interface())
+		step, err := NewStep(reflect.ValueOf(object).Index(i).Interface())
 		if err != nil {
 			return nil, err
 		}
