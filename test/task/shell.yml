@@ -1,5 +1,5 @@
 doc: Built file to test tasks
-default: task_$
+default: [task_$, task_multi$]
 
 properties:
   BUILD_DIR: '../../build'
@@ -49,3 +49,13 @@ targets:
         } else {
           println("$ test success")
         }
+
+  task_multi$:
+    doc: Run shell commands in a loop
+    steps:
+    - for: 'i'
+      in:  'range(3)'
+      do:
+      - $: ['echo', '={i}']
+        =: 'result'
+      - assert: 'result == toString(i)'

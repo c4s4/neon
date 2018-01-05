@@ -79,23 +79,11 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 		}
 		value := args[name]
 		// parse steps fields
-		if FieldIs(field, "steps") && value != nil {
-			if !reflect.ValueOf(value).IsNil() {
-				if reflect.TypeOf(value).Kind() != reflect.Slice {
-					return fmt.Errorf("field '%s' must be a list of steps", name)
-				}
-				len := reflect.ValueOf(value).Len()
-				steps := make([]Step, len)
-				for i := 0; i < len; i++ {
-					step, err := NewStep(reflect.ValueOf(value).Index(i).Interface())
-					if err != nil {
-						return err
-					}
-					steps[i] = step
-				}
-				args[name] = steps
-			}
+		steps, err := NewSteps(value)
+		if err != nil {
+			return fmt.Errorf("parsing field '%s': %v", name, err)
 		}
+		args[name] = steps
 		// check field type
 		if !CheckType(field, value) {
 			return fmt.Errorf("field '%s' must be of type '%s' ('%s' provided)",
