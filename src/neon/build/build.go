@@ -16,13 +16,13 @@ import (
 )
 
 const (
-	// location of the repository root
+	// Local repository root directory
 	DEFAULT_REPO = "~/.neon"
-	// regexp for plugin name
+	// Regexp for a plugin name
 	RE_PLUGIN = `[\w-]+/[\w-]+`
 )
 
-// Possible fields for a build file
+// Possible root fields for a build file
 var FIELDS = []string{"doc", "default", "extends", "repository", "context",
 	"singleton", "shell", "properties", "configuration", "environment", "targets"}
 
@@ -46,6 +46,10 @@ type Build struct {
 }
 
 // Make a build from a build file
+// - file: path of the build file
+// Return:
+// - Pointer to the build
+// - error if something went wrong
 func NewBuild(file string) (*Build, error) {
 	build := &Build{}
 	path := util.ExpandUserHome(file)
@@ -110,7 +114,7 @@ func NewBuild(file string) (*Build, error) {
 	return build, nil
 }
 
-// Return the build properties, including those inherited from parents
+// Return build properties, including those inherited from parents
 func (build *Build) GetProperties() util.Object {
 	var properties = make(map[string]interface{})
 	for _, parent := range build.Parents {
