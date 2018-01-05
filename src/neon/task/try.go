@@ -42,39 +42,27 @@ Notes:
 }
 
 type TryArgs struct {
-	Try     []build.Step `steps`
-	Catch   []build.Step `optional steps`
-	Finally []build.Step `optional steps`
+	Try     build.Steps `steps`
+	Catch   build.Steps `optional steps`
+	Finally build.Steps `optional steps`
 }
 
 func Try(context *build.Context, args interface{}) error {
 	params := args.(TryArgs)
-	depth := context.Index.Len()
 	context.SetProperty("_error", "")
 	var tryError error
 	var catchError error
 	var finallyError error
-	tryError = context.Run(params.Try)
+	tryError = params.Try.Run(context)
 	if tryError != nil {
-		for context.Index.Len() > depth {
-			context.Index.Shrink()
-		}
 		if len(params.Catch) > 0 || (len(params.Catch) == 0 && len(params.Finally) == 0) {
 			context.SetProperty("_error", tryError.Error())
 			tryError = nil
-			catchError = context.Run(params.Catch)
-			if catchError != nil {
-				for context.Index.Len() > depth {
-					context.Index.Shrink()
-				}
-			}
+			catchError = params.Catch.Run(context)
 		}
 	}
-	finallyError = context.Run(params.Finally)
+	finallyError = params.Finally.Run(context)
 	if finallyError != nil {
-		for context.Index.Len() > depth {
-			context.Index.Shrink()
-		}
 		context.SetProperty("_error", finallyError.Error())
 		return finallyError
 	}

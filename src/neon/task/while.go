@@ -29,7 +29,7 @@ Examples:
 
 type WhileArgs struct {
 	While string
-	Do    []build.Step `steps`
+	Do    build.Steps `steps`
 }
 
 func While(context *build.Context, args interface{}) error {
@@ -46,7 +46,7 @@ func While(context *build.Context, args interface{}) error {
 		if !loop {
 			break
 		}
-		err = context.Run(params.Do)
+		err = params.Do.Run(context)
 		if err != nil {
 			return err
 		}

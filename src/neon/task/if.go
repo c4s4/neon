@@ -30,20 +30,20 @@ Examples:
 }
 
 type IfArgs struct {
-	If   bool         `expression`
-	Then []build.Step `steps`
-	Else []build.Step `optional steps`
+	If   bool        `expression`
+	Then build.Steps `steps`
+	Else build.Steps `optional steps`
 }
 
 func If(context *build.Context, args interface{}) error {
 	params := args.(IfArgs)
 	if params.If {
-		err := context.Run(params.Then)
+		err := params.Then.Run(context)
 		if err != nil {
 			return err
 		}
 	} else {
-		err := context.Run(params.Else)
+		err := params.Else.Run(context)
 		if err != nil {
 			return err
 		}

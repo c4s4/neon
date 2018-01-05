@@ -54,7 +54,7 @@ well.`,
 type ThreadsArgs struct {
 	Threads int
 	Input   []interface{} `optional`
-	Steps   []build.Step  `steps`
+	Steps   build.Steps   `steps`
 	Verbose bool          `optional`
 }
 
@@ -102,7 +102,7 @@ func Threads(context *build.Context, args interface{}) error {
 	}
 }
 
-func RunThread(steps []build.Step, ctx *build.Context, index int, input chan interface{}, output chan interface{},
+func RunThread(steps build.Steps, ctx *build.Context, index int, input chan interface{}, output chan interface{},
 	wg *sync.WaitGroup, errors chan error, verbose bool) {
 	if verbose {
 		ctx.Message("Thread %d started", index)
@@ -117,7 +117,7 @@ func RunThread(steps []build.Step, ctx *build.Context, index int, input chan int
 				if verbose {
 					threadContext.Message("Thread %d iteration with input '%v'", index, arg)
 				}
-				err := threadContext.Run(steps)
+				err := steps.Run(threadContext)
 				out, _ := threadContext.GetProperty("_output")
 				if err != nil {
 					errors <- err

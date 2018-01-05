@@ -40,7 +40,6 @@ var (
 type Context struct {
 	VM    *vm.Env
 	Build *Build
-	Index *Index
 	Stack *Stack
 }
 
@@ -53,7 +52,6 @@ func NewContext(build *Build) *Context {
 	context := &Context{
 		VM:    v,
 		Build: build,
-		Index: NewIndex(),
 		Stack: NewStack(),
 	}
 	return context
@@ -67,7 +65,6 @@ func NewContext(build *Build) *Context {
 func (context *Context) NewThreadContext(thread int, input interface{}, output interface{}) *Context {
 	copy := &Context{
 		VM:    context.VM.Copy(),
-		Index: context.Index.Copy(),
 		Stack: context.Stack.Copy(),
 	}
 	copy.SetProperty(PROPERTY_THREAD, thread)
@@ -317,21 +314,6 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 		lines = append(lines, line)
 	}
 	return lines, nil
-}
-
-// RunSteps runs a list of steps in context
-// Return: an error if something went wrong
-func (context *Context) Run(steps []Step) error {
-	context.Index.Expand()
-	for index, step := range steps {
-		context.Index.Set(index)
-		err := step.Run(context)
-		if err != nil {
-			return err
-		}
-	}
-	context.Index.Shrink()
-	return nil
 }
 
 // Message print a message on the console

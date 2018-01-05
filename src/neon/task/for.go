@@ -37,14 +37,14 @@ Examples:
 type ForArgs struct {
 	For string
 	In  []interface{} `expression`
-	Do  []build.Step  `steps`
+	Do  build.Steps   `steps`
 }
 
 func For(context *build.Context, args interface{}) error {
 	params := args.(ForArgs)
 	for _, value := range params.In {
 		context.SetProperty(params.For, value)
-		err := context.Run(params.Do)
+		err := params.Do.Run(context)
 		if err != nil {
 			return err
 		}

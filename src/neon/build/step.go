@@ -109,3 +109,16 @@ func NewSteps(object interface{}) (Steps, error) {
 	}
 	return steps, nil
 }
+
+// Run steps in context
+// - context: the context for running
+// Return: an error if something went wrong
+func (steps Steps) Run(context *Context) error {
+	for index, step := range steps {
+		err := step.Run(context)
+		if err != nil {
+			return fmt.Errorf("in step %d: %v", index+1, err)
+		}
+	}
+	return nil
+}
