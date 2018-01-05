@@ -49,8 +49,6 @@ type ShellArgs struct {
 
 func Shell(context *build.Context, args interface{}) error {
 	params := args.(ShellArgs)
-	// DEBUG
-	fmt.Printf(">>>>>>>>>>> %v\n", params)
 	output, err := Run(params.Shell, params.To == "", context)
 	if err != nil {
 		if output != "" {
