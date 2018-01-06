@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["windowspath"] = build.BuiltinDescriptor{
-		Function: WindowsPath,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "windowspath",
+		Func: WindowsPath,
 		Help: `Convert a path to Windows format.
 
 Arguments:
@@ -23,7 +24,7 @@ Examples:
     // convert path to windows
     uppercase("/c/foo/bar")
     // returns: "c:\foo\bar"`,
-	}
+	})
 }
 
 func WindowsPath(path string) string {

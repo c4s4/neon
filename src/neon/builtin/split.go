@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["split"] = build.BuiltinDescriptor{
-		Function: Split,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "split",
+		Func: Split,
 		Help: `Split strings.
 
 Arguments:
@@ -24,7 +25,7 @@ Examples:
     // split "foo bar" with space
     split("foo bar", " ")
     // returns: ["foo"," "bar"]`,
-	}
+	})
 }
 
 func Split(str, sep string) []string {

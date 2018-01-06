@@ -7,8 +7,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["find"] = build.BuiltinDescriptor{
-		Function: Find,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "find",
+		Func: Find,
 		Help: `Find files.
 
 Arguments:
@@ -32,7 +33,7 @@ Examples:
 Notes:
 
 - Files may be filtered with filter() builtin.`,
-	}
+	})
 }
 
 func Find(dir string, patterns ...string) []string {

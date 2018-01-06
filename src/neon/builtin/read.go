@@ -7,8 +7,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["read"] = build.BuiltinDescriptor{
-		Function: Read,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "read",
+		Func: Read,
 		Help: `Read given file and return its content as a string.
 
 Arguments:
@@ -24,7 +25,7 @@ Examples:
     // read VERSION file and set variable version with ots content
     read("VERSION")
     // returns: the contents of "VERSION" file`,
-	}
+	})
 }
 
 func Read(file string) string {

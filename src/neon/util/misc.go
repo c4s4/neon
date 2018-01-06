@@ -8,7 +8,11 @@ import (
 	"unicode/utf8"
 )
 
-// ToString returns a string from an interface
+// ToString returns a string from an interface:
+// - object: the string as an interface
+// Return:
+// - converted string
+// - an error if something went wrong
 func ToString(object interface{}) (string, error) {
 	str := reflect.ValueOf(object)
 	if str.Kind() == reflect.Interface {
@@ -21,21 +25,11 @@ func ToString(object interface{}) (string, error) {
 	}
 }
 
-// Return interface as a list of interfaces
-func ToList(object interface{}) ([]interface{}, error) {
-	slice := reflect.ValueOf(object)
-	if slice.Kind() == reflect.Slice {
-		result := make([]interface{}, slice.Len())
-		for i := 0; i < slice.Len(); i++ {
-			result[i] = slice.Index(i).Interface()
-		}
-		return result, nil
-	} else {
-		return nil, fmt.Errorf("must be a list")
-	}
-}
-
-// ToSliceString return interface as a slice of strings.
+// ToSliceString return interface as a slice of strings:
+// - object: the slice of strings as an interface
+// Return:
+// - converted slice of strings
+// - an error if something went wrong
 func ToSliceString(object interface{}) ([]string, error) {
 	slice := reflect.ValueOf(object)
 	if slice.Kind() == reflect.Slice {
@@ -53,7 +47,11 @@ func ToSliceString(object interface{}) ([]string, error) {
 	}
 }
 
-// Return interface as a map with string keys and values
+// ToMapStringString return interface as a map with string keys and values:
+// - object: the maps of strings as an interface
+// Return:
+// - converted map of strings
+// - an error if something went wrong
 func ToMapStringString(object interface{}) (map[string]string, error) {
 	value := reflect.ValueOf(object)
 	if value.Kind() != reflect.Map {
@@ -74,8 +72,12 @@ func ToMapStringString(object interface{}) (map[string]string, error) {
 	return result, nil
 }
 
-// ToMapStringInterface return interface as a map with string keys and interface
-// values.
+// ToMapStringInterface return interface as a map with string keys and
+// interface values:
+// - object: the maps of interfaces as an interface
+// Return:
+// - converted map of interfaces
+// - an error if something went wrong
 func ToMapStringInterface(object interface{}) (map[string]interface{}, error) {
 	value := reflect.ValueOf(object)
 	if value.Kind() != reflect.Map {
@@ -93,22 +95,23 @@ func ToMapStringInterface(object interface{}) (map[string]interface{}, error) {
 	return result, nil
 }
 
-// IsMap tells if given object is a map
+// IsMap tells if given object is a map:
+// - object: object to examine
+// Return: a boolean that tells if object is a map
 func IsMap(object interface{}) bool {
 	return reflect.ValueOf(object).Kind() == reflect.Map
 }
 
-// IsString tells if given object is a string
-func IsString(object interface{}) bool {
-	return reflect.ValueOf(object).Kind() == reflect.String
-}
-
-// IsSlice tells if given object is a slice.
+// IsSlice tells if given object is a slice:
+// - object: object to examine
+// Return: a boolean that tells if object is a slice
 func IsSlice(object interface{}) bool {
 	return reflect.ValueOf(object).Kind() == reflect.Slice
 }
 
-// Return the maximum length of given lines
+// Return the maximum length of given lines:
+// - lines: lines to examine
+// Return: maximum length of lines as an integer
 func MaxLineLength(lines []string) int {
 	length := 0
 	for _, line := range lines {
@@ -120,11 +123,14 @@ func MaxLineLength(lines []string) int {
 }
 
 // Tells if we are running on windows
+// Return: a boolean that tells if we are running on windows
 func Windows() bool {
 	return runtime.GOOS == "windows"
 }
 
-// RemoveBlankLines removes blank lines of given string.
+// RemoveBlankLines removes blank lines of given string:
+// - text: to text to process
+// Return: a string without blank lines
 func RemoveBlankLines(text string) string {
 	regex := regexp.MustCompile("(\n\\s*)+\n")
 	return regex.ReplaceAllString(text, "\n")

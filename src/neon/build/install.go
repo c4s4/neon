@@ -9,10 +9,15 @@ import (
 	"strings"
 )
 
-// Install given plugin
+const (
+	PLUGIN_SITE = "github.com"
+)
+
+// InstallPlugin installs given plugin in repository:
 // - plugin: the plugin name such as c4s4/build. First part us Github user name
 //   and second is repository name for the plugin.
 // - repository: plugin repository, defaults to ~/.neon.
+// Return: an error if something went wrong downloading plugin.
 func InstallPlugin(plugin, repository string) error {
 	re := regexp.MustCompile(`^` + RE_PLUGIN + `$`)
 	if !re.MatchString(plugin) {
@@ -24,7 +29,7 @@ func InstallPlugin(plugin, repository string) error {
 		return nil
 	}
 	absolute := util.ExpandUserHome(path)
-	repo := "git://github.com/" + plugin + ".git"
+	repo := "git://" + PLUGIN_SITE + "/" + plugin + ".git"
 	command := exec.Command("git", "clone", repo, absolute)
 	Message("Running command '%s'...", strings.Join(command.Args, " "))
 	output, err := command.CombinedOutput()

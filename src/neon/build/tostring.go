@@ -8,8 +8,12 @@ import (
 	"strings"
 )
 
-// Return a string representation of a given property. Quotes tells if
-// we want quotes around strings.
+// PropertyToString returns a string representation of given property:
+// - object: the body of the property as an interface
+// - quotes: tells if we want quotes around strings
+// Return:
+// - string representation of the property
+// - an error if something went wrong
 func PropertyToString(object interface{}, quotes bool) (string, error) {
 	switch value := object.(type) {
 	case bool:

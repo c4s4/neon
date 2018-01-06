@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["throw"] = build.BuiltinDescriptor{
-		Function: Throw,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "throw",
+		Func: Throw,
 		Help: `Throw an error that will cause script failure.
 
 Arguments:
@@ -23,7 +24,7 @@ Examples:
     // stop the script with an error message
     throw("Some tests failed")
     // returns: nothing, the script is interrupted on error`,
-	}
+	})
 }
 
 func Throw(message string) error {

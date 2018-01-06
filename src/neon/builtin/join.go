@@ -7,8 +7,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["join"] = build.BuiltinDescriptor{
-		Function: Join,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "join",
+		Func: Join,
 		Help: `Join strings.
 
 Arguments:
@@ -25,7 +26,7 @@ Examples:
     // join "foo" and "bar" with a space
     join(["foo", "bar"], " ")
     // returns: "foo bar"`,
-	}
+	})
 }
 
 func Join(elements interface{}, separator string) string {

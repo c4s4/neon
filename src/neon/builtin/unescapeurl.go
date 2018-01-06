@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["unescapeurl"] = build.BuiltinDescriptor{
-		Function: UnescapeUrl,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "unescapeurl",
+		Func: UnescapeUrl,
 		Help: `Unescape given URL.
 
 Arguments:
@@ -23,7 +24,7 @@ Examples:
     // unescape given URL
     escapeurl("foo%20bar")
     // returns: "foo bar"`,
-	}
+	})
 }
 
 func UnescapeUrl(path string) string {

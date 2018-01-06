@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["filter"] = build.BuiltinDescriptor{
-		Function: Filter,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "filter",
+		Func: Filter,
 		Help: `Filter a list of files with excludes.
 
 Arguments:
@@ -29,7 +30,7 @@ Examples:
 Notes:
 
 - Works great with find() builtin.`,
-	}
+	})
 }
 
 func Filter(includes []string, excludes ...string) []string {

@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["list"] = build.BuiltinDescriptor{
-		Function: List,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "list",
+		Func: List,
 		Help: `Return a list:
 - If the object is already a list, return the object.
 - If the object is not a list, wrap it into a list.
@@ -25,7 +26,7 @@ Examples:
     // get a list of foo
     list(foo)
 	// return foo if already a list or [foo] otherwise`,
-	}
+	})
 }
 
 func List(object interface{}) []interface{} {

@@ -7,8 +7,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["winexe"] = build.BuiltinDescriptor{
-		Function: Winexe,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "winexe",
+		Func: Winexe,
 		Help: `Add '.exe' or '.bat' extensions depending on platform:
 - command will stay command on Unix and will become command.exe on Windows.
 - script.sh will stay script.sh on Unix and will become script.bat on Windows.
@@ -30,7 +31,7 @@ Examples:
     // run script script.sh unix and windows
     run(winexe("script.sh"))
     // will run script.sh on unix and script.bat on windows`,
-	}
+	})
 }
 
 func Winexe(command string) string {

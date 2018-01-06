@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["now"] = build.BuiltinDescriptor{
-		Function: Now,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "now",
+		Func: Now,
 		Help: `Return current date and time in ISO format.
 
 Arguments:
@@ -26,7 +27,7 @@ Examples:
     // to get date in ISO format
     now()[0:10]
     // returns: "2006-01-02"`,
-	}
+	})
 }
 
 func Now() string {

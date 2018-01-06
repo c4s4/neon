@@ -7,8 +7,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["run"] = build.BuiltinDescriptor{
-		Function: Run,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "run",
+		Func: Run,
 		Help: `Run given command and return output.
 
 Arguments:
@@ -26,7 +27,7 @@ Examples:
     // zip files of foo directory in bar.zip file
     run("zip", "-r", "bar.zip", "foo")
     // returns: the trimed output of the command`,
-	}
+	})
 }
 
 func Run(command string, params ...string) string {

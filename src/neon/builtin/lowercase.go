@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["lowercase"] = build.BuiltinDescriptor{
-		Function: Lowercase,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "lowercase",
+		Func: Lowercase,
 		Help: `Put a string in lower case.
 
 Arguments:
@@ -23,7 +24,7 @@ Examples:
     // set string in lower case
     lowercase("FooBAR")
     // returns: "foobar"`,
-	}
+	})
 }
 
 func Lowercase(message string) string {

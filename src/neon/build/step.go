@@ -12,7 +12,11 @@ type Step interface {
 	Run(context *Context) error
 }
 
-// Make a step inside given target
+// NewStep makes a new step
+// - step: body of the step as an interface
+// Return:
+// - built step
+// - error if something went wrong
 func NewStep(step interface{}) (Step, error) {
 	switch step := step.(type) {
 	case string:
@@ -24,12 +28,15 @@ func NewStep(step interface{}) (Step, error) {
 	}
 }
 
-// A script step
+// A script step is made of a string
 type ScriptStep struct {
 	Script string
 }
 
-// Make a script step
+// NewScriptStep makes a new script step
+// - script: the script as a string
+// - built step
+// - error if something went wrong
 func NewScriptStep(script string) (Step, error) {
 	step := ScriptStep{
 		Script: script,
@@ -38,6 +45,8 @@ func NewScriptStep(script string) (Step, error) {
 }
 
 // Run a script step using Anko VM.
+// - context: the build context to run tha script
+// Return: an error if something went wrong
 func (step ScriptStep) Run(context *Context) error {
 	_, err := context.EvaluateExpression(step.Script)
 	if err != nil {
@@ -53,6 +62,10 @@ type TaskStep struct {
 }
 
 // Make a task step
+// - args: task args
+// Return:
+// - built step
+// - error if something went wrong
 func NewTaskStep(args TaskArgs) (Step, error) {
 	// find the task in the map
 	for name, desc := range TaskMap {
@@ -80,6 +93,8 @@ func NewTaskStep(args TaskArgs) (Step, error) {
 }
 
 // Run a task step, calling the function for the step
+// - context: build context
+// Return: an error if something went wrong
 func (step TaskStep) Run(context *Context) error {
 	params, err := EvaluateTaskArgs(step.Args, step.Desc.Args, context)
 	if err != nil {
@@ -91,6 +106,11 @@ func (step TaskStep) Run(context *Context) error {
 // Steps is a list of steps
 type Steps []Step
 
+// NewSteps makes a new steps
+// - object: body of the steps as an interface
+// Return:
+// - steps
+// - an error if something went wrong
 func NewSteps(object interface{}) (Steps, error) {
 	if reflect.ValueOf(object).IsNil() {
 		return []Step{}, nil

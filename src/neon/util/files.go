@@ -17,7 +17,11 @@ const (
 	DIR_FILE_MODE = 0755
 )
 
-// Read given file and return it as a byte slice
+// ReadFile reads given file and return it as a byte slice:
+// - file: the file to read
+// Return:
+// - content as a slice of bytes
+// - an error if something went wrong
 func ReadFile(file string) ([]byte, error) {
 	path := ExpandUserHome(file)
 	bytes, err := ioutil.ReadFile(path)
@@ -27,7 +31,9 @@ func ReadFile(file string) ([]byte, error) {
 	return bytes, nil
 }
 
-// Tells if file exists
+// FileExists tells if given file exists:
+// - file: the name of the file to test
+// Return: a boolean that tells if file exists
 func FileExists(file string) bool {
 	file = ExpandUserHome(file)
 	if stat, err := os.Stat(file); err == nil && !stat.IsDir() {
@@ -37,7 +43,9 @@ func FileExists(file string) bool {
 	}
 }
 
-// Tells if directory exists
+// DirExists tells if directory exists:
+// - dir: directory to test
+// Return: a boolean that tells if directory exists
 func DirExists(dir string) bool {
 	dir = ExpandUserHome(dir)
 	if stat, err := os.Stat(dir); err == nil && stat.IsDir() {
@@ -47,7 +55,10 @@ func DirExists(dir string) bool {
 	}
 }
 
-// Copy source file to destination, preserving mode
+// CopyFile copies source file to destination, preserving mode:
+// - source: the source file
+// - dest: the destination file
+// Return: error if something went wrong
 func CopyFile(source, dest string) error {
 	source = ExpandUserHome(source)
 	dest = ExpandUserHome(dest)
@@ -82,16 +93,17 @@ func CopyFile(source, dest string) error {
 	return nil
 }
 
-// Copy files in root directory to destination directory. If flatten, all files
-// are copied in destination directory, even if in source subdirectories
+// CopyFilesToDir copies files in root directory to destination directory:
+// - dir: root directory
+// - files: globs of source files
+// - toDir: destination directory
+// - flatten: tells if files should be flatten in destination directory
+// Return: an error if something went wrong
 func CopyFilesToDir(dir string, files []string, toDir string, flatten bool) error {
-	dir = ExpandUserHome(dir)
-	toDir = ExpandUserHome(toDir)
 	if stat, err := os.Stat(toDir); err != nil || !stat.IsDir() {
 		return fmt.Errorf("destination directory doesn't exist")
 	}
 	for _, file := range files {
-		file = ExpandUserHome(file)
 		source := filepath.Join(dir, file)
 		var dest string
 		if flatten {
@@ -115,8 +127,12 @@ func CopyFilesToDir(dir string, files []string, toDir string, flatten bool) erro
 	return nil
 }
 
-// Move files in source directory to destination. If flatten is set to true, all
-// files are moved in the root of destination directory.
+// MoveFileToDir moves files in source directory to destination:
+// - dir: root directory of source files
+// - files: globs of files to move
+// - toDir: destination directory
+// - flatten: tells if files should be flatten in destination directory
+// Return: an error if something went wrong
 func MoveFilesToDir(dir string, files []string, toDir string, flatten bool) error {
 	dir = ExpandUserHome(dir)
 	toDir = ExpandUserHome(toDir)
@@ -148,7 +164,9 @@ func MoveFilesToDir(dir string, files []string, toDir string, flatten bool) erro
 	return nil
 }
 
-// Expand user home is path starts with "~/"
+// ExpandUserHome expand path starting with "~/":
+// - path: the path to expand
+// Return: expanded path
 func ExpandUserHome(path string) string {
 	if strings.HasPrefix(path, "~/") {
 		user, _ := user.Current()
@@ -158,7 +176,11 @@ func ExpandUserHome(path string) string {
 	return path
 }
 
-// Expand user home in path and join it to root path if relative
+// ExpandAndJoinToRoot expand path starting with "~/" or append to root if
+// relative:
+// - root: root path to ajoin to if relative
+// - path: the path to expand
+// Return: expanded path
 func ExpandAndJoinToRoot(root, path string) string {
 	path = ExpandUserHome(path)
 	if filepath.IsAbs(path) {
@@ -168,7 +190,9 @@ func ExpandAndJoinToRoot(root, path string) string {
 	}
 }
 
-// Turn a path to Unix format
+// PathToUnix turns a path to Unix format (with "/"):
+// - path: path to turn to unix format
+// Return: converted path
 func PathToUnix(path string) string {
 	// replace path separator \ with /
 	path = strings.Replace(path, "\\", "/", -1)
@@ -180,7 +204,9 @@ func PathToUnix(path string) string {
 	return path
 }
 
-// Turn a path to Windows format
+// PathToWindows turns a path to Windows format (with "\"):
+// - path: path to turn to windows format
+// Return: converted path
 func PathToWindows(path string) string {
 	// replace path separator / with \
 	path = strings.Replace(path, "/", "\\", -1)
@@ -206,14 +232,12 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
 	if !DirExists(dir) {
 		return nil, nil
 	}
-	dir = ExpandUserHome(dir)
 	abs, err := filepath.Abs(dir)
 	if err != nil {
 		return nil, err
 	}
 	var included []string
 	for _, include := range includes {
-		include = ExpandUserHome(include)
 		if !filepath.IsAbs(include) {
 			include = filepath.Join(abs, include)
 		}
@@ -221,7 +245,6 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
 	}
 	var excluded []string
 	for _, exclude := range excludes {
-		exclude = ExpandUserHome(exclude)
 		if !filepath.IsAbs(exclude) {
 			exclude = filepath.Join(abs, exclude)
 		}
