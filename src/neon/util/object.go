@@ -6,13 +6,17 @@ import (
 	"sort"
 )
 
-// An object is a dictionary of things
+// An object is a dictionary of interfaces
 type Object map[string]interface{}
 
-// Mak an object from something
-func NewObject(something interface{}) (Object, error) {
+// NewObject makes an object from an interface:
+// - thing: the thing to convert to an object
+// Return:
+// - converted object
+// - an error if something went wrong
+func NewObject(thing interface{}) (Object, error) {
 	err := fmt.Errorf("field must be a map with string keys")
-	value := reflect.ValueOf(something)
+	value := reflect.ValueOf(thing)
 	if value.Kind() == reflect.Map {
 		result := make(map[string]interface{})
 		for _, key := range value.MapKeys() {
@@ -28,7 +32,11 @@ func NewObject(something interface{}) (Object, error) {
 	}
 }
 
-// Get an object field as string
+// Get an object field as a string:
+// - field: name of the field to get
+// Return:
+// - string content of the field
+// - an error if something went wrong
 func (object Object) GetString(field string) (string, error) {
 	value, ok := object[field]
 	if !ok {
@@ -41,7 +49,11 @@ func (object Object) GetString(field string) (string, error) {
 	return str, nil
 }
 
-// Get an object field as boolean
+// Get an object field as a boolean:
+// - field: name of the field to get
+// Return:
+// - boolean content of the field
+// - an error if something went wrong
 func (object Object) GetBoolean(field string) (bool, error) {
 	value, ok := object[field]
 	if !ok {
@@ -54,7 +66,11 @@ func (object Object) GetBoolean(field string) (bool, error) {
 	return boolean, nil
 }
 
-// Get an object field as an integer
+// Get an object field as a integer:
+// - field: name of the field to get
+// Return:
+// - integer content of the field
+// - an error if something went wrong
 func (object Object) GetInteger(field string) (int, error) {
 	value, ok := object[field]
 	if !ok {
@@ -67,7 +83,11 @@ func (object Object) GetInteger(field string) (int, error) {
 	return integer, nil
 }
 
-// Get an object field as a list of things
+// Get an object field as a slice of interfaces:
+// - field: name of the field to get
+// Return:
+// - content of the field as a slice of interfaces
+// - an error if something went wrong
 func (object Object) GetList(field string) ([]interface{}, error) {
 	thing, ok := object[field]
 	if !ok {
@@ -85,7 +105,11 @@ func (object Object) GetList(field string) ([]interface{}, error) {
 	}
 }
 
-// Get an object field as a list of strings
+// Get an object field as a slice of strings:
+// - field: name of the field to get
+// Return:
+// - content of the field as a slice of strings
+// - an error if something went wrong
 func (object Object) GetListStrings(field string) ([]string, error) {
 	thing, ok := object[field]
 	if !ok {
@@ -108,7 +132,11 @@ func (object Object) GetListStrings(field string) ([]string, error) {
 	}
 }
 
-// Get an object field as a list of strings
+// Get an object field as a slice of strings:
+// - field: name of the field to get
+// Return:
+// - content of the field as a slice of strings
+// - an error if something went wrong
 func (object Object) GetListStringsOrString(field string) ([]string, error) {
 	thing, ok := object[field]
 	if !ok {
@@ -137,7 +165,11 @@ func (object Object) GetListStringsOrString(field string) ([]string, error) {
 	}
 }
 
-// Get an object field as an object
+// Get an object field as an object:
+// - field: name of the field to get
+// Return:
+// - content of the field as an object
+// - an error if something went wrong
 func (object Object) GetObject(field string) (Object, error) {
 	value, ok := object[field]
 	if !ok {
@@ -150,7 +182,11 @@ func (object Object) GetObject(field string) (Object, error) {
 	return object, nil
 }
 
-// Get an object field as a map string string
+// Get an object field as a map with string keys and values:
+// - field: name of the field to get
+// Return:
+// - content of the field map with string keys and values
+// - an error if something went wrong
 func (object Object) GetMapStringString(field string) (map[string]string, error) {
 	value, ok := object[field]
 	if !ok {
@@ -163,7 +199,9 @@ func (object Object) GetMapStringString(field string) (map[string]string, error)
 	return result, nil
 }
 
-// Check that object has no field whose name is not in given list
+// Check that object has no field whose name is not in given list:
+// - fields: list of fields to check
+// Return: an error if something went wrong
 func (object Object) CheckFields(fields []string) error {
 	for entry := range object {
 		found := false
@@ -201,7 +239,9 @@ func (object Object) Fields() []string {
 	return fields
 }
 
-// Tells if object has given field
+// Tells if object has given field:
+// - field: name of the field to check
+// Return: a boolean that tells if object has field
 func (object Object) HasField(field string) bool {
 	for name := range object {
 		if name == field {
@@ -211,7 +251,10 @@ func (object Object) HasField(field string) bool {
 	return false
 }
 
-// Return the object as a dictionary of strings
+// Get an object as a map with string keys and values.
+// Return:
+// - object as a map with string keys and values
+// - an error if something went wrong
 func (object Object) ToMapStringString() (map[string]string, error) {
 	mapStringString := make(map[string]string)
 	for name, value := range object {
