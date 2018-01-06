@@ -86,7 +86,7 @@ func (target *Target) Run(context *Context) error {
 	context.Stack.Push(target.Name)
 	for _, name := range target.Depends {
 		if !context.Stack.Contains(name) {
-			err := target.Build.RunTarget(name, context)
+			err := target.Build.RunTarget(context, name)
 			if err != nil {
 				return err
 			}

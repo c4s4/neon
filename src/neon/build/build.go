@@ -45,7 +45,7 @@ type Build struct {
 	Parents     []*Build
 }
 
-// Make a build from a build file
+// NewBuild makes a build from a build file
 // - file: path of the build file
 // Return:
 // - Pointer to the build
@@ -114,7 +114,9 @@ func NewBuild(file string) (*Build, error) {
 	return build, nil
 }
 
-// Return build properties, including those inherited from parents
+// GetProperties returns build properties, including those inherited from
+// parents
+// Return: build properties as an Object
 func (build *Build) GetProperties() util.Object {
 	var properties = make(map[string]interface{})
 	for _, parent := range build.Parents {
@@ -128,7 +130,9 @@ func (build *Build) GetProperties() util.Object {
 	return properties
 }
 
-// Return the build environment, including those inherited from parents
+// GetEnvironment returns the build environment, including the environment
+// inherited from parents
+// Return: environment as a map with string keys and values
 func (build *Build) GetEnvironment() map[string]string {
 	var environment = make(map[string]string)
 	for _, parent := range build.Parents {
@@ -142,7 +146,8 @@ func (build *Build) GetEnvironment() map[string]string {
 	return environment
 }
 
-// Return the build targets, including those inherited from parents
+// GetTargets returns build targets, including those inherited from parents
+// Return: targets as a map of targets with their name as keys
 func (build *Build) GetTargets() map[string]*Target {
 	var targets = make(map[string]*Target)
 	for _, parent := range build.Parents {
@@ -156,8 +161,10 @@ func (build *Build) GetTargets() map[string]*Target {
 	return targets
 }
 
-// Return target with given name. If not defined in build, return target
-// inherited from parent
+// GetTargetByName return target with given name. If not defined in build,
+// return target inherited from parent
+// - name: the target name as a string
+// Return: found target
 func (build *Build) GetTargetByName(name string) *Target {
 	target, found := build.Targets[name]
 	if found {
@@ -173,7 +180,8 @@ func (build *Build) GetTargetByName(name string) *Target {
 	return nil
 }
 
-// Set the build directory, propagating to parents
+// SetDir sets the build directory, propagating to parents
+// - dir: build directory as a string
 func (build *Build) SetDir(dir string) {
 	build.Dir = dir
 	for _, parent := range build.Parents {
@@ -181,7 +189,10 @@ func (build *Build) SetDir(dir string) {
 	}
 }
 
-// Set command line properties, that overwrite build ones
+// SetCommandLineProperties defines properties passed on command line in the
+// context. These properties overwrite those define in the build file.
+// - props: properties as a YAML map
+// Return: error if something went wrong
 func (build *Build) SetCommandLineProperties(props string) error {
 	var object util.Object
 	err := yaml.Unmarshal([]byte(props), &object)
@@ -194,8 +205,9 @@ func (build *Build) SetCommandLineProperties(props string) error {
 	return nil
 }
 
-// Return default targets. If none is defined in build, return those from
-// parents
+// GetDefault returns default targets. If none is defined in build, return
+// those from parent build files.
+// Return: default targets a slice of strings
 func (build *Build) GetDefault() []string {
 	if len(build.Default) > 0 {
 		return build.Default
@@ -215,9 +227,13 @@ func (build *Build) GetDefault() []string {
 	return build.Default
 }
 
-// Run build given targets. If no target is given, run default one.
+// Run runs given targets in a build context. If no target is given, runs
+// default one.
+// - context: the context to run into
+// - targets: targets to run as a slice of strings
+// Return: error if something went wrong
 func (build *Build) Run(context *Context, targets []string) error {
-	if err := build.Listen(context); err != nil {
+	if err := build.EnsureSingle(context); err != nil {
 		return err
 	}
 	if len(targets) == 0 {
@@ -227,7 +243,7 @@ func (build *Build) Run(context *Context, targets []string) error {
 		}
 	}
 	for _, target := range targets {
-		err := build.RunTarget(target, context)
+		err := build.RunTarget(context, target)
 		if err != nil {
 			return err
 		}
@@ -235,8 +251,11 @@ func (build *Build) Run(context *Context, targets []string) error {
 	return nil
 }
 
-// Run given target
-func (build *Build) RunTarget(name string, context *Context) error {
+// RunTarget runs given target in a build context.
+// - context: build context
+// - name: name of the target to run as a string
+// Return: an error if something went wrong
+func (build *Build) RunTarget(context *Context, name string) error {
 	target := build.GetTargetByName(name)
 	if target == nil {
 		return fmt.Errorf("target '%s' not found", name)
@@ -248,8 +267,13 @@ func (build *Build) RunTarget(name string, context *Context) error {
 	return nil
 }
 
-// Run parent target
-func (build *Build) RunParentTarget(name string, context *Context) (bool, error) {
+// RunParentTarget runs parent target with given name in a buid context.
+// - context: build context
+// - name: the name of the target to run
+// Return:
+// - boolean: that tells if parent target was found
+// - error: if something went wrong
+func (build *Build) RunParentTarget(context *Context, name string) (bool, error) {
 	for _, parent := range build.Parents {
 		target := parent.GetTargetByName(name)
 		if target != nil {
@@ -260,7 +284,7 @@ func (build *Build) RunParentTarget(name string, context *Context) (bool, error)
 			}
 			return true, nil
 		} else {
-			ok, err := parent.RunParentTarget(name, context)
+			ok, err := parent.RunParentTarget(context, name)
 			if ok || err != nil {
 				return ok, err
 			}
@@ -269,7 +293,9 @@ func (build *Build) RunParentTarget(name string, context *Context) (bool, error)
 	return false, nil
 }
 
-// Get parent build file path
+// PluginPath returns file path for plugin with given name.
+// - name: the name of the plugin (as "c4s4/build")
+// Return: the plugin path as a string
 func (build *Build) PluginPath(name string) string {
 	if path.IsAbs(name) {
 		return name
@@ -281,7 +307,9 @@ func (build *Build) PluginPath(name string) string {
 	}
 }
 
-// Get plugin name for given resource
+// PluginName returns the plugin name for given resource.
+// - name: the resource name (such as "c4s4/build/buildir.yml")
+// Return: the plugin name (such as "c4s4/build")
 func (build *Build) PluginName(name string) string {
 	re := regexp.MustCompile(`^(` + RE_PLUGIN + `)/.+$`)
 	if re.MatchString(name) {
@@ -292,6 +320,9 @@ func (build *Build) PluginName(name string) string {
 }
 
 // GetShell return shell for current os.
+// Return:
+// - shell as a slice of strings (such as ["sh", "-c"])
+// - error if something went wrong
 func (build *Build) GetShell() ([]string, error) {
 	for system, shell := range build.Shell {
 		if system != "default" && system == runtime.GOOS {
@@ -305,9 +336,12 @@ func (build *Build) GetShell() ([]string, error) {
 	return shell, nil
 }
 
-// Run a TCP server on given port to ensure that a single instance is running
-// on a machine. Fails if another instance is already running on same port.
-func (build *Build) Listen(context *Context) error {
+// EnsureSingle runs a TCP server on given port to ensure that a single
+// instance is running on a machine. Fails if another instance is already
+// running on same port.
+// - context: build context
+// Return: an error if another instance is running on same port
+func (build *Build) EnsureSingle(context *Context) error {
 	if build.Singleton == "" {
 		return nil
 	}
