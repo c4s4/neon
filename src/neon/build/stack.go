@@ -9,7 +9,8 @@ type Stack struct {
 	Targets []string
 }
 
-// Make a stack
+// NewStack makes a new stack
+// Returns: a pointer to the stack
 func NewStack() *Stack {
 	stack := Stack{
 		Targets: make([]string, 0),
@@ -17,7 +18,9 @@ func NewStack() *Stack {
 	return &stack
 }
 
-// Tells if the stack contains given target
+// Contains tells if the stack contains given target
+// - target: the name of the target
+// Returns: a boolean telling if target is in the stack
 func (stack *Stack) Contains(target string) bool {
 	for _, name := range stack.Targets {
 		if target == name {
@@ -28,11 +31,13 @@ func (stack *Stack) Contains(target string) bool {
 }
 
 // Push a target on the stack
+// - target: the name of the target to push on the stack
 func (stack *Stack) Push(target string) {
 	stack.Targets = append(stack.Targets, target)
 }
 
-// Get last target on stack
+// Last gets the last target on stack
+// Return: name of the last target on stack
 func (stack *Stack) Last() string {
 	if len(stack.Targets) == 0 {
 		return ""
@@ -41,12 +46,15 @@ func (stack *Stack) Last() string {
 	}
 }
 
-// Return string representation of the stack ("foo -> bar -> spam" for instance)
+// ToString returns string representation of the stack, such as:
+// "foo -> bar -> spam"
+// Return: the stack as a string
 func (stack *Stack) ToString() string {
 	return strings.Join(stack.Targets, " -> ")
 }
 
-// Copy return a copy of the stack
+// Copy returns a copy of the stack
+// Return: pointer to a copy of the stack
 func (stack *Stack) Copy() *Stack {
 	copy := make([]string, len(stack.Targets))
 	for i := 0; i < len(stack.Targets); i++ {

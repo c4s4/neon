@@ -7,7 +7,10 @@ import (
 	"strconv"
 )
 
-// Parse singleton field of the build
+// ParseSingleton parses singleton field of the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
 func ParseSingleton(object util.Object, build *Build) error {
 	if object.HasField("singleton") {
 		port, err := object.GetString("singleton")
@@ -23,7 +26,10 @@ func ParseSingleton(object util.Object, build *Build) error {
 	return nil
 }
 
-// Parse shell field of the build
+// ParseShell parses shell field of the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
 func ParseShell(object util.Object, build *Build) error {
 	if object.HasField("shell") {
 		field := object["shell"]
@@ -61,7 +67,10 @@ func ParseShell(object util.Object, build *Build) error {
 	return nil
 }
 
-// Parse default field of the build
+// ParseDefault parses default field of the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
 func ParseDefault(object util.Object, build *Build) error {
 	if object.HasField("default") {
 		list, err := object.GetListStringsOrString("default")
@@ -73,7 +82,10 @@ func ParseDefault(object util.Object, build *Build) error {
 	return nil
 }
 
-// Parse doc field of the build
+// ParseDoc parses doc field of the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
 func ParseDoc(object util.Object, build *Build) error {
 	if object.HasField("doc") {
 		doc, err := object.GetString("doc")
@@ -85,7 +97,10 @@ func ParseDoc(object util.Object, build *Build) error {
 	return nil
 }
 
-// Parse repository field of the build
+// ParseRepository parses repository field of the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
 func ParseRepository(object util.Object, build *Build) error {
 	build.Repository = DEFAULT_REPO
 	if object.HasField("repository") {
@@ -98,7 +113,10 @@ func ParseRepository(object util.Object, build *Build) error {
 	return nil
 }
 
-// Parse context field of the build
+// ParseContext parses context field of the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
 func ParseContext(object util.Object, build *Build) error {
 	if object.HasField("context") {
 		scripts, err := object.GetListStringsOrString("context")
@@ -110,7 +128,10 @@ func ParseContext(object util.Object, build *Build) error {
 	return nil
 }
 
-// Parse extends field of the build
+// ParseExtends parses extends field of the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
 func ParseExtends(object util.Object, build *Build) error {
 	if object.HasField("extends") {
 		extends, err := object.GetListStringsOrString("extends")
@@ -132,7 +153,10 @@ func ParseExtends(object util.Object, build *Build) error {
 	return nil
 }
 
-// Parse build properties
+// ParseProperties parses properties field of the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
 func ParseProperties(object util.Object, build *Build) error {
 	properties := make(map[string]interface{})
 	var err error
@@ -146,7 +170,10 @@ func ParseProperties(object util.Object, build *Build) error {
 	return nil
 }
 
-// Parse build configuration
+// ParseConfiguration parses configuration field of the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
 func ParseConfiguration(object util.Object, build *Build) error {
 	if object.HasField("configuration") {
 		var config util.Object
@@ -173,7 +200,10 @@ func ParseConfiguration(object util.Object, build *Build) error {
 	return nil
 }
 
-// Parse build environment
+// ParseEnvironment parses environment field of the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
 func ParseEnvironment(object util.Object, build *Build) error {
 	environment := make(map[string]string)
 	if object.HasField("environment") {
@@ -190,7 +220,10 @@ func ParseEnvironment(object util.Object, build *Build) error {
 	return nil
 }
 
-// Parse build targets
+// ParseTargets parses targets field of the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
 func ParseTargets(object util.Object, build *Build) error {
 	targets := util.Object(make(map[string]interface{}))
 	var err error

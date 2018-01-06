@@ -32,6 +32,8 @@ const (
 // Map that gives constructor for given task name
 var TaskMap = make(map[string]TaskDesc)
 
+// AddTask adds a task in the map:
+// - task: description of the task
 func AddTask(task TaskDesc) {
 	if _, ok := TaskMap[task.Name]; ok {
 		panic(fmt.Errorf("task '%s' already defined", task.Name))
@@ -57,7 +59,6 @@ type TaskFunc func(ctx *Context, args interface{}) error
 // - args: task arguments parsed in build file
 // - typ: type of the arguments
 // Return: an error (detailing the fault) if arguments are illegal
-// NOTE: supported tags in argument types are:
 func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 	if typ.Kind() != reflect.Struct {
 		return fmt.Errorf("params must be a pointer on a struct")

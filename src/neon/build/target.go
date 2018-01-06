@@ -15,7 +15,13 @@ type Target struct {
 	Steps   Steps
 }
 
-// Make a target
+// NewTarget makes a new target:
+// - build: the build of the target
+// - name: the name of the target
+// - object: the body of the target as an interface
+// Returns:
+// - a pointer to the built target
+// - an error if something went wrong
 func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 	target := &Target{
 		Build: build,
@@ -37,7 +43,10 @@ func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 	return target, nil
 }
 
-// Parse target documentation
+// ParseTargetDoc parses documentation of the target:
+// - object: body of the target as an interface
+// - target: the target to document
+// Return: an error if something went wrong
 func ParseTargetDoc(object util.Object, target *Target) error {
 	if object.HasField("doc") {
 		doc, err := object.GetString("doc")
@@ -49,7 +58,10 @@ func ParseTargetDoc(object util.Object, target *Target) error {
 	return nil
 }
 
-// Parse target dependencies
+// ParseTargetDepends parses target dependencies:
+// - object: the target body as an interface
+// - target: the target being parsed
+// Return: an error if something went wrong
 func ParseTargetDepends(object util.Object, target *Target) error {
 	if object.HasField("depends") {
 		depends, err := object.GetListStringsOrString("depends")
@@ -61,7 +73,10 @@ func ParseTargetDepends(object util.Object, target *Target) error {
 	return nil
 }
 
-// Parse target steps
+// ParseTargetSteps parses steps of a target:
+// - object: the target body as an interface
+// - target: the target being parsed
+// Return: an error if something went wrong
 func ParseTargetSteps(object util.Object, target *Target) error {
 	if object.HasField("steps") {
 		list, err := object.GetList("steps")
@@ -81,7 +96,9 @@ func ParseTargetSteps(object util.Object, target *Target) error {
 	return nil
 }
 
-// Run target
+// Run target in given context:
+// - context: the context of the build
+// Return: an error if something went wrong
 func (target *Target) Run(context *Context) error {
 	context.Stack.Push(target.Name)
 	for _, name := range target.Depends {
