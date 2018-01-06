@@ -8,7 +8,9 @@ import (
 	"unicode/utf8"
 )
 
-// Print help on build
+// Info prints information about build on console.
+// - context: context of the build
+// Return: error if something went wrong
 func (build *Build) Info(context *Context) error {
 	// print build information
 	if build.Doc != "" {
@@ -63,7 +65,7 @@ func (build *Build) Info(context *Context) error {
 			if err != nil {
 				return fmt.Errorf("formatting property '%s': %v", name, err)
 			}
-			PrintProperty(name, valueStr, []string{}, length)
+			PrintTarget(name, valueStr, []string{}, length)
 		}
 	}
 	// print build environment
@@ -78,7 +80,7 @@ func (build *Build) Info(context *Context) error {
 		Message("environment:")
 		for _, name := range names {
 			value := "\"" + build.Environment[name] + "\""
-			PrintProperty(name, value, []string{}, length)
+			PrintTarget(name, value, []string{}, length)
 		}
 	}
 	// print targets documentation
@@ -94,13 +96,18 @@ func (build *Build) Info(context *Context) error {
 		Message("targets:")
 		for _, name := range names {
 			target := targets[name]
-			PrintProperty(name, target.Doc, target.Depends, length)
+			PrintTarget(name, target.Doc, target.Depends, length)
 		}
 	}
 	return nil
 }
 
-func PrintProperty(name, doc string, depends []string, length int) {
+// PrintTarget prints target documentation on console
+// - name: the name of the target
+// - doc: the target documentation
+// - depends: targets on which this one depends
+// - length: title length to align help on targets
+func PrintTarget(name, doc string, depends []string, length int) {
 	deps := ""
 	if len(depends) > 0 {
 		deps = "[" + strings.Join(depends, ", ") + "]"
@@ -112,7 +119,7 @@ func PrintProperty(name, doc string, depends []string, length int) {
 		strings.Repeat(" ", length-utf8.RuneCountInString(name)), doc, deps)
 }
 
-// Print build targets
+// PrintTargets prints help on targets
 func (build *Build) PrintTargets() {
 	var targets []string
 	for name := range build.GetTargets() {
@@ -122,7 +129,7 @@ func (build *Build) PrintTargets() {
 	Message(strings.Join(targets, " "))
 }
 
-// Print tasks
+// PrintTasks prints the list of tasks on the console.
 func PrintTasks() {
 	var tasks []string
 	for name := range TaskMap {
@@ -132,7 +139,8 @@ func PrintTasks() {
 	Message(strings.Join(tasks, " "))
 }
 
-// Print help on tasks
+// PrintHelpTask prints help on given task.
+// - task: name of the task to document.
 func PrintHelpTask(task string) {
 	descriptor, found := TaskMap[task]
 	if found {
@@ -142,7 +150,7 @@ func PrintHelpTask(task string) {
 	}
 }
 
-// Print builtins
+// PrintBuiltins prints the list of all builtins on console
 func PrintBuiltins() {
 	var builtins []string
 	for name := range BuiltinMap {
@@ -152,7 +160,8 @@ func PrintBuiltins() {
 	Message(strings.Join(builtins, " "))
 }
 
-// Print help on builtins
+// PrintHelpBuiltin prints help on given builtin:
+// - builtin: the name of the builtin to document.
 func PrintHelpBuiltin(builtin string) {
 	descriptor, found := BuiltinMap[builtin]
 	if found {
@@ -162,7 +171,7 @@ func PrintHelpBuiltin(builtin string) {
 	}
 }
 
-// Print markdown reference for tasks and builtins
+// PrintReference prints markdown reference for tasks and builtins on console.
 func PrintReference() {
 	Message("Tasks Reference")
 	Message("===============")
