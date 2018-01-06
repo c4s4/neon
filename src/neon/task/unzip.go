@@ -5,65 +5,46 @@ import (
 	"fmt"
 	"io"
 	"neon/build"
-	"neon/util"
 	"os"
 	"path/filepath"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["unzip"] = build.TaskDescriptor{
-		Constructor: Unzip,
+	build.AddTask(build.TaskDesc{
+		Name: "unzip",
+		Func: Unzip,
+		Args: reflect.TypeOf(UnzipArgs{}),
 		Help: `Expand a zip file in a directory.
 
 Arguments:
 
-- unzip: the zip file to expand.
-- todir: the destination directory.
+- unzip: the zip file to expand (string, file).
+- todir: the destination directory (string, file).
 
 Examples:
 
     # unzip foo.zip to build directory
-    - untar: "foo.zip"
-      todir: "build"`,
-	}
+    - unzip: 'foo.zip'
+      todir: 'build'`,
+	})
 }
 
-func Unzip(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"unzip", "todir"}
-	if err := CheckFields(args, fields, fields); err != nil {
-		return nil, err
-	}
-	file, err := args.GetString("unzip")
-	if err != nil {
-		return nil, fmt.Errorf("argument unzip must be a string")
-	}
-	todir, err := args.GetString("todir")
-	if err != nil {
-		return nil, fmt.Errorf("argument todir of task unzip must be a string")
-	}
-	return func(context *build.Context) error {
-		// evaluate arguments
-		var _err error
-		_file, _err := context.EvaluateString(file)
-		if _err != nil {
-			return fmt.Errorf("evaluating source zip file: %v", _err)
-		}
-		_todir, _err := context.EvaluateString(todir)
-		if _err != nil {
-			return fmt.Errorf("evaluating destination directory: %v", _err)
-		}
-		_file = util.ExpandUserHome(_file)
-		_todir = util.ExpandUserHome(_todir)
-		context.Message("Unzipping archive '%s' to directory '%s'...", _file, _todir)
-		_err = UnzipFile(_file, _todir)
-		if _err != nil {
-			return fmt.Errorf("expanding archive: %v", _err)
-		}
-		return nil
-	}, nil
+type UnzipArgs struct {
+	Unzip string `file`
+	Todir string `file`
 }
 
-// Unzip given file to a directory
+func Unzip(context *build.Context, args interface{}) error {
+	params := args.(UnzipArgs)
+	context.Message("Unzipping archive '%s' to directory '%s'...", params.Unzip, params.Todir)
+	err := UnzipFile(params.Unzip, params.Todir)
+	if err != nil {
+		return fmt.Errorf("expanding archive: %v", err)
+	}
+	return nil
+}
+
 func UnzipFile(file, dir string) error {
 	reader, err := zip.OpenReader(file)
 	if err != nil {

@@ -1,65 +1,51 @@
 package task
 
 import (
-	"fmt"
 	"neon/build"
-	"neon/util"
+	"reflect"
 	"time"
 )
 
 func init() {
-	build.TaskMap["time"] = build.TaskDescriptor{
-		Constructor: Time,
+	build.AddTask(build.TaskDesc{
+		Name: "time",
+		Func: Time,
+		Args: reflect.TypeOf(TimeArgs{}),
 		Help: `Record duration to run a block of steps.
 
 Arguments:
 
-- time: the steps to measure execution duration.
-- to: the property to store duration in seconds as a float (optional,
-  print duration on console if not set).
+- time: steps we want to measure execution duration (steps).
+- to: property to store duration in seconds as a float, if not set, duration is
+  printed on the console (string, optional).
 
 Examples:
 
     # print duration to say hello
     - time:
-      - print: "Hello World!"
+      - print: 'Hello World!'
       to: duration
-    - print: 'duration: #{duration}s'`,
-	}
+    - print: 'duration: ={duration}s'`,
+	})
 }
 
-func Time(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"time", "to"}
-	if err := CheckFields(args, fields, fields[:1]); err != nil {
-		return nil, err
-	}
-	steps, err := ParseSteps(target, args, "time")
+type TimeArgs struct {
+	Time build.Steps `steps`
+	To   string      `optional`
+}
+
+func Time(context *build.Context, args interface{}) error {
+	params := args.(TimeArgs)
+	start := time.Now()
+	err := params.Time.Run(context)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	var to string
-	if args.HasField("to") {
-		to, err = args.GetString("to")
-		if err != nil {
-			return nil, fmt.Errorf("argument to of task time must be a string")
-		}
+	duration := time.Now().Sub(start).Seconds()
+	if params.To != "" {
+		context.SetProperty(params.To, duration)
+	} else {
+		context.Message("Duration: %gs", duration)
 	}
-	return func(context *build.Context) error {
-		_to, _err := context.EvaluateString(to)
-		if _err != nil {
-			return fmt.Errorf("evaluating property: %v", _err)
-		}
-		_start := time.Now()
-		_err = context.Run(steps)
-		if _err != nil {
-			return _err
-		}
-		_duration := time.Now().Sub(_start).Seconds()
-		if to != "" {
-			context.SetProperty(_to, _duration)
-		} else {
-			context.Message("Duration: %gs", _duration)
-		}
-		return nil
-	}, nil
+	return nil
 }

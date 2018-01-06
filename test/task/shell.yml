@@ -2,7 +2,7 @@ doc: Built file to test tasks
 default: task_$
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
@@ -31,7 +31,7 @@ targets:
         }
       # test shell with property
       - 'message = "foo"'
-      - $: 'echo "#{message}"'
+      - $: 'echo "={message}"'
         =: 'result'
       - |
         if result != "foo" {
@@ -41,7 +41,7 @@ targets:
         }
       # test command with property
       - 'message = "foo"'
-      - $: ['echo', '#{message}']
+      - $: ['echo', '={message}']
         =: 'result'
       - |
         if result != "foo" {
@@ -49,14 +49,9 @@ targets:
         } else {
           println("$ test success")
         }
-      # test shell per OS
-      - $:
-          default: 'echo "TEST"'
-          windows: 'fail'
-        =: 'result'
-      - |
-        if result != "TEST" {
-          throw("$ test failure")
-        } else {
-          println("$ test success")
-        }
+      - for: 'i'
+        in:  'range(3)'
+        do:
+        - $: ['echo', '={i}']
+          =: 'result'
+        - assert: 'result == toString(i)'

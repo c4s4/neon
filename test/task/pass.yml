@@ -2,7 +2,7 @@ doc: Built file to test tasks
 default: task_pass
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
@@ -10,4 +10,4 @@ targets:
     doc: Test task pass
     steps:
     - pass:
-    - print: "Pass test success"
+    - print: 'Pass test success'

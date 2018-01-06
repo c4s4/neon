@@ -3,98 +3,119 @@ package build
 import (
 	"fmt"
 	"io/ioutil"
-	"neon/util"
 	"os"
 	"reflect"
 	"regexp"
 	"runtime"
 	"sort"
 	"strings"
+
 	anko_core "github.com/c4s4/anko/builtins"
 	"github.com/c4s4/anko/parser"
 	"github.com/c4s4/anko/vm"
 )
 
-// Build context
+const (
+	PROPERTY_OS     = "_OS"
+	PROPERTY_ARCH   = "_ARCH"
+	PROPERTY_NCPU   = "_NCPU"
+	PROPERTY_BASE   = "_BASE"
+	PROPERTY_HERE   = "_HERE"
+	PROPERTY_THREAD = "_thread"
+	PROPERTY_INPUT  = "_input"
+	ENVIRONMENT_SEP = "="
+	ENVIRONMENT_VAR = "$"
+)
+
+var (
+	REGEXP_EXP = regexp.MustCompile(`[#=]{.*?}`)
+	REGEXP_ENV = regexp.MustCompile(`[$#=]{.*?}`)
+)
+
+// Context is the context of the build
+// - VM: Anko VM that holds build properties
+// - Build: the current build
+// - Index: tracks steps index while running build
+// - Stack: tracks targets calls
 type Context struct {
-	VM          *vm.Env
-	Properties  []string
-	Environment map[string]string
-	Index       *Index
-	Stack       *Stack
+	VM    *vm.Env
+	Build *Build
+	Stack *Stack
 }
 
 // NewContext make a new build context
-func NewContext(build *Build) (*Context, error) {
+// Return: a pointer to the context
+func NewContext(build *Build) *Context {
 	v := vm.NewEnv()
 	anko_core.LoadAllBuiltins(v)
 	LoadBuiltins(v)
-	properties := build.GetProperties()
-	environment := build.GetEnvironment()
 	context := &Context{
-		VM:          v,
-		Properties:  properties.Fields(),
-		Environment: environment,
-		Index:       NewIndex(),
-		Stack:       NewStack(),
+		VM:    v,
+		Build: build,
+		Stack: NewStack(),
 	}
-	for _, script := range build.Scripts {
-		source, err := ioutil.ReadFile(script)
-		if err != nil {
-			return nil, fmt.Errorf("reading script '%s': %v", script, err)
-		}
-		_, err = v.Execute(string(source))
-		if err != nil {
-			return nil, fmt.Errorf("evaluating script '%s': %v", script, FormatScriptError(err))
-		}
-	}
-	err := context.setInitialProperties(build, properties)
-	if err != nil {
-		return nil, fmt.Errorf("evaluating properties: %v", err)
-	}
-	return context, nil
+	return context
 }
 
-// NewThreadContext builds a context in a thread
+// NewThreadContext builds a context for a thread by copying the build context
+// - thread: the number of the thread, starting with 0
+// - input: the thread input
+// - ouput: the thread output
+// Return: a pointer to the context
 func (context *Context) NewThreadContext(thread int, input interface{}, output interface{}) *Context {
-	copy := context.Copy()
-	copy.SetProperty("_thread", thread)
-	copy.SetProperty("_input", input)
+	copy := &Context{
+		VM:    context.VM.Copy(),
+		Stack: context.Stack.Copy(),
+	}
+	copy.SetProperty(PROPERTY_THREAD, thread)
+	copy.SetProperty(PROPERTY_INPUT, input)
 	return copy
 }
 
-func (context *Context) Copy() *Context {
-	properties := make([]string, len(context.Properties))
-	for i := 0; i < len(context.Properties); i++ {
-		properties[i] = context.Properties[i]
+// Init initializes context with build
+// Return: an error if something went wrong
+func (context *Context) Init() error {
+	err := context.InitScripts()
+	if err != nil {
+		return fmt.Errorf("loading scripts: %v", err)
 	}
-	environment := make(map[string]string)
-	for name, value := range context.Environment {
-		environment[name] = value
+	err = context.InitProperties()
+	if err != nil {
+		return fmt.Errorf("evaluating properties: %v", err)
 	}
-	copy := Context{
-		VM:          context.VM.Copy(),
-		Properties:  properties,
-		Environment: environment,
-		Index:       context.Index.Copy(),
-		Stack:       context.Stack.Copy(),
-	}
-	return &copy
+	return nil
 }
 
-// Set initial build properties
-func (context *Context) setInitialProperties(build *Build, object util.Object) error {
-	context.SetProperty("_OS", runtime.GOOS)
-	context.SetProperty("_ARCH", runtime.GOARCH)
-	context.SetProperty("_NCPU", runtime.NumCPU())
-	context.SetProperty("_BASE", build.Dir)
-	context.SetProperty("_HERE", build.Here)
-	todo := object.Fields()
+// InitScript loads build scripts in context
+// Return: an error if something went wrong
+func (context *Context) InitScripts() error {
+	for _, script := range context.Build.Scripts {
+		source, err := ioutil.ReadFile(script)
+		if err != nil {
+			return fmt.Errorf("reading script '%s': %v", script, err)
+		}
+		_, err = context.VM.Execute(string(source))
+		if err != nil {
+			return fmt.Errorf("evaluating script '%s': %v", script, FormatScriptError(err))
+		}
+	}
+	return nil
+}
+
+// InitProperties sets build properties
+// Return: an error if something went wrong
+func (context *Context) InitProperties() error {
+	context.SetProperty(PROPERTY_OS, runtime.GOOS)
+	context.SetProperty(PROPERTY_ARCH, runtime.GOARCH)
+	context.SetProperty(PROPERTY_NCPU, runtime.NumCPU())
+	context.SetProperty(PROPERTY_BASE, context.Build.Dir)
+	context.SetProperty(PROPERTY_HERE, context.Build.Here)
+	todo := context.Build.Properties.Fields()
 	var crash error
 	for len(todo) > 0 {
 		var done []string
 		for _, name := range todo {
-			value := object[name]
+			value := context.Build.Properties[name]
 			eval, err := context.EvaluateObject(value)
 			if err == nil {
 				context.SetProperty(name, eval)
@@ -123,91 +144,47 @@ func (context *Context) setInitialProperties(build *Build, object util.Object) e
 	return nil
 }
 
-// Set property with given to given value
+// SetProperty sets given property in context
+// - name: the name of the property
+// - value: the value of the property
 func (context *Context) SetProperty(name string, value interface{}) {
 	context.VM.Define(name, value)
 }
 
-// Get property value with given name
+// GetProperty returns value of given property
+// - name: the name of the property
+// Return:
+// - the value of the property
+// - an error if something went wrong
 func (context *Context) GetProperty(name string) (interface{}, error) {
 	value, err := context.VM.Get(name)
 	if err != nil {
 		return nil, err
 	}
-	return util.ValueToInterface(value), nil
+	return value.Interface(), nil
 }
 
-// Evaluate given expression in context and return its value
-func (context *Context) EvaluateExpression(source string) (interface{}, error) {
-	value, err := context.VM.Execute(source)
+// EvaluateExpression evaluate given expression in the context
+// - expression: the expression to evaluate
+// Return:
+// - the return value of the expression
+// - an error if something went wrong
+func (context *Context) EvaluateExpression(expression string) (interface{}, error) {
+	value, err := context.VM.Execute(expression)
 	if err != nil {
 		return nil, FormatScriptError(err)
 	}
-	return util.ValueToInterface(value), nil
+	return value.Interface(), nil
 }
 
-// Evaluate a given object, that is replace '#{foo}' in strings with the value
-// of property foo
-func (context *Context) EvaluateObject(object interface{}) (interface{}, error) {
-	switch value := object.(type) {
-	case string:
-		evaluated, err := context.EvaluateString(value)
-		if err != nil {
-			return nil, err
-		}
-		return evaluated, nil
-	case bool:
-		return value, nil
-	case int:
-		return value, nil
-	case int32:
-		return value, nil
-	case int64:
-		return value, nil
-	case float64:
-		return value, nil
-	default:
-		if value == nil {
-			return nil, nil
-		}
-		switch reflect.TypeOf(object).Kind() {
-		case reflect.Slice:
-			slice := reflect.ValueOf(object)
-			elements := make([]interface{}, slice.Len())
-			for index := 0; index < slice.Len(); index++ {
-				val, err := context.EvaluateObject(slice.Index(index).Interface())
-				if err != nil {
-					return nil, err
-				}
-				elements[index] = val
-			}
-			return elements, nil
-		case reflect.Map:
-			dict := reflect.ValueOf(object)
-			elements := make(map[interface{}]interface{})
-			for _, key := range dict.MapKeys() {
-				keyEval, err := context.EvaluateObject(key.Interface())
-				if err != nil {
-					return nil, err
-				}
-				valueEval, err := context.EvaluateObject(dict.MapIndex(key).Interface())
-				if err != nil {
-					return nil, err
-				}
-				elements[keyEval] = valueEval
-			}
-			return elements, nil
-		default:
-			return nil, fmt.Errorf("no serializer for type '%T'", object)
-		}
-	}
-}
-
-// Evaluate a string by replacing '#{foo}' with value of property foo
+// EvaluateString replaces '#{expression}' with the value of the expression
+// - text: the string to evaluate
+// Return:
+// - evaluated string
+// - an error if something went wrong
 func (context *Context) EvaluateString(text string) (string, error) {
-	r := regexp.MustCompile(`#{.*?}`)
 	var errors []error
-	replaced := r.ReplaceAllStringFunc(text, func(expression string) string {
+	replaced := REGEXP_EXP.ReplaceAllStringFunc(text, func(expression string) string {
 		name := expression[2 : len(expression)-1]
 		var value interface{}
 		value, err := context.EvaluateExpression(name)
@@ -232,28 +209,87 @@ func (context *Context) EvaluateString(text string) (string, error) {
 	}
 }
 
-// Evaluate environment in context and return it as a slice of strings
-func (context *Context) EvaluateEnvironment(build *Build) ([]string, error) {
+// EvaluateRecursive recursively evaluates strings in a structure
+// - object: the object to evaluate
+// Return:
+// - evaluated structure
+// - an error if something went wrong
+func (context *Context) EvaluateObject(object interface{}) (interface{}, error) {
+	// if nil, return nil
+	if object == nil {
+		return nil, nil
+	} else
+	// we replace expressions in strings
+	if reflect.TypeOf(object).Kind() == reflect.String {
+		evaluated, err := context.EvaluateString(object.(string))
+		if err != nil {
+			return nil, err
+		}
+		return evaluated, nil
+	} else
+	// we iterate through slices
+	if reflect.TypeOf(object).Kind() == reflect.Slice {
+		value := reflect.ValueOf(object)
+		for i := 0; i < value.Len(); i++ {
+			index := value.Index(i)
+			evaluated, err := context.EvaluateObject(index.Interface())
+			if err != nil {
+				return nil, err
+			}
+			index.Set(reflect.ValueOf(evaluated))
+		}
+		return object, nil
+	} else
+	// we iterate through maps
+	if reflect.TypeOf(object).Kind() == reflect.Map {
+		value := reflect.ValueOf(object)
+		keys := value.MapKeys()
+		for i := 0; i < len(keys); i++ {
+			key := keys[i]
+			keyEval, err := context.EvaluateObject(key.Interface())
+			if err != nil {
+				return nil, err
+			}
+			val := value.MapIndex(key)
+			valEval, err := context.EvaluateObject(val.Interface())
+			if err != nil {
+				return nil, err
+			}
+			value.SetMapIndex(key, reflect.Value{})
+			value.SetMapIndex(reflect.ValueOf(keyEval), reflect.ValueOf(valEval))
+		}
+		return object, nil
+	} else
+	// else we do nothing
+	{
+		return object, nil
+	}
+}
+
+// EvaluateEnvironment evaluates environment variables in the context
+// Return:
+// - evaluated environment as a slice of strings
+// - an error if something went wrong
+func (context *Context) EvaluateEnvironment() ([]string, error) {
 	environment := make(map[string]string)
 	for _, line := range os.Environ() {
-		index := strings.Index(line, "=")
+		index := strings.Index(line, ENVIRONMENT_SEP)
 		name := line[:index]
 		value := line[index+1:]
 		environment[name] = value
 	}
-	environment["_BASE"] = build.Dir
-	environment["_HERE"] = build.Here
+	environment[PROPERTY_BASE] = context.Build.Dir
+	environment[PROPERTY_HERE] = context.Build.Here
 	var variables []string
-	for name := range context.Environment {
+	for name := range context.Build.Environment {
 		variables = append(variables, name)
 	}
 	sort.Strings(variables)
 	for _, name := range variables {
-		value := context.Environment[name]
-		r := regexp.MustCompile(`[$#]{.*?}`)
-		replaced := r.ReplaceAllStringFunc(value, func(expression string) string {
+		value := context.Build.Environment[name]
+		replaced := REGEXP_ENV.ReplaceAllStringFunc(value, func(expression string) string {
 			name := expression[2 : len(expression)-1]
-			if expression[0:1] == "$" {
+			if expression[0:1] == ENVIRONMENT_VAR {
 				value, ok := environment[name]
 				if !ok {
 					return expression
@@ -274,62 +310,22 @@ func (context *Context) EvaluateEnvironment(build *Build) ([]string, error) {
 	}
 	var lines []string
 	for name, value := range environment {
-		line := name + "=" + value
+		line := name + ENVIRONMENT_SEP + value
 		lines = append(lines, line)
 	}
 	return lines, nil
 }
 
-// Run steps in context
-func (context *Context) Run(steps []Step) error {
-	context.Index.Expand()
-	for index, step := range steps {
-		context.Index.Set(index)
-		err := step.Run(context)
-		if err != nil {
-			return err
-		}
-	}
-	context.Index.Shrink()
-	return nil
-}
-
-// Find files in the context:
-// - dir: the search root directory
-// - includes: the list of globs to include
-// - excludes: the list of globs to exclude
-// - folder: tells if we should include folders
-// Return the list of files as a slice of strings
-func (context *Context) FindFiles(dir string, includes, excludes []string, folder bool) ([]string, error) {
-	dir, err := context.EvaluateString(dir)
-	if err != nil {
-		return nil, fmt.Errorf("evaluating source directory: %v", err)
-	}
-	var included []string
-	for _, include := range includes {
-		pattern, err := context.EvaluateString(include)
-		if err != nil {
-			return nil, fmt.Errorf("evaluating pattern: %v", err)
-		}
-		included = append(included, pattern)
-	}
-	var excluded []string
-	for _, exclude := range excludes {
-		pattern, err := context.EvaluateString(exclude)
-		if err != nil {
-			return nil, fmt.Errorf("evaluating pattern: %v", err)
-		}
-		excluded = append(excluded, pattern)
-	}
-	return util.FindFiles(dir, included, excluded, folder)
-}
-
 // Message print a message on the console
+// - text: the text to print on console
+// - args: a slice of string arguments (as for fmt.Printf())
 func (context *Context) Message(text string, args ...interface{}) {
 	Message(text, args...)
 }
 
 // FormatScriptError adds line and column numbers on parser or vm errors.
+// - err: the error to process
+// Return: the processed error
 func FormatScriptError(err error) error {
 	if e, ok := err.(*parser.Error); ok {
 		return fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)

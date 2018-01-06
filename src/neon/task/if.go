@@ -1,21 +1,22 @@
 package task
 
 import (
-	"fmt"
 	"neon/build"
-	"neon/util"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["if"] = build.TaskDescriptor{
-		Constructor: If,
+	build.AddTask(build.TaskDesc{
+		Name: "if",
+		Func: If,
+		Args: reflect.TypeOf(IfArgs{}),
 		Help: `If condition.
 
 Arguments:
 
-- if: the condition.
-- then: the steps to execute if the condition is true.
-- else: the steps to execute if the condition is false.
+- if: the condition (boolean, expression).
+- then: steps to execute if condition is true (steps).
+- else: steps to execute if condition is false (optional, steps).
 
 Examples:
 
@@ -25,49 +26,27 @@ Examples:
       - print: "hello"
       else:
       - print: "world"`,
-	}
+	})
 }
 
-func If(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"if", "then", "else"}
-	if err := CheckFields(args, fields, fields[:2]); err != nil {
-		return nil, err
-	}
-	condition, err := args.GetString("if")
-	if err != nil {
-		return nil, fmt.Errorf("evaluating if construct: %v", err)
-	}
-	thenSteps, err := ParseSteps(target, args, "then")
-	if err != nil {
-		return nil, err
-	}
-	var elseSteps []build.Step
-	if args.HasField("else") {
-		elseSteps, err = ParseSteps(target, args, "else")
+type IfArgs struct {
+	If   bool        `expression`
+	Then build.Steps `steps`
+	Else build.Steps `optional steps`
+}
+
+func If(context *build.Context, args interface{}) error {
+	params := args.(IfArgs)
+	if params.If {
+		err := params.Then.Run(context)
 		if err != nil {
-			return nil, err
+			return err
+		}
+	} else {
+		err := params.Else.Run(context)
+		if err != nil {
+			return err
 		}
 	}
-	return func(context *build.Context) error {
-		_result, _err := context.EvaluateExpression(condition)
-		if _err != nil {
-			return fmt.Errorf("evaluating 'if' condition: %v", _err)
-		}
-		_boolean, _ok := _result.(bool)
-		if !_ok {
-			return fmt.Errorf("evaluating if condition: must return a bool")
-		}
-		if _boolean {
-			_err := context.Run(thenSteps)
-			if _err != nil {
-				return _err
-			}
-		} else {
-			_err := context.Run(elseSteps)
-			if _err != nil {
-				return _err
-			}
-		}
-		return nil
-	}, nil
+	return nil
 }

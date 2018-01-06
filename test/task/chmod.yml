@@ -2,15 +2,37 @@ doc: Built file to test tasks
 default: task_chmod
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
   task_chmod:
     doc: Test task chmod
     steps:
-    - mkdir: "#{BUILD_DIR}/chmod"
-    - touch: "#{BUILD_DIR}/chmod/test.txt"
-    - chmod: "test.txt"
-      dir: "#{BUILD_DIR}/chmod"
-      mode: "0755"
+    - if: '_OS != "windows"'
+      then:
+      - mkdir: '={BUILD_DIR}/chmod'
+      - touch: '={BUILD_DIR}/chmod/test.txt'
+      # chmod to 0755
+      - chmod: 'test.txt'
+        dir:   '={BUILD_DIR}/chmod'
+        mode:  0755
+      - $: ['ls', '-l', '={BUILD_DIR}/chmod/test.txt']
+        =: 'mode'
+      - if: 'mode[0:10] != "-rwxr-xr-x"'
+        then:
+        - throw: 'Chmod test failure'
+        else:
+        - print: 'Chmod test success'
+      # chmod with exclude
+      - chmod:   '*'
+        dir:     '={BUILD_DIR}/chmod'
+        exclude: '*.txt'
+        mode:  0644
+      - $: ['ls', '-l', '={BUILD_DIR}/chmod/test.txt']
+        =: 'mode'
+      - if: 'mode[0:10] != "-rwxr-xr-x"'
+        then:
+        - throw: 'Chmod test failure'
+        else:
+        - print: 'Chmod test success'

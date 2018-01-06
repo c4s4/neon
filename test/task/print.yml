@@ -2,11 +2,11 @@ doc: Built file to test tasks
 default: task_print
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
   task_print:
     doc: Test task print
     steps:
-    - print: "Print test success"
+    - print: 'Print test success'

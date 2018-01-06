@@ -1,13 +1,14 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
 - version: 0.11.0
-  date:    2017-12-24
-  summary: Added Java tasks
+  date:    2018-01-06
+  summary: Code refactoring and new Java tasks
   added:
   - "Added classpath, javac and java tasks."
   - "Added -repo path option to set repo location for plugin installation."
   - "Added builtin contains, thanks to Alexandre Hu."
   fixed:
+  - "Huge code refactoring for task coding."
   - "Fixed -install foo/bar command line option."
 
 - version: 0.10.0

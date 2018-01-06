@@ -1,42 +1,34 @@
 package task
 
 import (
-	"fmt"
 	"neon/build"
-	"neon/util"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["print"] = build.TaskDescriptor{
-		Constructor: Print,
+	build.AddTask(build.TaskDesc{
+		Name: "print",
+		Func: Print,
+		Args: reflect.TypeOf(PrintArgs{}),
 		Help: `Print a message on the console.
 
 Arguments:
 
-- print: the text to print as a string.
+- print: text to print (string).
 
 Examples:
 
     # say hello
-    - print: "Hello World!"`,
-	}
+    - print: 'Hello World!'`,
+	})
 }
 
-func Print(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"print"}
-	if err := CheckFields(args, fields, fields); err != nil {
-		return nil, err
-	}
-	message, ok := args["print"].(string)
-	if !ok {
-		return nil, fmt.Errorf("argument of task print must be a string")
-	}
-	return func(context *build.Context) error {
-		_message, _err := context.EvaluateString(message)
-		if _err != nil {
-			return fmt.Errorf("processing print argument: %v", _err)
-		}
-		context.Message(_message)
-		return nil
-	}, nil
+type PrintArgs struct {
+	Print string
+}
+
+func Print(context *build.Context, args interface{}) error {
+	params := args.(PrintArgs)
+	context.Message(params.Print)
+	return nil
 }

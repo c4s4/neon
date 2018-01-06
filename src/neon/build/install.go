@@ -1,12 +1,12 @@
 package build
 
 import (
-	"neon/util"
-	"regexp"
 	"fmt"
+	"neon/util"
 	"os/exec"
-	"strings"
 	"path/filepath"
+	"regexp"
+	"strings"
 )
 
 // Install given plugin

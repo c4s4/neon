@@ -19,7 +19,8 @@ const (
 var VERSION string
 
 // Parse command line and return parsed options
-func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, string, string, bool, []string) {
+func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, string, string, bool,
+	[]string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
 	info := flag.Bool("info", false, "Print build information")
 	version := flag.Bool("version", false, "Print neon version")
@@ -41,6 +42,10 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 }
 
 // Find build file and return its path
+// - name: the name of the build file
+// Return:
+// - path of found build file
+// - an error if something went wrong
 func FindBuildFile(name string) (string, error) {
 	absolute, err := filepath.Abs(name)
 	if err != nil {
@@ -104,14 +109,16 @@ func main() {
 		build.PrintTargets()
 		return
 	} else if info {
-		context, err := _build.NewContext(build)
+		context := _build.NewContext(build)
+		err = context.Init()
 		PrintError(err, 4)
 		err = build.Info(context)
 		PrintError(err, 4)
 		return
 	} else {
 		os.Chdir(build.Dir)
-		context, err := _build.NewContext(build)
+		context := _build.NewContext(build)
+		err = context.Init()
 		PrintError(err, 5)
 		err = build.Run(context, targets)
 		duration := time.Now().Sub(start)
@@ -125,6 +132,8 @@ func main() {
 }
 
 // Print an error and exit if any
+// - error: the error to check
+// - code: the exit code if error is not nil
 func PrintError(err error, code int) {
 	if err != nil {
 		_build.PrintError(err.Error())

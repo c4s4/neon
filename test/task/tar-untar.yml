@@ -2,27 +2,27 @@ doc: Built file to test tasks tar and untar
 default: task_tar_untar
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
   task_tar_untar:
     doc: Test tasks tar and untar
     steps:
-    - mkdir: "#{BUILD_DIR}/tar/foo"
+    - mkdir: '={BUILD_DIR}/tar/foo'
     - touch:
-      - "#{BUILD_DIR}/tar/foo/spam.txt"
-      - "#{BUILD_DIR}/tar/foo/eggs.txt"
-    - tar: "**/*.txt"
-      dir: "#{BUILD_DIR}/tar"
-      prefix: "bar"
-      tofile: "#{BUILD_DIR}/tar/test.tar.gz"
-    - delete: "#{BUILD_DIR}/tar/foo"
-    - untar: "#{BUILD_DIR}/tar/test.tar.gz"
-      todir: "#{BUILD_DIR}/tar"
-    - delete: "#{BUILD_DIR}/tar/test.tar.gz"
+      - '={BUILD_DIR}/tar/foo/spam.txt'
+      - '={BUILD_DIR}/tar/foo/eggs.txt'
+    - tar: '**/*.txt'
+      dir: '={BUILD_DIR}/tar'
+      prefix: 'bar'
+      tofile: '={BUILD_DIR}/tar/test.tar.gz'
+    - delete: '={BUILD_DIR}/tar/foo'
+    - untar: '={BUILD_DIR}/tar/test.tar.gz'
+      todir: '={BUILD_DIR}/tar'
+    - delete: '={BUILD_DIR}/tar/test.tar.gz'
     - if: '!exists(joinpath(BUILD_DIR, "tar", "bar", "foo", "eggs.txt")) ||
            !exists(joinpath(BUILD_DIR, "tar", "bar", "foo", "spam.txt"))'
       then:
       - throw: 'Tar/Untar test failure'
-    - print: "Tar/Untar test success"
+    - print: 'Tar/Untar test success'

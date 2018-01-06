@@ -2,7 +2,6 @@ package task
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	"neon/build"
@@ -11,29 +10,39 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"strings"
+
+	"gopkg.in/yaml.v2"
+)
+
+const (
+	DEFAULT_REPOSITORY = "http://central.maven.org/maven2"
 )
 
 var LOCAL_REPOSITORY = util.ExpandUserHome("~/.java/repository")
-var DEFAULT_REPOSITORY = "http://central.maven.org/maven2"
 
 func init() {
-	build.TaskMap["classpath"] = build.TaskDescriptor{
-		Constructor: Classpath,
+	build.AddTask(build.TaskDesc{
+		Name: "classpath",
+		Func: Classpath,
+		Args: reflect.TypeOf(ClasspathArgs{}),
 		Help: `Build a Java classpath.
 
 Arguments:
 
-- classpath: the name of the property to set with classpath.
-- classes: a list of class directories to add in classpath (optional).
-- jars: a glob or list of globs of jar files to add to classpath (optional).
-- dependencies: a list of dependency files to add to classpath (optional).
-- scopes: the classpath scope (optional, if set will take dependencies without
-  scope and listed scopes, if not set, will only take dependencies without
-  scope).
-- repositories: a list of repository URLs to get dependencies from (optional,
-  defaults to 'http://repo1.maven.org/maven2').
-- todir: to copy jar files to given directory (optional).
+- classpath: the property to set with classpath (string).
+- classes: class directories to add in classpath (strings, optional, file,
+  wrap).
+- jars: globs of jar files to add to classpath (strings, optional, file, wrap).
+- dependencies: dependency files to add to classpath (strings, optional, file,
+  wrap).
+- scopes: classpath scope (strings, optional, wrap). If set, will take
+  dependencies without scope and listed scopes, if not set, will only take
+  dependencies without scope).
+- repositories: repository URLs to get dependencies from, defaults to
+  'http://repo1.maven.org/maven2' (strings, optional, wrap).
+- todir: directory to copy jar files into (string, optional, file).
 
 Examples:
 
@@ -53,142 +62,64 @@ Examples:
 
 Notes:
 
-Dependency files should list dependencies as follows:
+- Dependency files should list dependencies with YAML syntax as follows:
 
     - group:    junit
       artifact: junit
       version:  4.12
       scopes:   [test]
 
-Scopes is optional. If not set, dependency will always be included. If set,
-dependency will be included for classpath with these scopes.`,
-	}
+- Scopes are optional. If not set, dependency will always be included. If set,
+  dependency will be included for classpath with these scopes.`,
+	})
 }
 
-func Classpath(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"classpath", "classes", "jars", "dependencies", "scopes", "repositories", "todir"}
-	if err := CheckFields(args, fields, fields[:1]); err != nil {
-		return nil, err
-	}
-	classpath, err := args.GetString("classpath")
-	if err != nil {
-		return nil, fmt.Errorf("argument classpath must be a string")
-	}
-	var classes []string
-	if args.HasField("classes") {
-		classes, err = args.GetListStringsOrString("classes")
-		if err != nil {
-			return nil, fmt.Errorf("argument classes of task classpath must be a string or list of strings")
-		}
-	}
+type ClasspathArgs struct {
+	Classpath    string
+	Classes      []string `optional file wrap`
+	Jars         []string `optional file wrap`
+	Dependencies []string `optional file wrap`
+	Scopes       []string `optional wrap`
+	Repositories []string `optional wrap`
+	Todir        string   `optional file`
+}
+
+func Classpath(context *build.Context, args interface{}) error {
+	params := args.(ClasspathArgs)
+	// get dependencies
+	var err error
 	var jars []string
-	if args.HasField("jars") {
-		jars, err = args.GetListStringsOrString("jars")
+	if len(params.Jars) > 0 {
+		jars, err = util.FindFiles("", params.Jars, []string{}, false)
 		if err != nil {
-			return nil, fmt.Errorf("argument jars of task classpath must be a string or list of strings")
+			return fmt.Errorf("getting jars files: %v", err)
 		}
 	}
-	var dependencies []string
-	if args.HasField("dependencies") {
-		dependencies, err = args.GetListStringsOrString("dependencies")
+	deps, err := getDependencies(params.Dependencies, params.Scopes, params.Repositories, context)
+	if err != nil {
+		return fmt.Errorf("getting dependencies: %v", err)
+	}
+	// evaluate classpath
+	var elements []string
+	elements = append(elements, params.Classes...)
+	elements = append(elements, jars...)
+	elements = append(elements, deps...)
+	path := strings.Join(elements, string(os.PathListSeparator))
+	context.SetProperty(params.Classpath, path)
+	// copy jar files to destination directory
+	if params.Todir != "" {
+		var jars []string
+		for _, element := range elements {
+			if strings.HasSuffix(element, ".jar") {
+				jars = append(jars, element)
+			}
+		}
+		err = copyJarsToDir(jars, params.Todir)
 		if err != nil {
-			return nil, fmt.Errorf("argument dependencies of task classpath must be a string or list of strings")
+			return fmt.Errorf("copying jar files to destination directory: %v", err)
 		}
 	}
-	var scopes []string
-	if args.HasField("scopes") {
-		scopes, err = args.GetListStringsOrString("scopes")
-		if err != nil {
-			return nil, fmt.Errorf("argument scopes of task classpath must be a string or list of strings")
-		}
-	}
-	var repositories []string
-	if args.HasField("repositories") {
-		repositories, err = args.GetListStringsOrString("repositories")
-		if err != nil {
-			return nil, fmt.Errorf("argument repositories of task classpath must be a string or list of strings")
-		}
-	}
-	var todir string
-	if args.HasField("todir") {
-		todir, err = args.GetString("todir")
-		if err != nil {
-			return nil, fmt.Errorf("argument todir of task classpath must be a string")
-		}
-	}
-	return func(context *build.Context) error {
-		// evaluate arguments
-		_classpath, _err := context.EvaluateString(classpath)
-		if _err != nil {
-			return fmt.Errorf("evaluating classpath argument: %v", _err)
-		}
-		var _classes []string
-		for _, _class := range classes {
-			_c, _err := context.EvaluateString(_class)
-			if _err != nil {
-				return fmt.Errorf("evaluating classes argument: %v", _err)
-			}
-			_classes = append(_classes, _c)
-		}
-		_jars, _err := context.FindFiles(".", jars, nil, false)
-		if _err != nil {
-			return fmt.Errorf("finding jar files: %v", _err)
-		}
-		var _dependencies []string
-		for _, _dependency := range dependencies {
-			_d, _err := context.EvaluateString(_dependency)
-			if _err != nil {
-				return fmt.Errorf("evaluating dependencies argument: %v", _err)
-			}
-			_dependencies = append(_dependencies, _d)
-		}
-		var _scopes []string
-		for _, _scope := range scopes {
-			_s, _err := context.EvaluateString(_scope)
-			if _err != nil {
-				return fmt.Errorf("evaluating scopes argument: %v", _err)
-			}
-			_scopes = append(_scopes, _s)
-		}
-		var _repositories []string
-		for _, _repository := range repositories {
-			_r, _err := context.EvaluateString(_repository)
-			if _err != nil {
-				return fmt.Errorf("evaluating repositories argument: %v", _err)
-			}
-			_repositories = append(_repositories, _r)
-		}
-		_todir, _err := context.EvaluateString(todir)
-		if _err != nil {
-			return fmt.Errorf("evaluating destination directory: %v", _err)
-		}
-		// get dependencies
-		_deps, _err := getDependencies(_dependencies, _scopes, _repositories, context)
-		if _err != nil {
-			return fmt.Errorf("getting dependencies: %v", _err)
-		}
-		// evaluate classpath
-		var _elements []string
-		_elements = append(_elements, _classes...)
-		_elements = append(_elements, _jars...)
-		_elements = append(_elements, _deps...)
-		_path := strings.Join(_elements, string(os.PathListSeparator))
-		context.SetProperty(_classpath, _path)
-		// copy jar files to destination directory
-		if _todir != "" {
-			var _jars []string
-			for _, _element := range _elements {
-				if strings.HasSuffix(_element, ".jar") {
-					_jars = append(_jars, _element)
-				}
-			}
-			_err = copyJarsToDir(_jars, _todir)
-			if err != nil {
-				return fmt.Errorf("copying jar files to destination directory: %v", _err)
-			}
-		}
-		return nil
-	}, nil
+	return nil
 }
 
 func getDependencies(dependencies, scopes, repositories []string, context *build.Context) ([]string, error) {

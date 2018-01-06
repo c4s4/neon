@@ -1,0 +1,23 @@
+doc: Built file to test tasks
+default: task_classpath
+
+properties:
+  BUILD_DIR: '../../build'
+
+targets:
+
+  task_classpath:
+    doc: Test task classpath
+    steps:
+    - mkdir: '={BUILD_DIR}/chmod'
+    - touch:
+      - '={BUILD_DIR}/chmod/foo.jar'
+      - '={BUILD_DIR}/chmod/bar.jar'
+    - classpath: classpath
+      classes:   '={BUILD_DIR}/chmod'
+      jars:      '={BUILD_DIR}/chmod/*.jar'
+    - if: 'classpath != "../../build/chmod:../../build/chmod/bar.jar:../../build/chmod/foo.jar"'
+      then:
+      - throw: 'Classpath test failure: ={classpath}'
+      else:
+      - print: 'Classpath test succes'

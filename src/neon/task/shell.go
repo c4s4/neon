@@ -3,36 +3,31 @@ package task
 import (
 	"fmt"
 	"neon/build"
-	"neon/util"
 	"os"
 	"os/exec"
-	"runtime"
+	"reflect"
 	"strings"
 )
 
 func init() {
-	build.TaskMap["$"] = build.TaskDescriptor{
-		Constructor: Shell,
+	build.AddTask(build.TaskDesc{
+		Name: "$",
+		Func: Shell,
+		Args: reflect.TypeOf(ShellArgs{}),
 		Help: `Execute a command and return output and value.
 
 Arguments:
 
-- $: command to run as a string or a list of strings. You can also provide a
-  map of commands per operating system ("default" defines command to run on
-  operating systems that are not in the map).
-- =: name of the variable to store trimed output into (optional, output to
-  console if not set).
+- $: command to run (string or list of strings).
+- =: name of the variable to set with command output, output to console if not
+  set (string, optional).
 
 Examples:
 
     # execute ls command and get result in 'files' variable
-    - $: 'ls'
+    - $: 'ls -al'
       =: 'files'
-    # execute dir command on windows and ls on other OS
-    - $:
-    	windows: 'dir'
-    	default: 'ls'
-    # execute command as a list of strings
+    # execute command as a list of strings and output on console
     - $: ['ls', '-al']
 
 Notes:
@@ -44,72 +39,47 @@ Notes:
   Windows is 'cmd' which can't properly manage arguments with spaces.
 - Argument of a command defined as a list won't be expanded by shell. Thus
   $USER won't be expanded for instance.`,
-	}
+	})
 }
 
-// Commands lists commands by operating system
-type Commands struct {
-	Build    *build.Build
-	Commands map[string]Command
+type ShellArgs struct {
+	Shell []string `name:"$" wrap`
+	To    string   `name:"=" optional`
 }
 
-// GetCommand return a command depending on current operating system and
-// default command
-func (c Commands) GetCommand() (Command, error) {
-	for system, command := range c.Commands {
-		if system != "default" && system == runtime.GOOS {
-			return command, nil
-		}
-	}
-	command, ok := c.Commands["default"]
-	if !ok {
-		return nil, fmt.Errorf("no command found for '%s'", runtime.GOOS)
-	}
-	return command, nil
-}
-
-// Run execute a command and return its output and an error (if command
-// returned a value different from 0). Arguments:
-// - pipe tells if we should print the output of the command on the console.
-func (c Commands) Run(pipe bool, context *build.Context) (string, error) {
-	command, err := c.GetCommand()
+func Shell(context *build.Context, args interface{}) error {
+	params := args.(ShellArgs)
+	output, err := Run(params.Shell, params.To == "", context)
 	if err != nil {
-		return "", err
-	}
-	output, err := command.Run(c.Build, pipe, context)
-	output = util.RemoveBlankLines(output)
-	output = strings.TrimSuffix(output, "\n")
-	return output, err
-}
-
-// Command is the interface for a command.
-type Command interface {
-	Run(build *build.Build, pipe bool, context *build.Context) (string, error)
-}
-
-// CommandList is a command as a list with executable and arguments.
-type CommandList struct {
-	Parts []string
-}
-
-// Run execute the command and returns its output and an error. Arguments:
-// - pipe tells if we should print output of the command on the console.
-func (c CommandList) Run(build *build.Build, pipe bool, context *build.Context) (string, error) {
-	parts := make([]string, len(c.Parts))
-	var err error
-	for i := 0; i < len(c.Parts); i++ {
-		parts[i], err = context.EvaluateString(c.Parts[i])
-		if err != nil {
-			return "", err
+		if output != "" {
+			context.Message(output)
 		}
+		return err
 	}
-	command := exec.Command(parts[0], parts[1:]...)
+	if params.To != "" {
+		context.SetProperty(params.To, strings.TrimSpace(string(output)))
+	}
+	return nil
+}
+
+func Run(command []string, pipe bool, context *build.Context) (string, error) {
+	if len(command) == 0 {
+		return "", fmt.Errorf("empty command")
+	} else if len(command) < 2 {
+		return RunString(command[0], pipe, context)
+	} else {
+		return RunList(command, pipe, context)
+	}
+}
+
+func RunList(cmd []string, pipe bool, context *build.Context) (string, error) {
+	command := exec.Command(cmd[0], cmd[1:]...)
 	dir, err := os.Getwd()
 	if err != nil {
 		return "", fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
-	command.Env, err = context.EvaluateEnvironment(build)
+	command.Env, err = context.EvaluateEnvironment()
 	if err != nil {
 		return "", fmt.Errorf("building environment: %v", err)
 	}
@@ -131,24 +101,13 @@ func (c CommandList) Run(build *build.Build, pipe bool, context *build.Context) 
 	}
 }
 
-// CommandShell is a command to run in a shell and is made of a single string.
-type CommandShell struct {
-	Script string
-}
-
-// Run execute the command and returns its output and an error. Arguments:
-// - pipe tells if we should print output of the command on the console.
-func (c CommandShell) Run(build *build.Build, pipe bool, context *build.Context) (string, error) {
-	shell, err := build.GetShell()
+func RunString(cmd string, pipe bool, context *build.Context) (string, error) {
+	shell, err := context.Build.GetShell()
 	if err != nil {
 		return "", err
 	}
 	binary := shell[0]
 	arguments := shell[1:]
-	cmd, err := context.EvaluateString(c.Script)
-	if err != nil {
-		return "", err
-	}
 	arguments = append(arguments, cmd)
 	command := exec.Command(binary, arguments...)
 	dir, err := os.Getwd()
@@ -156,7 +115,7 @@ func (c CommandShell) Run(build *build.Build, pipe bool, context *build.Context)
 		return "", fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
-	command.Env, err = context.EvaluateEnvironment(build)
+	command.Env, err = context.EvaluateEnvironment()
 	if err != nil {
 		return "", fmt.Errorf("building environment: %v", err)
 	}
@@ -176,77 +135,4 @@ func (c CommandShell) Run(build *build.Build, pipe bool, context *build.Context)
 		}
 		return string(bytes), nil
 	}
-}
-
-// NewCommands parses a step of the build file to build a command. Arguments:
-// - build is a reference to the build.
-// - object is the parsed step.
-func NewCommands(build *build.Build, object interface{}) (*Commands, error) {
-	if !util.IsMap(object) {
-		m := map[string]interface{}{
-			"default": object,
-		}
-		return NewCommands(build, m)
-	}
-	commands := make(map[string]Command)
-	m, _ := util.ToMapStringInterface(object)
-	for os, cmd := range m {
-		if util.IsSlice(cmd) {
-			c, err := util.ToSliceString(cmd)
-			if err != nil {
-				return nil, err
-			}
-			commands[os] = CommandList{Parts: c}
-		} else if util.IsString(cmd) {
-			s := cmd.(string)
-			commands[os] = CommandShell{Script: s}
-		} else {
-			return nil, fmt.Errorf("command must a string or liste of strings")
-		}
-	}
-	return &Commands{
-		Build:    build,
-		Commands: commands,
-	}, nil
-}
-
-// Shell is the function to build a shell task.
-// Arguments:
-// - target in which will run the task.
-// - args of the task.
-// Returns the task and an error if any.
-func Shell(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"$", "="}
-	if err := CheckFields(args, fields, fields[:1]); err != nil {
-		return nil, err
-	}
-	commands, err := NewCommands(target.Build, args["$"])
-	if err != nil {
-		return nil, err
-	}
-	var variable string
-	var ok bool
-	if args.HasField("=") {
-		variable, ok = args["="].(string)
-		if !ok {
-			return nil, fmt.Errorf("argument = of task $ must be a string")
-		}
-	}
-	return func(context *build.Context) error {
-		_variable, _err := context.EvaluateString(variable)
-		if _err != nil {
-			return fmt.Errorf("processing output argument: %v", _err)
-		}
-		_output, _err := commands.Run(_variable == "", context)
-		if _err != nil {
-			if _output != "" {
-				context.Message(_output)
-			}
-			return _err
-		}
-		if _variable != "" {
-			context.SetProperty(_variable, strings.TrimSpace(string(_output)))
-		}
-		return nil
-	}, nil
 }

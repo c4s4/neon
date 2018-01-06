@@ -3,12 +3,14 @@ package task
 import (
 	"fmt"
 	"neon/build"
-	"neon/util"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["super"] = build.TaskDescriptor{
-		Constructor: Super,
+	build.AddTask(build.TaskDesc{
+		Name: "super",
+		Func: Super,
+		Args: reflect.TypeOf(SuperArgs{}),
 		Help: `Call target with same name in parent build file.
 
 Arguments:
@@ -23,22 +25,18 @@ Examples:
 Notes:
 
 - This will raise en error if parent build files have no target with same name.`,
-	}
+	})
 }
 
-func Super(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"super"}
-	if err := CheckFields(args, fields, fields); err != nil {
-		return nil, err
+type SuperArgs struct{}
+
+func Super(context *build.Context, args interface{}) error {
+	ok, err := context.Build.RunParentTarget(context.Stack.Last(), context)
+	if err != nil {
+		return err
 	}
-	return func(context *build.Context) error {
-		ok, err := target.Build.RunParentTarget(target.Name, context)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return fmt.Errorf("no target '%s' found in parent build files", target.Name)
-		}
-		return nil
-	}, nil
+	if !ok {
+		return fmt.Errorf("no target '%s' found in parent build files", context.Stack.Last())
+	}
+	return nil
 }

@@ -50,11 +50,11 @@ func (build *Build) Info(context *Context) error {
 		}
 	}
 	// print build properties
-	length := util.MaxLength(context.Properties)
-	if len(context.Properties) > 0 {
+	length := util.MaxLineLength(build.Properties.Fields())
+	if len(build.Properties) > 0 {
 		Message("")
 		Message("properties:")
-		for _, name := range context.Properties {
+		for name := range build.Properties {
 			value, err := context.GetProperty(name)
 			if err != nil {
 				return fmt.Errorf("getting property '%s': %v", name, err)
@@ -68,16 +68,16 @@ func (build *Build) Info(context *Context) error {
 	}
 	// print build environment
 	var names []string
-	for name := range context.Environment {
+	for name := range build.Environment {
 		names = append(names, name)
 	}
-	length = util.MaxLength(names)
+	length = util.MaxLineLength(names)
 	sort.Strings(names)
-	if len(context.Environment) > 0 {
+	if len(build.Environment) > 0 {
 		Message("")
 		Message("environment:")
 		for _, name := range names {
-			value := "\"" + context.Environment[name] + "\""
+			value := "\"" + build.Environment[name] + "\""
 			PrintProperty(name, value, []string{}, length)
 		}
 	}
@@ -87,7 +87,7 @@ func (build *Build) Info(context *Context) error {
 	for name := range targets {
 		names = append(names, name)
 	}
-	length = util.MaxLength(names)
+	length = util.MaxLineLength(names)
 	sort.Strings(names)
 	if len(names) > 0 {
 		Message("")
@@ -138,7 +138,7 @@ func PrintHelpTask(task string) {
 	if found {
 		Message(descriptor.Help)
 	} else {
-		Message("Task '%s' was not found", task)
+		Message("Func '%s' was not found", task)
 	}
 }
 

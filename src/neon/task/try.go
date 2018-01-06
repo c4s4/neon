@@ -2,98 +2,77 @@ package task
 
 import (
 	"neon/build"
-	"neon/util"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["try"] = build.TaskDescriptor{
-		Constructor: Try,
+	build.AddTask(build.TaskDesc{
+		Name: "try",
+		Func: Try,
+		Args: reflect.TypeOf(TryArgs{}),
 		Help: `Try/catch/finally construct.
 
 Arguments:
 
-- try: steps to execute.
-- catch: executed if an error occurs (optional).
-- finally: executed in all cases (optional).
+- try: steps to execute (steps).
+- catch: executed if an error occurs (steps, optional).
+- finally: executed in any case (steps, optional).
 
 Examples:
 
     # execute a command and continue even if it fails
     - try:
-      - "command-that-doesnt-exist"
-	- print: "Continue even if command fails"
+      - 'command-that-doesnt-exist'
+	- print: 'Continue even if command fails'
 	# execute a command and print a message if it fails
 	- try:
-	  - "command-that-doesnt-exist"
+	  - 'command-that-doesnt-exist'
 	  catch:
-	  - print: "There was an error!"
+	  - print: 'There was an error!'
 	# execute a command a print message in all cases
 	- try:
-	  - "command-that-doesnt-exist"
+	  - 'command-that-doesnt-exist'
 	  finally:
-	  - print: "Print whatever happens"
+	  - print: 'Print whatever happens'
 
 Notes:
 
 - The error message for the failure is stored in '_error' variable as text.`,
-	}
+	})
 }
 
-func Try(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"try", "catch", "finally"}
-	if err := CheckFields(args, fields, fields[:1]); err != nil {
-		return nil, err
-	}
-	trySteps, err := ParseSteps(target, args, "try")
-	if err != nil {
-		return nil, err
-	}
-	catchSteps, err := ParseSteps(target, args, "catch")
-	if err != nil {
-		return nil, err
-	}
-	finallySteps, err := ParseSteps(target, args, "finally")
-	if err != nil {
-		return nil, err
-	}
-	return func(context *build.Context) error {
-		_depth := context.Index.Len()
-		context.SetProperty("_error", "")
-		var _tryError error
-		var _catchError error
-		var _finallyError error
-		_tryError = context.Run(trySteps)
-		if _tryError != nil {
-			for context.Index.Len() > _depth {
-				context.Index.Shrink()
-			}
-			if len(catchSteps) > 0 || (len(catchSteps) == 0 && len(finallySteps) == 0) {
-				context.SetProperty("_error", _tryError.Error())
-				_tryError = nil
-				_catchError = context.Run(catchSteps)
-				if _catchError != nil {
-					for context.Index.Len() > _depth {
-						context.Index.Shrink()
-					}
-				}
-			}
+type TryArgs struct {
+	Try     build.Steps `steps`
+	Catch   build.Steps `optional steps`
+	Finally build.Steps `optional steps`
+}
+
+func Try(context *build.Context, args interface{}) error {
+	params := args.(TryArgs)
+	context.SetProperty("_error", "")
+	var tryError error
+	var catchError error
+	var finallyError error
+	tryError = params.Try.Run(context)
+	if tryError != nil {
+		if len(params.Catch) > 0 || (len(params.Catch) == 0 && len(params.Finally) == 0) {
+			context.SetProperty("_error", tryError.Error())
+			tryError = nil
+			catchError = params.Catch.Run(context)
 		}
-		_finallyError = context.Run(finallySteps)
-		if _finallyError != nil {
-			for context.Index.Len() > _depth {
-				context.Index.Shrink()
-			}
-			context.SetProperty("_error", _finallyError.Error())
-			return _finallyError
-		}
-		if _catchError != nil {
-			context.SetProperty("_error", _catchError.Error())
-			return _catchError
-		}
-		if _tryError != nil {
-			context.SetProperty("_error", _tryError.Error())
-			return _tryError
-		}
-		return nil
-	}, nil
+	}
+	finallyError = params.Finally.Run(context)
+	if finallyError != nil {
+		context.SetProperty("_error", finallyError.Error())
+		return finallyError
+	}
+	if catchError != nil {
+		context.SetProperty("_error", catchError.Error())
+		return catchError
+	}
+	if tryError != nil {
+		context.SetProperty("_error", tryError.Error())
+		return tryError
+	}
+	return nil
 }

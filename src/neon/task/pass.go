@@ -2,12 +2,14 @@ package task
 
 import (
 	"neon/build"
-	"neon/util"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["pass"] = build.TaskDescriptor{
-		Constructor: Pass,
+	build.AddTask(build.TaskDesc{
+		Name: "pass",
+		Func: Pass,
+		Args: reflect.TypeOf(PassArgs{}),
 		Help: `Does nothing.
 
 Arguments:
@@ -22,15 +24,11 @@ Examples:
 Notes:
 
 - This implementation is super optimized for speed.`,
-	}
+	})
 }
 
-func Pass(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"pass"}
-	if err := CheckFields(args, fields, fields); err != nil {
-		return nil, err
-	}
-	return func(context *build.Context) error {
-		return nil
-	}, nil
+type PassArgs struct{}
+
+func Pass(context *build.Context, args interface{}) error {
+	return nil
 }

@@ -4,121 +4,78 @@ import (
 	"bufio"
 	"fmt"
 	"neon/build"
-	"neon/util"
 	"os"
+	"reflect"
 	"regexp"
 	"strings"
 )
 
 func init() {
-	build.TaskMap["prompt"] = build.TaskDescriptor{
-		Constructor: Prompt,
+	build.AddTask(build.TaskDesc{
+		Name: "prompt",
+		Func: Prompt,
+		Args: reflect.TypeOf(PromptArgs{}),
 		Help: `Prompt the user for the value of a given property matching a pattern.
 
 Arguments:
 
-- prompt: message to print at prompt. Should include a description of the
-  expected pattern.
-- property: the name of the property to set.
-- default: default value if user doesn't type anything. Written into square
-  brackets after prompt message. Optional.
+- prompt: message to print at prompt that include a description of expected
+  pattern (string).
+- to: name of the property to set (string).
+- default: default value if user doesn't type anything, written into square
+  brackets after prompt message (string, optional).
 - pattern: a regular expression for prompted value. If this pattern is not
-  matched, this task will prompt again. Optional, if no pattern is given, any
-  value is accepted.
-- error: the error message to print when pattern is not matched.
+  matched, this task will prompt again. If no pattern is given, any value is
+  accepted (string, optional).
+- error: error message to print when pattern is not matched (string, optional).
 
 Examples:
 
-    # returns: typed message
-    - prompt:  "Enter your age"
-      to:      "age"
-      default: "18"
-      pattern: "^\d+\s$"
-      error:   "Age must be a positive integer"`,
-	}
+    # prompt for age that is a positive number
+    - prompt:  'Enter your age'
+      to:      'age'
+      default: '18'
+      pattern: '^\d+$'
+      error:   'Age must be a positive integer'`,
+	})
 }
 
-func Prompt(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"prompt", "to", "default", "pattern", "error"}
-	if err := CheckFields(args, fields, fields[:2]); err != nil {
-		return nil, err
+type PromptArgs struct {
+	Prompt  string
+	To      string
+	Default string `optional`
+	Pattern string `optional`
+	Error   string `optional`
+}
+
+func Prompt(context *build.Context, args interface{}) error {
+	params := args.(PromptArgs)
+	message := params.Prompt
+	if params.Default != "" {
+		message += " [" + params.Default + "]"
 	}
-	message, err := args.GetString("prompt")
-	if err != nil {
-		return nil, fmt.Errorf("argument of task prompt must be a string")
-	}
-	to, err := args.GetString("to")
-	if err != nil {
-		return nil, fmt.Errorf("argument to of task prompt must be a string")
-	}
-	var def string
-	if args.HasField("default") {
-		def, err = args.GetString("default")
+	message += ": "
+	done := false
+	for !done {
+		fmt.Print(message)
+		value, err := bufio.NewReader(os.Stdin).ReadString('\n')
 		if err != nil {
-			return nil, fmt.Errorf("argument default of task prompt must be a string")
+			return fmt.Errorf("reading user input: %v", err)
 		}
-	}
-	var pattern string
-	if args.HasField("pattern") {
-		pattern, err = args.GetString("pattern")
-		if err != nil {
-			return nil, fmt.Errorf("argument pattern of task prompt must be a string")
+		value = strings.TrimSpace(value)
+		if value == "" && params.Default != "" {
+			value = params.Default
 		}
-	}
-	var errorMessage string
-	if args.HasField("error") {
-		errorMessage, err = args.GetString("error")
-		if err != nil {
-			return nil, fmt.Errorf("argument error of task prompt must be a string")
-		}
-	}
-	return func(context *build.Context) error {
-		_message, _err := context.EvaluateString(message)
-		if _err != nil {
-			return fmt.Errorf("processing prompt argument: %v", _err)
-		}
-		_to, _err := context.EvaluateString(to)
-		if _err != nil {
-			return fmt.Errorf("evaluating destination variable: %v", _err)
-		}
-		_default, _err := context.EvaluateString(def)
-		if _err != nil {
-			return fmt.Errorf("evaluating default value: %v", _err)
-		}
-		_pattern, _err := context.EvaluateString(pattern)
-		if _err != nil {
-			return fmt.Errorf("evaluating input regular expression: %v", _err)
-		}
-		_errorMessage, _err := context.EvaluateString(errorMessage)
-		if _err != nil {
-			return fmt.Errorf("evaluating error message: %v", _err)
-		}
-		if _default != "" {
-			_message += " [" + _default + "]"
-		}
-		_message += ": "
-		done := false
-		for !done {
-			fmt.Print(_message)
-			_value, _err := bufio.NewReader(os.Stdin).ReadString('\n')
-			if _err != nil {
-				return fmt.Errorf("reading user input: %v", _err)
-			}
-			_value = strings.TrimSpace(_value)
-			if _value == "" && _default != "" {
-				_value = _default
-			}
-			if pattern != "" && !regexp.MustCompile(_pattern).MatchString(_value) {
-				if _errorMessage != "" {
-					context.Message(_errorMessage)
-				} else {
-					context.Message("value '%s' doesn't match pattern '%s'", _value, _pattern)
-				}
+		if params.Pattern != "" && !regexp.MustCompile(params.Pattern).MatchString(value) {
+			if params.Error != "" {
+				context.Message(params.Error)
 			} else {
-				done = true
-				context.SetProperty(_to, string(_value))
+				context.Message("value '%s' doesn't match pattern '%s'", value, params.Pattern)
 			}
+		} else {
+			done = true
+			context.SetProperty(params.To, string(value))
 		}
-		return nil
-	}, nil
+	}
+	return nil
 }

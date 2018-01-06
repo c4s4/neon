@@ -2,16 +2,16 @@ doc: Built file to test tasks
 default: task_write
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
   task_write:
     doc: Test task write
     steps:
-    - mkdir: "#{BUILD_DIR}/write"
-    - write: "#{BUILD_DIR}/write/test.txt"
-      text:  "Hello World!"
+    - mkdir: '={BUILD_DIR}/write'
+    - write: '={BUILD_DIR}/write/test.txt'
+      text:  'Hello World!'
     - |
       ioutil = import("io/ioutil")
       filepath = import("path/filepath")
@@ -24,8 +24,8 @@ targets:
         throw("Write test failure")
       }
       println("Write test sucess")
-    - write:  "#{BUILD_DIR}/write/test.txt"
-      text:   " And you too!"
+    - write:  '={BUILD_DIR}/write/test.txt'
+      text:   ' And you too!'
       append: true
     - |
       ioutil = import("io/ioutil")

@@ -3,44 +3,39 @@ package task
 import (
 	"fmt"
 	"neon/build"
-	"neon/util"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["throw"] = build.TaskDescriptor{
-		Constructor: Throw,
+	build.AddTask(build.TaskDesc{
+		Name: "throw",
+		Func: Throw,
+		Args: reflect.TypeOf(ThrowArgs{}),
 		Help: `Throws an error.
 
 Arguments:
 
-- throw: the message of the error.
+- throw: the message of the error (string).
 
 Examples:
 
-    # stop the build because tests don't run
-    - throw: "ERROR: tests don't run"
+    # stop the build because tests failed
+    - throw: "ERROR: tests failed"
 
 Notes:
 
-- The error message will be printed on the console as the source of the build
-  failure.`,
-	}
+- You can catch raised errors with try/catch/finally task.
+- Property _error is set with the error message.
+- If the error was not catch, the error message will be printed on the console
+  as the cause of the build failure.`,
+	})
 }
 
-func Throw(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"throw"}
-	if err := CheckFields(args, fields, fields); err != nil {
-		return nil, err
-	}
-	message, ok := args["throw"].(string)
-	if !ok {
-		return nil, fmt.Errorf("argument of throw print must be a string")
-	}
-	return func(context *build.Context) error {
-		_message, _err := context.EvaluateString(message)
-		if _err != nil {
-			return fmt.Errorf("processing thow argument: %v", _err)
-		}
-		return fmt.Errorf(_message)
-	}, nil
+type ThrowArgs struct {
+	Throw string
+}
+
+func Throw(context *build.Context, args interface{}) error {
+	params := args.(ThrowArgs)
+	return fmt.Errorf(params.Throw)
 }

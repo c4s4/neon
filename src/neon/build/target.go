@@ -12,7 +12,7 @@ type Target struct {
 	Name    string
 	Doc     string
 	Depends []string
-	Steps   []Step
+	Steps   Steps
 }
 
 // Make a target
@@ -70,7 +70,7 @@ func ParseTargetSteps(object util.Object, target *Target) error {
 		}
 		var steps []Step
 		for index, object := range list {
-			step, err := NewStep(target, object)
+			step, err := NewStep(object)
 			if err != nil {
 				return fmt.Errorf("in step %d: %v", index+1, err)
 			}
@@ -97,27 +97,6 @@ func (target *Target) Run(context *Context) error {
 	if err != nil {
 		return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
 	}
-	context.Index = NewIndex()
-	for index, step := range target.Steps {
-		context.Index.Set(index)
-		err := step.Run(context)
-		if err != nil {
-			return fmt.Errorf("in step %s: %v", context.Index.String(), err)
-		}
-	}
-	return nil
-}
-
-// Run target steps
-func (target *Target) RunSteps(context *Context) error {
-	context.Stack.Push(target.Name)
-	context.Index = NewIndex()
-	for index, step := range target.Steps {
-		context.Index.Set(index)
-		err := step.Run(context)
-		if err != nil {
-			return fmt.Errorf("in step %s: %v", context.Index.String(), err)
-		}
-	}
+	target.Steps.Run(context)
 	return nil
 }

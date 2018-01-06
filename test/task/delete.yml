@@ -2,7 +2,7 @@ doc: Built file to test tasks
 default: task_delete
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
@@ -10,9 +10,9 @@ targets:
     doc: Test task delete
     steps:
     # delete a directory
-    - mkdir: "#{BUILD_DIR}/delete/foo"
-    - touch: "#{BUILD_DIR}/delete/foo/test.txt"
-    - delete: "#{BUILD_DIR}/delete/foo"
+    - mkdir: '={BUILD_DIR}/delete/foo'
+    - touch: '={BUILD_DIR}/delete/foo/test.txt'
+    - delete: '={BUILD_DIR}/delete/foo'
     - |
       os = import("os")
       filepath = import("path/filepath")
@@ -24,8 +24,8 @@ targets:
         println("Delete test success")
       }
     # delete files
-    - touch: "#{BUILD_DIR}/delete/test.txt"
-    - delete: "#{BUILD_DIR}/delete/test.txt"
+    - touch: '={BUILD_DIR}/delete/test.txt'
+    - delete: '={BUILD_DIR}/delete/test.txt'
     - |
       os = import("os")
       filepath = import("path/filepath")

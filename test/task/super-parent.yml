@@ -1,0 +1,17 @@
+doc: Built file to test tasks
+default: pass
+
+properties:
+  FOO: 'foo'
+
+targets:
+
+  pass:
+    doc: Do nothing
+    steps:
+    - pass:
+
+  task_super:
+    doc: Parent task for task_super
+    steps:
+    - print: 'Task super success'

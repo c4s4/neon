@@ -4,50 +4,40 @@ import (
 	"fmt"
 	"io/ioutil"
 	"neon/build"
-	"neon/util"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["read"] = build.TaskDescriptor{
-		Constructor: Read,
+	build.AddTask(build.TaskDesc{
+		Name: "read",
+		Func: Read,
+		Args: reflect.TypeOf(ReadArgs{}),
 		Help: `Read given file as text and put its content in a variable.
 
 Arguments:
 
-- read: the file to read as a string.
-- to: the name of the variable to set with the content.
+- read: file to read (string, file).
+- to: name of the variable to set with its content (string).
 
 Examples:
 
-    # put content of LICENSE file on license variable
-    - read: "LICENSE"
-      to: license`,
-	}
+    # put content of LICENSE file in license variable
+    - read: 'LICENSE'
+      to:   'license'`,
+	})
 }
 
-func Read(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"read", "to"}
-	if err := CheckFields(args, fields, fields); err != nil {
-		return nil, err
-	}
-	file, err := args.GetString("read")
+type ReadArgs struct {
+	Read string `file`
+	To   string
+}
+
+func Read(context *build.Context, args interface{}) error {
+	params := args.(ReadArgs)
+	content, err := ioutil.ReadFile(params.Read)
 	if err != nil {
-		return nil, fmt.Errorf("argument of task read must be a string")
+		return fmt.Errorf("reading content of file '%s': %v", params.Read, err)
 	}
-	to, err := args.GetString("to")
-	if err != nil {
-		return nil, fmt.Errorf("argument to of task read must be a string")
-	}
-	return func(context *build.Context) error {
-		_file, _err := context.EvaluateString(file)
-		if _err != nil {
-			return fmt.Errorf("processing read argument: %v", _err)
-		}
-		_content, _err := ioutil.ReadFile(_file)
-		if _err != nil {
-			return fmt.Errorf("reading content of file '%s': %v", _file, _err)
-		}
-		context.SetProperty(to, string(_content))
-		return nil
-	}, nil
+	context.SetProperty(params.To, string(content))
+	return nil
 }

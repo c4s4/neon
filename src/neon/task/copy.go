@@ -5,24 +5,25 @@ import (
 	"neon/build"
 	"neon/util"
 	"path/filepath"
+	"reflect"
 )
 
 func init() {
-	build.TaskMap["copy"] = build.TaskDescriptor{
-		Constructor: Copy,
+	build.AddTask(build.TaskDesc{
+		Name: "copy",
+		Func: Copy,
+		Args: reflect.TypeOf(CopyArgs{}),
 		Help: `Copy file(s).
 
 Arguments:
 
-- copy: the list of globs of files to copy (as a string or list of strings).
-- dir: the root directory for glob (as a string, optional).
-- exclude: globs of files to exclude (as a string or list of strings,
-  optional).
-- tofile: the file to copy to (as a string, optional, only if glob selects a
-  single file).
-- todir: directory to copy file(s) to (as a string, optional).
-- flat: tells if files should be flatten in destination directory (as a boolean,
-  optional, defaults to true).
+- copy: globs of files to copy (strings, file, wrap).
+- dir: root directory for globs, defaults to '.' (string, optional, file).
+- exclude: globs of files to exclude (strings, optional, file, wrap).
+- tofile: file to copy file to (string, optional, file).
+- todir: directory to copy files to (string, optional, file).
+- flat: tells if files should be flatten in destination directory, defaults to
+  false (boolean, optional).
 
 Examples:
 
@@ -37,113 +38,53 @@ Examples:
     # copy all go sources to directory 'src', preserving directory structure
     - copy: "**/*.go"
       todir: "src"
-      flat: false`,
-	}
+      flat: false
+
+Notes:
+
+- Parameter 'tofile' is valid if only one file was selected by globs.
+- One and only one of parameters 'tofile' and 'todir' might be set.`,
+	})
 }
 
-func Copy(target *build.Target, args util.Object) (build.Task, error) {
-	fields := []string{"copy", "dir", "exclude", "tofile", "todir", "flat"}
-	if err := CheckFields(args, fields, fields[:1]); err != nil {
-		return nil, err
+type CopyArgs struct {
+	Copy    []string `file wrap`
+	Dir     string   `optional file`
+	Exclude []string `optional file wrap`
+	Tofile  string   `optional file`
+	Todir   string   `optional file`
+	Flat    bool     `optional`
+}
+
+func Copy(context *build.Context, args interface{}) error {
+	params := args.(CopyArgs)
+	if (params.Tofile != "" && params.Todir != "") ||
+		(params.Tofile == "" && params.Todir == "") {
+		return fmt.Errorf("one and only one of parameters 'tofile' an 'todir' may be set")
 	}
-	includes, err := args.GetListStringsOrString("copy")
+	sources, err := util.FindFiles(params.Dir, params.Copy, params.Exclude, false)
 	if err != nil {
-		return nil, fmt.Errorf("argument copy must be a string or list of strings")
+		return fmt.Errorf("getting source files for copy task: %v", err)
 	}
-	var dir string
-	if args.HasField("dir") {
-		dir, err = args.GetString("dir")
-		if err != nil {
-			return nil, fmt.Errorf("argument dir of task copy must be a string")
-		}
+	if params.Tofile != "" && len(sources) > 1 {
+		return fmt.Errorf("can't copy more than one file to a given file, use todir instead")
 	}
-	var excludes []string
-	if args.HasField("exclude") {
-		excludes, err = args.GetListStringsOrString("exclude")
-		if err != nil {
-			return nil, fmt.Errorf("argument exclude must be string or list of strings")
-		}
-	}
-	var tofile string
-	if args.HasField("tofile") {
-		tofile, err = args.GetString("tofile")
-		if err != nil {
-			return nil, fmt.Errorf("argument tofile of task copy must be a string")
-		}
-	}
-	var toDir string
-	if args.HasField("todir") {
-		toDir, err = args.GetString("todir")
-		if err != nil {
-			return nil, fmt.Errorf("argument todir of task copy must be a string")
-		}
-	}
-	flat := true
-	if args.HasField("flat") {
-		flat, err = args.GetBoolean("flat")
-		if err != nil {
-			return nil, fmt.Errorf("argument flat of task copy must be a boolean")
-		}
-	}
-	if (tofile == "" && toDir == "") || (tofile != "" && toDir != "") {
-		return nil, fmt.Errorf("copy task must have one of 'to' or 'toDir' argument")
-	}
-	return func(context *build.Context) error {
-		// evaluate arguments
-		_eval, _err := context.EvaluateString(dir)
-		if _err != nil {
-			return fmt.Errorf("evaluating destination directory: %v", _err)
-		}
-		_dir := _eval
-		_eval, _err = context.EvaluateString(tofile)
-		if _err != nil {
-			return fmt.Errorf("evaluating destination file: %v", _err)
-		}
-		_tofile := _eval
-		_eval, _err = context.EvaluateString(toDir)
-		if _err != nil {
-			return fmt.Errorf("evaluating destination directory: %v", _err)
-		}
-		_toDir := util.ExpandUserHome(_eval)
-		_includes := make([]string, len(includes))
-		for _index, _include := range includes {
-			_includes[_index], _err = context.EvaluateString(_include)
-			if _err != nil {
-				return fmt.Errorf("evaluating includes: %v", _err)
-			}
-		}
-		_excludes := make([]string, len(excludes))
-		for _index, _exclude := range excludes {
-			_excludes[_index], _err = context.EvaluateString(_exclude)
-			if _err != nil {
-				return fmt.Errorf("evaluating excludes: %v", _err)
-			}
-		}
-		// find source files
-		_sources, _err := context.FindFiles(_dir, _includes, _excludes, false)
-		if _err != nil {
-			return fmt.Errorf("getting source files for copy task: %v", _err)
-		}
-		if _tofile != "" && len(_sources) > 1 {
-			return fmt.Errorf("can't copy more than one file to a given file, use todir instead")
-		}
-		if len(_sources) < 1 {
-			return nil
-		}
-		context.Message("Copying %d file(s)", len(_sources))
-		if _tofile != "" {
-			file := filepath.Join(_dir, _sources[0])
-			_err = util.CopyFile(file, _tofile)
-			if _err != nil {
-				return fmt.Errorf("copying file: %v", _err)
-			}
-		}
-		if _toDir != "" {
-			_err = util.CopyFilesToDir(_dir, _sources, _toDir, flat)
-			if _err != nil {
-				return fmt.Errorf("copying file: %v", _err)
-			}
-		}
+	if len(sources) < 1 {
 		return nil
-	}, nil
+	}
+	context.Message("Copying %d file(s)", len(sources))
+	if params.Tofile != "" {
+		file := filepath.Join(params.Dir, sources[0])
+		err = util.CopyFile(file, params.Tofile)
+		if err != nil {
+			return fmt.Errorf("copying file: %v", err)
+		}
+	}
+	if params.Todir != "" {
+		err = util.CopyFilesToDir(params.Dir, sources, params.Todir, params.Flat)
+		if err != nil {
+			return fmt.Errorf("copying file: %v", err)
+		}
+	}
+	return nil
 }

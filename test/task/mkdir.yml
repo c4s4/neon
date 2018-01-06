@@ -2,18 +2,44 @@ doc: Built file to test tasks
 default: task_mkdir
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build'
 
 targets:
 
   task_mkdir:
     doc: Test task mkdir
     steps:
-    - mkdir: "#{BUILD_DIR}/mkdir"
+    # create a single directory
+    - mkdir: '={BUILD_DIR}/mkdir'
     - |
       os = import("os")
       filepath = import("path/filepath")
       dir = filepath.Join(BUILD_DIR, "mkdir")
+      stat, err = os.Stat(dir)
+      if err != nil {
+        throw("Mkdir test failure")
+      } else if !stat.IsDir() {
+        throw("Mkdir task failure")
+      } else {
+        println("Mkdir test success")
+      }
+    # create two directories
+    - mkdir:
+      - '={BUILD_DIR}/mkdir/foo'
+      - '={BUILD_DIR}/mkdir/bar'
+    - |
+      os = import("os")
+      filepath = import("path/filepath")
+      dir = filepath.Join(BUILD_DIR, "mkdir", "foo")
+      stat, err = os.Stat(dir)
+      if err != nil {
+        throw("Mkdir test failure")
+      } else if !stat.IsDir() {
+        throw("Mkdir task failure")
+      } else {
+        println("Mkdir test success")
+      }
+      dir = filepath.Join(BUILD_DIR, "mkdir", "bar")
       stat, err = os.Stat(dir)
       if err != nil {
         throw("Mkdir test failure")
