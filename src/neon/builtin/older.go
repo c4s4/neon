@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["older"] = build.BuiltinDescriptor{
-		Function: Older,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "older",
+		Func: Older,
 		Help: `Tells if source is older than result file (if any).
 
 Arguments:
@@ -26,7 +27,7 @@ Examples:
     if older("source.md", "result.pdf") {
     	compile("source.md")
     }`,
-	}
+	})
 }
 
 func Older(source, result string) bool {

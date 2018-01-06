@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["exists"] = build.BuiltinDescriptor{
-		Function: Exists,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "exists",
+		Func: Exists,
 		Help: `Tells if a given path exists.
 
 Arguments:
@@ -23,7 +24,7 @@ Examples:
     // test if given path exists
     exists("/foo/bar")
     // returns: true if file "/foo/bar" exists`,
-	}
+	})
 }
 
 func Exists(path string) bool {

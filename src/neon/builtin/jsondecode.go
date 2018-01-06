@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["jsondecode"] = build.BuiltinDescriptor{
-		Function: JsonDecode,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "jsondecode",
+		Func: JsonDecode,
 		Help: `Decode given string in Json format.
 
 Arguments:
@@ -23,7 +24,7 @@ Examples:
     // decode given list
     jsondecode("['foo', 'bar']")
     // returns string slice: ["foo", "bar"]`,
-	}
+	})
 }
 
 func JsonDecode(encoded string) interface{} {

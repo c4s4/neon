@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["contains"] = build.BuiltinDescriptor{
-		Function: Contains,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "contains",
+		Func: Contains,
 		Help: `Contains strings.
 
 Arguments:
@@ -24,7 +25,7 @@ Examples:
     // Tell if the list contains "bar"
     contains(["foo", "bar"], "bar")
     // returns: true`,
-	}
+	})
 }
 
 func Contains(elements interface{}, s string) bool {

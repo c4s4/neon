@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["uppercase"] = build.BuiltinDescriptor{
-		Function: Uppercase,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "uppercase",
+		Func: Uppercase,
 		Help: `Put a string in upper case.
 
 Arguments:
@@ -23,7 +24,7 @@ Examples:
     // set string in upper case
     uppercase("FooBAR")
     // returns: "FOOBAR"`,
-	}
+	})
 }
 
 func Uppercase(message string) string {

@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["filename"] = build.BuiltinDescriptor{
-		Function: Filename,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "filename",
+		Func: Filename,
 		Help: `Return filename of a given path.
 
 Arguments:
@@ -23,7 +24,7 @@ Examples:
     // get filename of path "/foo/bar/spam.txt"
     filename("/foo/bar/spam.txt")
     // returns: "spam.txt"`,
-	}
+	})
 }
 
 func Filename(path string) string {

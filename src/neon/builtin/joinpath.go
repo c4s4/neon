@@ -7,8 +7,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["joinpath"] = build.BuiltinDescriptor{
-		Function: Joinpath,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "joinpath",
+		Func: Joinpath,
 		Help: `Join file paths.
 
 Arguments:
@@ -25,7 +26,7 @@ Examples:
     joinpath("foo", "bar", "spam.txt")
     // returns: "foo/bar/spam.txt" on a Linux box and "foo\bar\spam.txt" on
     // Windows`,
-	}
+	})
 }
 
 func Joinpath(paths ...interface{}) string {

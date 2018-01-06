@@ -5,8 +5,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["jsonencode"] = build.BuiltinDescriptor{
-		Function: JsonEncode,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "jsonencode",
+		Func: JsonEncode,
 		Help: `Encode given variable in Json format.
 
 Arguments:
@@ -22,7 +23,7 @@ Examples:
     // encode given list
     jsonencode(["foo", "bar"])
     // returns: "['foo', 'bar']"`,
-	}
+	})
 }
 
 func JsonEncode(object interface{}) string {

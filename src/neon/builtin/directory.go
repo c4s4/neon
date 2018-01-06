@@ -7,8 +7,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["directory"] = build.BuiltinDescriptor{
-		Function: Directory,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "directory",
+		Func: Directory,
 		Help: `Return directory of a given path.
 
 Arguments:
@@ -24,7 +25,7 @@ Examples:
     // get directory of path "/foo/bar/spam.txt"
     dir = directory("/foo/bar/spam.txt")
     // returns: "/foo/bar"`,
-	}
+	})
 }
 
 func Directory(path string) string {

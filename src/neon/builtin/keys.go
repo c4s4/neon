@@ -5,8 +5,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["keys"] = build.BuiltinDescriptor{
-		Function: Keys,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "keys",
+		Func: Keys,
 		Help: `Return keys of gien map.
 
 Arguments:
@@ -22,7 +23,7 @@ Examples:
     // get keys of a map
     keys({"foo": 1, "bar": 2})
     // returns: ["foo", "bar"]`,
-	}
+	})
 }
 
 func Keys(themap map[interface{}]interface{}) []interface{} {

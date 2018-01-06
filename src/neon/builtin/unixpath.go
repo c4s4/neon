@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["unixpath"] = build.BuiltinDescriptor{
-		Function: UnixPath,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "unixpath",
+		Func: UnixPath,
 		Help: `Convert a path to Unix format.
 
 Arguments:
@@ -23,7 +24,7 @@ Examples:
     // convert path to unix
     uppercase("c:\foo\bar")
     // returns: "/c/foo/bar"`,
-	}
+	})
 }
 
 func UnixPath(path string) string {

@@ -6,8 +6,9 @@ import (
 )
 
 func init() {
-	build.BuiltinMap["absolute"] = build.BuiltinDescriptor{
-		Function: Absolute,
+	build.AddBuiltin(build.BuiltinDesc {
+		Name: "absolute",
+		Func: Absolute,
 		Help: `Return absolute value of a given path.
 
 Arguments:
@@ -23,7 +24,7 @@ Examples:
     // get absolute value of path "foo/../bar/spam.txt"
     path = absolute("foo/../bar/spam.txt")
     // returns: "/home/user/build/bar/spam.txt"`,
-	}
+	})
 }
 
 func Absolute(path string) string {
