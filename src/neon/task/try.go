@@ -56,22 +56,22 @@ func Try(context *build.Context, args interface{}) error {
 	tryError = params.Try.Run(context)
 	if tryError != nil {
 		if len(params.Catch) > 0 || (len(params.Catch) == 0 && len(params.Finally) == 0) {
-			context.SetProperty("_error", tryError.Error())
+			context.SetProperty("_error", RemoveStep(tryError.Error()))
 			tryError = nil
 			catchError = params.Catch.Run(context)
 		}
 	}
 	finallyError = params.Finally.Run(context)
 	if finallyError != nil {
-		context.SetProperty("_error", finallyError.Error())
+		context.SetProperty("_error", RemoveStep(finallyError.Error()))
 		return finallyError
 	}
 	if catchError != nil {
-		context.SetProperty("_error", catchError.Error())
+		context.SetProperty("_error", RemoveStep(catchError.Error()))
 		return catchError
 	}
 	if tryError != nil {
-		context.SetProperty("_error", tryError.Error())
+		context.SetProperty("_error", RemoveStep(tryError.Error()))
 		return tryError
 	}
 	return nil
