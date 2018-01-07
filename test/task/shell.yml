@@ -54,4 +54,5 @@ targets:
         do:
         - $: ['echo', '={i}']
           =: 'result'
+        - print: '={i}'
         - assert: 'result == toString(i)'
