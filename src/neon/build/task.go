@@ -197,8 +197,8 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 				expected := field.Type
 				actual := reflect.TypeOf(val)
 				if actual != expected {
-					return nil, fmt.Errorf("bad expression return type, expected '%s' but '%s' was returned",
-						expected.Name(), actual.Name())
+					return nil, fmt.Errorf("bad expression return type, expected '%v' but '%v' was returned",
+						expected, actual)
 				}
 			}
 			// evaluate arguments
