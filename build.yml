@@ -4,85 +4,82 @@ extends: c4s4/build/go-app.yml
 
 properties:
   NAME:      'neon'
-  BUILD_DIR: 'build'
-  ARC_DIR:   '#{BUILD_DIR}/#{NAME}-#{VERSION}'
+  ARC_DIR:   '={BUILD_DIR}/={NAME}-={VERSION}'
   REFERENCE: 'doc/reference.md'
-  WIN_SHARE: '/home/casa/misc/shared'
   LIBRARIES:
+  - 'github.com/mitchellh/gox'
   - 'gopkg.in/yaml.v2'
   - 'github.com/c4s4/anko'
   - 'github.com/mattn/go-zglob'
   - 'github.com/fatih/color'
-  - 'github.com/mitchellh/gox'
 
 targets:
 
   integ:
-    doc: 'Run integration tests'
+    doc:     Run integration tests
+    depends: bin
     steps:
     - print: "Running integration tests"
     - for: 'file'
       in:  'find("test", "**/*.yml")'
-      # assert
       do:
-      - print: 'Running build file "#{file}"'
-      - $: 'bin/neon -file "test/#{file}"'
+      - print: 'Running build file "={file}"'
+      - $: ['bin/neon', '-file', 'test/={file}']
 
   fmt:
     doc: Reformat code
     steps:
-    - print: 'Reformating code'
-    - $: [gofmt, -s, -w, src/neon/]
+    - print: 'Formatting code with fmt'
+    - $: ['gofmt', '-s', '-w', 'src/neon/']
 
   bin:
     doc: 'Build neon binary'
     steps:
     - print: "Building neon binary in 'bin/neon'"
     - delete: 'bin/neon'
-    - $: 'go install -ldflags "-X main.VERSION=#{VERSION}" #{NAME}'
+    - $: ['go', 'install', '-ldflags', '-X main.VERSION=={VERSION}', '={NAME}']
 
   refs:
-    doc: 'Generate reference documentation for tasks and builtins'
+    doc:     Generate reference documentation for tasks and builtins
     depends: bin
     steps:
-    - $: 'bin/neon -refs > #{REFERENCE}'
-    # we add and commit reference if modified
+    - $: 'bin/neon -refs > ={REFERENCE}'
     - try:
-      - $: 'git diff --quiet --exit-code #{REFERENCE}'
+      - $: ['git', 'diff', '--quiet', '--exit-code', '={REFERENCE}']
       catch:
-      - $: 'git add "#{REFERENCE}"'
-      - $: 'git commit -m "Updated reference" "#{REFERENCE}"'
+      - $: ['git', 'add', '={REFERENCE}']
+      - $: ['git', 'commit', '-m', 'Updated reference', '={REFERENCE}']
 
   binaries:
     doc: Generate binaries for all platforms
     steps:
-    - mkdir: '#{BUILD_DIR}/bin/'
-    - $: ['gox', '-ldflags', '-X main.VERSION=#{VERSION}',
-          '-output=#{BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', '#{NAME}']
+    - mkdir: '={BUILD_DIR}/bin/'
+    - $: ['gox', '-ldflags', '-X main.VERSION=={VERSION}',
+          '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', '={NAME}']
 
   archive:
-    doc: 'Generate distribution archive'
+    doc:     Generate distribution archive
     depends: binaries
     steps:
-    - mkdir: '#{ARC_DIR}/bin'
-    - copy:  '#{BUILD_DIR}/bin/*'
-      todir: '#{ARC_DIR}/bin'
-    - copy: 'LICENSE.txt'
-      todir: '#{ARC_DIR}/'
-    - $: 'md2pdf -o #{ARC_DIR}/README.pdf README.md'
-    - $: 'changelog to markdown > #{BUILD_DIR}/CHANGELOG.md'
-    - $: 'md2pdf -o #{ARC_DIR}/CHANGELOG.pdf #{BUILD_DIR}/CHANGELOG.md'
-    - delete: '#{BUILD_DIR}/CHANGELOG.md'
-    - mkdir: '#{ARC_DIR}/doc'
-    - $: 'md2pdf -o #{ARC_DIR}/doc/quickstart.pdf doc/quickstart.md'
-    - $: 'md2pdf -o #{ARC_DIR}/doc/usermanual.pdf doc/usermanual.md'
-    - $: 'md2pdf -o #{ARC_DIR}/doc/reference.pdf doc/reference.md'
+    - mkdir: '={ARC_DIR}/bin'
+    - copy:  '={BUILD_DIR}/bin/*'
+      todir: '={ARC_DIR}/bin'
+    - copy:  'LICENSE.txt'
+      todir: '={ARC_DIR}/'
+    - $: ['md2pdf', '-o', '={ARC_DIR}/README.pdf', 'README.md']
+    - $: 'changelog to markdown > ={BUILD_DIR}/CHANGELOG.md'
+    - $: ['md2pdf', '-o', '={ARC_DIR}/CHANGELOG.pdf', '={BUILD_DIR}/CHANGELOG.md']
+    - delete: '={BUILD_DIR}/CHANGELOG.md'
+    - mkdir: '={ARC_DIR}/doc'
+    - $: ['md2pdf', '-o', '={ARC_DIR}/doc/quickstart.pdf', 'doc/quickstart.md']
+    - $: ['md2pdf', '-o', '={ARC_DIR}/doc/usermanual.pdf', 'doc/usermanual.md']
+    - $: ['md2pdf', '-o', '={ARC_DIR}/doc/reference.pdf', 'doc/reference.md']
     - copy:  'bash/*'
-      todir: '#{ARC_DIR}'
+      todir: '={ARC_DIR}'
       flat:  false
-    - tar:    '#{NAME}-#{VERSION}/**/*'
-      dir:    '#{BUILD_DIR}'
-      tofile: '#{BUILD_DIR}/#{NAME}-#{VERSION}.tar.gz'
+    - tar:    '={NAME}-={VERSION}/**/*'
+      dir:    '={BUILD_DIR}'
+      tofile: '={BUILD_DIR}/={NAME}-={VERSION}.tar.gz'
 
   release:
     depends: [clean, test, integ, refs, archive]
@@ -91,6 +88,6 @@ targets:
 
   windows:
     steps:
-    - mkdir: '#{BUILD_DIR}/bin/'
-    - $: ['gox', '-ldflags', '-X main.VERSION=#{VERSION}', '-osarch=windows/386',
-          '-output=#{BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', '#{NAME}']
+    - mkdir: '={BUILD_DIR}/bin/'
+    - $: ['gox', '-ldflags', '-X main.VERSION=={VERSION}', '-osarch=windows/386',
+          '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', '={NAME}']

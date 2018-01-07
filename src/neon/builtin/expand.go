@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	build.AddBuiltin(build.BuiltinDesc {
+	build.AddBuiltin(build.BuiltinDesc{
 		Name: "expand",
 		Func: Expand,
 		Help: `Expand file name replacing ~/ with home directory.

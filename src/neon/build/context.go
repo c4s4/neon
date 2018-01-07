@@ -212,7 +212,7 @@ func (context *Context) EvaluateString(text string) (string, error) {
 // EvaluateRecursive recursively evaluates strings in a structure
 // - object: the object to evaluate
 // Return:
-// - evaluated structure
+// - evaluated copy of object
 // - an error if something went wrong
 func (context *Context) EvaluateObject(object interface{}) (interface{}, error) {
 	// if nil, return nil
@@ -227,38 +227,39 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 		}
 		return evaluated, nil
 	} else
-	// we iterate through slices
+	// we copy slices in a new slice with evaluated values
 	if reflect.TypeOf(object).Kind() == reflect.Slice {
-		value := reflect.ValueOf(object)
-		for i := 0; i < value.Len(); i++ {
-			index := value.Index(i)
+		source := reflect.ValueOf(object)
+		dest := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(object).Elem()), source.Len(), source.Len())
+		for i := 0; i < source.Len(); i++ {
+			index := source.Index(i)
 			evaluated, err := context.EvaluateObject(index.Interface())
 			if err != nil {
 				return nil, err
 			}
-			index.Set(reflect.ValueOf(evaluated))
+			dest.Index(i).Set(reflect.ValueOf(evaluated))
 		}
-		return object, nil
+		return dest.Interface(), nil
 	} else
-	// we iterate through maps
+	// we copy maps in a new map with evaluated keys and values
 	if reflect.TypeOf(object).Kind() == reflect.Map {
-		value := reflect.ValueOf(object)
-		keys := value.MapKeys()
+		source := reflect.ValueOf(object)
+		dest := reflect.MakeMap(reflect.MapOf(reflect.TypeOf(object).Key(), reflect.TypeOf(object).Elem()))
+		keys := source.MapKeys()
 		for i := 0; i < len(keys); i++ {
 			key := keys[i]
 			keyEval, err := context.EvaluateObject(key.Interface())
 			if err != nil {
 				return nil, err
 			}
-			val := value.MapIndex(key)
+			val := source.MapIndex(key)
 			valEval, err := context.EvaluateObject(val.Interface())
 			if err != nil {
 				return nil, err
 			}
-			value.SetMapIndex(key, reflect.Value{})
-			value.SetMapIndex(reflect.ValueOf(keyEval), reflect.ValueOf(valEval))
+			dest.SetMapIndex(reflect.ValueOf(keyEval), reflect.ValueOf(valEval))
 		}
-		return object, nil
+		return dest.Interface(), nil
 	} else
 	// else we do nothing
 	{

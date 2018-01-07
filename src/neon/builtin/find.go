@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	build.AddBuiltin(build.BuiltinDesc {
+	build.AddBuiltin(build.BuiltinDesc{
 		Name: "find",
 		Func: Find,
 		Help: `Find files.

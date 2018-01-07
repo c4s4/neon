@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	build.AddBuiltin(build.BuiltinDesc {
+	build.AddBuiltin(build.BuiltinDesc{
 		Name: "windowspath",
 		Func: WindowsPath,
 		Help: `Convert a path to Windows format.

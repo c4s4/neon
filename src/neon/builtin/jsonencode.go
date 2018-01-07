@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	build.AddBuiltin(build.BuiltinDesc {
+	build.AddBuiltin(build.BuiltinDesc{
 		Name: "jsonencode",
 		Func: JsonEncode,
 		Help: `Encode given variable in Json format.

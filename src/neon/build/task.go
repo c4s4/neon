@@ -197,8 +197,11 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 				expected := field.Type
 				actual := reflect.TypeOf(val)
 				if actual != expected {
-					return nil, fmt.Errorf("bad expression return type, expected '%s' but '%s' was returned",
-						expected.Name(), actual.Name())
+					// we accept type check if expected is slice of interfaces and actual is slice
+					if !(expected.Kind() == reflect.Slice && actual.Kind() == reflect.Slice) {
+						return nil, fmt.Errorf("bad expression return type, expected '%v' but '%v' was returned",
+							expected, actual)
+					}
 				}
 			}
 			// evaluate arguments
@@ -232,7 +235,7 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 	return value.Interface(), nil
 }
 
-// CopyValue copy given avlue in another
+// CopyValue copy given value in another
 // - orig: origin value
 // - dest: destination value
 func CopyValue(orig, dest reflect.Value) {

@@ -100,7 +100,6 @@ func ParseTargetSteps(object util.Object, target *Target) error {
 // - context: the context of the build
 // Return: an error if something went wrong
 func (target *Target) Run(context *Context) error {
-	context.Stack.Push(target.Name)
 	for _, name := range target.Depends {
 		if !context.Stack.Contains(name) {
 			err := target.Build.RunTarget(context, name)
@@ -109,11 +108,15 @@ func (target *Target) Run(context *Context) error {
 			}
 		}
 	}
+	context.Stack.Push(target.Name)
 	Title(target.Name)
 	err := os.Chdir(target.Build.Dir)
 	if err != nil {
 		return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
 	}
-	target.Steps.Run(context)
+	err = target.Steps.Run(context)
+	if err != nil {
+		return err
+	}
 	return nil
 }

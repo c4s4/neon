@@ -110,6 +110,7 @@ func NewBuild(file string) (*Build, error) {
 		return nil, err
 	}
 	build.Properties = build.GetProperties()
+	build.Environment = build.GetEnvironment()
 	build.SetDir(base)
 	return build, nil
 }
