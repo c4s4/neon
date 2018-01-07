@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	build.AddBuiltin(build.BuiltinDesc {
+	build.AddBuiltin(build.BuiltinDesc{
 		Name: "run",
 		Func: Run,
 		Help: `Run given command and return output.

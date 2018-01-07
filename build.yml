@@ -9,24 +9,24 @@ properties:
   REFERENCE: 'doc/reference.md'
   WIN_SHARE: '/home/casa/misc/shared'
   LIBRARIES:
+  - 'github.com/mitchellh/gox'
   - 'gopkg.in/yaml.v2'
   - 'github.com/c4s4/anko'
   - 'github.com/mattn/go-zglob'
   - 'github.com/fatih/color'
-  - 'github.com/mitchellh/gox'
 
 targets:
 
   integ:
-    doc: 'Run integration tests'
+    doc:     Run integration tests
+    depends: bin
     steps:
     - print: "Running integration tests"
     - for: 'file'
       in:  'find("test", "**/*.yml")'
-      # assert
       do:
       - print: 'Running build file "#{file}"'
-      - $: 'bin/neon -file "test/#{file}"'
+      - $: ['bin/neon', '-file', 'test/={file}']
 
   fmt:
     doc: Reformat code

@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	build.AddBuiltin(build.BuiltinDesc {
+	build.AddBuiltin(build.BuiltinDesc{
 		Name: "filename",
 		Func: Filename,
 		Help: `Return filename of a given path.

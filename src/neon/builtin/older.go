@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	build.AddBuiltin(build.BuiltinDesc {
+	build.AddBuiltin(build.BuiltinDesc{
 		Name: "older",
 		Func: Older,
 		Help: `Tells if source is older than result file (if any).

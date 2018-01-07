@@ -1,8 +1,8 @@
 package util
 
 import (
-	"testing"
 	reflect "reflect"
+	"testing"
 )
 
 // Assert make an assertion for testing purpose, failing test if different:

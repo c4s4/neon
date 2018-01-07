@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	build.AddBuiltin(build.BuiltinDesc {
+	build.AddBuiltin(build.BuiltinDesc{
 		Name: "winexe",
 		Func: Winexe,
 		Help: `Add '.exe' or '.bat' extensions depending on platform:

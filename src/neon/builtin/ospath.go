@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	build.AddBuiltin(build.BuiltinDesc {
+	build.AddBuiltin(build.BuiltinDesc{
 		Name: "ospath",
 		Func: OsPath,
 		Help: `Convert path to running OS.

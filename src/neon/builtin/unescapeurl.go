@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	build.AddBuiltin(build.BuiltinDesc {
+	build.AddBuiltin(build.BuiltinDesc{
 		Name: "unescapeurl",
 		Func: UnescapeUrl,
 		Help: `Unescape given URL.

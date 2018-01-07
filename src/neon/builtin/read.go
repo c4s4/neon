@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	build.AddBuiltin(build.BuiltinDesc {
+	build.AddBuiltin(build.BuiltinDesc{
 		Name: "read",
 		Func: Read,
 		Help: `Read given file and return its content as a string.

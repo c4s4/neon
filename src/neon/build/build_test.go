@@ -1,14 +1,14 @@
 package build
 
 import (
-	"testing"
 	"neon/util"
-	"runtime"
 	"reflect"
+	"runtime"
+	"testing"
 )
 
 func TestPluginPath(t *testing.T) {
-	build := &Build {
+	build := &Build{
 		Repository: "~/.neon",
 	}
 	Assert(build.PluginPath("foo/bar"),
@@ -21,10 +21,10 @@ func TestPluginName(t *testing.T) {
 }
 
 func TestGetShell(t *testing.T) {
-	build := &Build {
-		Shell: map[string][]string {
+	build := &Build{
+		Shell: map[string][]string{
 			runtime.GOOS: {"foo"},
-			"other": {"bar"},
+			"other":      {"bar"},
 		},
 	}
 	shell, err := build.GetShell()

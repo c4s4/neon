@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	build.AddBuiltin(build.BuiltinDesc {
+	build.AddBuiltin(build.BuiltinDesc{
 		Name: "jsondecode",
 		Func: JsonDecode,
 		Help: `Decode given string in Json format.

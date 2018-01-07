@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	build.AddBuiltin(build.BuiltinDesc {
+	build.AddBuiltin(build.BuiltinDesc{
 		Name: "keys",
 		Func: Keys,
 		Help: `Return keys of gien map.

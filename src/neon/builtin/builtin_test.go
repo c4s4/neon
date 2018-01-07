@@ -1,8 +1,8 @@
 package builtin
 
 import (
-	"testing"
 	"reflect"
+	"testing"
 )
 
 // Assert make an assertion for testing purpose, failing test if different:
