@@ -9,13 +9,28 @@ targets:
   task_for:
     doc: Test for task
     steps:
+    # for with a list
     - 'sum = 0'
     - for: i
-      in: [1, 2, 3]
+      in:  [1, 2, 3]
       do:
+      - print: '={i}'
       - 'sum += i'
     - |
       if sum != 6 {
+        throw("For test failure")
+      } else {
+        println("For test success")
+      }
+    # for with an expression
+    - 'sum = 0'
+    - for: i
+      in:  range(3)
+      do:
+      - print: '={i}'
+      - 'sum += i'
+    - |
+      if sum != 3 {
         throw("For test failure")
       } else {
         println("For test success")
