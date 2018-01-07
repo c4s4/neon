@@ -235,7 +235,7 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 	return value.Interface(), nil
 }
 
-// CopyValue copy given avlue in another
+// CopyValue copy given value in another
 // - orig: origin value
 // - dest: destination value
 func CopyValue(orig, dest reflect.Value) {
