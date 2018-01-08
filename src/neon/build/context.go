@@ -65,6 +65,7 @@ func NewContext(build *Build) *Context {
 func (context *Context) NewThreadContext(thread int, input interface{}, output interface{}) *Context {
 	copy := &Context{
 		VM:    context.VM.Copy(),
+		Build: context.Build,
 		Stack: context.Stack.Copy(),
 	}
 	copy.SetProperty(PROPERTY_THREAD, thread)
