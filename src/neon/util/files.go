@@ -278,7 +278,7 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
 	}
 	sort.Strings(files)
 	for index, file := range files {
-		if !filepath.IsAbs(file) {
+		if dir != "" {
 			files[index], err = filepath.Rel(dir, file)
 			if err != nil {
 				return nil, err
