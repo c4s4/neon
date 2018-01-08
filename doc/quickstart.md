@@ -1,21 +1,22 @@
 Neon Quick Start
 ================
 
-Neon is a build tool. This means that its purpose is to automate a build
+Neon is a build tool, which means that its purpose is to automate a build
 process. Its design goals are:
 
 - **Clean and simple build file syntax**: While XML is too verbose and
   a programming language too complicated, [YAML](http://www.yaml.org/) is
   perfect with its simple yet powerful syntax.
-- **Speed**: Slow startup are irritating while working with a build tool the
-  whole day. Neon happens to be as fast as Make, according to my tests on Make
+- **Speed**: Slow startup are irritating while working with a build tool whole
+  day long. Neon happens to be as fast as Make, according to my tests on Make
   builds ported to Neon.
 - **System and language independent**: Neon is written in Go, which run on most
-  platforms, and is not limited to building Go projects. Furthermore, using
-  Neon tasks you can write platform independent builds.
+  operating systems and hardwares, and is not limited to building Go projects.
+  Furthermore, using Neon tasks you can write platform independent builds.
 - **Scriptable**: when a task is complicated, it is very handy to script it
-  with a real programming language. Neon build files can embed Anko scripts.
-  [Anko](http://github.com/mattn/anko) is an interpreted Go.
+  with a real programming language. Neon build files can embed
+  [Anko](http://github.com/mattn/anko) scripts, which have a syntax very close
+  to Go.
 
 To demonstrate these features, let's see what *Hello World!* looks like using
 Neon:
@@ -44,18 +45,18 @@ targets:
 
   hello:
     steps:
-    - print: "Hello #{USER_NAME}!"
+    - print: "Hello ={USER_NAME}!"
 ```
 
-We access the value of this property with `#{PROP_NAME}` syntax. Thus, to get
-value for property `USER_NAME`, we must write `#{USER_NAME}`.
+We access the value of this property with `={PROP_NAME}` syntax. Thus, to get
+value for property `USER_NAME`, we must write `={USER_NAME}`.
 
 These properties live as variables defined in the context of the embedded Anko
-VM. Thus the content of `#{...}` is evaluated as an Anko expression, and you
-can write Anko expressions, such as `#{uppercase(USER_NAME)}`.
+VM. Thus the content of `={...}` is evaluated as an Anko expression, and you
+can write Anko expressions, such as `={uppercase(USER_NAME)}`.
 
-Properties may also have integer, list or hash values. You must then use a YAML
-syntax to write them:
+Properties may also have integer, list or hash values. To do so, you should use
+YAML syntax to write them:
 
 ```yaml
 properties:
@@ -68,27 +69,27 @@ targets:
 
   hello:
     steps:
-    - print: "string:  #{STRING}"
-    - print: "integer: #{INTEGER}"
-    - print: "list:    #{LIST}"
-    - print: "hash:    #{HASH}"
+    - print: "string:  ={STRING}"
+    - print: "integer: ={INTEGER}"
+    - print: "list:    ={LIST}"
+    - print: "hash:    ={HASH}"
 ```
 
 Which will output:
 
 ```
-$ n hello
-Running target hello
+$ neon hello
+---------------------------------------------------------------------- hello --
 string:  string
 integer: 1
 list:    [1, two]
-ahash:   [one: 1, two: 2]
+hash:    [one: 1, two: 2]
 OK
 ```
 
 You can pass properties on command line with `-props` option. For instance, to
 define property *foo* with value *"bar"*, you would add on command line:
-`-props='foo: "bar"'`. These properties with overwrite those defined in the
+`-props='foo: "bar"'`. These properties will overwrite those defined in the
 build file.
 
 Targets
@@ -107,7 +108,7 @@ targets:
   hello:
     depends: upper
     steps:
-    - print: "Hello #{USER_NAME}!"
+    - print: "Hello ={USER_NAME}!"
 
   upper:
     steps:
@@ -118,8 +119,8 @@ Which produces following output:
 
 ```
 $ neon hello
-Running target upper
-Running target hello
+---------------------------------------------------------------------- upper --
+---------------------------------------------------------------------- hello --
 Hello WORLD!
 OK
 ```
@@ -159,7 +160,7 @@ To run a shell script, you use task named *$*. Thus, to print the
 user's name, we could write:
 
 ```yaml
-- $: 'echo "Hello $USER!"'
+- $: 'echo "Hello ${USER}!"'
 ```
 
 Note that we can surround YAML strings with simple or double quotes. We choose
@@ -170,9 +171,9 @@ escape double quotes inside YAML string as follows:
 - $: "echo \"Hello $USER!\""
 ```
 
-If return value of the script is not *0*, which denotes an error running the
-script, the build is interrupted and an error message is printed on the
-console. For instance, this script:
+If return value of the script is not *0*, which denotes an error during its
+execution, the build is interrupted and an error message is printed on the
+console. For instance, this build file:
 
 ```yaml
 targets:
@@ -185,10 +186,10 @@ targets:
 Will produce this output on the console:
 
 ```
-$ n broken
-Running target broken
+$ neon broken
+--------------------------------------------------------------------- broken --
 sh: 1: command-that-doesnt-exist: not found
-ERROR running target 'broken': in step 1: exit status 127
+ERROR running target 'broken': in step 1: executing command: exit status 127
 ```
 
 A multi line shell scripts can be written using pipe character `|`:
@@ -204,13 +205,28 @@ targets:
          echo "More than one line"
 ```
 
+You can also write commands as a list:
+
+```yaml
+targets:
+
+  shell:
+    steps:
+    - $: ['java', '-jar', 'echo.jar', 'Hello World!']
+```
+
+This is useful to write build files that will run on Unix and Windows systems
+because Windows command interpreter is quite broken regarding options parsing
+with spaces. In lists, command line options are clearly separated and this
+avoids issues.
+
 ### Neon tasks
 
-You could perform most of common build tasks with shell ones, but this would
-bind your build to a given platform. To develop platform independant builds,
-you should use Neon tasks. For instance, to copy all XML files to *build*
-directory, you could call `cp` system command, but you should instead use
-copy Neon task as follows:
+You could perform most of common build tasks with shell commands, but this
+would bind your build to a given platform. To develop platform independent
+builds, you should use Neon tasks. For instance, to copy all XML files to
+*build* directory, you could call `cp` system command, but you should instead
+use `copy` Neon task as follows:
 
 ```yaml
 targets:
@@ -222,10 +238,10 @@ targets:
 ```
 
 This will run on all platforms (Unices and Windows) provided you use slashes
-as path separator instead of platform dependent ones. Furthermore, in most
-file related tasks, you can use extended globs where `**` replaces any
-number of directories, see [zglob documentation](http://github.com/mattn/zglob)
-for more information.
+as path separator instead of platform dependent ones. Furthermore, in file
+related tasks, you can use extended globs where `**` replaces any number of
+directories, see [zglob documentation](http://github.com/mattn/zglob) for more
+information.
 
 To list all available Neon tasks, type `neon -tasks` and to get help on a given
 one, type `neon -task copy` for instance.
@@ -247,8 +263,8 @@ targets:
     - for: file
       in:  find("data", "*.xml")
       do:
-      - print: "Validating #{file}..."
-      - 'xmllint --noout --valid data/#{file}'
+      - print: "Validating ={file}..."
+      - $: ['xmllint', '--noout', '--valid', 'data/={file}']
 ```
 
 There are also tasks to manage errors:
@@ -267,11 +283,11 @@ targets:
     - for: file
       in:  find("data", "*.xml")
       do:
-      - print: "Validating #{file}..."
+      - print: "Validating ={file}..."
       - try:
-        - 'xmllint --noout --valid data/#{file}'
+        - $: ['xmllint', '--noout', '--valid', 'data/={file}']
         catch:
-        - print: "ERROR!"
+        - print: 'ERROR!'
 ```
 
 ### Scripts
@@ -304,67 +320,14 @@ common build tasks. For instance, function `exists(file)` tells if given file
 exists.
 
 To list all Neon buitins, type `neon -builtins` and to get help on a given
-function, type `neon -builtin function`.
-
-Example
--------
-
-Here is an example of what you can do with neon. This task validates generated
-files against a schematron and produces an HTML report:
-
-```yaml
-  schematron:
-    doc: Validate geenrated files with schematron
-    steps:
-    - for: 'encyclo'
-      in:  'find(DEST_DIR, "*")'
-      do:
-      - print: "Validating #{encyclo}:"
-      - script: 'errors = {}'
-      - for: 'file'
-        in:  'find(joinpath(DEST_DIR, encyclo), "**/*.xml")'
-        do:
-        - try:
-          - print: "- #{file}"
-          - $: 'jing -C "#{CATALOG}" "src/sch/Ouvrages_v1.sch" "#{DEST_DIR}/#{encyclo}/#{file}"'
-            =:  'output'
-          catch:
-          - 'errors[file] = output'
-      - if: 'len(keys(errors)) > 0'
-        then:
-        - |
-          sort = import("sort")
-          report = "# Validation Schematron des Encyclopedies\n\n"
-          files = sort.Strings(keys(errors))
-          for file in files {
-            report += "### " + file + "\n\n```\n"
-            report += errors[file]
-            report += "\n```\n\n"
-          }
-        - write: '#{BUILD_DIR}/#{encyclo}.md'
-          from:  'report'
-        - $: 'pandoc -f markdown -t html "#{BUILD_DIR}/#{encyclo}.md" > "#{BUILD_DIR}/#{encyclo}.html"'
-
-```
-
-This task:
-
-- Iterates books in directories.
-- It validates each file with *jing*.
-- When validation fails, it fills a map with errors for a given file.
-- When a book is done, it generates a *markdown* report with errors.
-- Then it converts this report to HTML with *pandoc*.
-
-This illustrates how to combine *for* tasks to crawl directories, shell commands
-to validate files and *anko* script to generate a report from tool output.
+function, type `neon -builtin exists` for instance.
 
 Getting help
 ------------
 
 You can print information on build file typing `neon -info`. You will get help
 on build properties, environment variables and targets. This will be useful if
-you have documented your build file. To document a given property, you would
-write:
+you have documented your build file. To document a target, you could write:
 
 ```yaml
 targets:
@@ -375,8 +338,8 @@ targets:
     - for: file
       in:  find("data", "*.xml")
       do:
-      - print: "Validating #{file}..."
-      - $: 'xmllint --noout --valid data/#{file}'
+      - print: 'Validating ={file}...'
+      - $: ['xmllint', '--noout', '--valid', 'data/={file}']
 ```
 
 You can also document the whole build putting a `doc` entry at the root of the
@@ -392,7 +355,7 @@ To get help about neon itself, you can:
 Go further
 ----------
 
-Neon as much more to offer, see [User Manual](usermanual.md) for in depth
+Neon as much more to offer, see [User Manual](usermanual.md) for in-depth
 documentation and [Reference](reference.md) for information about all tasks and
 builtins functions.
 
