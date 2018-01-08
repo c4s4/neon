@@ -2,7 +2,6 @@ package util
 
 import (
 	"fmt"
-	"github.com/mattn/go-zglob"
 	"io"
 	"io/ioutil"
 	"os"
@@ -11,6 +10,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/mattn/go-zglob"
 )
 
 const (
@@ -104,9 +105,12 @@ func CopyFilesToDir(dir string, files []string, toDir string, flatten bool) erro
 		return fmt.Errorf("destination directory doesn't exist")
 	}
 	for _, file := range files {
-		source := filepath.Join(dir, file)
+		source := file
+		if !filepath.IsAbs(file) {
+			source = filepath.Join(dir, file)
+		}
 		var dest string
-		if flatten {
+		if flatten || filepath.IsAbs(file) {
 			base := filepath.Base(file)
 			dest = filepath.Join(toDir, base)
 		} else {
@@ -226,27 +230,17 @@ func PathToWindows(path string) string {
 // Return the list of files as a slice of strings
 func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, error) {
 	var err error
-	if dir == "" {
-		dir = "."
-	}
-	if !DirExists(dir) {
-		return nil, nil
-	}
-	abs, err := filepath.Abs(dir)
-	if err != nil {
-		return nil, err
-	}
 	var included []string
 	for _, include := range includes {
 		if !filepath.IsAbs(include) {
-			include = filepath.Join(abs, include)
+			include = filepath.Join(dir, include)
 		}
 		included = append(included, include)
 	}
 	var excluded []string
 	for _, exclude := range excludes {
 		if !filepath.IsAbs(exclude) {
-			exclude = filepath.Join(abs, exclude)
+			exclude = filepath.Join(dir, exclude)
 		}
 		excluded = append(excluded, exclude)
 	}
@@ -284,9 +278,11 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
 	}
 	sort.Strings(files)
 	for index, file := range files {
-		files[index], err = filepath.Rel(abs, file)
-		if err != nil {
-			return nil, err
+		if dir != "" {
+			files[index], err = filepath.Rel(dir, file)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return files, nil

@@ -28,8 +28,9 @@ const (
 )
 
 var (
-	REGEXP_EXP = regexp.MustCompile(`[#=]{.*?}`)
-	REGEXP_ENV = regexp.MustCompile(`[$#=]{.*?}`)
+	REGEXP_EXP   = regexp.MustCompile(`\\{0,2}[#=]{.*?}`)
+	REGEXP_ENV   = regexp.MustCompile(`\\{0,2}[#=$]{.*?}`)
+	REGEXP_PARTS = regexp.MustCompile(`(\\{0,2})([#=$]){(.*)}`)
 )
 
 // Context is the context of the build
@@ -65,6 +66,7 @@ func NewContext(build *Build) *Context {
 func (context *Context) NewThreadContext(thread int, input interface{}, output interface{}) *Context {
 	copy := &Context{
 		VM:    context.VM.Copy(),
+		Build: context.Build,
 		Stack: context.Stack.Copy(),
 	}
 	copy.SetProperty(PROPERTY_THREAD, thread)
@@ -185,20 +187,32 @@ func (context *Context) EvaluateExpression(expression string) (interface{}, erro
 func (context *Context) EvaluateString(text string) (string, error) {
 	var errors []error
 	replaced := REGEXP_EXP.ReplaceAllStringFunc(text, func(expression string) string {
-		name := expression[2 : len(expression)-1]
-		var value interface{}
-		value, err := context.EvaluateExpression(name)
-		if err != nil {
-			errors = append(errors, err)
-			return ""
-		} else {
-			var str string
-			str, err = PropertyToString(value, false)
+		parts := REGEXP_PARTS.FindStringSubmatch(expression)
+		prefix := parts[1]
+		char := parts[2]
+		source := parts[3]
+		// expression was escaped
+		if prefix == `\` {
+			return char + `{` + source + `}`
+		} else
+		// expression not escaped
+		{
+			if prefix == `\\` {
+				prefix = `\`
+			}
+			value, err := context.EvaluateExpression(source)
 			if err != nil {
 				errors = append(errors, err)
 				return ""
 			} else {
-				return str
+				var str string
+				str, err = PropertyToString(value, false)
+				if err != nil {
+					errors = append(errors, err)
+					return ""
+				} else {
+					return prefix + str
+				}
 			}
 		}
 	})
@@ -289,21 +303,34 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 	for _, name := range variables {
 		value := context.Build.Environment[name]
 		replaced := REGEXP_ENV.ReplaceAllStringFunc(value, func(expression string) string {
-			name := expression[2 : len(expression)-1]
-			if expression[0:1] == ENVIRONMENT_VAR {
-				value, ok := environment[name]
-				if !ok {
-					return expression
-				} else {
-					return value
+			parts := REGEXP_PARTS.FindStringSubmatch(expression)
+			prefix := parts[1]
+			char := parts[2]
+			source := parts[3]
+			// expression was escaped
+			if prefix == `\` {
+				return char + `{` + source + `}`
+			} else
+			// expression not escaped
+			{
+				if prefix == `\\` {
+					prefix = `\`
 				}
-			} else {
-				value, err := context.EvaluateExpression(name)
-				if err != nil {
-					return expression
+				if char == ENVIRONMENT_VAR {
+					val, ok := environment[source]
+					if !ok {
+						return prefix + `{` + source + `}`
+					} else {
+						return prefix + val
+					}
 				} else {
-					str, _ := PropertyToString(value, false)
-					return str
+					val, err := context.EvaluateExpression(source)
+					if err != nil {
+						return prefix + `{` + source + `}`
+					} else {
+						str, _ := PropertyToString(val, false)
+						return prefix + str
+					}
 				}
 			}
 		})
