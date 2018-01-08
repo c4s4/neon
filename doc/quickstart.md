@@ -220,6 +220,10 @@ because Windows command interpreter is quite broken regarding options parsing
 with spaces. In lists, command line options are clearly separated and this
 avoids issues.
 
+Note that options in commands as lists won't be evaluated in a shell, thus an
+option like `${USER}` won't be evaluated. NeON will always evaluate NeON
+properties, thus an option such as `={USER}` would be evaluated.
+
 ### Neon tasks
 
 You could perform most of common build tasks with shell commands, but this
