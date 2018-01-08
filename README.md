@@ -44,18 +44,16 @@ Build
 To build the project without *NeON* already installed, follow these steps:
 
 - Define `GOPATH` environment variable on the directory of the project.
-- Write *src/neon/version.go* file with following content :
-
-```go
-package main
-
-var VERSION = "UNKNOWN"
-```
-
+    ```bash
+    $ export GOPATH=`pwd`
+    ```
 - Go to the project directory and type command `go build neon`.
 
 This will product the *neon* binary for your platform and OS in the project
 directory.
+
+If neon is already installed, simply type `neon bin`, this will generate neon
+binary in *bin* directory.
 
 Contributors
 ------------
