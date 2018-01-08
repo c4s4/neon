@@ -20,6 +20,9 @@ func TestEvaluateString(t *testing.T) {
 	if actual, err := context.EvaluateString(`foo ={1+1}`); err != nil || actual != `foo 2` {
 		t.Errorf("TestEvaluateString failure")
 	}
+	if actual, err := context.EvaluateString(`foo \={bar}`); err != nil || actual != `foo ={bar}` {
+		t.Errorf("TestEvaluateString failure")
+	}
 }
 
 func TestEvaluateStringWithProperties(t *testing.T) {
