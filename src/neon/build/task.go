@@ -197,8 +197,10 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 				expected := field.Type
 				actual := reflect.TypeOf(val)
 				if actual != expected {
-					// we accept type check if expected is slice of interfaces and actual is slice
-					if !(expected.Kind() == reflect.Slice && actual.Kind() == reflect.Slice) {
+					// we accept if expected is slice of interfaces and actual is slice
+					if !(expected.Kind() == reflect.Slice && actual.Kind() == reflect.Slice) &&
+						// or if slice and wrap
+						!(expected == reflect.SliceOf(actual) && FieldIs(field, FIELD_WRAP)) {
 						return nil, fmt.Errorf("bad expression return type, expected '%v' but '%v' was returned",
 							expected, actual)
 					}
