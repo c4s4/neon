@@ -235,11 +235,20 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 	} else
 	// we replace expressions in strings
 	if reflect.TypeOf(object).Kind() == reflect.String {
-		evaluated, err := context.EvaluateString(object.(string))
-		if err != nil {
-			return nil, err
+		str := object.(string)
+		if IsExpression(str) {
+			value, err := context.EvaluateExpression(strings.TrimSpace(str[1:]))
+			if err != nil {
+				return nil, err
+			}
+			return value, nil
+		} else {
+			evaluated, err := context.EvaluateString(object.(string))
+			if err != nil {
+				return nil, err
+			}
+			return evaluated, nil
 		}
-		return evaluated, nil
 	} else
 	// we copy slices in a new slice with evaluated values
 	if reflect.TypeOf(object).Kind() == reflect.Slice {
