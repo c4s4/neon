@@ -103,7 +103,7 @@ A build file is a YAML map. First level fields are the following:
 - **repository** is the default location for parent build files. Defaults to
   directory *.neon* in the home directory of the user.
 - **context** is a list of scripts loaded on startup. This is a string or a
-  list of strings.
+  list of strings. This is useful to define your own builtin functions.
 - **singleton** is a port that is opened on startup to ensure that only a
   single instance of the build is running. This is an integer. This should be
   between *1024* and *65535* (or between *1* and *65535* if the build is
@@ -111,8 +111,9 @@ A build file is a YAML map. First level fields are the following:
 - **shell** defines the command to execute to run a shell task. This command is
   defined as a list (such as `["sh", "-c"]` or `["cmd", "/c"]` for instance).
   The command to run in the shell will be added as the last argument.
-  If you define a single command, this will run for all environments. You may
-  instead define the shell as a map of command per environment. For instance:
+  If you define a single command, this will run for all operating systems. You
+  may instead define the shell as a map of command per operating system. For
+  instance:
 	```yaml
 	shell:
 	  windows: ['cmd', '/c']
@@ -124,6 +125,8 @@ A build file is a YAML map. First level fields are the following:
 	shell:
 	  default: ['sh', '-c']
 	```
+  Note that commands defined as lists will not run with these shells, thus
+  options won't be evaluated and `${USER}` will stay as is.
 - **properties** is a map of properties of the build file. See section
   *Properties* for more information about build properties.
 - **configuration** is a list of YAML files to load as build properties.
@@ -142,7 +145,7 @@ doc: This is a sample build file
 default: test
 
 properties:
-  NAME:      '#{filename(_BASE)}'
+  NAME:      '=filename(_BASE)'
   BUILD_DIR: 'build'
 
 targets:
@@ -150,23 +153,23 @@ targets:
   test:
     doc: Run Go tests
     steps:
-    - $: 'go test'
+    - $: ['go', 'test']
 
   run:
     doc: Run Goo tool
     steps:
-    - $: 'go run "#{NAME}.go"'
+    - $: ['go', 'run', '={NAME}.go']
 
   bin:
     doc: Build Go tool
     steps:
-    - mkdir: '#{BUILD_DIR}'
-    - $: 'go build -o #{BUILD_DIR}/#{NAME}'
+    - mkdir: '=BUILD_DIR'
+    - $: ['go', 'build', '-o', '={BUILD_DIR}/={NAME}']
 
   clean:
     doc: Clean generated files
     steps:
-    - delete: '#{BUILD_DIR}'
+    - delete: '=BUILD_DIR'
 ```
 
 [Back to top](#user-manual)
@@ -196,7 +199,7 @@ A build property might use the value of another one. For instance:
 properties:
   NAME:      'test'
   BUILD_DIR: 'build'
-  ARCHIVE:   '#{BUILD_DIR}/#{NAME}.zip'
+  ARCHIVE:   '={BUILD_DIR}/={NAME}.zip'
 ```
 
 The *ARCHIVE* property uses values of *BUILD_DIR* and *NAME*. Note that the
@@ -206,16 +209,55 @@ To avoid errors, you should follow these conventions:
 
 - Uppercase properties are constants, defined in properties field.
 - Lowercase properties are local variables. Note that they are defined in the
-  whole build file you should alway define their value in the current target.
+  whole build file, but you should always define their value in current target.
 - Properties starting with underscores (such as *_error*) are internal
-  variables, defined by NeON. They should not be modified.
+  variables, defined by NeON. They should not be modified unless you know what
+  you are doing.
 
 These properties are defined in the virtual machine that runs scripts. This
 scripting language is [Anko](http://github.com/mattn/anko), which is a kind of
 scripted Go.
 
-Thus you can also define and user build properties in scripts. for instance,
-you might write:
+You can reference these properties in a string with the expression
+`={PROP_NAME}`. This might be done in the expression of other properties but
+also in task fields. For instance:
+
+```yaml
+- print: 'Hello ={USER}!'
+```
+
+You can also get directly the value of a property with the expression
+`=PROP_NAME` (without curly braces). Thus you might write:
+
+```yaml
+- print: =USER
+```
+
+In this case, if property *USER* is a string, this will not be so different
+from preceding example. But this is quite different if the property is not a
+string.
+
+For instance, let's see this build file:
+
+```yaml
+properties:
+  FILES: ['foo.txt', 'bar.txt']
+
+targets:
+
+    test:
+      steps:
+      - for: file
+        in:  =FILES
+        do:
+        - print: =file
+```
+
+In this case expression `=FILES` returns a list that we iterate in *test*
+target.
+
+You can also define and use build properties in scripts. for instance, you
+might write:
 
 ```yaml
 properties:
@@ -228,9 +270,13 @@ targets:
     - 'file = joinpath(BUILD_DIR, "test.txt")'
 ```
 
+This would define a build property named *file* that will be a string with
+value *"build/test.txt"*.
+
 Note that to use property *BUILD_DIR*, you write `BUILD_DIR` and not
-`#{BUILD_DIR}`. The expression `#{BUILD_DIR}` is used to insert a property
-value in a string, not a script.
+`={BUILD_DIR}` or `=BUILD_DIR`. The expression `={BUILD_DIR}` is used to insert
+a property value in a string and `=BUILD_DIR` to get the property value in a
+task field.
 
 Note that some tasks define internal properties. For instance, task *try*
 will store raised error in internal build property *_error*.
@@ -250,19 +296,22 @@ If you call NeON with `neon clean`, you will run target *clean*.
 This target might look like:
 
 ```yaml
+properties:
+  BUILD_DIR: 'build'
+
 targets:
 
   clean:
     doc: Clean generated files
     steps:
-    - delete: 'build'
+    - delete: =BUILD_DIR
 ```
 
 A target might define following fields:
 
 - **doc** this is the target documentation.
-- **depends** to list targets before running this one.
-- **steps** is the list of the tasks to run the target.
+- **depends** to list targets to run before running this one.
+- **steps** is the list of tasks to run the target.
 
 Tasks might be one of the following:
 
@@ -271,7 +320,7 @@ Tasks might be one of the following:
 ### NeON task
 
 They are tasks defined in NeON engine. This is a way to write platform
-independant build files. These tasks are maps with string keys.
+independent build files. These tasks are maps with string keys.
 
 There are tasks to manage files (copy, delete, move and so on), archives
 (create ZIP or TAR files), directories (create, change to) or links. For
@@ -287,7 +336,7 @@ targets:
       dir:    'build'
 ```
 
-Ther are also logical tasks to perform tests and iterate on values. For
+There are also logical tasks to perform tests and iterate on values. For
 instance, to iterate on a list of files, you could write:
 
 ```yaml
@@ -299,10 +348,10 @@ targets:
     - for: 'file'
       in:  'find("md", "*.md")'
       do:
-      - $: 'md2pdf -o "build/#{file}.pdf" "md/#{file}"'
+      - $: ['md2pdf', '-o', 'build/={file}.pdf', 'md/={file}']
 ```
 
-To generate a file if the source is newer, you would write:
+To generate a file if the source is newer, you could write:
 
 ```yaml
 targets:
@@ -312,7 +361,7 @@ targets:
     steps:
     - if: 'older("file.md", "build/file.pdf")'
       then:
-      - $: 'md2pdf -o "build/file.pdf" "file.md"'
+      - $: ['md2pdf', '-o', 'build/file.pdf', 'file.md']
 ```
 
 There are also tasks to manage errors. For instance to run a command and catch
@@ -335,22 +384,22 @@ To list all available NeON tasks, type command `neon -tasks`. To get help on a
 given command *foo*, type `neon -task foo`:
 
 ```
-$ n -task time
+$ neon -task time
 Record duration to run a block of steps.
 
 Arguments:
 
-- time: the steps to measure execution duration.
-- to: the property to store duration in seconds as a float (optional,
-  print duration on console if not set).
+- time: steps we want to measure execution duration (steps).
+- to: property to store duration in seconds as a float, if not set, duration is
+  printed on the console (string, optional).
 
 Examples:
 
     # print duration to say hello
     - time:
-      - print: "Hello World!"
+      - print: 'Hello World!'
       to: duration
-    - print: 'duration: #{duration}s'
+    - print: 'duration: ={duration}s'
 ```
 
 You can get information on available tasks
@@ -432,7 +481,7 @@ targets:
   clean:
     doc: Clean generated files
     steps:
-    - delete: '#{BUILD_DIR}'
+    - delete: '={BUILD_DIR}'
 ```
 
 You may reuse this build file in another one:
