@@ -21,9 +21,9 @@ Returns:
 
 Examples:
 
-    // get absolute value of path "foo/../bar/spam.txt"
+    # get absolute value of path "foo/../bar/spam.txt"
     path = absolute("foo/../bar/spam.txt")
-    // returns: "/home/user/build/bar/spam.txt"`,
+    # returns: "/home/user/build/bar/spam.txt"`,
 	})
 }
 

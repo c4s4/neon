@@ -20,9 +20,9 @@ Returns:
 
 Examples:
 
-    // get keys of a map
+    # get keys of a map
     keys({"foo": 1, "bar": 2})
-    // returns: ["foo", "bar"]`,
+    # returns: ["foo", "bar"]`,
 	})
 }
 

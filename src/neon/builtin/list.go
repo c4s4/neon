@@ -23,9 +23,9 @@ Returns:
 
 Examples:
 
-    // get a list of foo
+    # get a list of foo
     list(foo)
-	// return foo if already a list or [foo] otherwise`,
+	# return foo if already a list or [foo] otherwise`,
 	})
 }
 

@@ -1,0 +1,19 @@
+doc: Built file to test target call
+default: task_call
+
+properties:
+  BUILD_DIR: '../../build'
+
+targets:
+
+  called:
+    doc: Called target
+    steps:
+    - 'called = true'
+
+  task_call:
+    doc: Test task call
+    steps:
+    - 'called = false'
+    - call: 'called'
+    - assert: 'called'

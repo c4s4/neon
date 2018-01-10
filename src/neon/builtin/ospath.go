@@ -21,9 +21,9 @@ Returns:
 
 Examples:
 
-    // convert path foo/bar to OS format
+    # convert path foo/bar to OS format
     path = ospath("foo/bar")
-    // will return foo/bar on Unix and foo\bar on Windows`,
+    # will return foo/bar on Unix and foo\bar on Windows`,
 	})
 }
 

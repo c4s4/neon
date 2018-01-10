@@ -22,9 +22,9 @@ Returns:
 
 Examples:
 
-    // split "foo bar" with space
+    # split "foo bar" with space
     split("foo bar", " ")
-    // returns: ["foo"," "bar"]`,
+    # returns: ["foo"," "bar"]`,
 	})
 }
 

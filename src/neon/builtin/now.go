@@ -21,12 +21,12 @@ Returns:
 
 Examples:
 
-    // put current date and time in dt variable
+    # put current date and time in dt variable
     now()
-    // returns: "2006-01-02 15:04:05"
-    // to get date in ISO format
+    # returns: "2006-01-02 15:04:05"
+    # to get date in ISO format
     now()[0:10]
-    // returns: "2006-01-02"`,
+    # returns: "2006-01-02"`,
 	})
 }
 

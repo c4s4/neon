@@ -1,8 +1,9 @@
 package builtin
 
 import (
-	zglob "github.com/mattn/go-zglob"
 	"neon/build"
+
+	zglob "github.com/mattn/go-zglob"
 )
 
 func init() {
@@ -22,10 +23,10 @@ Returns:
 
 Examples:
 
-    // filter text files removing those in build directory
+    # filter text files removing those in build directory
     filter(find(".", "**/*.txt"), "build/**/*")
-    // returns: files with extension "txt" in current directory and
-    // subdirectories, except those in "build" directory
+    # returns: files with extension "txt" in current directory and
+    # subdirectories, except those in "build" directory
 
 Notes:
 

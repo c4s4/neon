@@ -21,9 +21,9 @@ Returns:
 
 Examples:
 
-    // decode given list
+    # decode given list
     jsondecode("['foo', 'bar']")
-    // returns string slice: ["foo", "bar"]`,
+    # returns string slice: ["foo", "bar"]`,
 	})
 }
 

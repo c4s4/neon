@@ -20,9 +20,9 @@ Returns:
 
 Examples:
 
-    // encode given list
+    # encode given list
     jsonencode(["foo", "bar"])
-    // returns: "['foo', 'bar']"`,
+    # returns: "['foo', 'bar']"`,
 	})
 }
 

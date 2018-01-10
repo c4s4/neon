@@ -21,9 +21,9 @@ Returns:
 
 Examples:
 
-    // unescape given URL
+    # unescape given URL
     escapeurl("foo%20bar")
-    // returns: "foo bar"`,
+    # returns: "foo bar"`,
 	})
 }
 

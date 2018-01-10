@@ -25,12 +25,12 @@ Returns:
 
 Examples:
 
-    // run command foo on unix and windows
+    # run command foo on unix and windows
     run(winexe("bin/foo"))
-    // will run bin/foo on unix and bin\foo.exe on windows
-    // run script script.sh unix and windows
+    # will run bin/foo on unix and bin\foo.exe on windows
+    # run script script.sh unix and windows
     run(winexe("script.sh"))
-    // will run script.sh on unix and script.bat on windows`,
+    # will run script.sh on unix and script.bat on windows`,
 	})
 }
 
