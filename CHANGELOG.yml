@@ -7,6 +7,7 @@
   - "Added classpath, javac and java tasks."
   - "Added -repo path option to set repo location for plugin installation."
   - "Added builtin contains, thanks to Alexandre Hu."
+  - "Added task 'call' to call another target."
   fixed:
   - "Huge code refactoring for task coding."
   - "Fixed -install foo/bar command line option."
