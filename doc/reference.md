@@ -44,6 +44,20 @@ Examples:
     # assert that foo == "bar", and fail otherwise
     - assert: 'foo == "bar"'
 
+call
+----
+
+Call a build target.
+
+Arguments:
+
+- call: the name of the target(s) to call (strings, wrap).
+
+Examples:
+
+    # call target 'foo'
+    - call: 'foo'
+
 cat
 ---
 
@@ -804,9 +818,9 @@ Returns:
 
 Examples:
 
-    // get absolute value of path "foo/../bar/spam.txt"
+    # get absolute value of path "foo/../bar/spam.txt"
     path = absolute("foo/../bar/spam.txt")
-    // returns: "/home/user/build/bar/spam.txt"
+    # returns: "/home/user/build/bar/spam.txt"
 
 contains
 --------
@@ -824,9 +838,9 @@ Returns:
 
 Examples:
 
-    // Tell if the list contains "bar"
+    # Tell if the list contains "bar"
     contains(["foo", "bar"], "bar")
-    // returns: true
+    # returns: true
 
 directory
 ---------
@@ -843,9 +857,9 @@ Returns:
 
 Examples:
 
-    // get directory of path "/foo/bar/spam.txt"
+    # get directory of path "/foo/bar/spam.txt"
     dir = directory("/foo/bar/spam.txt")
-    // returns: "/foo/bar"
+    # returns: "/foo/bar"
 
 escapeurl
 ---------
@@ -862,9 +876,9 @@ Returns:
 
 Examples:
 
-    // escape given URL
+    # escape given URL
     escapeurl("/foo bar")
-    // returns: "/foo%20bar"
+    # returns: "/foo%20bar"
 
 exists
 ------
@@ -881,9 +895,9 @@ Returns:
 
 Examples:
 
-    // test if given path exists
+    # test if given path exists
     exists("/foo/bar")
-    // returns: true if file "/foo/bar" exists
+    # returns: true if file "/foo/bar" exists
 
 expand
 ------
@@ -900,9 +914,9 @@ Returns:
 
 Examples:
 
-    // expand path ~/.profile
+    # expand path ~/.profile
     profile = expand("~/.profile")
-    // returns: "/home/casa/.profile" on my machine
+    # returns: "/home/casa/.profile" on my machine
 
 filename
 --------
@@ -919,9 +933,9 @@ Returns:
 
 Examples:
 
-    // get filename of path "/foo/bar/spam.txt"
+    # get filename of path "/foo/bar/spam.txt"
     filename("/foo/bar/spam.txt")
-    // returns: "spam.txt"
+    # returns: "spam.txt"
 
 filter
 ------
@@ -939,10 +953,10 @@ Returns:
 
 Examples:
 
-    // filter text files removing those in build directory
+    # filter text files removing those in build directory
     filter(find(".", "**/*.txt"), "build/**/*")
-    // returns: files with extension "txt" in current directory and
-    // subdirectories, except those in "build" directory
+    # returns: files with extension "txt" in current directory and
+    # subdirectories, except those in "build" directory
 
 Notes:
 
@@ -964,12 +978,12 @@ Returns:
 
 Examples:
 
-    // find all text files in book directory
+    # find all text files in book directory
     find("book", "**/*.txt")
-    // returns: list of files with extension "txt"
-    // find all xml and yml files in src directory
+    # returns: list of files with extension "txt"
+    # find all xml and yml files in src directory
     find("src", "**/*.xml", "**/*.yml")
-    // returns: list of "xml" and "yml" files
+    # returns: list of "xml" and "yml" files
 
 Notes:
 
@@ -991,9 +1005,9 @@ Returns:
 
 Examples:
 
-    // join "foo" and "bar" with a space
+    # join "foo" and "bar" with a space
     join(["foo", "bar"], " ")
-    // returns: "foo bar"
+    # returns: "foo bar"
 
 joinpath
 --------
@@ -1010,10 +1024,10 @@ Returns:
 
 Examples:
 
-    // join paths "/foo", "bar" and "spam.txt"
+    # join paths "/foo", "bar" and "spam.txt"
     joinpath("foo", "bar", "spam.txt")
-    // returns: "foo/bar/spam.txt" on a Linux box and "foo\bar\spam.txt" on
-    // Windows
+    # returns: "foo/bar/spam.txt" on a Linux box and "foo\bar\spam.txt" on
+    # Windows
 
 jsondecode
 ----------
@@ -1030,9 +1044,9 @@ Returns:
 
 Examples:
 
-    // decode given list
+    # decode given list
     jsondecode("['foo', 'bar']")
-    // returns string slice: ["foo", "bar"]
+    # returns string slice: ["foo", "bar"]
 
 jsonencode
 ----------
@@ -1049,9 +1063,9 @@ Returns:
 
 Examples:
 
-    // encode given list
+    # encode given list
     jsonencode(["foo", "bar"])
-    // returns: "['foo', 'bar']"
+    # returns: "['foo', 'bar']"
 
 keys
 ----
@@ -1068,9 +1082,9 @@ Returns:
 
 Examples:
 
-    // get keys of a map
+    # get keys of a map
     keys({"foo": 1, "bar": 2})
-    // returns: ["foo", "bar"]
+    # returns: ["foo", "bar"]
 
 list
 ----
@@ -1089,9 +1103,9 @@ Returns:
 
 Examples:
 
-    // get a list of foo
+    # get a list of foo
     list(foo)
-	// return foo if already a list or [foo] otherwise
+	# return foo if already a list or [foo] otherwise
 
 lowercase
 ---------
@@ -1108,9 +1122,9 @@ Returns:
 
 Examples:
 
-    // set string in lower case
+    # set string in lower case
     lowercase("FooBAR")
-    // returns: "foobar"
+    # returns: "foobar"
 
 now
 ---
@@ -1127,12 +1141,12 @@ Returns:
 
 Examples:
 
-    // put current date and time in dt variable
+    # put current date and time in dt variable
     now()
-    // returns: "2006-01-02 15:04:05"
-    // to get date in ISO format
+    # returns: "2006-01-02 15:04:05"
+    # to get date in ISO format
     now()[0:10]
-    // returns: "2006-01-02"
+    # returns: "2006-01-02"
 
 older
 -----
@@ -1151,7 +1165,7 @@ Returns:
 
 Examples:
 
-    // generate PDF if source Markdown changed
+    # generate PDF if source Markdown changed
     if older("source.md", "result.pdf") {
     	compile("source.md")
     }
@@ -1171,9 +1185,9 @@ Returns:
 
 Examples:
 
-    // convert path foo/bar to OS format
+    # convert path foo/bar to OS format
     path = ospath("foo/bar")
-    // will return foo/bar on Unix and foo\bar on Windows
+    # will return foo/bar on Unix and foo\bar on Windows
 
 read
 ----
@@ -1190,9 +1204,9 @@ Returns:
 
 Examples:
 
-    // read VERSION file and set variable version with ots content
+    # read VERSION file and set variable version with ots content
     read("VERSION")
-    // returns: the contents of "VERSION" file
+    # returns: the contents of "VERSION" file
 
 run
 ---
@@ -1211,9 +1225,9 @@ Returns:
 
 Examples:
 
-    // zip files of foo directory in bar.zip file
+    # zip files of foo directory in bar.zip file
     run("zip", "-r", "bar.zip", "foo")
-    // returns: the trimed output of the command
+    # returns: the trimed output of the command
 
 split
 -----
@@ -1231,9 +1245,9 @@ Returns:
 
 Examples:
 
-    // split "foo bar" with space
+    # split "foo bar" with space
     split("foo bar", " ")
-    // returns: ["foo"," "bar"]
+    # returns: ["foo"," "bar"]
 
 throw
 -----
@@ -1250,9 +1264,9 @@ Returns:
 
 Examples:
 
-    // stop the script with an error message
+    # stop the script with an error message
     throw("Some tests failed")
-    // returns: nothing, the script is interrupted on error
+    # returns: nothing, the script is interrupted on error
 
 unescapeurl
 -----------
@@ -1269,9 +1283,9 @@ Returns:
 
 Examples:
 
-    // unescape given URL
+    # unescape given URL
     escapeurl("foo%20bar")
-    // returns: "foo bar"
+    # returns: "foo bar"
 
 unixpath
 --------
@@ -1288,9 +1302,9 @@ Returns:
 
 Examples:
 
-    // convert path to unix
+    # convert path to unix
     uppercase("c:\foo\bar")
-    // returns: "/c/foo/bar"
+    # returns: "/c/foo/bar"
 
 uppercase
 ---------
@@ -1307,9 +1321,9 @@ Returns:
 
 Examples:
 
-    // set string in upper case
+    # set string in upper case
     uppercase("FooBAR")
-    // returns: "FOOBAR"
+    # returns: "FOOBAR"
 
 windowspath
 -----------
@@ -1326,9 +1340,9 @@ Returns:
 
 Examples:
 
-    // convert path to windows
+    # convert path to windows
     uppercase("/c/foo/bar")
-    // returns: "c:\foo\bar"
+    # returns: "c:\foo\bar"
 
 winexe
 ------
@@ -1348,10 +1362,10 @@ Returns:
 
 Examples:
 
-    // run command foo on unix and windows
+    # run command foo on unix and windows
     run(winexe("bin/foo"))
-    // will run bin/foo on unix and bin\foo.exe on windows
-    // run script script.sh unix and windows
+    # will run bin/foo on unix and bin\foo.exe on windows
+    # run script script.sh unix and windows
     run(winexe("script.sh"))
-    // will run script.sh on unix and script.bat on windows
+    # will run script.sh on unix and script.bat on windows
 
