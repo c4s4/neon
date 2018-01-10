@@ -23,12 +23,12 @@ Returns:
 
 Examples:
 
-    // find all text files in book directory
+    # find all text files in book directory
     find("book", "**/*.txt")
-    // returns: list of files with extension "txt"
-    // find all xml and yml files in src directory
+    # returns: list of files with extension "txt"
+    # find all xml and yml files in src directory
     find("src", "**/*.xml", "**/*.yml")
-    // returns: list of "xml" and "yml" files
+    # returns: list of "xml" and "yml" files
 
 Notes:
 

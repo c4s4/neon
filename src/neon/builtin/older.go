@@ -23,7 +23,7 @@ Returns:
 
 Examples:
 
-    // generate PDF if source Markdown changed
+    # generate PDF if source Markdown changed
     if older("source.md", "result.pdf") {
     	compile("source.md")
     }`,

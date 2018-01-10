@@ -21,9 +21,9 @@ Returns:
 
 Examples:
 
-    // set string in upper case
+    # set string in upper case
     uppercase("FooBAR")
-    // returns: "FOOBAR"`,
+    # returns: "FOOBAR"`,
 	})
 }
 

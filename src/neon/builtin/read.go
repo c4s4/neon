@@ -22,9 +22,9 @@ Returns:
 
 Examples:
 
-    // read VERSION file and set variable version with ots content
+    # read VERSION file and set variable version with ots content
     read("VERSION")
-    // returns: the contents of "VERSION" file`,
+    # returns: the contents of "VERSION" file`,
 	})
 }
 

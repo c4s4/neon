@@ -23,9 +23,9 @@ Returns:
 
 Examples:
 
-    // expand path ~/.profile
+    # expand path ~/.profile
     profile = expand("~/.profile")
-    // returns: "/home/casa/.profile" on my machine`,
+    # returns: "/home/casa/.profile" on my machine`,
 	})
 }
 

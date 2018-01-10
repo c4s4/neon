@@ -21,9 +21,9 @@ Returns:
 
 Examples:
 
-    // escape given URL
+    # escape given URL
     escapeurl("/foo bar")
-    // returns: "/foo%20bar"`,
+    # returns: "/foo%20bar"`,
 	})
 }
 

@@ -21,9 +21,9 @@ Returns:
 
 Examples:
 
-    // convert path to unix
+    # convert path to unix
     uppercase("c:\foo\bar")
-    // returns: "/c/foo/bar"`,
+    # returns: "/c/foo/bar"`,
 	})
 }
 

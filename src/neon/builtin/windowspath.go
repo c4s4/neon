@@ -21,9 +21,9 @@ Returns:
 
 Examples:
 
-    // convert path to windows
+    # convert path to windows
     uppercase("/c/foo/bar")
-    // returns: "c:\foo\bar"`,
+    # returns: "c:\foo\bar"`,
 	})
 }
 

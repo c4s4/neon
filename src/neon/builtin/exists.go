@@ -22,9 +22,9 @@ Returns:
 
 Examples:
 
-    // test if given path exists
+    # test if given path exists
     exists("/foo/bar")
-    // returns: true if file "/foo/bar" exists`,
+    # returns: true if file "/foo/bar" exists`,
 	})
 }
 

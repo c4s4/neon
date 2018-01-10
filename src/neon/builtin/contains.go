@@ -22,9 +22,9 @@ Returns:
 
 Examples:
 
-    // Tell if the list contains "bar"
+    # Tell if the list contains "bar"
     contains(["foo", "bar"], "bar")
-    // returns: true`,
+    # returns: true`,
 	})
 }
 
