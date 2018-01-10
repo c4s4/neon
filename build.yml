@@ -50,20 +50,10 @@ targets:
       - $: ['git', 'add', '={REFERENCE}']
       - $: ['git', 'commit', '-m', 'Updated reference', '={REFERENCE}']
 
-  binaries:
-    doc: Generate binaries for all platforms
+  docs:
+    doc: Build documentations
     steps:
-    - mkdir: '={BUILD_DIR}/bin/'
-    - $: ['gox', '-ldflags', '-X main.VERSION=={VERSION}',
-          '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', '={NAME}']
-
-  archive:
-    doc:     Generate distribution archive
-    depends: binaries
-    steps:
-    - mkdir: '={ARC_DIR}/bin'
-    - copy:  '={BUILD_DIR}/bin/*'
-      todir: '={ARC_DIR}/bin'
+    - mkdir: '=ARC_DIR'
     - copy:  'LICENSE.txt'
       todir: '={ARC_DIR}/'
     - $: ['md2pdf', '-o', '={ARC_DIR}/README.pdf', 'README.md']
@@ -74,6 +64,21 @@ targets:
     - $: ['md2pdf', '-o', '={ARC_DIR}/doc/quickstart.pdf', 'doc/quickstart.md']
     - $: ['md2pdf', '-o', '={ARC_DIR}/doc/usermanual.pdf', 'doc/usermanual.md']
     - $: ['md2pdf', '-o', '={ARC_DIR}/doc/reference.pdf', 'doc/reference.md']
+
+  binaries:
+    doc: Generate binaries for all platforms
+    steps:
+    - mkdir: '={BUILD_DIR}/bin/'
+    - $: ['gox', '-ldflags', '-X main.VERSION=={VERSION}',
+          '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', '={NAME}']
+
+  archive:
+    doc:     Generate distribution archive
+    depends: [docs, binaries]
+    steps:
+    - mkdir: '={ARC_DIR}/bin'
+    - copy:  '={BUILD_DIR}/bin/*'
+      todir: '={ARC_DIR}/bin'
     - copy:  'bash/*'
       todir: '={ARC_DIR}'
       flat:  false

@@ -15,6 +15,7 @@ and builtins, see [Reference](reference.md) documentation.
   - [Shell task](#shell-task)
   - [Script task](#script-task)
 - [Build inheritance](#build-inheritance)
+- [Neon repository](#neon-repository)
 
 Build file format
 -----------------
@@ -410,10 +411,21 @@ You can get information on available tasks
 ### Shell task
 
 A shell task runs a script. This script will run with *sh* on Unix and
-*cmd.exe* on Windows. They are a map with *$* field.
+*cmd.exe* on Windows by default. You can define which shell to use with a
+*shell* field at the root of the build file (see section
+[Build file structure](build-file-structure) for more information).
 
-This script might be a simple command such as *ls* or it may be a full shell or
-batch script. In this case, you should the appropriate YAML syntax:
+This script might be a simple command such as *ls*:
+
+```yaml
+targets:
+
+  shell:
+    steps:
+    - $: 'ls'
+```
+
+This may also be a full shell or batch script:
 
 ```yaml
 targets:
@@ -421,23 +433,37 @@ targets:
   shell:
     steps:
     - $: |
-         This is a shell script
-         with more that one line
+         set -e
+         echo "Renaming branch '={old}' to '={new}'"
+         git branch -m ={old} ={new}
+         git push origin :={old}
+         git push --set-upstream origin ={new}
 ```
 
-A shell task will fail if the script returns a value different from *0*. You
-might manage errors with *try* task.
+Nevertheless, you might prefer not to rely on shell to run a command. This is
+the case on Windows where command interpreter doesn't manage well arguments
+with spaces. To do so, you should write commands as lists:
 
-Of course a command might be system dependant, but this is not always the case.
-For instance, a command such as `java -jar foo.jar` will probably run the same
-on all systems. This is also the case for most Git commands.
+```yaml
+targets:
+
+  shell:
+    steps:
+    - $: ['java', '-jar', 'my.jar', 'Hello World!']
+```
+
+This way, you will write portable build files that will run seamlessly on Unix
+boxes or Windows machines.
+
+A shell task will fail if the command returns a value different from *0*. You
+might manage errors with *try/catch/finally* task.
 
 [Back to top](#user-manual)
 
 ### Script task
 
 A script task is a piece of code that will run in the NeON scripting engine.
-This is also a way to write platform independant code. But this is a way to
+This is also a way to write platform independent code. But this is a way to
 write complex scripts that would be complicated to write with system commands.
 
 A script task is a simple string. For instance:
@@ -450,14 +476,41 @@ targets:
     - 'file = joinpath(BUILD_DIR, "test.txt")'
 ```
 
-Your scripts might use builtin funtions, defined by Anko scripting engine (such
-as *toString()*) or by NeON. To lis NeON builtins, you can type command 
+Your scripts might use builtin functions, defined by Anko scripting engine (such
+as *toString()*) or by NeON. To list NeON builtins, you can type command 
 `neon -builtins`. To get help on given builtin, type `neon -builtin split`.
 You can get information on available builtin functions
 [on this reference page](reference.md).
 
 You can define your own functions in scripts that you load in the build file
-with *context* field.
+with *context* field. For instance, to define your own *double* function to use
+it in you build files, you could define *context* as following:
+
+```yaml
+context: 'myscript.ank'
+```
+
+The content of this script might be:
+
+```go
+func double(i) {
+	return 2*i
+}
+```
+
+Then, in you build file, you could write:
+
+```yaml
+targets:
+
+  script:
+    steps:
+    - 'd = double(i)'
+```
+
+A this will call the *double()* function you defined in your context. This is a
+way to write your build utility functions in a separate file and thus keep a
+clean build file.
 
 To get more information about 
 [Anko scripting language clic here](http://github.com/mattn/anko).
@@ -481,7 +534,7 @@ targets:
   clean:
     doc: Clean generated files
     steps:
-    - delete: '={BUILD_DIR}'
+    - delete: '=BUILD_DIR'
 ```
 
 You may reuse this build file in another one:
@@ -534,12 +587,73 @@ targets:
   clean:
     doc: Clea generated files
     steps:
-    - print: 'Deleting build directory'
+    - print: 'Deleting build directory!!!'
     - super:
 ```
+
+The path to extended build files is important:
+
+- If this path is **absolute** or starts with **./** (that is in current
+  directory), this works as you would expect.
+- If this path is relative without starting with *./*, this build file is in
+  the Neon repository. See bellow for more explanations.
 
 The *super* task will run steps of parent target.
 
 [Back to top](#user-manual)
+
+Neon repository
+---------------
+
+Neon repository is the place where live installed parent build files. By
+default, Neon repository is in *~/.neon* directory. This may be changed with
+*repository* field in the build file.
+
+When you extend a build file with following statement:
+
+```yaml
+extends: foo/bar/spam.yml
+```
+
+Neon will look in directory *foo/bar* of the Neon repository for file
+*spam.yml*. You might install manually your parent build files in your Neon
+repository, but you can install them automagically with Neon *install* command:
+
+```bash
+$ neon -install foo/bar
+```
+
+This will clone Git repository *bar* of user *foo* on *Github*. Thus this will
+run command:
+
+```bash
+$ git clone git://github.com/foo/bar.git <neon-repo>/foo/bar
+```
+
+Thus, if your parent build files are public, you should put them on *Github* so
+that they can be easily shared in your team. I personally share my parent build
+files in repository <http://github.com/c4s4/build>.
+
+By default this will clone *master* branch. You can change this running
+following command in created Git repository:
+
+```bash
+$ git checkout develop
+```
+
+This will change branch to *develop*. You might get a particular version with:
+
+```bash
+$ git checkout 1.2.3
+```
+
+In your parent project repository, simply put you parent build files at the root.
+You might also put them in any subdirectory. If you put a build file *spam.yml*
+in subdirectory *eggs*, you would extend it with:
+
+```yaml
+extends:
+- foo/bar/eggs/spam.yml
+```
 
 *Enjoy!*
