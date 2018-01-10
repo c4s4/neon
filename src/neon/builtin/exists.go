@@ -2,6 +2,7 @@ package builtin
 
 import (
 	"neon/build"
+	"neon/util"
 	"os"
 )
 
@@ -28,6 +29,7 @@ Examples:
 }
 
 func Exists(path string) bool {
+	path = util.ExpandUserHome(path)
 	_, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
