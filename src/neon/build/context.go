@@ -311,38 +311,50 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 	sort.Strings(variables)
 	for _, name := range variables {
 		value := context.Build.Environment[name]
-		replaced := REGEXP_ENV.ReplaceAllStringFunc(value, func(expression string) string {
-			parts := REGEXP_PARTS.FindStringSubmatch(expression)
-			prefix := parts[1]
-			char := parts[2]
-			source := parts[3]
-			// expression was escaped
-			if prefix == `\` {
-				return char + `{` + source + `}`
-			} else
-			// expression not escaped
-			{
-				if prefix == `\\` {
-					prefix = `\`
-				}
-				if char == ENVIRONMENT_VAR {
-					val, ok := environment[source]
-					if !ok {
-						return prefix + `{` + source + `}`
-					} else {
-						return prefix + val
-					}
-				} else {
-					val, err := context.EvaluateExpression(source)
-					if err != nil {
-						return prefix + `{` + source + `}`
-					} else {
-						str, _ := PropertyToString(val, false)
-						return prefix + str
-					}
-				}
+		var replaced string
+		if IsExpression(value) {
+			val, err := context.EvaluateExpression(value[1:])
+			if err != nil {
+				return nil, err
 			}
-		})
+			if reflect.TypeOf(val).Kind() != reflect.String {
+				return nil, fmt.Errorf("expression in environment must return a string")
+			}
+			replaced = val.(string)
+		} else {
+			replaced = REGEXP_ENV.ReplaceAllStringFunc(value, func(expression string) string {
+				parts := REGEXP_PARTS.FindStringSubmatch(expression)
+				prefix := parts[1]
+				char := parts[2]
+				source := parts[3]
+				// expression was escaped
+				if prefix == `\` {
+					return char + `{` + source + `}`
+				} else
+				// expression not escaped
+				{
+					if prefix == `\\` {
+						prefix = `\`
+					}
+					if char == ENVIRONMENT_VAR {
+						val, ok := environment[source]
+						if !ok {
+							return prefix + `{` + source + `}`
+						} else {
+							return prefix + val
+						}
+					} else {
+						val, err := context.EvaluateExpression(source)
+						if err != nil {
+							return prefix + `{` + source + `}`
+						} else {
+							str, _ := PropertyToString(val, false)
+							return prefix + str
+						}
+					}
+				}
+			})
+		}
 		environment[name] = replaced
 	}
 	var lines []string
