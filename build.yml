@@ -1,6 +1,10 @@
-doc:     'Build file to build neon'
+# Neon build file (http://github.com/c4s4/neon)
+
+doc:     Build file for NeON
 default: [clean, bin, test, integ]
-extends: c4s4/build/go-app.yml
+extends:
+- c4s4/build/buildir.yml
+- c4s4/build/golang.yml
 
 properties:
   NAME:      'neon'
@@ -13,18 +17,11 @@ properties:
   - 'github.com/mattn/go-zglob'
   - 'github.com/fatih/color'
 
-targets:
+environment:
+  GOPATH: =_BASE
+  PATH:   '={_BASE}/bin:${PATH}'
 
-  integ:
-    doc:     Run integration tests
-    depends: bin
-    steps:
-    - print: "Running integration tests"
-    - for: 'file'
-      in:  'find("test", "**/*.yml")'
-      do:
-      - print: 'Running build file "={file}"'
-      - $: ['bin/neon', '-file', 'test/={file}']
+targets:
 
   fmt:
     doc: Reformat code
@@ -32,33 +29,50 @@ targets:
     - print: 'Formatting code with fmt'
     - $: ['gofmt', '-s', '-w', 'src/neon/']
 
+  test:                                                                         
+    doc: Run Go tests
+    steps:
+    - $: ['go', 'test', '={NAME}/...']
+
+  integ:
+    doc:     Run integration tests
+    depends: bin
+    steps:
+    - print: 'Running integration tests'
+    - for: 'file'
+      in:  'find("test", "**/*.yml")'
+      do:
+      - print: "Running build file '={file}'"
+      - $: ['bin/neon', '-file', 'test/={file}']
+
   bin:
-    doc: 'Build neon binary'
+    doc: Build neon binary
     steps:
     - print: "Building neon binary in 'bin/neon'"
     - delete: 'bin/neon'
-    - $: ['go', 'install', '-ldflags', '-X main.VERSION=={VERSION}', '={NAME}']
+    - $: ['go', 'install', '-ldflags', '-X main.VERSION=={VERSION}', =NAME]
 
   refs:
-    doc:     Generate reference documentation for tasks and builtins
+    doc: Generate reference documentation
     depends: bin
     steps:
     - $: 'bin/neon -refs > ={REFERENCE}'
     - try:
-      - $: ['git', 'diff', '--quiet', '--exit-code', '={REFERENCE}']
+      - $: ['git', 'diff', '--quiet', '--exit-code', =REFERENCE]
       catch:
-      - $: ['git', 'add', '={REFERENCE}']
-      - $: ['git', 'commit', '-m', 'Updated reference', '={REFERENCE}']
+      - $: ['git', 'add', =REFERENCE]
+      - $: ['git', 'commit', '-m', 'Updated reference', =REFERENCE]
 
   doc:
     doc: Build documentations
     steps:
-    - mkdir: '=BUILD_DIR'
+    - mkdir: =BUILD_DIR
     - copy:  'LICENSE.txt'
       todir: '=BUILD_DIR'
     - $: ['md2pdf', '-o', '={BUILD_DIR}/README.pdf', 'README.md']
     - $: 'changelog to markdown > ={BUILD_DIR}/CHANGELOG.md'
-    - $: ['md2pdf', '-o', '={BUILD_DIR}/CHANGELOG.pdf', '={BUILD_DIR}/CHANGELOG.md']
+    - $: ['md2pdf', '-o', '={BUILD_DIR}/CHANGELOG.pdf', 
+          '={BUILD_DIR}/CHANGELOG.md']
     - delete: '={BUILD_DIR}/CHANGELOG.md'
     - $: ['md2pdf', '-o', '={BUILD_DIR}/quickstart.pdf', 'doc/quickstart.md']
     - $: ['md2pdf', '-o', '={BUILD_DIR}/usermanual.pdf', 'doc/usermanual.md']
@@ -69,27 +83,27 @@ targets:
     steps:
     - mkdir: '={BUILD_DIR}/bin/'
     - $: ['gox', '-ldflags', '-X main.VERSION=={VERSION}',
-          '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', '={NAME}']
+          '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', =NAME]
 
   archive:
-    doc:     Generate distribution archive
+    doc: Generate distribution archive
     depends: [doc, binaries]
     steps:
     - mkdir: '={ARC_DIR}/bin'
     - copy:  '={BUILD_DIR}/bin/*'
       todir: '={ARC_DIR}/bin'
     - copy:  'bash/*'
-      todir: '={ARC_DIR}'
+      todir: =ARC_DIR
       flat:  false
     - copy:  ['CHANGELOG.pdf', 'LICENSE.txt', 'README.pdf']
-      dir:   '=BUILD_DIR'
-      todir: '={ARC_DIR}/'
+      dir:   =BUILD_DIR
+      todir: =ARC_DIR
     - mkdir: '={ARC_DIR}/doc'
     - copy:  ['quickstart.pdf', 'reference.pdf', 'usermanual.pdf']
-      dir:   '=BUILD_DIR'
+      dir:   =BUILD_DIR
       todir: '={ARC_DIR}/doc'
     - tar:    '={NAME}-={VERSION}/**/*'
-      dir:    '={BUILD_DIR}'
+      dir:    =BUILD_DIR
       tofile: '={BUILD_DIR}/={NAME}-={VERSION}.tar.gz'
 
   release:
@@ -99,6 +113,6 @@ targets:
 
   windows:
     steps:
-    - mkdir: '={BUILD_DIR}/bin/'
-    - $: ['gox', '-ldflags', '-X main.VERSION=={VERSION}', '-osarch=windows/386',
-          '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', '={NAME}']
+    - mkdir: =BUILD_DIR
+    - $: ['gox', '-ldflags', '-X main.VERSION=={VERSION}', 
+          '-osarch=windows/386', '-output=={BUILD_DIR}/={NAME}', =NAME]
