@@ -294,5 +294,9 @@ func FieldIs(field reflect.StructField, quality string) bool {
 // - s: the string to test
 // Return: a bool that tells if the string is an expression
 func IsExpression(s string) bool {
-	return s[0:1] == CHAR_EXPRESSION && s[1:2] != CURLY_EXPRESSION
+	if len(s) < 2 {
+		return false
+	} else {
+		return s[0:1] == CHAR_EXPRESSION && s[1:2] != CURLY_EXPRESSION
+	}
 }
