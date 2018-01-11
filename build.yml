@@ -50,20 +50,19 @@ targets:
       - $: ['git', 'add', '={REFERENCE}']
       - $: ['git', 'commit', '-m', 'Updated reference', '={REFERENCE}']
 
-  docs:
+  doc:
     doc: Build documentations
     steps:
-    - mkdir: '=ARC_DIR'
+    - mkdir: '=BUILD_DIR'
     - copy:  'LICENSE.txt'
-      todir: '={ARC_DIR}/'
-    - $: ['md2pdf', '-o', '={ARC_DIR}/README.pdf', 'README.md']
+      todir: '=BUILD_DIR'
+    - $: ['md2pdf', '-o', '={BUILD_DIR}/README.pdf', 'README.md']
     - $: 'changelog to markdown > ={BUILD_DIR}/CHANGELOG.md'
-    - $: ['md2pdf', '-o', '={ARC_DIR}/CHANGELOG.pdf', '={BUILD_DIR}/CHANGELOG.md']
+    - $: ['md2pdf', '-o', '={BUILD_DIR}/CHANGELOG.pdf', '={BUILD_DIR}/CHANGELOG.md']
     - delete: '={BUILD_DIR}/CHANGELOG.md'
-    - mkdir: '={ARC_DIR}/doc'
-    - $: ['md2pdf', '-o', '={ARC_DIR}/doc/quickstart.pdf', 'doc/quickstart.md']
-    - $: ['md2pdf', '-o', '={ARC_DIR}/doc/usermanual.pdf', 'doc/usermanual.md']
-    - $: ['md2pdf', '-o', '={ARC_DIR}/doc/reference.pdf', 'doc/reference.md']
+    - $: ['md2pdf', '-o', '={BUILD_DIR}/quickstart.pdf', 'doc/quickstart.md']
+    - $: ['md2pdf', '-o', '={BUILD_DIR}/usermanual.pdf', 'doc/usermanual.md']
+    - $: ['md2pdf', '-o', '={BUILD_DIR}/reference.pdf', 'doc/reference.md']
 
   binaries:
     doc: Generate binaries for all platforms
@@ -74,7 +73,7 @@ targets:
 
   archive:
     doc:     Generate distribution archive
-    depends: [docs, binaries]
+    depends: [doc, binaries]
     steps:
     - mkdir: '={ARC_DIR}/bin'
     - copy:  '={BUILD_DIR}/bin/*'
@@ -82,6 +81,13 @@ targets:
     - copy:  'bash/*'
       todir: '={ARC_DIR}'
       flat:  false
+    - copy:  ['CHANGELOG.pdf', 'LICENSE.txt', 'README.pdf']
+      dir:   '=BUILD_DIR'
+      todir: '={ARC_DIR}/'
+    - mkdir: '={ARC_DIR}/doc'
+    - copy:  ['quickstart.pdf', 'reference.pdf', 'usermanual.pdf']
+      dir:   '=BUILD_DIR'
+      todir: '={ARC_DIR}/doc'
     - tar:    '={NAME}-={VERSION}/**/*'
       dir:    '={BUILD_DIR}'
       tofile: '={BUILD_DIR}/={NAME}-={VERSION}.tar.gz'
