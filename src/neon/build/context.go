@@ -317,7 +317,7 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 			if err != nil {
 				return nil, err
 			}
-			if reflect.TypeOf(val).Kind() != reflect.String {
+			if val == nil || reflect.TypeOf(val).Kind() != reflect.String {
 				return nil, fmt.Errorf("expression in environment must return a string")
 			}
 			replaced = val.(string)
