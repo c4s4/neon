@@ -108,7 +108,7 @@ func (target *Target) Run(context *Context) error {
 			}
 		}
 	}
-	err := context.Stack.Push(target.Name)
+	err := context.Stack.Push(target)
 	if err != nil {
 		return err
 	}

@@ -7,24 +7,24 @@ import (
 
 // Structure for a stack. A stack lists all targets that run during a build.
 type Stack struct {
-	Targets []string
+	Targets []*Target
 }
 
 // NewStack makes a new stack
 // Returns: a pointer to the stack
 func NewStack() *Stack {
 	stack := Stack{
-		Targets: make([]string, 0),
+		Targets: make([]*Target, 0),
 	}
 	return &stack
 }
 
 // Contains tells if the stack contains given target
-// - target: the name of the target
+// - target: target to test
 // Returns: a boolean telling if target is in the stack
-func (stack *Stack) Contains(target string) bool {
-	for _, name := range stack.Targets {
-		if target == name {
+func (stack *Stack) Contains(name string) bool {
+	for _, target := range stack.Targets {
+		if name == target.Name {
 			return true
 		}
 	}
@@ -32,14 +32,13 @@ func (stack *Stack) Contains(target string) bool {
 }
 
 // Push a target on the stack
-// - target: the name of the target to push on the stack
+// - target: target to push on the stack
 // Return: an error if we are in an infinite loop
-func (stack *Stack) Push(target string) error {
+func (stack *Stack) Push(target *Target) error {
 	for _, t := range stack.Targets {
 		if t == target {
 			stack.Targets = append(stack.Targets, target)
-			loop := strings.Join(stack.Targets, " -> ")
-			return fmt.Errorf("infinite loop: %v", loop)
+			return fmt.Errorf("infinite loop: %v", stack.String())
 		}
 	}
 	stack.Targets = append(stack.Targets, target)
@@ -47,10 +46,10 @@ func (stack *Stack) Push(target string) error {
 }
 
 // Last gets the last target on stack
-// Return: name of the last target on stack
-func (stack *Stack) Last() string {
+// Return: last target on stack
+func (stack *Stack) Last() *Target {
 	if len(stack.Targets) == 0 {
-		return ""
+		return nil
 	} else {
 		return stack.Targets[len(stack.Targets)-1]
 	}
@@ -60,13 +59,17 @@ func (stack *Stack) Last() string {
 // "foo -> bar -> spam"
 // Return: the stack as a string
 func (stack *Stack) String() string {
-	return strings.Join(stack.Targets, " -> ")
+	names := make([]string, len(stack.Targets))
+	for i, target := range stack.Targets {
+		names[i] = target.Name
+	}
+	return strings.Join(names, " -> ")
 }
 
 // Copy returns a copy of the stack
 // Return: pointer to a copy of the stack
 func (stack *Stack) Copy() *Stack {
-	another := make([]string, len(stack.Targets))
+	another := make([]*Target, len(stack.Targets))
 	for i := 0; i < len(stack.Targets); i++ {
 		another[i] = stack.Targets[i]
 	}

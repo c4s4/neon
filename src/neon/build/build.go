@@ -278,7 +278,7 @@ func (build *Build) RunParentTarget(context *Context, name string) (bool, error)
 	for _, parent := range build.Parents {
 		target := parent.GetTargetByName(name)
 		if target != nil {
-			err := context.Stack.Push(target.Name)
+			err := context.Stack.Push(target)
 			if err != nil {
 				return false, err
 			}

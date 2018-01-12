@@ -31,7 +31,7 @@ Notes:
 type SuperArgs struct{}
 
 func Super(context *build.Context, args interface{}) error {
-	ok, err := context.Build.RunParentTarget(context, context.Stack.Last())
+	ok, err := context.Build.RunParentTarget(context, context.Stack.Last().Name)
 	if err != nil {
 		return err
 	}
