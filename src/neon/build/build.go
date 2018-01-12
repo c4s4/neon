@@ -177,8 +177,8 @@ func (build *Build) GetTargetByName(name string) *Target {
 				return target
 			}
 		}
+		return nil
 	}
-	return nil
 }
 
 // SetDir sets the build directory, propagating to parents
