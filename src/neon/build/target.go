@@ -108,9 +108,12 @@ func (target *Target) Run(context *Context) error {
 			}
 		}
 	}
-	context.Stack.Push(target.Name)
+	err := context.Stack.Push(target.Name)
+	if err != nil {
+		return err
+	}
 	Title(target.Name)
-	err := os.Chdir(target.Build.Dir)
+	err = os.Chdir(target.Build.Dir)
 	if err != nil {
 		return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
 	}

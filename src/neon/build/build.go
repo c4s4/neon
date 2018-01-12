@@ -278,8 +278,11 @@ func (build *Build) RunParentTarget(context *Context, name string) (bool, error)
 	for _, parent := range build.Parents {
 		target := parent.GetTargetByName(name)
 		if target != nil {
-			context.Stack.Push(target.Name)
-			err := target.Steps.Run(context)
+			err := context.Stack.Push(target.Name)
+			if err != nil {
+				return false, err
+			}
+			err = target.Steps.Run(context)
 			if err != nil {
 				return true, fmt.Errorf("running target '%s': %v", name, err)
 			}

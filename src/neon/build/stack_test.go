@@ -6,15 +6,15 @@ import (
 
 func TestStack(t *testing.T) {
 	stack := NewStack()
-	stack.Push("foo")
-	if !stack.Contains("foo") {
+	err := stack.Push("foo")
+	if err != nil || !stack.Contains("foo") {
 		t.Errorf("Error contains")
 	}
 	if stack.Contains("bar") {
 		t.Errorf("Error contains")
 	}
-	stack.Push("bar")
-	if !stack.Contains("bar") {
+	err = stack.Push("bar")
+	if err != nil || !stack.Contains("bar") {
 		t.Errorf("Error contains")
 	}
 	if stack.String() != "foo -> bar" {
