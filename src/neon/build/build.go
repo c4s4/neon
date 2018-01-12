@@ -17,9 +17,9 @@ import (
 
 const (
 	// Local repository root directory
-	DEFAULT_REPO = "~/.neon"
+	DefaultRepo = "~/.neon"
 	// Regexp for a plugin name
-	RE_PLUGIN = `[\w-]+/[\w-]+`
+	RegexpPlugin = `[\w-]+/[\w-]+`
 )
 
 // Possible root fields for a build file
@@ -52,9 +52,9 @@ type Build struct {
 // - error if something went wrong
 func NewBuild(file string) (*Build, error) {
 	build := &Build{}
-	path := util.ExpandUserHome(file)
-	build.File = filepath.Base(path)
-	base, err := filepath.Abs(filepath.Dir(path))
+	file = util.ExpandUserHome(file)
+	build.File = filepath.Base(file)
+	base, err := filepath.Abs(filepath.Dir(file))
 	if err != nil {
 		return nil, fmt.Errorf("getting build file directory: %v", err)
 	}
@@ -64,9 +64,9 @@ func NewBuild(file string) (*Build, error) {
 		return nil, fmt.Errorf("getting current directory: %v", err)
 	}
 	build.Here = here
-	source, err := util.ReadFile(path)
+	source, err := util.ReadFile(file)
 	if err != nil {
-		return nil, fmt.Errorf("loading build file '%s': %v", path, err)
+		return nil, fmt.Errorf("loading build file '%s': %v", file, err)
 	}
 	var object util.Object
 	err = yaml.Unmarshal(source, &object)
@@ -307,7 +307,7 @@ func (build *Build) PluginPath(name string) string {
 // - name: the resource name (such as "c4s4/build/buildir.yml")
 // Return: the plugin name (such as "c4s4/build")
 func (build *Build) PluginName(name string) string {
-	re := regexp.MustCompile(`^(` + RE_PLUGIN + `)/.+$`)
+	re := regexp.MustCompile(`^(` + RegexpPlugin + `)/.+$`)
 	if re.MatchString(name) {
 		return re.FindStringSubmatch(name)[1]
 	} else {
