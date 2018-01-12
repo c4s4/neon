@@ -17,8 +17,8 @@ func TestStack(t *testing.T) {
 	if !stack.Contains("bar") {
 		t.Errorf("Error contains")
 	}
-	if stack.ToString() != "foo -> bar" {
-		t.Errorf("Error ToString: %v", stack.ToString())
+	if stack.String() != "foo -> bar" {
+		t.Errorf("Error ToString: %v", stack.String())
 	}
 	if stack.Last() != "bar" {
 		t.Errorf("Error Last: %v", stack.Last())

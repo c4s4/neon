@@ -49,7 +49,7 @@ func (stack *Stack) Last() string {
 // ToString returns string representation of the stack, such as:
 // "foo -> bar -> spam"
 // Return: the stack as a string
-func (stack *Stack) ToString() string {
+func (stack *Stack) String() string {
 	return strings.Join(stack.Targets, " -> ")
 }
 
