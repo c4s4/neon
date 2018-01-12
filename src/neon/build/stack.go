@@ -2,6 +2,7 @@ package build
 
 import (
 	"strings"
+	"fmt"
 )
 
 // Structure for a stack. A stack lists all targets that run during a build.
@@ -32,8 +33,17 @@ func (stack *Stack) Contains(target string) bool {
 
 // Push a target on the stack
 // - target: the name of the target to push on the stack
-func (stack *Stack) Push(target string) {
+// Return: an error if we are in an infinite loop
+func (stack *Stack) Push(target string) error {
+	for _, t := range stack.Targets {
+		if t == target {
+			stack.Targets = append(stack.Targets, target)
+			loop := strings.Join(stack.Targets, " -> ")
+			return fmt.Errorf("infinite loop: %v", loop)
+		}
+	}
 	stack.Targets = append(stack.Targets, target)
+	return nil
 }
 
 // Last gets the last target on stack
@@ -56,9 +66,9 @@ func (stack *Stack) String() string {
 // Copy returns a copy of the stack
 // Return: pointer to a copy of the stack
 func (stack *Stack) Copy() *Stack {
-	copy := make([]string, len(stack.Targets))
+	another := make([]string, len(stack.Targets))
 	for i := 0; i < len(stack.Targets); i++ {
-		copy[i] = stack.Targets[i]
+		another[i] = stack.Targets[i]
 	}
-	return &Stack{copy}
+	return &Stack{another}
 }
