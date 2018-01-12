@@ -268,7 +268,7 @@ func (build *Build) RunTarget(context *Context, name string) error {
 	return nil
 }
 
-// RunParentTarget runs parent target with given name in a buid context.
+// RunParentTarget runs parent target with given name in a build context.
 // - context: build context
 // - name: the name of the target to run
 // Return:
@@ -284,11 +284,6 @@ func (build *Build) RunParentTarget(context *Context, name string) (bool, error)
 				return true, fmt.Errorf("running target '%s': %v", name, err)
 			}
 			return true, nil
-		} else {
-			ok, err := parent.RunParentTarget(context, name)
-			if ok || err != nil {
-				return ok, err
-			}
 		}
 	}
 	return false, nil
