@@ -1,8 +1,8 @@
 package build
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 )
 
 // Structure for a stack. A stack lists all targets that run during a build.
