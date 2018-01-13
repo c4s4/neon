@@ -10,6 +10,8 @@ and builtins, see [Reference](reference.md) documentation.
 - [Build file format](#build-file-format)
 - [Build file structure](#build-file-structure)
 - [Build properties](#build-properties)
+  - [Referencing build properties](#referencing-build-properties)
+  - [Predefined build properties](#predefined-build-properties)
 - [Build targets](#build-targets)
   - [NeON task](#neon-task)
   - [Shell task](#shell-task)
@@ -218,6 +220,8 @@ To avoid errors, you should follow these conventions:
 These properties are defined in the virtual machine that runs scripts. This
 scripting language is [Anko](http://github.com/mattn/anko), which is a kind of
 scripted Go.
+
+### Referencing build properties
 
 You can reference these properties in a string with the expression
 `={PROP_NAME}`. This might be done in the expression of other properties but
