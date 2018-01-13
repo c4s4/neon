@@ -102,7 +102,7 @@ func ParseDoc(object util.Object, build *Build) error {
 // - build: build that is being constructed
 // Return: an error if something went wrong
 func ParseRepository(object util.Object, build *Build) error {
-	build.Repository = DEFAULT_REPO
+	build.Repository = DefaultRepo
 	if object.HasField("repository") {
 		repository, err := object.GetString("repository")
 		if err != nil {

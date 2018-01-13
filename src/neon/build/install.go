@@ -19,7 +19,7 @@ const (
 // - repository: plugin repository, defaults to ~/.neon.
 // Return: an error if something went wrong downloading plugin.
 func InstallPlugin(plugin, repository string) error {
-	re := regexp.MustCompile(`^` + RE_PLUGIN + `$`)
+	re := regexp.MustCompile(`^` + RegexpPlugin + `$`)
 	if !re.MatchString(plugin) {
 		return fmt.Errorf("plugin name '%s' is invalid", plugin)
 	}
