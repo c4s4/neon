@@ -548,7 +548,7 @@ targets:
 
   script:
     steps:
-    - 'd = double(i)'
+    - 'd = double(21)'
 ```
 
 A this will call the *double()* function you defined in your context. This is a
