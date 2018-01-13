@@ -286,6 +286,45 @@ All YAML types might be used to define build properties. Thus, you can define
 string, integers, floats, but also lists and maps. You may iterate on values
 of a property in the build file.
 
+### Predefined build properties
+
+There are pre-defined build properties:
+
+- **_BASE** is the main build file directory.
+- **_HERE** is the current directory when build starts.
+- **_OS** is the name of the operating system, such as *linux*.
+- **_ARCH**  is the hardware architecture, such as *amd64*.
+- **_NCPU** is the number of cores in the processor.
+
+Thus, following build file:
+
+```yaml
+default: test
+
+targets:
+
+  test:
+    steps:
+    - print: 'BASE: ={_BASE}'
+    - print: 'HERE: ={_HERE}'
+    - print: 'OS:   ={_OS}'
+    - print: 'ARCH: ={_ARCH}'
+    - print: 'NCPU: ={_NCPU}'
+```
+
+Will output on my machine:
+
+```
+$ n
+--------------------------------------------------------------------------------------- test --
+BASE: /home/casa/dsk
+HERE: /home/casa/dsk
+OS:   linux
+ARCH: amd64
+NCPU: 2
+OK
+```
+
 [Back to top](#user-manual)
 
 Build targets
