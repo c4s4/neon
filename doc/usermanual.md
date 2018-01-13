@@ -537,7 +537,7 @@ The content of this script might be:
 
 ```go
 func double(i) {
-	return 2*i
+    return 2*i
 }
 ```
 
