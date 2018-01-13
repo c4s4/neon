@@ -90,12 +90,12 @@ targets:
     doc: Generate distribution archive
     depends: [doc, binaries]
     steps:
-    - mkdir: '={ARC_DIR}/bin'
-    - copy:  '={BUILD_DIR}/bin/*'
-      todir: '={ARC_DIR}/bin'
+    - mkdir: =ARC_DIR
+    - copy:  'bin/*'
+      dir:   =BUILD_DIR
+      todir: =ARC_DIR
     - copy:  'bash/*'
       todir: =ARC_DIR
-      flat:  false
     - copy:  ['CHANGELOG.pdf', 'LICENSE.txt', 'README.pdf']
       dir:   =BUILD_DIR
       todir: =ARC_DIR
