@@ -69,9 +69,8 @@ func NewBuild(file string) (*Build, error) {
 		return nil, fmt.Errorf("loading build file '%s': %v", file, err)
 	}
 	var object util.Object
-	err = yaml.Unmarshal(source, &object)
-	if err != nil {
-		return nil, fmt.Errorf("build must be a map with string keys")
+	if err = yaml.Unmarshal(source, &object); err != nil {
+		return nil, fmt.Errorf("build must be a map with string keys: %v", err)
 	}
 	if err := object.CheckFields(FIELDS); err != nil {
 		return nil, fmt.Errorf("parsing build file: %v", err)
