@@ -14,10 +14,11 @@ and builtins, see [Reference](reference.md) documentation.
   - [Predefined build properties](#predefined-build-properties)
 - [Build targets](#build-targets)
   - [NeON task](#neon-task)
+    - [File tasks](#file-tasks)
   - [Shell task](#shell-task)
   - [Script task](#script-task)
 - [Build inheritance](#build-inheritance)
-- [Neon repository](#neon-repository)
+- [NeON repository](#neon-repository)
 
 Build file format
 -----------------
@@ -449,6 +450,45 @@ Examples:
 You can get information on available tasks
 [on this reference page](reference.md).
 
+### File tasks
+
+Many NeON tasks manage files and have common fields. For instance, *copy* task
+as follows:
+
+```yaml
+- copy:  ['**/*.txt', '**/*.md']
+  dir:   'txt'
+  todir: 'dst'
+  flat:  true
+```
+
+The **task field**, *copy* in this case, defines globs for files to select.
+These globs are like these used on command line:
+
+- **\*** to select any number of characters. Thus *\*.txt* will select all
+files with *txt* extension.
+- **?** to select a character. Thus *?.txt* would select *1.txt* but not
+  *12.txt*.
+- **\*\*** to select any number of directories. Thus *\*\*/*.txt* would select
+  *foo.txt*, *foo/bar.txt* and any file with *txt* extension in a subdirectory.
+
+For more information on these globs, see 
+[zglob documentation](http://github.com/mattn/go-zglob).
+
+The **dir** field is the root directory for globs. Note that selected files are
+relative to this directory. If *dir* field is not set, it defaults to current
+working directory.
+
+Field **exclude** is a list of globs of files to exclude from selection. This
+is optional.
+
+Fields **todir** or **tofile** are destination. One and only one of these fields
+might be set, and *tofile* can be set only if globs have selected only one file.
+
+Field **flat** tells if copy will be flat, that is at the root of destination
+directory. This is a boolean, thus you should not set it with a string such as
+*"false"*, but with a true boolean, such as *false*. This defauts to *true*.
+
 [Back to top](#user-manual)
 
 ### Shell task
@@ -537,7 +577,7 @@ The content of this script might be:
 
 ```go
 func double(i) {
-	return 2*i
+    return 2*i
 }
 ```
 
@@ -548,7 +588,7 @@ targets:
 
   script:
     steps:
-    - 'd = double(i)'
+    - 'd = double(21)'
 ```
 
 A this will call the *double()* function you defined in your context. This is a
@@ -639,7 +679,7 @@ The path to extended build files is important:
 - If this path is **absolute** or starts with **./** (that is in current
   directory), this works as you would expect.
 - If this path is relative without starting with *./*, this build file is in
-  the Neon repository. See bellow for more explanations.
+  the NeON repository. See bellow for more explanations.
 
 The *super* task will run steps of parent target.
 
@@ -648,8 +688,8 @@ The *super* task will run steps of parent target.
 Neon repository
 ---------------
 
-Neon repository is the place where live installed parent build files. By
-default, Neon repository is in *~/.neon* directory. This may be changed with
+NeON repository is the place where live installed parent build files. By
+default, NeON repository is in *~/.neon* directory. This may be changed with
 *repository* field in the build file.
 
 When you extend a build file with following statement:
@@ -658,9 +698,9 @@ When you extend a build file with following statement:
 extends: foo/bar/spam.yml
 ```
 
-Neon will look in directory *foo/bar* of the Neon repository for file
-*spam.yml*. You might install manually your parent build files in your Neon
-repository, but you can install them automagically with Neon *install* command:
+NeON will look in directory *foo/bar* of the NeON repository for file
+*spam.yml*. You might install manually your parent build files in your NeON
+repository, but you can install them automagically with NeON *install* command:
 
 ```bash
 $ neon -install foo/bar
