@@ -462,18 +462,18 @@ as follows:
   flat:  true
 ```
 
-The **task field**, *copy* in this case, defines globs for files to select. These
-globs are like these used on command line:
+The **task field**, *copy* in this case, defines globs for files to select.
+These globs are like these used on command line:
 
-- **\*** to select any character(s). Thus *\*.txt* will select all files with
-  *txt* extension.
+- **\*** to select any number of characters. Thus *\*.txt* will select all
+files with *txt* extension.
 - **?** to select a character. Thus *?.txt* would select *1.txt* but not
   *12.txt*.
-- **\*\*** to select any number of directories. This *\*\*/*.txt* would select
+- **\*\*** to select any number of directories. Thus *\*\*/*.txt* would select
   *foo.txt*, *foo/bar.txt* and any file with *txt* extension in a subdirectory.
 
 For more information on these globs, see 
-[zglob documentation](http://github.com/mattn/zglob).
+[zglob documentation](http://github.com/mattn/go-zglob).
 
 The **dir** field is the root directory for globs. Note that selected files are
 relative to this directory. If *dir* field is not set, it defaults to current
