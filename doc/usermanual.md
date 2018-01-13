@@ -10,6 +10,8 @@ and builtins, see [Reference](reference.md) documentation.
 - [Build file format](#build-file-format)
 - [Build file structure](#build-file-structure)
 - [Build properties](#build-properties)
+  - [Referencing build properties](#referencing-build-properties)
+  - [Predefined build properties](#predefined-build-properties)
 - [Build targets](#build-targets)
   - [NeON task](#neon-task)
   - [Shell task](#shell-task)
@@ -219,6 +221,8 @@ These properties are defined in the virtual machine that runs scripts. This
 scripting language is [Anko](http://github.com/mattn/anko), which is a kind of
 scripted Go.
 
+### Referencing build properties
+
 You can reference these properties in a string with the expression
 `={PROP_NAME}`. This might be done in the expression of other properties but
 also in task fields. For instance:
@@ -285,6 +289,45 @@ will store raised error in internal build property *_error*.
 All YAML types might be used to define build properties. Thus, you can define
 string, integers, floats, but also lists and maps. You may iterate on values
 of a property in the build file.
+
+### Predefined build properties
+
+There are pre-defined build properties:
+
+- **_BASE** is the main build file directory.
+- **_HERE** is the current directory when build starts.
+- **_OS** is the name of the operating system, such as *linux*.
+- **_ARCH**  is the hardware architecture, such as *amd64*.
+- **_NCPU** is the number of cores in the processor.
+
+Thus, following build file:
+
+```yaml
+default: test
+
+targets:
+
+  test:
+    steps:
+    - print: 'BASE: ={_BASE}'
+    - print: 'HERE: ={_HERE}'
+    - print: 'OS:   ={_OS}'
+    - print: 'ARCH: ={_ARCH}'
+    - print: 'NCPU: ={_NCPU}'
+```
+
+Will output on my machine:
+
+```
+$ n
+--------------------------------------------------------------------------------------- test --
+BASE: /home/casa/dsk
+HERE: /home/casa/dsk
+OS:   linux
+ARCH: amd64
+NCPU: 2
+OK
+```
 
 [Back to top](#user-manual)
 
