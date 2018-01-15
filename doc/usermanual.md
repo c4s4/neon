@@ -469,7 +469,7 @@ These globs are like these used on command line:
 files with *txt* extension.
 - **?** to select a character. Thus *?.txt* would select *1.txt* but not
   *12.txt*.
-- **\*\*** to select any number of directories. Thus *\*\*/*.txt* would select
+- **\*\*** to select any number of directories. Thus *\*\*/\*.txt* would select
   *foo.txt*, *foo/bar.txt* and any file with *txt* extension in a subdirectory.
 
 For more information on these globs, see 
