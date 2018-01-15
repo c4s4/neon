@@ -808,7 +808,7 @@ project.
 The template is made of a build file, *golang.tpl*:
 
 ```yaml
-# Neon build file (http://github.com/c4s4/neon)
+# Neon template file (http://github.com/c4s4/neon)
 
 default: template
 
@@ -839,13 +839,13 @@ targets:
 
 This is a NeON build file that generates project in current working directory.
 Note that this is done with *_HERE* property that is current directory, while
-*_BASE* is the directory of the build file, that lives in the NeON directory.
+*_BASE* is the directory of the build file, that lives in the NeON repository.
 
 This build file prompts the user for the project name and then copies project
-files (in the *golang* directory) in the project directory. Then it renames
+files, in the *golang* directory, to the project directory. Then it renames
 files and performs some replacements.
 
 Template build files are named with *tpl* extension so that they are identified
-as template build files.
+as templates, but otherwise they are plain old build files.
 
 *Enjoy!*
