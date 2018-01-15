@@ -8,7 +8,9 @@ import (
 	_ "neon/task"
 	"neon/util"
 	"os"
+	"path"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -20,7 +22,7 @@ var VERSION string
 
 // Parse command line and return parsed options
 func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, string, string, bool,
-	[]string) {
+	string, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
 	info := flag.Bool("info", false, "Print build information")
 	version := flag.Bool("version", false, "Print neon version")
@@ -35,10 +37,11 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 	install := flag.String("install", "", "Install given plugin")
 	repo := flag.String("repo", _build.DefaultRepo, "Neon plugin repository for installation")
 	grey := flag.Bool("grey", false, "Print on terminal without colors")
+	template := flag.String("template", "", "Run given template")
 	flag.Parse()
 	targets := flag.Args()
 	return *file, *info, *version, *props, *timeit, *tasks, *task, *targs, *builtins,
-		*builtin, *refs, *install, *repo, *grey, targets
+		*builtin, *refs, *install, *repo, *grey, *template, targets
 }
 
 // Find build file and return its path
@@ -67,10 +70,25 @@ func FindBuildFile(name string) (string, error) {
 	}
 }
 
+// TemplatePath return the template path:
+// - name: the name of the template (such as 'c4s4/build/golang.tpl')
+// - repo: the repository for plugins (defaults to '~/.neon')
+// Return: template path (as '~/.neon/c4s4/build/golang.tpl')
+func TemplatePath(name, repo string) string {
+	if path.IsAbs(name) || strings.HasPrefix(name, "./") {
+		return name
+	} else {
+		if repo == "" {
+			repo = _build.DefaultRepo
+		}
+		return util.ExpandUserHome(filepath.Join(repo, name))
+	}
+}
+
 // Program entry point
 func main() {
 	start := time.Now()
-	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, refs, install, repo, grey, targets := ParseCommandLine()
+	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, refs, install, repo, grey, template, targets := ParseCommandLine()
 	// options that do not require we load build file
 	_build.Grey = grey
 	if tasks {
@@ -97,6 +115,9 @@ func main() {
 		return
 	}
 	// options that do require we load build file
+	if template != "" {
+		file = TemplatePath(template, repo)
+	}
 	path, err := FindBuildFile(file)
 	PrintError(err, 1)
 	build, err := _build.NewBuild(path)
