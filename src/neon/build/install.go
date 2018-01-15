@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	PLUGIN_SITE = "github.com"
+	PluginSite = "github.com"
 )
 
 // InstallPlugin installs given plugin in repository:
@@ -29,7 +29,7 @@ func InstallPlugin(plugin, repository string) error {
 		return nil
 	}
 	absolute := util.ExpandUserHome(path)
-	repo := "git://" + PLUGIN_SITE + "/" + plugin + ".git"
+	repo := "git://" + PluginSite + "/" + plugin + ".git"
 	command := exec.Command("git", "clone", repo, absolute)
 	Message("Running command '%s'...", strings.Join(command.Args, " "))
 	output, err := command.CombinedOutput()
