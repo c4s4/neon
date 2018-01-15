@@ -4,6 +4,7 @@
   date:    2018-01-15
   summary: Code refactoring and new Java tasks
   added:
+  - "Added project template support (with '-template' option)."
   - "Added classpath, javac and java tasks."
   - "Added -repo path option to set repo location for plugin installation."
   - "Added builtin contains, thanks to Alexandre Hu."

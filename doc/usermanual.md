@@ -19,6 +19,8 @@ and builtins, see [Reference](reference.md) documentation.
   - [Script task](#script-task)
 - [Build inheritance](#build-inheritance)
 - [NeON repository](#neon-repository)
+- [Project templates](#project-templates)
+  - [Creating templates](#creating-templates)
 
 Build file format
 -----------------
@@ -738,5 +740,112 @@ in subdirectory *eggs*, you would extend it with:
 extends:
 - foo/bar/eggs/spam.yml
 ```
+
+Project templates
+-----------------
+
+NeON can generate template projects, with the *-template* option. For instance,
+to generate template Golang project, you would:
+
+- Install *c4s4/build* plugin, typing `neon -install c4s4/build`.
+- Run Golang template with command `neon -template c4s4/build/golang.tpl`.
+
+This will ask you the project name and generate the project:
+
+```
+$ n -template c4s4/build/golang.tpl
+------------------------------------------------------------------- template --
+Name of this project: test
+Making directory '/home/casa/dsk/test'
+Copying 6 file(s)
+Moving 1 file(s)
+Moving 1 file(s)
+Replacing text in file '/home/casa/dsk/test/build.yml'
+Project generated in 'test' directory
+OK
+```
+
+This creates a *test* directory with genrated project:
+
+```
+$ ls test
+build.yml  CHANGELOG.yml  LICENSE.txt  README.md  test.go  test_test.go
+```
+
+To have an idea of targets in newly created project, go in generated directory
+and type:
+
+```
+$ neon -info
+repository: ~/.neon
+
+extends:
+- c4s4/build/golang.yml
+
+properties:
+  BUILD_DIR: "build" 
+  LIBRARIES: ["github.com/mitchellh/gox"] 
+  VERSION:   "1.0.0" 
+  ARCHIVE:   "build/test-1.0.0.tar.gz" 
+  NAME:      "test" 
+
+targets:
+  archive: Build distribution archive 
+  bin:     Make binary 
+  clean:   Clean build directory 
+  fmt:     Format Go code 
+  libs:    Install libraries 
+  run:     Run Go tool 
+  test:    Run Go tests
+```
+
+### Creating templates
+
+To create your own templates, you can have a look at following Github project;
+<http://github.com/c4s4/build> which contains example *Golang* template
+project.
+
+The template is made of a build file, *golang.tpl*:
+
+```yaml
+# Neon template file (http://github.com/c4s4/neon)
+
+default: template
+
+targets:
+
+  template:
+    doc: Generate Golang project
+    steps:
+    - prompt:  'Name of this project'
+      to:      'name'
+      pattern: '^\w+$'
+      error:   'Project name must be made of letters, numbers, - and _'
+    - if: 'exists(joinpath(_HERE, name))'
+      then:
+      - throw: 'Project directory already exists'
+    - mkdir: '={_HERE}/={name}'
+    - copy:  '*'
+      dir:   '={_BASE}/golang'
+      todir: '={_HERE}/={name}'
+    - move:   '={_HERE}/={name}/main.go'
+      tofile: '={_HERE}/={name}/={name}.go'
+    - move:   '={_HERE}/={name}/main_test.go'
+      tofile: '={_HERE}/={name}/={name}_test.go'
+    - replace: '={_HERE}/={name}/build.yml'
+      with:    {'main': =name}
+    - print: "Project generated in '={name}' directory"
+```
+
+This is a NeON build file that generates project in current working directory.
+Note that this is done with *_HERE* property that is current directory, while
+*_BASE* is the directory of the build file, that lives in the NeON repository.
+
+This build file prompts the user for the project name and then copies project
+files, in the *golang* directory, to the project directory. Then it renames
+files and performs some replacements.
+
+Template build files are named with *tpl* extension so that they are identified
+as templates, but otherwise they are plain old build files.
 
 *Enjoy!*
