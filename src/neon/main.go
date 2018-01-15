@@ -22,7 +22,7 @@ var VERSION string
 
 // Parse command line and return parsed options
 func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, string, string, bool,
-	string, []string) {
+	string, bool, bool, []string) {
 	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
 	info := flag.Bool("info", false, "Print build information")
 	version := flag.Bool("version", false, "Print neon version")
@@ -38,10 +38,12 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 	repo := flag.String("repo", _build.DefaultRepo, "Neon plugin repository for installation")
 	grey := flag.Bool("grey", false, "Print on terminal without colors")
 	template := flag.String("template", "", "Run given template")
+	templates := flag.Bool("templates", false, "List available templates in repository")
+	parents := flag.Bool("parents", false, "List available parent build files in repository")
 	flag.Parse()
 	targets := flag.Args()
 	return *file, *info, *version, *props, *timeit, *tasks, *task, *targs, *builtins,
-		*builtin, *refs, *install, *repo, *grey, *template, targets
+		*builtin, *refs, *install, *repo, *grey, *template, *templates, *parents, targets
 }
 
 // Find build file and return its path
@@ -88,7 +90,8 @@ func TemplatePath(name, repo string) string {
 // Program entry point
 func main() {
 	start := time.Now()
-	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, refs, install, repo, grey, template, targets := ParseCommandLine()
+	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, refs, install, repo, grey, template,
+		templates, parents, targets := ParseCommandLine()
 	// options that do not require we load build file
 	_build.Grey = grey
 	if tasks {
@@ -112,6 +115,12 @@ func main() {
 	} else if install != "" {
 		err := _build.InstallPlugin(install, repo)
 		PrintError(err, 6)
+		return
+	} else if templates {
+		_build.PrintTemplates(repo)
+		return
+	} else if parents {
+		_build.PrintParents(repo)
 		return
 	}
 	// options that do require we load build file

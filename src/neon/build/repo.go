@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"neon/util"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -43,4 +44,39 @@ func InstallPlugin(plugin, repository string) error {
 		Message("Plugin '%s' installed in '%s'", plugin, path)
 	}
 	return nil
+}
+
+// PrintParents prints parent build files in repository:
+// - repo: the NeON repository (defaults to '~/.neon')
+func PrintParents(repo string) {
+	if repo == "" {
+		repo = DefaultRepo
+	}
+	repo = util.ExpandUserHome(repo)
+	files, err := util.FindFiles(repo, []string{"*/*/*.yml"}, nil, false)
+	if err != nil {
+		panic(err)
+	}
+	for _, file := range files {
+		name := path.Base(file)
+		if name != "CHANGELOG.yml" && name != "build.yml" {
+			fmt.Println(file)
+		}
+	}
+}
+
+// PrintTemplates prints templates in repository:
+// - repo: the NeON repository (defaults to '~/.neon')
+func PrintTemplates(repo string) {
+	if repo == "" {
+		repo = DefaultRepo
+	}
+	repo = util.ExpandUserHome(repo)
+	files, err := util.FindFiles(repo, []string{"*/*/*.tpl"}, nil, false)
+	if err != nil {
+		panic(err)
+	}
+	for _, file := range files {
+		fmt.Println(file)
+	}
 }
