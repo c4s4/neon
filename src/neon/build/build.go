@@ -292,8 +292,8 @@ func (build *Build) RunParentTarget(context *Context, name string) (bool, error)
 }
 
 // PluginPath returns file path for plugin with given name.
-// - name: the name of the plugin (as "c4s4/build")
-// Return: the plugin path as a string
+// - name: the name of the plugin (as "c4s4/build/foo.yml")
+// Return: the plugin path as a string (as /home/casa/.neon/c4s4/build/foo.yml)
 func (build *Build) PluginPath(name string) string {
 	if path.IsAbs(name) {
 		return name
