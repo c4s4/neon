@@ -12,11 +12,15 @@ and builtins, see [Reference](reference.md) documentation.
 - [Build properties](#build-properties)
   - [Referencing build properties](#referencing-build-properties)
   - [Predefined build properties](#predefined-build-properties)
+  - [Build properties on command line](#build-properties-on-command-line)
+  - [Configuration](#configuration)
+  - [Properties hierarchy](#properties-hierarchy)
 - [Build targets](#build-targets)
   - [NeON task](#neon-task)
     - [File tasks](#file-tasks)
   - [Shell task](#shell-task)
   - [Script task](#script-task)
+- [Command line options](#command-line-options)
 - [Build inheritance](#build-inheritance)
 - [NeON repository](#neon-repository)
 - [Project templates](#project-templates)
@@ -332,6 +336,140 @@ NCPU: 2
 OK
 ```
 
+### Build properties on command line
+
+You can pass build properties on command line with `-props` option and a YAML
+map to set properties. For instance, calling this build file:
+
+```yaml
+default: test
+
+properties:
+  FOO: 'foo'
+
+targets:
+
+  test:
+    steps:
+    - print: 'FOO: ={FOO}'
+    - print: 'BAR: ={BAR}'
+```
+
+With command line defining properties will print:
+
+```
+$ neon -props '{FOO: FOO, BAR: bar}'
+----------------------------------------------------------------------- test --
+FOO: FOO
+BAR: bar
+OK
+```
+
+Thus:
+
+- Property *FOO* was set to *foo* in build file but was overwritten on command
+line with value *FOO*.
+- Property *BAR* was not defined in build file but was set on command line.
+
+### Configuration
+
+Sometimes, you don't want to write properties in a build file:
+
+- Some vary depending on the developer's environment.
+- Some are confidential and should not be made public in a build file.
+
+You should write these properties in a configuration file that will be loaded
+by the build file on startup and overwrite properties of the build file.
+
+Let's say you have following build file:
+
+```yaml
+default: test
+
+configuration: configuration.yml
+
+properties:
+    TOOL_HOME: ~
+    PASSWORD:  ~
+
+targets:
+
+    test:
+      steps:
+      - $: ['={TOOL_HOME}/bin/tool', 'command', 'line', 'options']
+      - $: ['service-that-needs-password', =PASSWORD]
+```
+
+You could write configuration in *configuration.yml* file as follows:
+
+```yaml
+TOOL_HOME: '/opt/misc/mytool'
+PASSWORD:  'fazelirflnazrfl'
+```
+
+You should probably exclude *configuration.yml* from your version management
+system. Thus, using Git, you would add following line in your *.gitignore*
+file:
+
+```
+/configuration.yml
+```
+
+You should also probably document properties that must be defined in a separate
+configuration file. This is a good idea to provide a commented template
+configuration file in the project.
+
+### Properties hierarchy
+
+You can define properties in the build file, in a configuration file and on
+command line. The hierarchy for properties is the following:
+
+- Properties defined in configuration overwrite those defined in build file
+  and previous configuration files (in the order of the list of the
+  *configuration* field).
+- Properties defined on command line overwrite all other properties.
+
+Thus, with following build file:
+
+```yaml
+default: test
+
+configuration: 'configuration.yml'
+
+properties:
+  FOO: 'foo'
+
+targets:
+
+  test:
+    steps:
+    - print: 'FOO: ={FOO}'
+```
+
+And configuration file *configuration.yml*:
+
+```yaml
+FOO: 'conf'
+```
+
+Running the build would produce:
+
+```
+$ neon
+----------------------------------------------------------------------- test --
+FOO: conf
+OK
+```
+
+And running it redefining property on command line:
+
+```
+$ neon -props '{FOO: cmd}'
+------------------------------------------------------------------------ test --
+FOO: cmd
+OK
+```
+
 [Back to top](#user-manual)
 
 Build targets
@@ -602,6 +740,99 @@ To get more information about
 
 [Back to top](#user-manual)
 
+Command line options
+--------------------
+
+To get help on command line options, you can type:
+
+```
+$ neon -help
+Usage of neon:
+  -builtin string
+    	Print help on given builtin
+  -builtins
+    	Print builtins list
+  -file string
+    	Build file to run (default "build.yml")
+  -grey
+    	Print on terminal without colors
+  -info
+    	Print build information
+  -install string
+    	Install given plugin
+  -parents
+    	List available parent build files in repository
+  -props string
+    	Build properties
+  -refs
+    	Print tasks and builtins reference
+  -repo string
+    	Neon plugin repository for installation (default "~/.neon")
+  -targets
+    	Print targets list
+  -task string
+    	Print help on given task
+  -tasks
+    	Print tasks list
+  -template string
+    	Run given template
+  -templates
+    	List available templates in repository
+  -time
+    	Print build duration
+  -version
+    	Print neon version
+```
+
+In most cases, you will call NeON passing build targets to invoke. Thus to call
+target foo, you would type `neon foo`. You can call more than one target on
+command line, with `neon foo bar`. Note that second target will be called even
+if it already ran calling *foo*.
+
+Called build file will default to *build.yml* in current directory. If this
+file is not found in current directory, it will be searched recursively in
+parent directories. You can force build file name with the `-file` option. Thus
+to run build file *foo.yml*, you would type `neon -file foo.yml`. Execution
+times are always written on console when greater than *10 s*. You can force to
+print build execution time with `-time` option. 
+
+You can get information on build file with `-info` option. This will print the
+build documentation (written in *doc* field at the root of the build file),
+default target(s), repository, extended build files, properties (with their own
+help) and targets (with their help). Using this option is a good way to have an
+idea of what can perform a build file. You can get targets list with `-targets`
+option.
+
+You can define properties on command line with `-props` options and a YAML map
+with properties. For instance, to define property *foo* with value *bar*, you
+would invoke NeON with command line `neon -props '{foo: bar}'`.
+
+You can set the path to your repository (where live parent build files and
+templates) with `-repo` option. This defaults to *~/.neon* but you can set it
+anywhere with this option. This option affects builds, but also where are
+installed plugin with `-install` option and where they are searched with
+`-templates` and `-parent` options.
+
+The `-install` option will install given plugin in repository. Thus typing
+`neon -install foo/bar` will try to clone propject *bar* of user *foo* on
+Github into your repository. You can list parent build files in your 
+repository with `-parents` option and templates with `-templates`. You can
+run a template with `-template` option, thus to run template
+*foo/bar/spam.tpl*, you would type `neon -template foo/bar/spam.tpl`.
+
+To list all available builtins, you have option `-builtins`. To get help on a
+given builtin, you would type `neon -builtin foo`. To list all available tasks,
+you have option `-tasks` and to get help on a given task, you would type
+`neon -task foo`. Option `-refs` will output on console help for all builtins
+and tasks in Markdown format (this is the way reference documentation is
+generated).
+
+By default, build output is colored on Unix systems for dark terminals (that is
+white letters on black background). You can disable colorization with `-grey`
+option.
+
+Option `-version` will print NeON version.
+
 Build inheritance
 -----------------
 
@@ -685,6 +916,19 @@ The path to extended build files is important:
 
 The *super* task will run steps of parent target.
 
+You can list all parent build files in your repository with following command:
+
+```
+$ neon -parents
+c4s4/build/buildir.yml
+c4s4/build/github.yml
+c4s4/build/golang.yml
+c4s4/build/java.yml
+c4s4/build/release.yml
+c4s4/build/slides.yml
+c4s4/build/xslt.yml
+```
+
 [Back to top](#user-manual)
 
 Neon repository
@@ -753,7 +997,7 @@ to generate template Golang project, you would:
 This will ask you the project name and generate the project:
 
 ```
-$ n -template c4s4/build/golang.tpl
+$ neon -template c4s4/build/golang.tpl
 ------------------------------------------------------------------- template --
 Name of this project: test
 Making directory '/home/casa/dsk/test'
@@ -765,7 +1009,7 @@ Project generated in 'test' directory
 OK
 ```
 
-This creates a *test* directory with genrated project:
+This creates a *test* directory with generated project:
 
 ```
 $ ls test
@@ -797,6 +1041,15 @@ targets:
   libs:    Install libraries 
   run:     Run Go tool 
   test:    Run Go tests
+```
+
+You can list all available templates in you repository typing:
+
+```
+$ neon -templates
+c4s4/build/golang.tpl
+c4s4/build/java.tpl
+c4s4/build/slides.tpl
 ```
 
 ### Creating templates
