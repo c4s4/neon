@@ -587,6 +587,24 @@ Examples:
     - print: 'duration: ={duration}s'
 ```
 
+Tags in parenthesis in the description of tasks arguments may be the following:
+
+- *string*, *strings*, *integer*, *float* and *boolean* are the types of the
+  argument. *strings* is a list of strings.
+- *optional* indicates that the field may be omitted (with or without default
+  value).
+- *file* is for arguments that are files. They will be expanded with user home
+  if they start with *~/*.
+- *expression* means that they are an Anko expression and that they will be
+  evaluated in the context of the build, even if they don't start with *=*
+  (which is the sign that denotes expressions).
+- *wrap* tells that single strings will be wrapped into a list of strings. For
+  instance, *mkdir* take a list of strings as argument, but as being tagged as
+  *wrap*, it can accept a single string that will be wrapped into a list if
+  necessary.
+- *steps* is a special type as this is a list of steps. For instance, *then*
+  argument of task *if* is the list of steps to perform and is tagged *steps*.
+
 You can get information on available tasks
 [on this reference page](reference.md).
 
