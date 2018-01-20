@@ -791,12 +791,10 @@ if it already ran calling *foo*.
 
 Called build file will default to *build.yml* in current directory. If this
 file is not found in current directory, it will be searched recursively in
-parent directories.
-
-You can force build file name with the `-file` option. Thus to run a build in
-build file *foo.yml*, you would type `neon -file foo.yml`. You can time build
-execution with `-time` option. Execution times are always written on console
-when greater than *10* s.
+parent directories. You can force build file name with the `-file` option. Thus
+to run build file *foo.yml*, you would type `neon -file foo.yml`. Execution
+times are always written on console when greater than *10 s*. You can force to
+print build execution time with `-time` option. 
 
 You can get information on build file with `-info` option. This will print the
 build documentation (written in *doc* field at the root of the build file),
