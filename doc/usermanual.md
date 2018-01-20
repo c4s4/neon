@@ -815,11 +815,9 @@ installed plugin with `-install` option and where they are searched with
 
 The `-install` option will install given plugin in repository. Thus typing
 `neon -install foo/bar` will try to clone propject *bar* of user *foo* on
-Github into your repository.
-
-You can list parent build build files in your repository with `-parents` option
-and templates with `-templates`. These options are affected by `-repo` option.
-You can run a template with `-template` option. Thus to run template
+Github into your repository. You can list parent build files in your 
+repository with `-parents` option and templates with `-templates`. You can
+run a template with `-template` option, thus to run template
 *foo/bar/spam.tpl*, you would type `neon -template foo/bar/spam.tpl`.
 
 To list all available builtins, you have option `-builtins`. To get help on a
