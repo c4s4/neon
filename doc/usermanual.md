@@ -824,7 +824,7 @@ To list all available builtins, you have option `-builtins`. To get help on a
 given builtin, you would type `neon -builtin foo`. To list all available tasks,
 you have option `-tasks` and to get help on a given task, you would type
 `neon -task foo`. Option `-refs` will output on console help for all builtins
-and task in Markdown format (this is the way reference documentation is
+and tasks in Markdown format (this is the way reference documentation is
 generated).
 
 By default, build output is colored on Unix systems for dark terminals (that is
