@@ -1,19 +1,16 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
 - version: 0.11.0
-  date:    2018-01-15
-  summary: Code refactoring and new Java tasks
+  date:    2018-01-20
+  summary: New tasks, builtins and options
   added:
-  - "Added project template support (with '-template' option)."
-  - "Added '-templates' and '-parents' options to list templates and parent
-     build files in repository."
-  - "Added classpath, javac and java tasks."
-  - "Added -repo path option to set repo location for plugin installation."
-  - "Added builtin contains, thanks to Alexandre Hu."
-  - "Added task 'call' to call another target."
+  - "Added tasks 'classpath', 'javac', 'java' and 'call'."
+  - "Added builtin 'contains' (thanks to Alexandre Hu)."
+  - "Added options '-repo', '-template', '-templates' and '-parents'."
   fixed:
-  - "Huge code refactoring for task coding."
-  - "Fixed -install foo/bar command line option."
+  - "Huge code refactoring."
+  - "Huge documentation improvements."
+  - "Fixed '-install foo/bar' command line option."
 
 - version: 0.10.0
   date:    2017-11-29
