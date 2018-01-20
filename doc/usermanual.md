@@ -20,6 +20,7 @@ and builtins, see [Reference](reference.md) documentation.
     - [File tasks](#file-tasks)
   - [Shell task](#shell-task)
   - [Script task](#script-task)
+- [Command line options](#command-line-options)
 - [Build inheritance](#build-inheritance)
 - [NeON repository](#neon-repository)
 - [Project templates](#project-templates)
@@ -739,6 +740,102 @@ To get more information about
 
 [Back to top](#user-manual)
 
+Command line options
+--------------------
+
+To get help on command line options, you can type:
+
+```
+$ neon -help
+Usage of neon:
+  -builtin string
+    	Print help on given builtin
+  -builtins
+    	Print builtins list
+  -file string
+    	Build file to run (default "build.yml")
+  -grey
+    	Print on terminal without colors
+  -info
+    	Print build information
+  -install string
+    	Install given plugin
+  -parents
+    	List available parent build files in repository
+  -props string
+    	Build properties
+  -refs
+    	Print tasks and builtins reference
+  -repo string
+    	Neon plugin repository for installation (default "~/.neon")
+  -targets
+    	Print targets list
+  -task string
+    	Print help on given task
+  -tasks
+    	Print tasks list
+  -template string
+    	Run given template
+  -templates
+    	List available templates in repository
+  -time
+    	Print build duration
+  -version
+    	Print neon version
+```
+
+In most cases, you will call NeON passing build targets to invoke. Thus to call
+target foo, you would type `neon foo`. You can call more than one target on
+command line, with `neon foo bar`. Note that second target will be called even
+if it already ran calling *foo*.
+
+Called build file will default to *build.yml* in current directory. If this
+file is not found in current directory, it will be searched recursively in
+parent directories.
+
+You can force build file name with the `-file` option. Thus to run a build in
+build file *foo.yml*, you would type `neon -file foo.yml`. You can time build
+execution with `-time` option. Execution times are always written on console
+when greater than *10* s.
+
+You can get information on build file with `-info` option. This will print the
+build documentation (written in *doc* field at the root of the build file),
+default target(s), repository, extended build files, properties (with their own
+help) and targets (with their help). Using this option is a good way to have an
+idea of what can perform a build file. You can get targets list with `-targets`
+option.
+
+You can define properties on command line with `-props` options and a YAML map
+with properties. For instance, to define properties *foo* with value bar, you
+would invoke NeON with command line `neon -props '{foo: bar}'`.
+
+You can set the path to your repository (where live parent build files and
+templates) with `-repo` option. This defaults to *~/.neon* but you can set it
+anywhere with this option. This option affects builds, but also where are
+installed plugin with `-install` option.
+
+The `-install` option will install given plugin in repository. Thus typing
+`neon -install foo/bar` will try to clone propject *bar* of user *foo* on
+Github into your repository.
+
+You can list parent build build files in your repository with `-parents` option
+and templates with `-templates`. These options are affected by `-repo` option.
+You can run a template with `-template` option. Thus to run template
+*foo/bar/spam.tpl*, you would type `neon -template foo/bar/spam.tpl`.
+
+To list all available builtins, you have option `-builtins`. To get help on a
+given builtin, you would type `neon -builtin foo`. To list all available tasks,
+you have option `-tasks` and to get help on a given task, you would type
+`neon -task foo`. Option `-refs` will output on console help for all builtins
+and task in Markdown format (this is the way reference documentation is
+generated).
+
+By default, build output is colored on Unix systems for dark terminals (that is
+white letters on black background). You can disable colorization with `-grey`
+option.
+
+Option `-version` will print NeON version.
+
 Build inheritance
 -----------------
 
@@ -822,6 +919,19 @@ The path to extended build files is important:
 
 The *super* task will run steps of parent target.
 
+You can list all parent build files in your repository with following command:
+
+```
+$ neon -parents
+c4s4/build/buildir.yml
+c4s4/build/github.yml
+c4s4/build/golang.yml
+c4s4/build/java.yml
+c4s4/build/release.yml
+c4s4/build/slides.yml
+c4s4/build/xslt.yml
+```
+
 [Back to top](#user-manual)
 
 Neon repository
@@ -902,7 +1012,7 @@ Project generated in 'test' directory
 OK
 ```
 
-This creates a *test* directory with genrated project:
+This creates a *test* directory with generated project:
 
 ```
 $ ls test
@@ -934,6 +1044,15 @@ targets:
   libs:    Install libraries 
   run:     Run Go tool 
   test:    Run Go tests
+```
+
+You can list all available templates in you repository typing:
+
+```
+$ neon -templates
+c4s4/build/golang.tpl
+c4s4/build/java.tpl
+c4s4/build/slides.tpl
 ```
 
 ### Creating templates
