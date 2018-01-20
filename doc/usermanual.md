@@ -804,7 +804,7 @@ idea of what can perform a build file. You can get targets list with `-targets`
 option.
 
 You can define properties on command line with `-props` options and a YAML map
-with properties. For instance, to define property *foo* with value bar, you
+with properties. For instance, to define property *foo* with value *bar*, you
 would invoke NeON with command line `neon -props '{foo: bar}'`.
 
 You can set the path to your repository (where live parent build files and
