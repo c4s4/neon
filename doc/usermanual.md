@@ -414,6 +414,10 @@ file:
 /configuration.yml
 ```
 
+You should also probably document properties that must be defined in a separate
+configuration file. This is a good idea to provide a commented template
+configuration file in the project.
+
 ### Properties hierarchy
 
 You can define properties in the build file, in a configuration file and on
