@@ -14,6 +14,7 @@ and builtins, see [Reference](reference.md) documentation.
   - [Predefined build properties](#predefined-build-properties)
   - [Build properties on command line](#build-properties-on-command-line)
   - [Configuration](#configuration)
+  - [Properties hierarchy](#properties-hierarchy)
 - [Build targets](#build-targets)
   - [NeON task](#neon-task)
     - [File tasks](#file-tasks)
@@ -371,20 +372,20 @@ line with value *FOO*.
 
 ### Configuration
 
-Some times, you would like to define build properties outside of a build file.
-For instance, you would want to write in a build file properties that are
-vary depending on the developer environment. You won't neither want to write
-in a build file passwords or other private information.
+Sometimes, you don't want to write properties in a build file:
 
-The solution is to write these properties in a separate configuration file that
-defines build properties.
+- Some vary depending on the developer's environment.
+- Some are confidential and should not be made public in a build file.
+
+You should write these properties in a configuration file that will be loaded
+by the build file on startup and overwrite properties of the build file.
 
 Let's say you have following build file:
 
 ```yaml
 default: test
 
-configuration: ~/.myconfiguration.yml
+configuration: configuration.yml
 
 properties:
     TOOL_HOME: ~
@@ -398,15 +399,71 @@ targets:
       - $: ['service-that-needs-password', =PASSWORD]
 ```
 
-You could write configuration in *~/.myconfiguration.yml* file as follows:
+You could write configuration in *configuration.yml* file as follows:
 
 ```yaml
 TOOL_HOME: '/opt/misc/mytool'
 PASSWORD:  'fazelirflnazrfl'
 ```
 
-These properties will be loaded on build start and will overwrite those defined
-in the build file.
+You should probably exclude *configuration.yml* from your version management
+system. Thus, using Git, you would add following line in your *.gitignore*
+file:
+
+```
+/configuration.yml
+```
+
+### Properties hierarchy
+
+You can define properties in the build file, in a configuration file and on
+command line. The hierarchy for properties is the following:
+
+- Properties defined in configuration overwrite those defined in build file
+  and previous configuration files (in the order of the list of the
+  *configuration* field).
+- Properties defined on command line overwrite all other properties.
+
+Thus, with following build file:
+
+```yaml
+default: test
+
+configuration: 'configuration.yml'
+
+properties:
+  FOO: 'foo'
+
+targets:
+
+  test:
+    steps:
+    - print: 'FOO: ={FOO}'
+```
+
+And configuration file *configuration.yml*:
+
+```yaml
+FOO: 'conf'
+```
+
+Running the build would produce:
+
+```
+$ neon
+----------------------------------------------------------------------- test --
+FOO: conf
+OK
+```
+
+And running it redefining property on command line:
+
+```
+$ neon -props '{FOO: cmd}'
+------------------------------------------------------------------------ test --
+FOO: cmd
+OK
+```
 
 [Back to top](#user-manual)
 
