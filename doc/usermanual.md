@@ -810,7 +810,8 @@ would invoke NeON with command line `neon -props '{foo: bar}'`.
 You can set the path to your repository (where live parent build files and
 templates) with `-repo` option. This defaults to *~/.neon* but you can set it
 anywhere with this option. This option affects builds, but also where are
-installed plugin with `-install` option.
+installed plugin with `-install` option and where they are searched with
+`-templates` and `-parent` options.
 
 The `-install` option will install given plugin in repository. Thus typing
 `neon -install foo/bar` will try to clone propject *bar* of user *foo* on
