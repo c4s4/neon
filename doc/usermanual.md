@@ -12,6 +12,8 @@ and builtins, see [Reference](reference.md) documentation.
 - [Build properties](#build-properties)
   - [Referencing build properties](#referencing-build-properties)
   - [Predefined build properties](#predefined-build-properties)
+  - [Build properties on command line](#build-properties-on-command-line)
+  - [Configuration](#configuration)
 - [Build targets](#build-targets)
   - [NeON task](#neon-task)
     - [File tasks](#file-tasks)
@@ -331,6 +333,80 @@ ARCH: amd64
 NCPU: 2
 OK
 ```
+
+### Build properties on command line
+
+You can pass build properties on command line with `-props` option and a YAML
+map to set properties. For instance, calling this build file:
+
+```yaml
+default: test
+
+properties:
+  FOO: 'foo'
+
+targets:
+
+  test:
+    steps:
+    - print: 'FOO: ={FOO}'
+    - print: 'BAR: ={BAR}'
+```
+
+With command line defining properties will print:
+
+```
+$ n -props '{FOO: FOO, BAR: bar}'
+----------------------------------------------------------------------- test --
+FOO: FOO
+BAR: bar
+OK
+```
+
+Thus:
+
+- Property *FOO* was set to *foo* in build file but was overwritten on command
+line with value *FOO*.
+- Property *BAR* was not defined in build file but was set on command line.
+
+### Configuration
+
+Some times, you would like to define build properties outside of a build file.
+For instance, you would want to write in a build file properties that are
+vary depending on the developer environment. You won't neither want to write
+in a build file passwords or other private information.
+
+The solution is to write these properties in a separate configuration file that
+defines build properties.
+
+Let's say you have following build file:
+
+```yaml
+default: test
+
+configuration: ~/.myconfiguration.yml
+
+properties:
+    TOOL_HOME: ~
+    PASSWORD:  ~
+
+targets:
+
+    test:
+      steps:
+      - $: ['={TOOL_HOME}/bin/tool', 'command', 'line', 'options']
+      - $: ['service-that-needs-password', =PASSWORD]
+```
+
+You could write configuration in *~/.myconfiguration.yml* file as follows:
+
+```yaml
+TOOL_HOME: '/opt/misc/mytool'
+PASSWORD:  'fazelirflnazrfl'
+```
+
+These properties will be loaded on build start and will overwrite those defined
+in the build file.
 
 [Back to top](#user-manual)
 
