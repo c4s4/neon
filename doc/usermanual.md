@@ -357,7 +357,7 @@ targets:
 With command line defining properties will print:
 
 ```
-$ n -props '{FOO: FOO, BAR: bar}'
+$ neon -props '{FOO: FOO, BAR: bar}'
 ----------------------------------------------------------------------- test --
 FOO: FOO
 BAR: bar
@@ -890,7 +890,7 @@ to generate template Golang project, you would:
 This will ask you the project name and generate the project:
 
 ```
-$ n -template c4s4/build/golang.tpl
+$ neon -template c4s4/build/golang.tpl
 ------------------------------------------------------------------- template --
 Name of this project: test
 Making directory '/home/casa/dsk/test'
