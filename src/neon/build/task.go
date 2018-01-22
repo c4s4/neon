@@ -10,23 +10,23 @@ import (
 // character for expressions
 const (
 	// character that start expressions
-	CHAR_EXPRESSION = "="
+	CharExpression = "="
 	// expression curly brace
-	CURLY_EXPRESSION = "{"
+	CurlyExpression = "{"
 	// tag separator
-	TAG_SEPARATOR = " "
+	TagSeparator = " "
 	// field might not be provided
-	FIELD_OPTIONAL = "optional"
+	FieldOptional = "optional"
 	// field is a file name that is expanded for user home
-	FIELD_FILE = "file"
+	FieldFile = "file"
 	// field is an expression
-	FIELD_EXPRESSION = "expression"
+	FieldExpression = "expression"
 	// field should be rapped in a slice of its type
-	FIELD_WRAP = "wrap"
+	FieldWrap = "wrap"
 	// field is a list of steps
-	FIELD_STEPS = "steps"
+	FieldSteps = "steps"
 	// field has a different name
-	FIELD_NAME = "name"
+	FieldName = "name"
 )
 
 // Map that gives constructor for given task name
@@ -38,7 +38,42 @@ func AddTask(task TaskDesc) {
 	if _, ok := TaskMap[task.Name]; ok {
 		panic(fmt.Errorf("task '%s' already defined", task.Name))
 	}
+	err := CheckTaskArgs(TaskMap, task)
+	if err != nil {
+		panic(err)
+	}
 	TaskMap[task.Name] = task
+}
+
+// CheckTaskArgs checks that task argument names don't collide with with the
+// name of an existing task. For instance, a task can't have an argument named
+// copy as a task named copy already exists.
+// - map: the tasks map.
+// - task: the task description.
+// Return: an error if argument collides.
+func CheckTaskArgs(m map[string]TaskDesc, t TaskDesc) error {
+	for n := range m {
+		if HasField(t.Args, n) {
+			return fmt.Errorf("task '%s' cannot have a field named '%s' as a task with this name exists", t.Name, n)
+		}
+	}
+	return nil
+}
+
+// HasField tells if given structure has named field.
+// - t: the type to check (must be a struct).
+// - n: the name of the field to check as a string.
+// Return: a boolean that tells if field exists.
+func HasField(t reflect.Type, n string) bool {
+	if t.Kind() != reflect.Struct {
+		panic("task args must be a struct")
+	}
+	for i := 0; i < t.NumField(); i++ {
+		if strings.ToLower(t.Field(i).Name) == n {
+			return true
+		}
+	}
+	return false
 }
 
 // A task descriptor is made of a task constructor and an help string
@@ -68,13 +103,13 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
 		name := strings.ToLower(field.Name)
-		if field.Tag.Get(FIELD_NAME) != "" {
-			name = field.Tag.Get(FIELD_NAME)
+		if field.Tag.Get(FieldName) != "" {
+			name = field.Tag.Get(FieldName)
 		}
 		fields = append(fields, name)
 		// check field is not missing
 		if _, ok := args[name]; !ok {
-			if !FieldIs(field, FIELD_OPTIONAL) {
+			if !FieldIs(field, FieldOptional) {
 				return fmt.Errorf("missing mandatory field '%s'", name)
 			}
 		}
@@ -118,24 +153,24 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 func CheckType(field reflect.StructField, value interface{}) bool {
 	valueType := reflect.TypeOf(value)
 	// if field is optional and argument nil, it's OK
-	if FieldIs(field, FIELD_OPTIONAL) && value == nil {
+	if FieldIs(field, FieldOptional) && value == nil {
 		return true
 	}
 	// if argument is an expression it's OK whatever the type
 	if valueType.Kind() == reflect.String &&
 		(IsExpression(value.(string)) ||
-			FieldIs(field, FIELD_EXPRESSION)) {
+			FieldIs(field, FieldExpression)) {
 		return true
 	}
 	// if type of field is slice of the type of the argument and wrap, it's OK
 	if field.Type.Kind() == reflect.Slice &&
 		reflect.SliceOf(valueType) == field.Type &&
-		FieldIs(field, FIELD_WRAP) {
+		FieldIs(field, FieldWrap) {
 		return true
 	}
 	// if type is slice and argument is steps, it's OK
 	if field.Type.Kind() == reflect.Slice &&
-		FieldIs(field, FIELD_STEPS) {
+		FieldIs(field, FieldSteps) {
 		return true
 	}
 	// check that value is of given type
@@ -178,14 +213,14 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 	for i := 0; i < value.NumField(); i++ {
 		name := strings.ToLower(typ.Field(i).Name)
 		field := typ.Field(i)
-		if field.Tag.Get(FIELD_NAME) != "" {
-			name = field.Tag.Get(FIELD_NAME)
+		if field.Tag.Get(FieldName) != "" {
+			name = field.Tag.Get(FieldName)
 		}
 		if args[name] != nil {
 			val := args[name]
 			// evaluate expressions in context
 			if reflect.TypeOf(val).Kind() == reflect.String &&
-				(IsExpression(val.(string)) || FieldIs(field, FIELD_EXPRESSION)) {
+				(IsExpression(val.(string)) || FieldIs(field, FieldExpression)) {
 				str := val.(string)
 				if IsExpression(str) {
 					str = str[1:]
@@ -200,7 +235,7 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 					// we accept if expected is slice of interfaces and actual is slice
 					if !(expected.Kind() == reflect.Slice && actual.Kind() == reflect.Slice) &&
 						// or if slice and wrap
-						!(expected == reflect.SliceOf(actual) && FieldIs(field, FIELD_WRAP)) {
+						!(expected == reflect.SliceOf(actual) && FieldIs(field, FieldWrap)) {
 						return nil, fmt.Errorf("bad expression return type, expected '%v' but '%v' was returned",
 							expected, actual)
 					}
@@ -215,17 +250,17 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 			if reflect.TypeOf(val).Kind() == reflect.String {
 				str := val.(string)
 				// replace '\=' with '='
-				if strings.HasPrefix(str, `\`+CHAR_EXPRESSION) {
+				if strings.HasPrefix(str, `\`+CharExpression) {
 					str = str[1:]
 				}
 				// expand home if field tagged 'file'
-				if FieldIs(field, FIELD_FILE) {
+				if FieldIs(field, FieldFile) {
 					str = util.ExpandUserHome(str)
 				}
 				val = str
 			}
 			// wrap values if necessary
-			if FieldIs(field, FIELD_WRAP) && !(reflect.TypeOf(val).Kind() == reflect.Slice) {
+			if FieldIs(field, FieldWrap) && !(reflect.TypeOf(val).Kind() == reflect.Slice) {
 				slice := reflect.New(field.Type).Elem()
 				slice = reflect.Append(slice, reflect.ValueOf(val))
 				val = slice.Interface()
@@ -243,17 +278,17 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 func CopyValue(orig, dest reflect.Value) {
 	// loop on slices
 	if orig.Type().Kind() == reflect.Slice && dest.Type().Kind() == reflect.Slice {
-		new := reflect.MakeSlice(dest.Type(), orig.Len(), orig.Len())
+		newSlice := reflect.MakeSlice(dest.Type(), orig.Len(), orig.Len())
 		for i := 0; i < orig.Len(); i++ {
-			CopyValue(orig.Index(i), new.Index(i))
+			CopyValue(orig.Index(i), newSlice.Index(i))
 		}
-		dest.Set(new)
+		dest.Set(newSlice)
 	} else
 	// loop on maps
 	if orig.Type().Kind() == reflect.Map && dest.Type().Kind() == reflect.Map {
 		keyType := dest.Type().Key()
 		valType := dest.Type().Elem()
-		new := reflect.MakeMap(reflect.MapOf(keyType, valType))
+		newMap := reflect.MakeMap(reflect.MapOf(keyType, valType))
 		for _, key := range orig.MapKeys() {
 			if key.Type().Kind() == reflect.Interface {
 				key = key.Elem()
@@ -262,9 +297,9 @@ func CopyValue(orig, dest reflect.Value) {
 			if val.Type().Kind() == reflect.Interface {
 				val = val.Elem()
 			}
-			new.SetMapIndex(key, val)
+			newMap.SetMapIndex(key, val)
 		}
-		dest.Set(new)
+		dest.Set(newMap)
 	} else
 	// get value of interfaces
 	if orig.Kind() == reflect.Interface {
@@ -281,7 +316,7 @@ func CopyValue(orig, dest reflect.Value) {
 // - quality: the tested quality (such as "optional")
 func FieldIs(field reflect.StructField, quality string) bool {
 	tag := string(field.Tag)
-	qualities := strings.Split(tag, TAG_SEPARATOR)
+	qualities := strings.Split(tag, TagSeparator)
 	for _, q := range qualities {
 		if q == quality {
 			return true
@@ -297,6 +332,6 @@ func IsExpression(s string) bool {
 	if len(s) < 2 {
 		return false
 	} else {
-		return s[0:1] == CHAR_EXPRESSION && s[1:2] != CURLY_EXPRESSION
+		return s[0:1] == CharExpression && s[1:2] != CurlyExpression
 	}
 }
