@@ -51,7 +51,7 @@ func ParseTargetDoc(object util.Object, target *Target) error {
 	if object.HasField("doc") {
 		doc, err := object.GetString("doc")
 		if err != nil {
-			return fmt.Errorf("doc field must be a string", target.Name)
+			return fmt.Errorf("doc field in target '%s' must be a string", target.Name)
 		}
 		target.Doc = doc
 	}
