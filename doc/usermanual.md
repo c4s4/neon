@@ -143,6 +143,7 @@ A build file is a YAML map. First level fields are the following:
   These YAML files must be maps with string keys. This might be a string or a
   list of strings.
 - **environment** is a map that defines environment for all executed commands.
+  Environment variables set to empty strings will be unset.
 - **targets** is a map for targets of the build files. This is a map with
   string keys.
 
