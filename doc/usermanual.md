@@ -143,6 +143,7 @@ A build file is a YAML map. First level fields are the following:
   These YAML files must be maps with string keys. This might be a string or a
   list of strings.
 - **environment** is a map that defines environment for all executed commands.
+  Environment variables set to empty strings will be unset.
 - **targets** is a map for targets of the build files. This is a map with
   string keys.
 
@@ -836,7 +837,9 @@ The `-install` option will install given plugin in repository. Thus typing
 Github into your repository. You can list parent build files in your 
 repository with `-parents` option and templates with `-templates`. You can
 run a template with `-template` option, thus to run template
-*foo/bar/spam.tpl*, you would type `neon -template foo/bar/spam.tpl`.
+*foo/bar/spam.tpl*, you would type `neon -template foo/bar/spam.tpl`. This
+template may also be invoked with the shortcut `neon -template spam`, provided
+there is only one template named *spam.tpl* in your repository.
 
 To list all available builtins, you have option `-builtins`. To get help on a
 given builtin, you would type `neon -builtin foo`. To list all available tasks,

@@ -3,9 +3,9 @@
 doc:     Build file for NeON
 default: [clean, bin, test, integ]
 extends:
-- c4s4/build/buildir.yml
 - c4s4/build/golang.yml
 - c4s4/build/release.yml
+- c4s4/build/github.yml
 
 properties:
   NAME:      'neon'
@@ -113,6 +113,7 @@ targets:
     - super:
 
   windows:
+    doc: Build binary for Windows
     steps:
     - mkdir: =BUILD_DIR
     - $: ['gox', '-ldflags', '-X main.VERSION=={VERSION}', 

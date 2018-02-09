@@ -359,8 +359,11 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 	}
 	var lines []string
 	for name, value := range environment {
-		line := name + EnvironmentSep + value
-		lines = append(lines, line)
+		// unset variables with empty string value
+		if value != "" {
+			line := name + EnvironmentSep + value
+			lines = append(lines, line)
+		}
 	}
 	return lines, nil
 }
