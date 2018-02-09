@@ -950,6 +950,30 @@ c4s4/build/slides.yml
 c4s4/build/xslt.yml
 ```
 
+Note that you use a short name for parent build files you extend, for instance:
+
+```yaml
+extends:
+- golang
+```
+
+Will be the same that:
+
+```yaml
+extends:
+- c4s4/build/golang.yml
+```
+
+If there is only **one** parent build file named *golang.yml* in your NeON
+repository. If this is not the case, build will stop on error with a message
+that indicates the number of parent build files with this name in your
+repository.
+
+Note that if you use short names, this remove information that tells the user
+how to install corresponding plugin. If you extend parent build file
+*foo/bar/spam.yml*, this tells the user that she can install corresponding
+plugin typing `neon -install foo/bar`.
+
 [Back to top](#user-manual)
 
 Neon repository
@@ -1121,5 +1145,9 @@ files and performs some replacements.
 
 Template build files are named with *tpl* extension so that they are identified
 as templates, but otherwise they are plain old build files.
+
+Note that can also invoke templates with a shot name. Thus you can invoke
+template *foo/bar/spam.tpl* with `neon -template spam`, provided that there is
+only one template named *spam.tpl* in your repository.
 
 *Enjoy!*

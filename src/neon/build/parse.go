@@ -2,9 +2,10 @@ package build
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"neon/util"
 	"strconv"
+
+	"gopkg.in/yaml.v2"
 )
 
 // ParseSingleton parses singleton field of the build:
@@ -141,7 +142,10 @@ func ParseExtends(object util.Object, build *Build) error {
 		build.Extends = extends
 		var parents []*Build
 		for _, extend := range build.Extends {
-			file := build.PluginPath(extend)
+			file, err := build.ParentPath(extend)
+			if err != nil {
+				return fmt.Errorf("searching parent build file '%s': %v", extend, err)
+			}
 			parent, err := NewBuild(file)
 			if err != nil {
 				return fmt.Errorf("loading parent build file '%s': %v", extend, err)
