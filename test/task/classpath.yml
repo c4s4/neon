@@ -16,6 +16,8 @@ targets:
     - classpath: classpath
       classes:   '={BUILD_DIR}/chmod'
       jars:      '={BUILD_DIR}/chmod/*.jar'
+    - 'strings = import("strings")'
+    - 'classpath = strings.Replace(classpath, ";", ":", -1)'
     - if: 'classpath != "../../build/chmod:../../build/chmod/bar.jar:../../build/chmod/foo.jar"'
       then:
       - throw: 'Classpath test failure: ={classpath}'
