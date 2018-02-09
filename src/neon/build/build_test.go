@@ -1,24 +1,10 @@
 package build
 
 import (
-	"neon/util"
 	"reflect"
 	"runtime"
 	"testing"
 )
-
-func TestPluginPath(t *testing.T) {
-	build := &Build{
-		Repository: "~/.neon",
-	}
-	Assert(build.PluginPath("foo/bar"),
-		util.ExpandUserHome("~/.neon/foo/bar"), t)
-}
-
-func TestPluginName(t *testing.T) {
-	build := &Build{}
-	Assert(build.PluginName("foo/bar/spam.yml"), "foo/bar", t)
-}
 
 func TestGetShell(t *testing.T) {
 	build := &Build{

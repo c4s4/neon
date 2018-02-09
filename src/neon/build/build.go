@@ -5,11 +5,8 @@ import (
 	"neon/util"
 	"net"
 	"os"
-	"path"
 	"path/filepath"
-	"regexp"
 	"runtime"
-	"strings"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -289,32 +286,6 @@ func (build *Build) RunParentTarget(context *Context, name string) (bool, error)
 		}
 	}
 	return false, nil
-}
-
-// PluginPath returns file path for plugin with given name.
-// - name: the name of the plugin (as "c4s4/build/foo.yml")
-// Return: the plugin path as a string (as /home/casa/.neon/c4s4/build/foo.yml)
-func (build *Build) PluginPath(name string) string {
-	if path.IsAbs(name) {
-		return name
-	} else if strings.HasPrefix(name, "./") {
-		return filepath.Join(build.Dir, name)
-	} else {
-		repo := util.ExpandAndJoinToRoot(build.Dir, build.Repository)
-		return filepath.Join(repo, name)
-	}
-}
-
-// PluginName returns the plugin name for given resource.
-// - name: the resource name (such as "c4s4/build/buildir.yml")
-// Return: the plugin name (such as "c4s4/build")
-func (build *Build) PluginName(name string) string {
-	re := regexp.MustCompile(`^(` + RegexpPlugin + `)/.+$`)
-	if re.MatchString(name) {
-		return re.FindStringSubmatch(name)[1]
-	} else {
-		return ""
-	}
 }
 
 // GetShell return shell for current os.
