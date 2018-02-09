@@ -8,10 +8,7 @@ import (
 	_ "neon/task"
 	"neon/util"
 	"os"
-	"path"
 	"path/filepath"
-	"regexp"
-	"strings"
 	"time"
 )
 
@@ -73,35 +70,6 @@ func FindBuildFile(name string) (string, error) {
 	}
 }
 
-// TemplatePath return the template path:
-// - name: the name of the template (such as 'c4s4/build/golang.tpl')
-// - repo: the repository for plugins (defaults to '~/.neon')
-// Return: template path (as '~/.neon/c4s4/build/golang.tpl')
-func TemplatePath(name, repo string) (string, error) {
-	if path.IsAbs(name) || strings.HasPrefix(name, "./") {
-		return name, nil
-	} else {
-		if repo == "" {
-			repo = _build.DefaultRepo
-		}
-		match, _ := regexp.MatchString("/[^/]/[^/]/[^/].tpl", name)
-		if match {
-			return util.ExpandUserHome(filepath.Join(repo, name)), nil
-		} else {
-			templates, err := _build.FindTemplate(name, repo)
-			if err != nil || len(templates) == 0 {
-				_build.PrintError("template '" + name + "' was not found")
-				os.Exit(1)
-			}
-			if len(templates) > 1 {
-				_build.PrintError(fmt.Sprintf("there are %d templates matching name '%s'", len(templates), name))
-				os.Exit(1)
-			}
-			return util.ExpandUserHome(filepath.Join(repo, templates[0])), nil
-		}
-	}
-}
-
 // Program entry point
 func main() {
 	start := time.Now()
@@ -141,7 +109,7 @@ func main() {
 	// options that do require we load build file
 	if template != "" {
 		var err error
-		file, err = TemplatePath(template, repo)
+		file, err = _build.TemplatePath(template, repo)
 		PrintError(err, 1)
 	}
 	path, err := FindBuildFile(file)

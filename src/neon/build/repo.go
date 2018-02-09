@@ -107,6 +107,33 @@ func FindTemplate(template, repo string) ([]string, error) {
 	return templates, nil
 }
 
+// TemplatePath return the template path:
+// - name: the name of the template (such as 'c4s4/build/golang.tpl')
+// - repo: the repository for plugins (defaults to '~/.neon')
+// Return: template path (as '~/.neon/c4s4/build/golang.tpl')
+func TemplatePath(name, repo string) (string, error) {
+	if path.IsAbs(name) || strings.HasPrefix(name, "./") {
+		return name, nil
+	} else {
+		if repo == "" {
+			repo = DefaultRepo
+		}
+		match, _ := regexp.MatchString("/[^/]/[^/]/[^/].tpl", name)
+		if match {
+			return util.ExpandUserHome(filepath.Join(repo, name)), nil
+		} else {
+			templates, err := FindTemplate(name, repo)
+			if err != nil || len(templates) == 0 {
+				return "", fmt.Errorf("template '%s' was not found", name)
+			}
+			if len(templates) > 1 {
+				return "", fmt.Errorf("there are %d templates matching name '%s'", len(templates), name)
+			}
+			return util.ExpandUserHome(filepath.Join(repo, templates[0])), nil
+		}
+	}
+}
+
 // PrintTemplates prints templates in repository:
 // - repo: the NeON repository (defaults to '~/.neon')
 func PrintTemplates(repo string) {
