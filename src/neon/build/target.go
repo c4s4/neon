@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// Structure for a target
+// Target is a structure for a target
 type Target struct {
 	Build   *Build
 	Name    string

@@ -29,7 +29,7 @@ const (
 	FieldName = "name"
 )
 
-// Map that gives constructor for given task name
+// TaskMap is a map that gives constructor for given task name
 var TaskMap = make(map[string]TaskDesc)
 
 // AddTask adds a task in the map:
@@ -76,7 +76,7 @@ func HasField(t reflect.Type, n string) bool {
 	return false
 }
 
-// A task descriptor is made of a task constructor and an help string
+// TaskDesc is a task descriptor is made of a task constructor and an help string
 type TaskDesc struct {
 	Name string
 	Args reflect.Type
@@ -84,13 +84,13 @@ type TaskDesc struct {
 	Help string
 }
 
-// Type for task arguments as parsed in build file
+// TaskArgs is a type for task arguments as parsed in build file
 type TaskArgs map[interface{}]interface{}
 
-// Type for task function called to run task
+// TaskFunc is a type for task function called to run task
 type TaskFunc func(ctx *Context, args interface{}) error
 
-// Validate task arguments against task arguments definition
+// ValidateTaskArgs validates arguments against task arguments definition
 // - args: task arguments parsed in build file
 // - typ: type of the arguments
 // Return: an error (detailing the fault) if arguments are illegal
@@ -200,7 +200,7 @@ func IsValueOfType(value interface{}, typ reflect.Type) bool {
 	return false
 }
 
-// Build task arguments from task params and return it
+// EvaluateTaskArgs builds task arguments from task params and return it
 // - args: task arguments parsed in build file
 // - typ: the type of the arguments
 // - context: the build context to evaluate arguments into
@@ -331,7 +331,6 @@ func FieldIs(field reflect.StructField, quality string) bool {
 func IsExpression(s string) bool {
 	if len(s) < 2 {
 		return false
-	} else {
-		return s[0:1] == CharExpression && s[1:2] != CurlyExpression
 	}
+	return s[0:1] == CharExpression && s[1:2] != CurlyExpression
 }

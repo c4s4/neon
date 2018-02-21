@@ -16,21 +16,21 @@ import (
 )
 
 const (
-	PropertyOs     = "_OS"
-	PropertyArch   = "_ARCH"
-	PropertyNcpu   = "_NCPU"
-	PropertyBase   = "_BASE"
-	PropertyHere   = "_HERE"
-	PropertyThread = "_thread"
-	PropertyInput  = "_input"
-	EnvironmentSep = "="
-	EnvironmentVar = "$"
+	propertyOs     = "_OS"
+	propertyArch   = "_ARCH"
+	propertyNcpu   = "_NCPU"
+	propertyBase   = "_BASE"
+	propertyHere   = "_HERE"
+	propertyThread = "_thread"
+	propertyInput  = "_input"
+	environmentSep = "="
+	environmentVar = "$"
 )
 
 var (
-	RegexpExp   = regexp.MustCompile(`\\{0,2}[#=]{.*?}`)
-	RegexpEnv   = regexp.MustCompile(`\\{0,2}[#=$]{.*?}`)
-	RegexpParts = regexp.MustCompile(`(\\{0,2})([#=$]){(.*)}`)
+	regexpExp   = regexp.MustCompile(`\\{0,2}[#=]{.*?}`)
+	regexpEnv   = regexp.MustCompile(`\\{0,2}[#=$]{.*?}`)
+	regexpParts = regexp.MustCompile(`(\\{0,2})([#=$]){(.*)}`)
 )
 
 // Context is the context of the build
@@ -69,8 +69,8 @@ func (context *Context) NewThreadContext(thread int, input interface{}, output i
 		Build: context.Build,
 		Stack: context.Stack.Copy(),
 	}
-	another.SetProperty(PropertyThread, thread)
-	another.SetProperty(PropertyInput, input)
+	another.SetProperty(propertyThread, thread)
+	another.SetProperty(propertyInput, input)
 	return another
 }
 
@@ -88,7 +88,7 @@ func (context *Context) Init() error {
 	return nil
 }
 
-// InitScript loads build scripts in context
+// InitScripts loads build scripts in context
 // Return: an error if something went wrong
 func (context *Context) InitScripts() error {
 	for _, script := range context.Build.Scripts {
@@ -107,11 +107,11 @@ func (context *Context) InitScripts() error {
 // InitProperties sets build properties
 // Return: an error if something went wrong
 func (context *Context) InitProperties() error {
-	context.SetProperty(PropertyOs, runtime.GOOS)
-	context.SetProperty(PropertyArch, runtime.GOARCH)
-	context.SetProperty(PropertyNcpu, runtime.NumCPU())
-	context.SetProperty(PropertyBase, context.Build.Dir)
-	context.SetProperty(PropertyHere, context.Build.Here)
+	context.SetProperty(propertyOs, runtime.GOOS)
+	context.SetProperty(propertyArch, runtime.GOARCH)
+	context.SetProperty(propertyNcpu, runtime.NumCPU())
+	context.SetProperty(propertyBase, context.Build.Dir)
+	context.SetProperty(propertyHere, context.Build.Here)
 	todo := context.Build.Properties.Fields()
 	var crash error
 	for len(todo) > 0 {
@@ -186,44 +186,39 @@ func (context *Context) EvaluateExpression(expression string) (interface{}, erro
 // - an error if something went wrong
 func (context *Context) EvaluateString(text string) (string, error) {
 	var errors []error
-	replaced := RegexpExp.ReplaceAllStringFunc(text, func(expression string) string {
-		parts := RegexpParts.FindStringSubmatch(expression)
+	replaced := regexpExp.ReplaceAllStringFunc(text, func(expression string) string {
+		parts := regexpParts.FindStringSubmatch(expression)
 		prefix := parts[1]
 		char := parts[2]
 		source := parts[3]
 		// expression was escaped
 		if prefix == `\` {
 			return char + `{` + source + `}`
-		} else
-		// expression not escaped
-		{
-			if prefix == `\\` {
-				prefix = `\`
-			}
-			value, err := context.EvaluateExpression(source)
-			if err != nil {
-				errors = append(errors, err)
-				return ""
-			} else {
-				var str string
-				str, err = PropertyToString(value, false)
-				if err != nil {
-					errors = append(errors, err)
-					return ""
-				} else {
-					return prefix + str
-				}
-			}
 		}
+		// expression not escaped
+		if prefix == `\\` {
+			prefix = `\`
+		}
+		value, err := context.EvaluateExpression(source)
+		if err != nil {
+			errors = append(errors, err)
+			return ""
+		}
+		var str string
+		str, err = PropertyToString(value, false)
+		if err != nil {
+			errors = append(errors, err)
+			return ""
+		}
+		return prefix + str
 	})
 	if len(errors) > 0 {
 		return replaced, errors[0]
-	} else {
-		return replaced, nil
 	}
+	return replaced, nil
 }
 
-// EvaluateRecursive recursively evaluates strings in a structure
+// EvaluateObject recursively evaluates strings in a structure
 // - object: the object to evaluate
 // Return:
 // - evaluated copy of object
@@ -242,14 +237,13 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 				return nil, err
 			}
 			return value, nil
-		} else {
-			evaluated, err := context.EvaluateString(object.(string))
-			if err != nil {
-				return nil, err
-			}
-			return evaluated, nil
 		}
-	} else
+		evaluated, err := context.EvaluateString(object.(string))
+		if err != nil {
+			return nil, err
+		}
+		return evaluated, nil
+	}
 	// we copy slices in a new slice with evaluated values
 	if reflect.TypeOf(object).Kind() == reflect.Slice {
 		source := reflect.ValueOf(object)
@@ -263,7 +257,7 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 			dest.Index(i).Set(reflect.ValueOf(evaluated))
 		}
 		return dest.Interface(), nil
-	} else
+	}
 	// we copy maps in a new map with evaluated keys and values
 	if reflect.TypeOf(object).Kind() == reflect.Map {
 		source := reflect.ValueOf(object)
@@ -283,11 +277,9 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 			dest.SetMapIndex(reflect.ValueOf(keyEval), reflect.ValueOf(valEval))
 		}
 		return dest.Interface(), nil
-	} else
-	// else we do nothing
-	{
-		return object, nil
 	}
+	// else we do nothing
+	return object, nil
 }
 
 // EvaluateEnvironment evaluates environment variables in the context
@@ -297,13 +289,13 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 func (context *Context) EvaluateEnvironment() ([]string, error) {
 	environment := make(map[string]string)
 	for _, line := range os.Environ() {
-		index := strings.Index(line, EnvironmentSep)
+		index := strings.Index(line, environmentSep)
 		name := line[:index]
 		value := line[index+1:]
 		environment[name] = value
 	}
-	environment[PropertyBase] = context.Build.Dir
-	environment[PropertyHere] = context.Build.Here
+	environment[propertyBase] = context.Build.Dir
+	environment[propertyHere] = context.Build.Here
 	var variables []string
 	for name := range context.Build.Environment {
 		variables = append(variables, name)
@@ -322,37 +314,32 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 			}
 			replaced = val.(string)
 		} else {
-			replaced = RegexpEnv.ReplaceAllStringFunc(value, func(expression string) string {
-				parts := RegexpParts.FindStringSubmatch(expression)
+			replaced = regexpEnv.ReplaceAllStringFunc(value, func(expression string) string {
+				parts := regexpParts.FindStringSubmatch(expression)
 				prefix := parts[1]
 				char := parts[2]
 				source := parts[3]
 				// expression was escaped
 				if prefix == `\` {
 					return char + `{` + source + `}`
-				} else
-				// expression not escaped
-				{
-					if prefix == `\\` {
-						prefix = `\`
-					}
-					if char == EnvironmentVar {
-						val, ok := environment[source]
-						if !ok {
-							return prefix + `{` + source + `}`
-						} else {
-							return prefix + val
-						}
-					} else {
-						val, err := context.EvaluateExpression(source)
-						if err != nil {
-							return prefix + `{` + source + `}`
-						} else {
-							str, _ := PropertyToString(val, false)
-							return prefix + str
-						}
-					}
 				}
+				// expression not escaped
+				if prefix == `\\` {
+					prefix = `\`
+				}
+				if char == environmentVar {
+					val, ok := environment[source]
+					if !ok {
+						return prefix + `{` + source + `}`
+					}
+					return prefix + val
+				}
+				val, err := context.EvaluateExpression(source)
+				if err != nil {
+					return prefix + `{` + source + `}`
+				}
+				str, _ := PropertyToString(val, false)
+				return prefix + str
 			})
 		}
 		environment[name] = replaced
@@ -361,7 +348,7 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 	for name, value := range environment {
 		// unset variables with empty string value
 		if value != "" {
-			line := name + EnvironmentSep + value
+			line := name + environmentSep + value
 			lines = append(lines, line)
 		}
 	}

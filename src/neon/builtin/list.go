@@ -33,9 +33,8 @@ func list(object interface{}) []interface{} {
 	value := reflect.ValueOf(object)
 	if value.Kind() == reflect.Slice {
 		return value.Interface().([]interface{})
-	} else {
-		slice := make([]interface{}, 1)
-		slice[0] = object
-		return slice
 	}
+	slice := make([]interface{}, 1)
+	slice[0] = object
+	return slice
 }

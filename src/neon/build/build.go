@@ -13,14 +13,14 @@ import (
 )
 
 const (
-	// Local repository root directory
+	// DefaultRepo is local repository root directory
 	DefaultRepo = "~/.neon"
-	// Regexp for a plugin name
+	// RegexpPlugin is regexp for a plugin name
 	RegexpPlugin = `[\w-]+/[\w-]+`
 )
 
-// Possible root fields for a build file
-var FIELDS = []string{"doc", "default", "extends", "repository", "context",
+// Fileds is the list of possible root fields for a build file
+var Fields = []string{"doc", "default", "extends", "repository", "context",
 	"singleton", "shell", "properties", "configuration", "environment", "targets"}
 
 // Build structure
@@ -69,7 +69,7 @@ func NewBuild(file string) (*Build, error) {
 	if err = yaml.Unmarshal(source, &object); err != nil {
 		return nil, fmt.Errorf("build must be a map with string keys: %v", err)
 	}
-	if err := object.CheckFields(FIELDS); err != nil {
+	if err := object.CheckFields(Fields); err != nil {
 		return nil, fmt.Errorf("parsing build file: %v", err)
 	}
 	if err := ParseSingleton(object, build); err != nil {
@@ -166,15 +166,14 @@ func (build *Build) GetTargetByName(name string) *Target {
 	target, found := build.Targets[name]
 	if found {
 		return target
-	} else {
-		for _, parent := range build.Parents {
-			target = parent.GetTargetByName(name)
-			if target != nil {
-				return target
-			}
-		}
-		return nil
 	}
+	for _, parent := range build.Parents {
+		target = parent.GetTargetByName(name)
+		if target != nil {
+			return target
+		}
+	}
+	return nil
 }
 
 // SetDir sets the build directory, propagating to parents
@@ -208,17 +207,16 @@ func (build *Build) SetCommandLineProperties(props string) error {
 func (build *Build) GetDefault() []string {
 	if len(build.Default) > 0 {
 		return build.Default
-	} else {
-		for _, parent := range build.Parents {
-			if len(parent.Default) > 0 {
-				return parent.Default
-			}
+	}
+	for _, parent := range build.Parents {
+		if len(parent.Default) > 0 {
+			return parent.Default
 		}
-		for _, parent := range build.Parents {
-			parentDefault := parent.GetDefault()
-			if len(parentDefault) > 0 {
-				return parentDefault
-			}
+	}
+	for _, parent := range build.Parents {
+		parentDefault := parent.GetDefault()
+		if len(parentDefault) > 0 {
+			return parentDefault
 		}
 	}
 	return build.Default
