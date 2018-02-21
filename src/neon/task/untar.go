@@ -1,7 +1,7 @@
 package task
 
 import (
-	"archive/tar"
+	t "archive/tar"
 	"compress/gzip"
 	"fmt"
 	"io"
@@ -58,16 +58,16 @@ func untarFile(file, dir string) error {
 		return fmt.Errorf("opening source tar file %s: %v", file, err)
 	}
 	defer reader.Close()
-	var tarReader *tar.Reader
+	var tarReader *t.Reader
 	if strings.HasSuffix(file, ".gz") || strings.HasSuffix(file, ".tgz") {
 		gzipReader, err := gzip.NewReader(reader)
 		defer gzipReader.Close()
 		if err != nil {
 			return fmt.Errorf("unzipping tar file: %v", err)
 		}
-		tarReader = tar.NewReader(gzipReader)
+		tarReader = t.NewReader(gzipReader)
 	} else {
-		tarReader = tar.NewReader(reader)
+		tarReader = t.NewReader(reader)
 	}
 	for {
 		header, err := tarReader.Next()
@@ -80,7 +80,7 @@ func untarFile(file, dir string) error {
 			continue
 		}
 		target := filepath.Join(dir, header.Name)
-		if header.Typeflag == tar.TypeReg {
+		if header.Typeflag == t.TypeReg {
 			destination := filepath.Dir(target)
 			if _, err := os.Stat(destination); err != nil {
 				if err := os.MkdirAll(destination, 0755); err != nil {

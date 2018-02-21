@@ -1,7 +1,7 @@
 package task
 
 import (
-	"archive/zip"
+	z "archive/zip"
 	"fmt"
 	"io"
 	"neon/build"
@@ -46,7 +46,7 @@ func unzip(context *build.Context, args interface{}) error {
 }
 
 func unzipFile(file, dir string) error {
-	reader, err := zip.OpenReader(file)
+	reader, err := z.OpenReader(file)
 	if err != nil {
 		return fmt.Errorf("opening source zip file %s: %v", file, err)
 	}

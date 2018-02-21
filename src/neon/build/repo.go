@@ -12,10 +12,13 @@ import (
 )
 
 const (
+	// PluginSite is default site for plugins
 	PluginSite = "github.com"
 )
 
+// RegexpParentName is regexp for parent name
 var RegexpParentName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.yml`)
+// RegexpTemplateName is regexp for template name
 var RegexpTemplateName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.tpl`)
 
 // FindParents finds parent build files in given repository.
@@ -36,11 +39,11 @@ func FindParents(repo string) ([]string, error) {
 	return files, nil
 }
 
-// FindTemplates finds a template in given repository.
+// FindParent finds a parent in given repository.
 // - parent: the parent to find (such as "golang").
 // - repo: the NeON repository (defaults to '~/.neon')
 // Return:
-// - templates path relative to repo (such as "c4s4/build/golang.tpl").
+// - parent path relative to repo (such as "c4s4/build/golang.tpl").
 // - error if something went wrong.
 func FindParent(parent, repo string) ([]string, error) {
 	files, err := FindParents(repo)
@@ -67,22 +70,21 @@ func FindParent(parent, repo string) ([]string, error) {
 func (build *Build) ParentPath(name string) (string, error) {
 	if path.IsAbs(name) {
 		return name, nil
-	} else if strings.HasPrefix(name, "./") {
-		return filepath.Join(build.Dir, name), nil
-	} else {
-		if RegexpParentName.MatchString(name) {
-			return util.ExpandUserHome(filepath.Join(build.Repository, name)), nil
-		} else {
-			parents, err := FindParent(name, build.Repository)
-			if err != nil || len(parents) == 0 {
-				return "", fmt.Errorf("parent '%s' was not found", name)
-			}
-			if len(parents) > 1 {
-				return "", fmt.Errorf("there are %d parents matching name '%s'", len(parents), name)
-			}
-			return util.ExpandUserHome(filepath.Join(build.Repository, parents[0])), nil
-		}
 	}
+	if strings.HasPrefix(name, "./") {
+		return filepath.Join(build.Dir, name), nil
+	}
+	if RegexpParentName.MatchString(name) {
+		return util.ExpandUserHome(filepath.Join(build.Repository, name)), nil
+	}
+	parents, err := FindParent(name, build.Repository)
+	if err != nil || len(parents) == 0 {
+		return "", fmt.Errorf("parent '%s' was not found", name)
+	}
+	if len(parents) > 1 {
+		return "", fmt.Errorf("there are %d parents matching name '%s'", len(parents), name)
+	}
+	return util.ExpandUserHome(filepath.Join(build.Repository, parents[0])), nil
 }
 
 // InstallPlugin installs given plugin in repository:
@@ -111,9 +113,8 @@ func InstallPlugin(plugin, repository string) error {
 		message = strings.TrimSpace(message)
 		Message(message)
 		return fmt.Errorf("installing plugin '%s'", plugin)
-	} else {
-		Message("Plugin '%s' installed in '%s'", plugin, repopath)
 	}
+	Message("Plugin '%s' installed in '%s'", plugin, repopath)
 	return nil
 }
 
@@ -154,7 +155,7 @@ func FindTemplates(repo string) ([]string, error) {
 	return files, nil
 }
 
-// FindTemplates finds a template in given repository.
+// FindTemplate finds a template in given repository.
 // - template: the template to find (such as "golang").
 // - repo: the NeON repository (defaults to '~/.neon')
 // Return:
@@ -184,23 +185,21 @@ func FindTemplate(template, repo string) ([]string, error) {
 func TemplatePath(name, repo string) (string, error) {
 	if path.IsAbs(name) || strings.HasPrefix(name, "./") {
 		return name, nil
-	} else {
-		if repo == "" {
-			repo = DefaultRepo
-		}
-		if RegexpTemplateName.MatchString(name) {
-			return util.ExpandUserHome(filepath.Join(repo, name)), nil
-		} else {
-			templates, err := FindTemplate(name, repo)
-			if err != nil || len(templates) == 0 {
-				return "", fmt.Errorf("template '%s' was not found", name)
-			}
-			if len(templates) > 1 {
-				return "", fmt.Errorf("there are %d templates matching name '%s'", len(templates), name)
-			}
-			return util.ExpandUserHome(filepath.Join(repo, templates[0])), nil
-		}
 	}
+	if repo == "" {
+		repo = DefaultRepo
+	}
+	if RegexpTemplateName.MatchString(name) {
+		return util.ExpandUserHome(filepath.Join(repo, name)), nil
+	}
+	templates, err := FindTemplate(name, repo)
+	if err != nil || len(templates) == 0 {
+		return "", fmt.Errorf("template '%s' was not found", name)
+	}
+	if len(templates) > 1 {
+		return "", fmt.Errorf("there are %d templates matching name '%s'", len(templates), name)
+	}
+	return util.ExpandUserHome(filepath.Join(repo, templates[0])), nil
 }
 
 // PrintTemplates prints templates in repository:

@@ -8,7 +8,7 @@ import (
 	"neon/util"
 	"net/http"
 	"os"
-	"path"
+	p "path"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -245,7 +245,7 @@ func copyJarsToDir(jars []string, dir string) error {
 		os.MkdirAll(dir, util.DIR_FILE_MODE)
 	}
 	for _, jar := range jars {
-		dest := path.Join(dir, path.Base(jar))
+		dest := p.Join(dir, p.Base(jar))
 		err := util.CopyFile(jar, dest)
 		if err != nil {
 			return err

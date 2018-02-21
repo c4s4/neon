@@ -12,7 +12,7 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "path",
-		Func: path_,
+		Func: path,
 		Args: reflect.TypeOf(pathArgs{}),
 		Help: `Build a path from files and put it in a variable.
 
@@ -38,7 +38,7 @@ type pathArgs struct {
 	Exclude []string `optional file wrap`
 }
 
-func path_(context *build.Context, args interface{}) error {
+func path(context *build.Context, args interface{}) error {
 	params := args.(pathArgs)
 	files, err := util.FindFiles(params.Dir, params.Path, params.Exclude, true)
 	if err != nil {

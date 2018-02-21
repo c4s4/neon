@@ -15,7 +15,7 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "zip",
-		Func: zip_,
+		Func: zip,
 		Args: reflect.TypeOf(zipArgs{}),
 		Help: `Create a Zip archive.
 
@@ -43,7 +43,7 @@ type zipArgs struct {
 	Prefix  string   `optional`
 }
 
-func zip_(context *build.Context, args interface{}) error {
+func zip(context *build.Context, args interface{}) error {
 	params := args.(zipArgs)
 	files, err := util.FindFiles(params.Dir, params.Zip, params.Exclude, false)
 	if err != nil {

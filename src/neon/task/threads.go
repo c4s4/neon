@@ -94,9 +94,8 @@ func threads(context *build.Context, args interface{}) error {
 	case e, ok := <-error:
 		if ok {
 			return e
-		} else {
-			return nil
 		}
+		return nil
 	default:
 		return nil
 	}
