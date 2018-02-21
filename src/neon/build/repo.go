@@ -18,6 +18,7 @@ const (
 
 // RegexpParentName is regexp for parent name
 var RegexpParentName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.yml`)
+
 // RegexpTemplateName is regexp for template name
 var RegexpTemplateName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.tpl`)
 
