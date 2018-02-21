@@ -117,10 +117,8 @@ func main() {
 	PrintError(err, 1)
 	build, err := _build.NewBuild(path)
 	PrintError(err, 2)
-	if props != "" {
-		err = build.SetCommandLineProperties(props)
-		PrintError(err, 3)
-	}
+	err = build.SetCommandLineProperties(props)
+	PrintError(err, 3)
 	if targs {
 		build.PrintTargets()
 		return
