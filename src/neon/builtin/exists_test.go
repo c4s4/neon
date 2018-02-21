@@ -7,11 +7,11 @@ import (
 
 func TestExists(t *testing.T) {
 	if util.Windows() {
-		if !Exists("/Windows") {
+		if !exists("/Windows") {
 			t.Errorf("Error builtin exists")
 		}
 	} else {
-		if !Exists("/tmp") {
+		if !exists("/tmp") {
 			t.Errorf("Error builtin exists")
 		}
 	}

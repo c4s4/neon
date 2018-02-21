@@ -9,7 +9,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "find",
-		Func: Find,
+		Func: find,
 		Help: `Find files.
 
 Arguments:
@@ -36,7 +36,7 @@ Notes:
 	})
 }
 
-func Find(dir string, patterns ...string) []string {
+func find(dir string, patterns ...string) []string {
 	files, err := util.FindFiles(dir, patterns, nil, true)
 	if err != nil {
 		return nil

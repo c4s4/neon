@@ -5,7 +5,7 @@ import (
 )
 
 func TestFilter(t *testing.T) {
-	filtered := Filter([]string{"foo", "bar"}, "foo")
+	filtered := filter([]string{"foo", "bar"}, "foo")
 	if len(filtered) != 1 {
 		t.Errorf("Error builtin filter")
 	}

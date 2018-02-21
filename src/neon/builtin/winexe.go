@@ -9,7 +9,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "winexe",
-		Func: Winexe,
+		Func: winExe,
 		Help: `Add '.exe' or '.bat' extensions depending on platform:
 - command will stay command on Unix and will become command.exe on Windows.
 - script.sh will stay script.sh on Unix and will become script.bat on Windows.
@@ -34,7 +34,7 @@ Examples:
 	})
 }
 
-func Winexe(command string) string {
+func winExe(command string) string {
 	if util.Windows() {
 		if strings.HasSuffix(command, ".sh") {
 			command = command[:len(command)-3] + ".bat"

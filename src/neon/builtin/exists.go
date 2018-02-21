@@ -9,7 +9,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "exists",
-		Func: Exists,
+		Func: exists,
 		Help: `Tells if a given path exists.
 
 Arguments:
@@ -28,7 +28,7 @@ Examples:
 	})
 }
 
-func Exists(path string) bool {
+func exists(path string) bool {
 	path = util.ExpandUserHome(path)
 	_, err := os.Stat(path)
 	if err != nil {

@@ -5,7 +5,7 @@ import (
 )
 
 func TestJoinpath(t *testing.T) {
-	if Joinpath("foo", "bar") != "foo/bar" {
+	if joinPath("foo", "bar") != "foo/bar" {
 		t.Errorf("Error builtin joinpath")
 	}
 }

@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "jsondecode",
-		Func: JsonDecode,
+		Func: jsonDecode,
 		Help: `Decode given string in Json format.
 
 Arguments:
@@ -27,7 +27,7 @@ Examples:
 	})
 }
 
-func JsonDecode(encoded string) interface{} {
+func jsonDecode(encoded string) interface{} {
 	var value interface{}
 	err := json.Unmarshal([]byte(encoded), &value)
 	if err != nil {

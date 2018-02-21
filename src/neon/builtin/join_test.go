@@ -5,7 +5,7 @@ import (
 )
 
 func TestJoin(t *testing.T) {
-	if Join([]string{"foo", "bar"}, " ") != "foo bar" {
+	if join([]string{"foo", "bar"}, " ") != "foo bar" {
 		t.Errorf("Error builtin join")
 	}
 }

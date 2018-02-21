@@ -5,7 +5,7 @@ import (
 )
 
 func TestLowercase(t *testing.T) {
-	if Lowercase("FOOBar") != "foobar" {
+	if lowercase("FOOBar") != "foobar" {
 		t.Errorf("Error builtin lowercase")
 	}
 }

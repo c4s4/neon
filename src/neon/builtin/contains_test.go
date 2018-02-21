@@ -5,10 +5,10 @@ import (
 )
 
 func TestContains(t *testing.T) {
-	if !Contains([]string{"foo", "bar"}, "bar") {
+	if !contains([]string{"foo", "bar"}, "bar") {
 		t.Errorf("Error builtin contains")
 	}
-	if Contains([]string{"foo", "bar"}, "spam") {
+	if contains([]string{"foo", "bar"}, "spam") {
 		t.Errorf("Error builtin contains")
 	}
 }

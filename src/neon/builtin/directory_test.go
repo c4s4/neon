@@ -5,5 +5,5 @@ import (
 )
 
 func TestDirectory(t *testing.T) {
-	Assert(Directory("/foo/bar/spam.txt"), "/foo/bar", t)
+	Assert(directory("/foo/bar/spam.txt"), "/foo/bar", t)
 }

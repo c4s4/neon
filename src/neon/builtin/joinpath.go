@@ -9,7 +9,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "joinpath",
-		Func: Joinpath,
+		Func: joinPath,
 		Help: `Join file paths.
 
 Arguments:
@@ -29,7 +29,7 @@ Examples:
 	})
 }
 
-func Joinpath(paths ...interface{}) string {
+func joinPath(paths ...interface{}) string {
 	s := make([]string, len(paths))
 	for i, e := range paths {
 		s[i] = reflect.ValueOf(e).String()

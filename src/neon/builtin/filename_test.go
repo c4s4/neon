@@ -5,7 +5,7 @@ import (
 )
 
 func TestFilename(t *testing.T) {
-	if Filename("/foo/bar/spam.txt") != "spam.txt" {
+	if filename("/foo/bar/spam.txt") != "spam.txt" {
 		t.Errorf("Error builtin filename")
 	}
 }

@@ -9,7 +9,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "join",
-		Func: Join,
+		Func: join,
 		Help: `Join strings.
 
 Arguments:
@@ -29,7 +29,7 @@ Examples:
 	})
 }
 
-func Join(elements interface{}, separator string) string {
+func join(elements interface{}, separator string) string {
 	slice := reflect.ValueOf(elements)
 	if slice.Kind() == reflect.Interface {
 		slice = slice.Elem()

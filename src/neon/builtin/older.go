@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "older",
-		Func: Older,
+		Func: older,
 		Help: `Tells if source is older than result file (if any).
 
 Arguments:
@@ -30,7 +30,7 @@ Examples:
 	})
 }
 
-func Older(source, result string) bool {
+func older(source, result string) bool {
 	info, err := os.Stat(source)
 	if err != nil {
 		panic("could no get info about source file")
