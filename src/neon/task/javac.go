@@ -6,7 +6,7 @@ import (
 	"neon/util"
 	"os"
 	"os/exec"
-	"path"
+	p "path"
 	"reflect"
 )
 
@@ -70,7 +70,7 @@ func javac(context *build.Context, args interface{}) error {
 		opt = append(opt, []string{"-cp", cp}...)
 	}
 	for _, s := range sources {
-		opt = append(opt, path.Join(params.Source, s))
+		opt = append(opt, p.Join(params.Source, s))
 	}
 	command := exec.Command("javac", opt...)
 	dir, err := os.Getwd()

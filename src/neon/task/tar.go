@@ -1,14 +1,14 @@
 package task
 
 import (
-	"archive/tar"
+	t "archive/tar"
 	"compress/gzip"
 	"fmt"
 	"io"
 	"neon/build"
 	"neon/util"
 	"os"
-	"path"
+	p "path"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -17,7 +17,7 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "tar",
-		Func: tar_,
+		Func: tar,
 		Args: reflect.TypeOf(tarArgs{}),
 		Help: `Create a tar archive.
 
@@ -50,7 +50,7 @@ type tarArgs struct {
 	Prefix  string   `optional`
 }
 
-func tar_(context *build.Context, args interface{}) error {
+func tar(context *build.Context, args interface{}) error {
 	params := args.(tarArgs)
 	files, err := util.FindFiles(params.Dir, params.Tar, params.Exclude, false)
 	if err != nil {
@@ -77,7 +77,7 @@ func writeTar(dir string, files []string, prefix, to string) error {
 		fileWriter = gzip.NewWriter(stream)
 		defer fileWriter.Close()
 	}
-	writer := tar.NewWriter(fileWriter)
+	writer := t.NewWriter(fileWriter)
 	defer writer.Close()
 	for _, name := range files {
 		var file string
@@ -94,7 +94,7 @@ func writeTar(dir string, files []string, prefix, to string) error {
 	return nil
 }
 
-func writeFileToTar(writer *tar.Writer, file, name, prefix string) error {
+func writeFileToTar(writer *t.Writer, file, name, prefix string) error {
 	stream, err := os.Open(file)
 	if err != nil {
 		return err
@@ -104,11 +104,11 @@ func writeFileToTar(writer *tar.Writer, file, name, prefix string) error {
 	if err != nil {
 		return err
 	}
-	header, err := tar.FileInfoHeader(info, "")
+	header, err := t.FileInfoHeader(info, "")
 	if err != nil {
 		return err
 	}
-	header.Name = path.Join(prefix, SanitizeName(name))
+	header.Name = p.Join(prefix, SanitizeName(name))
 	if err = writer.WriteHeader(header); err != nil {
 		return err
 	}

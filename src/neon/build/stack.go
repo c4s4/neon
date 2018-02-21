@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// Structure for a stack. A stack lists all targets that run during a build.
+// Stack is structure for a stack. A stack lists all targets that run during a build.
 type Stack struct {
 	Targets []*Target
 }
@@ -50,9 +50,8 @@ func (stack *Stack) Push(target *Target) error {
 func (stack *Stack) Last() *Target {
 	if len(stack.Targets) == 0 {
 		return nil
-	} else {
-		return stack.Targets[len(stack.Targets)-1]
 	}
+	return stack.Targets[len(stack.Targets)-1]
 }
 
 // ToString returns string representation of the stack, such as:

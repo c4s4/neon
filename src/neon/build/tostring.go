@@ -21,9 +21,8 @@ func PropertyToString(object interface{}, quotes bool) (string, error) {
 	case string:
 		if quotes {
 			return "\"" + value + "\"", nil
-		} else {
-			return value, nil
 		}
+		return value, nil
 	case int:
 		return strconv.Itoa(value), nil
 	case int32:
