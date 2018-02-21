@@ -30,9 +30,9 @@ Examples:
 }
 
 type ifArgs struct {
-	If   bool        `expression`
-	Then build.Steps `steps`
-	Else build.Steps `optional steps`
+	If   bool        `neon:"expression"`
+	Then build.Steps `neon:"steps"`
+	Else build.Steps `neon:"optional,steps"`
 }
 
 func ifFunc(context *build.Context, args interface{}) error {

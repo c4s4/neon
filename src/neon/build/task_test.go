@@ -8,11 +8,11 @@ import (
 
 type TestArgs struct {
 	String string
-	Bool   bool              `optional`
-	Int    int               `optional`
-	Float  float64           `optional`
-	Array  []string          `optional`
-	Map    map[string]string `optional`
+	Bool   bool              `neon:"optional"`
+	Int    int               `neon:"optional"`
+	Float  float64           `neon:"optional"`
+	Array  []string          `neon:"optional"`
+	Map    map[string]string `neon:"optional"`
 }
 
 func TestValidateTaskArgsNominal(t *testing.T) {
@@ -86,19 +86,39 @@ func TestEvaluateTaskArgsNominal(t *testing.T) {
 }
 
 func TestFieldIs(t *testing.T) {
-	field := reflect.StructField{Tag: "test"}
+	field := reflect.StructField{Tag: `neon:"test"`}
 	if !FieldIs(field, "test") {
 		t.Errorf("failed FieldIs test")
 	}
 	if FieldIs(field, "foo") {
 		t.Errorf("failed FieldIs test")
 	}
-	field = reflect.StructField{Tag: "foo bar"}
+	field = reflect.StructField{Tag: `neon:"foo,bar"`}
 	if !FieldIs(field, "foo") || !FieldIs(field, "bar") {
 		t.Errorf("failed FieldIs test")
 	}
 	if FieldIs(field, "test") {
 		t.Errorf("failed FieldIs test")
+	}
+}
+
+func TestGetQuality(t *testing.T) {
+	field := reflect.StructField{Tag: `neon:"test"`}
+	if GetQuality(field, "foo") != "" {
+		t.Errorf("failed GetQuality test")
+	}
+	if GetQuality(field, "test") != "" {
+		t.Errorf("failed GetQuality test")
+	}
+	field = reflect.StructField{Tag: `neon:"foo=bar,toto=titi"`}
+	if GetQuality(field, "spam") != "" {
+		t.Errorf("failed GetQuality test")
+	}
+	if GetQuality(field, "foo") != "bar" {
+		t.Errorf("failed GetQuality test")
+	}
+	if GetQuality(field, "toto") != "titi" {
+		t.Errorf("failed GetQuality test")
 	}
 }
 

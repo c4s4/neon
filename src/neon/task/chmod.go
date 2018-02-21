@@ -44,10 +44,10 @@ Notes:
 }
 
 type chmodArgs struct {
-	Chmod   []string `file wrap`
+	Chmod   []string `neon:"file,wrap"`
 	Mode    int
-	Dir     string   `optional file`
-	Exclude []string `optional file wrap`
+	Dir     string   `neon:"optional,file"`
+	Exclude []string `neon:"optional,file,wrap"`
 }
 
 func chmod(context *build.Context, args interface{}) error {

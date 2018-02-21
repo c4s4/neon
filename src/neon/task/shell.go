@@ -43,8 +43,8 @@ Notes:
 }
 
 type shellArgs struct {
-	Shell []string `name:"$" wrap`
-	To    string   `name:"=" optional`
+	Shell []string `neon:"name=$,wrap"`
+	To    string   `neon:"name==,optional"`
 }
 
 func shell(context *build.Context, args interface{}) error {

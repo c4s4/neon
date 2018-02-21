@@ -28,7 +28,7 @@ Examples:
 }
 
 type readArgs struct {
-	Read string `file`
+	Read string `neon:"file"`
 	To   string
 }
 

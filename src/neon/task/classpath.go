@@ -78,12 +78,12 @@ Notes:
 
 type classpathArgs struct {
 	Classpath    string
-	Classes      []string `optional file wrap`
-	Jars         []string `optional file wrap`
-	Dependencies []string `optional file wrap`
-	Scopes       []string `optional wrap`
-	Repositories []string `optional wrap`
-	Todir        string   `optional file`
+	Classes      []string `neon:"optional,file,wrap"`
+	Jars         []string `neon:"optional,file,wrap"`
+	Dependencies []string `neon:"optional,file,wrap"`
+	Scopes       []string `neon:"optional,wrap"`
+	Repositories []string `neon:"optional,wrap"`
+	Todir        string   `neon:"optional,file"`
 }
 
 // Classpath builds a Java classpath.

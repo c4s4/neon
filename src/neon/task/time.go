@@ -30,8 +30,8 @@ Examples:
 }
 
 type timeArgs struct {
-	Time build.Steps `steps`
-	To   string      `optional`
+	Time build.Steps `neon:"steps"`
+	To   string      `neon:"optional"`
 }
 
 func time(context *build.Context, args interface{}) error {

@@ -49,12 +49,12 @@ Notes:
 }
 
 type moveArgs struct {
-	Move    []string `file wrap`
-	Dir     string   `optional file`
-	Exclude []string `optional file wrap`
-	Tofile  string   `optional file`
-	Todir   string   `optional file`
-	Flat    bool     `optional`
+	Move    []string `neon:"file,wrap"`
+	Dir     string   `neon:"optional,file"`
+	Exclude []string `neon:"optional,file,wrap"`
+	Tofile  string   `neon:"optional,file"`
+	Todir   string   `neon:"optional,file"`
+	Flat    bool     `neon:"optional"`
 }
 
 func move(context *build.Context, args interface{}) error {

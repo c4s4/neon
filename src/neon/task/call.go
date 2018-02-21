@@ -24,7 +24,7 @@ Examples:
 }
 
 type callArgs struct {
-	Call []string `wrap`
+	Call []string `neon:"wrap"`
 }
 
 func call(context *build.Context, args interface{}) error {

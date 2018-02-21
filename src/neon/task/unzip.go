@@ -31,8 +31,8 @@ Examples:
 }
 
 type unzipArgs struct {
-	Unzip string `file`
-	Todir string `file`
+	Unzip string `neon:"file"`
+	Todir string `neon:"file"`
 }
 
 func unzip(context *build.Context, args interface{}) error {

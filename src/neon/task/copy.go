@@ -48,12 +48,12 @@ Notes:
 }
 
 type copyArgs struct {
-	Copy    []string `file wrap`
-	Dir     string   `optional file`
-	Exclude []string `optional file wrap`
-	Tofile  string   `optional file`
-	Todir   string   `optional file`
-	Flat    bool     `optional`
+	Copy    []string `neon:"file,wrap"`
+	Dir     string   `neon:"optional,file"`
+	Exclude []string `neon:"optional,file,wrap"`
+	Tofile  string   `neon:"optional,file"`
+	Todir   string   `neon:"optional,file"`
+	Flat    bool     `neon:"optional"`
 }
 
 func copy(context *build.Context, args interface{}) error {

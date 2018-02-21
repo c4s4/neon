@@ -38,8 +38,8 @@ Notes:
 }
 
 type untarArgs struct {
-	Untar string `file`
-	Todir string `file`
+	Untar string `neon:"file"`
+	Todir string `neon:"file"`
 }
 
 func untar(context *build.Context, args interface{}) error {

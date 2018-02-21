@@ -32,10 +32,10 @@ Examples:
 }
 
 type pathArgs struct {
-	Path    []string `file wrap`
+	Path    []string `neon:"file,wrap"`
 	To      string
-	Dir     string   `file optional`
-	Exclude []string `optional file wrap`
+	Dir     string   `neon:"optional,file"`
+	Exclude []string `neon:"optional,file,wrap"`
 }
 
 func path(context *build.Context, args interface{}) error {

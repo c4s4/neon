@@ -28,8 +28,8 @@ Examples:
 }
 
 type linkArgs struct {
-	Link string `file`
-	To   string `file`
+	Link string `neon:"file"`
+	To   string `neon:"file"`
 }
 
 func link(context *build.Context, args interface{}) error {

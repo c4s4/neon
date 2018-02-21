@@ -13,8 +13,10 @@ const (
 	CharExpression = "="
 	// expression curly brace
 	CurlyExpression = "{"
+	// tag name
+	NeonTag = "neon"
 	// tag separator
-	TagSeparator = " "
+	TagSeparator = ","
 	// field might not be provided
 	FieldOptional = "optional"
 	// field is a file name that is expanded for user home
@@ -102,9 +104,9 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 	// iterate on fields of the parameters types and check argument types
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
-		name := strings.ToLower(field.Name)
-		if field.Tag.Get(FieldName) != "" {
-			name = field.Tag.Get(FieldName)
+		name := GetQuality(field, FieldName)
+		if name == "" {
+			name = strings.ToLower(field.Name)
 		}
 		fields = append(fields, name)
 		// check field is not missing
@@ -211,10 +213,10 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 	var err error
 	value := reflect.New(typ).Elem()
 	for i := 0; i < value.NumField(); i++ {
-		name := strings.ToLower(typ.Field(i).Name)
 		field := typ.Field(i)
-		if field.Tag.Get(FieldName) != "" {
-			name = field.Tag.Get(FieldName)
+		name := GetQuality(field, FieldName)
+		if name == "" {
+			name = strings.ToLower(field.Name)
 		}
 		if args[name] != nil {
 			val := args[name]
@@ -315,14 +317,29 @@ func CopyValue(orig, dest reflect.Value) {
 // - field: the struct field
 // - quality: the tested quality (such as "optional")
 func FieldIs(field reflect.StructField, quality string) bool {
-	tag := string(field.Tag)
-	qualities := strings.Split(tag, TagSeparator)
+	tags := field.Tag.Get(NeonTag)
+	qualities := strings.Split(tags, TagSeparator)
 	for _, q := range qualities {
 		if q == quality {
 			return true
 		}
 	}
 	return false
+}
+
+// GetQuality returns value of given quality
+// - field: the field to examine
+// - quality: quality to get
+func GetQuality(field reflect.StructField, quality string) string {
+	tags := field.Tag.Get(NeonTag)
+	qualities := strings.Split(tags, TagSeparator)
+	for _, q := range qualities {
+		prefix := quality + "="
+		if strings.HasPrefix(q, prefix) {
+			return q[len(prefix):]
+		}
+	}
+	return ""
 }
 
 // IsExpression tells if given string is an expression

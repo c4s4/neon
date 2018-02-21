@@ -53,9 +53,9 @@ well.`,
 
 type threadsArgs struct {
 	Threads int
-	Input   []interface{} `optional`
-	Steps   build.Steps   `steps`
-	Verbose bool          `optional`
+	Input   []interface{} `neon:"optional"`
+	Steps   build.Steps   `neon:"steps"`
+	Verbose bool          `neon:"optional"`
 }
 
 func threads(context *build.Context, args interface{}) error {

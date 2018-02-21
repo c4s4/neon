@@ -36,11 +36,11 @@ Examples:
 }
 
 type zipArgs struct {
-	Zip     []string `file wrap`
-	Dir     string   `optional file`
-	Exclude []string `optional file wrap`
-	Tofile  string   `file`
-	Prefix  string   `optional`
+	Zip     []string `neon:"file,wrap"`
+	Dir     string   `neon:"optional,file"`
+	Exclude []string `neon:"optional,file,wrap"`
+	Tofile  string   `neon:"file"`
+	Prefix  string   `neon:"optional"`
 }
 
 func zip(context *build.Context, args interface{}) error {

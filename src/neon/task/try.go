@@ -42,9 +42,9 @@ Notes:
 }
 
 type tryArgs struct {
-	Try     build.Steps `steps`
-	Catch   build.Steps `optional steps`
-	Finally build.Steps `optional steps`
+	Try     build.Steps `neon:"steps"`
+	Catch   build.Steps `neon:"optional,steps"`
+	Finally build.Steps `neon:"optional,steps"`
 }
 
 func try(context *build.Context, args interface{}) error {

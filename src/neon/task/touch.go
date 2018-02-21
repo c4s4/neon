@@ -34,7 +34,7 @@ Notes:
 }
 
 type touchArgs struct {
-	Touch []string `file wrap`
+	Touch []string `neon:"file,wrap"`
 }
 
 func touch(context *build.Context, args interface{}) error {
