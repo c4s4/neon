@@ -228,6 +228,22 @@ func PathToWindows(path string) string {
 // Return the list of files as a slice of strings
 func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, error) {
 	var err error
+	included := selectIncluded(dir, includes)
+	excluded := selectExcluded(dir, excludes)
+	included, err = filterFolders(included, folder)
+	if err != nil {
+		return nil, err
+	}
+	files := filterExcluded(included, excluded)
+	files, err = makeRelative(dir, files)
+	if err != nil {
+		return nil, err
+	}
+	sort.Strings(files)
+	return files, nil
+}
+
+func selectIncluded(dir string, includes []string) []string {
 	var included []string
 	for _, include := range includes {
 		if !filepath.IsAbs(include) {
@@ -235,6 +251,10 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
 		}
 		included = append(included, include)
 	}
+	return included
+}
+
+func selectExcluded(dir string, excludes []string) []string {
 	var excluded []string
 	for _, exclude := range excludes {
 		if !filepath.IsAbs(exclude) {
@@ -242,6 +262,10 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
 		}
 		excluded = append(excluded, exclude)
 	}
+	return excluded
+}
+
+func filterFolders(included []string, folder bool) ([]string, error) {
 	var candidates []string
 	for _, include := range included {
 		list, _ := zglob.Glob(include)
@@ -256,6 +280,10 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
 			}
 		}
 	}
+	return candidates, nil
+}
+
+func filterExcluded(candidates []string, excluded []string) []string {
 	var files []string
 	if excluded != nil {
 		for index, file := range candidates {
@@ -274,7 +302,11 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
 	} else {
 		files = candidates
 	}
-	sort.Strings(files)
+	return files
+}
+
+func makeRelative(dir string, files []string) ([]string, error) {
+	var err error
 	for index, file := range files {
 		if dir != "" {
 			files[index], err = filepath.Rel(dir, file)
