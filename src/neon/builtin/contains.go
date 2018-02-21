@@ -14,7 +14,7 @@ func init() {
 Arguments:
 
 - List of strings to search into.
-- Seached string.
+- Searched string.
 
 Returns:
 
