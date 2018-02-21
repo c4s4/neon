@@ -104,34 +104,49 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 	// iterate on fields of the parameters types and check argument types
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
-		name := GetQuality(field, FieldName)
-		if name == "" {
-			name = strings.ToLower(field.Name)
+		name, err := checkArgumentType(field, args)
+		if err != nil {
+			return err
 		}
 		fields = append(fields, name)
-		// check field is not missing
-		if _, ok := args[name]; !ok {
-			if !FieldIs(field, FieldOptional) {
-				return fmt.Errorf("missing mandatory field '%s'", name)
-			}
-		}
-		value := args[name]
-		// parse steps fields
-		if FieldIs(field, "steps") && value != nil {
-			steps, err := NewSteps(value)
-			if err != nil {
-				return fmt.Errorf("parsing field '%s': %v", name, err)
-			}
-			args[name] = steps
-		}
-		// check field type
-		if !CheckType(field, value) {
-			return fmt.Errorf("field '%s' must be of type '%s' ('%s' provided)",
-				name, field.Type, reflect.TypeOf(value))
-		}
 	}
 	// check that we don't have unknown args
-	if !(typ.NumField() == 0 && len(args) == 1) {
+	if err := checkUnknownArgs(fields, args); err != nil {
+		return err
+	}
+	return nil
+}
+
+func checkArgumentType(field reflect.StructField, args TaskArgs) (string, error) {
+	name := GetQuality(field, FieldName)
+	if name == "" {
+		name = strings.ToLower(field.Name)
+	}
+	// check field is not missing
+	if _, ok := args[name]; !ok {
+		if !FieldIs(field, FieldOptional) {
+			return "", fmt.Errorf("missing mandatory field '%s'", name)
+		}
+	}
+	value := args[name]
+	// parse steps fields
+	if FieldIs(field, "steps") && value != nil {
+		steps, err := NewSteps(value)
+		if err != nil {
+			return "", fmt.Errorf("parsing field '%s': %v", name, err)
+		}
+		args[name] = steps
+	}
+	// check field type
+	if !CheckType(field, value) {
+		return "", fmt.Errorf("field '%s' must be of type '%s' ('%s' provided)",
+			name, field.Type, reflect.TypeOf(value))
+	}
+	return name, nil
+}
+
+func checkUnknownArgs(fields []string, args TaskArgs) error {
+	if !(len(fields) == 0 && len(args) == 1) {
 		for name := range args {
 			found := false
 			for _, n := range fields {
