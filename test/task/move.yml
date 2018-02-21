@@ -21,7 +21,7 @@ targets:
     - |
       files_dst = toString(find(BUILD_DIR, "move/dst/*"))
       files_src = toString(find(BUILD_DIR, "move/src/*"))
-      if files_dst != "[move/dst/foo.txt]" || files_src != "[move/src/bar.txt]" {
+      if unixpath(files_dst) != "[move/dst/foo.txt]" || unixpath(files_src) != "[move/src/bar.txt]" {
         throw("ERROR: " + files_dst + " + " + files_src)
       } else {
         println("Move test success")

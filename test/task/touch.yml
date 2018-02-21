@@ -13,7 +13,7 @@ targets:
     - touch: '={BUILD_DIR}/touch/foo'
     - |
       files = toString(find(BUILD_DIR, "touch/*"))
-      if files != "[touch/foo]" {
+      if unixpath(files) != "[touch/foo]" {
         throw("ERROR: " + files)
       } else {
         println("Touch test success")

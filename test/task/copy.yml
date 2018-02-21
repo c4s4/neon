@@ -20,7 +20,7 @@ targets:
       todir:   "#{BUILD_DIR}/copy/dst"
     - |
       files = toString(find(BUILD_DIR, "copy/dst/*"))
-      if files != "[copy/dst/foo.txt]" {
+      if unixpath(files) != "[copy/dst/foo.txt]" {
         throw("ERROR: " + files)
       } else {
         println("Copy test success")

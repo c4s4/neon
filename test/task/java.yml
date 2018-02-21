@@ -15,12 +15,14 @@ targets:
   task_java:
     doc: Test java task
     steps:
-    - mkdir: '={BUILD_DIR}/java/test'
-    - write: '={BUILD_DIR}/java/test/Main.java'
-      text:  =JAVA_SRC
-    - mkdir: '={BUILD_DIR}/java/classes'
-    - javac:  '**/*.java'
-      source: '={BUILD_DIR}/java'
-      dest:   '={BUILD_DIR}/java/classes'
-    - java: 'test.Main'
-      cp:   '={BUILD_DIR}/java/classes'
+    - if: '_OS != "windows"'
+      then:
+      - mkdir: '={BUILD_DIR}/java/test'
+      - write: '={BUILD_DIR}/java/test/Main.java'
+        text:  =JAVA_SRC
+      - mkdir: '={BUILD_DIR}/java/classes'
+      - javac:  '**/*.java'
+        source: '={BUILD_DIR}/java'
+        dest:   '={BUILD_DIR}/java/classes'
+      - java: 'test.Main'
+        cp:   '={BUILD_DIR}/java/classes'

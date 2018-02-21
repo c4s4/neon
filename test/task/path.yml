@@ -19,7 +19,7 @@ targets:
     - |
       path = "lib/bar.jar:lib/foo.jar"
       if _OS == "windows" {
-        path = "lib/bar.jar;lib/foo.jar"
+        path = `lib\bar.jar;lib\foo.jar`
       }
       if classpath != path {
         throw("Path test failure: "+classpath)
