@@ -111,10 +111,7 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 		fields = append(fields, name)
 	}
 	// check that we don't have unknown args
-	if err := checkUnknownArgs(fields, args); err != nil {
-		return err
-	}
-	return nil
+	return checkUnknownArgs(fields, args)
 }
 
 func checkArgumentType(field reflect.StructField, args TaskArgs) (string, error) {

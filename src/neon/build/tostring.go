@@ -37,41 +37,57 @@ func PropertyToString(object interface{}, quotes bool) (string, error) {
 		}
 		switch reflect.TypeOf(object).Kind() {
 		case reflect.Slice:
-			slice := reflect.ValueOf(object)
-			elements := make([]string, slice.Len())
-			for index := 0; index < slice.Len(); index++ {
-				str, err := PropertyToString(slice.Index(index).Interface(), quotes)
-				if err != nil {
-					return "", err
-				}
-				elements[index] = str
+			str, err := sliceToString(object, quotes)
+			if err != nil {
+				return "", err
 			}
-			return "[" + strings.Join(elements, ", ") + "]", nil
+			return str, nil
 		case reflect.Map:
-			dict := reflect.ValueOf(object)
-			elements := make(map[string]string)
-			var keys []string
-			for _, key := range dict.MapKeys() {
-				value := dict.MapIndex(key)
-				keyStr, err := PropertyToString(key.Interface(), quotes)
-				if err != nil {
-					return "", err
-				}
-				keys = append(keys, keyStr)
-				valueStr, err := PropertyToString(value.Interface(), quotes)
-				if err != nil {
-					return "", err
-				}
-				elements[keyStr] = valueStr
+			str, err := mapToString(object, quotes)
+			if err != nil {
+				return "", err
 			}
-			sort.Strings(keys)
-			pairs := make([]string, len(keys))
-			for index, key := range keys {
-				pairs[index] = key + ": " + elements[key]
-			}
-			return "{" + strings.Join(pairs, ", ") + "}", nil
+			return str, nil
 		default:
 			return "", fmt.Errorf("no serializer for type '%T'", object)
 		}
 	}
+}
+
+func sliceToString(object interface{}, quotes bool) (string, error) {
+	slice := reflect.ValueOf(object)
+	elements := make([]string, slice.Len())
+	for index := 0; index < slice.Len(); index++ {
+		str, err := PropertyToString(slice.Index(index).Interface(), quotes)
+		if err != nil {
+			return "", err
+		}
+		elements[index] = str
+	}
+	return "[" + strings.Join(elements, ", ") + "]", nil
+}
+
+func mapToString(object interface{}, quotes bool) (string, error) {
+	dict := reflect.ValueOf(object)
+	elements := make(map[string]string)
+	var keys []string
+	for _, key := range dict.MapKeys() {
+		value := dict.MapIndex(key)
+		keyStr, err := PropertyToString(key.Interface(), quotes)
+		if err != nil {
+			return "", err
+		}
+		keys = append(keys, keyStr)
+		valueStr, err := PropertyToString(value.Interface(), quotes)
+		if err != nil {
+			return "", err
+		}
+		elements[keyStr] = valueStr
+	}
+	sort.Strings(keys)
+	pairs := make([]string, len(keys))
+	for index, key := range keys {
+		pairs[index] = key + ": " + elements[key]
+	}
+	return "{" + strings.Join(pairs, ", ") + "}", nil
 }

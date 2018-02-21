@@ -48,26 +48,9 @@ type Build struct {
 // - Pointer to the build
 // - error if something went wrong
 func NewBuild(file string) (*Build, error) {
-	build := &Build{}
-	file = util.ExpandUserHome(file)
-	build.File = filepath.Base(file)
-	base, err := filepath.Abs(filepath.Dir(file))
+	object, build, err := parseBuildFile(file)
 	if err != nil {
-		return nil, fmt.Errorf("getting build file directory: %v", err)
-	}
-	build.Dir = base
-	here, err := os.Getwd()
-	if err != nil {
-		return nil, fmt.Errorf("getting current directory: %v", err)
-	}
-	build.Here = here
-	source, err := util.ReadFile(file)
-	if err != nil {
-		return nil, fmt.Errorf("loading build file '%s': %v", file, err)
-	}
-	var object util.Object
-	if err = yaml.Unmarshal(source, &object); err != nil {
-		return nil, fmt.Errorf("build must be a map with string keys: %v", err)
+		return nil, err
 	}
 	if err := object.CheckFields(Fields); err != nil {
 		return nil, fmt.Errorf("parsing build file: %v", err)
@@ -107,8 +90,33 @@ func NewBuild(file string) (*Build, error) {
 	}
 	build.Properties = build.GetProperties()
 	build.Environment = build.GetEnvironment()
-	build.SetDir(base)
+	build.SetDir(build.Dir)
 	return build, nil
+}
+
+func parseBuildFile(file string) (util.Object, *Build, error) {
+	build := &Build{}
+	file = util.ExpandUserHome(file)
+	build.File = filepath.Base(file)
+	base, err := filepath.Abs(filepath.Dir(file))
+	if err != nil {
+		return nil, nil, fmt.Errorf("getting build file directory: %v", err)
+	}
+	build.Dir = base
+	here, err := os.Getwd()
+	if err != nil {
+		return nil, nil, fmt.Errorf("getting current directory: %v", err)
+	}
+	build.Here = here
+	source, err := util.ReadFile(file)
+	if err != nil {
+		return nil, nil, fmt.Errorf("loading build file '%s': %v", file, err)
+	}
+	var object util.Object
+	if err = yaml.Unmarshal(source, &object); err != nil {
+		return nil, nil, fmt.Errorf("build must be a map with string keys: %v", err)
+	}
+	return object, build, nil
 }
 
 // GetProperties returns build properties, including those inherited from
