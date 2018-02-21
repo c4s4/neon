@@ -7,7 +7,7 @@ import (
 	"neon/util"
 	"os"
 	"reflect"
-	"time"
+	t "time"
 )
 
 func init() {
@@ -42,7 +42,7 @@ func touch(context *build.Context, args interface{}) error {
 	context.Message("Touching %d file(s)", len(params.Touch))
 	for _, file := range params.Touch {
 		if util.FileExists(file) {
-			time := time.Now()
+			time := t.Now()
 			err := os.Chtimes(file, time, time)
 			if err != nil {
 				return fmt.Errorf("changing times of file '%s': %v", file, err)

@@ -1,7 +1,7 @@
 package task
 
 import (
-	"archive/zip"
+	z "archive/zip"
 	"compress/flate"
 	"fmt"
 	"io"
@@ -65,8 +65,8 @@ func writeZip(dir string, files []string, prefix, to string) error {
 		return fmt.Errorf("creating zip archive: %v", err)
 	}
 	defer archive.Close()
-	zipper := zip.NewWriter(archive)
-	zipper.RegisterCompressor(zip.Deflate, func(out io.Writer) (io.WriteCloser, error) {
+	zipper := z.NewWriter(archive)
+	zipper.RegisterCompressor(z.Deflate, func(out io.Writer) (io.WriteCloser, error) {
 		return flate.NewWriter(out, flate.BestCompression)
 	})
 	defer zipper.Close()
@@ -85,7 +85,7 @@ func writeZip(dir string, files []string, prefix, to string) error {
 	return nil
 }
 
-func writeFileToZip(zipper *zip.Writer, path, name, prefix string) error {
+func writeFileToZip(zipper *z.Writer, path, name, prefix string) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return err
@@ -95,7 +95,7 @@ func writeFileToZip(zipper *zip.Writer, path, name, prefix string) error {
 	if err != nil {
 		return err
 	}
-	header, err := zip.FileInfoHeader(info)
+	header, err := z.FileInfoHeader(info)
 	if err != nil {
 		return err
 	}

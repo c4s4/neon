@@ -3,7 +3,7 @@ package task
 import (
 	"neon/build"
 	"reflect"
-	"time"
+	t "time"
 )
 
 func init() {
@@ -33,6 +33,6 @@ type sleepArgs struct {
 func sleep(context *build.Context, args interface{}) error {
 	params := args.(sleepArgs)
 	context.Message("Sleeping for %g seconds...", params.Sleep)
-	time.Sleep(time.Duration(params.Sleep) * time.Second)
+	t.Sleep(t.Duration(params.Sleep) * t.Second)
 	return nil
 }

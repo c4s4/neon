@@ -10,8 +10,10 @@ import (
 )
 
 const (
-	DEFAULT_METHOD = "GET"
-	DEFAULT_STATUS = 200
+	// DefaultMethod is the default request method
+	DefaultMethod = "GET"
+	// DefaultStatus is the default expected response status
+	DefaultStatus = 200
 )
 
 func init() {
@@ -63,11 +65,11 @@ func request(context *build.Context, args interface{}) error {
 	var err error
 	method := params.Method
 	if method == "" {
-		method = DEFAULT_METHOD
+		method = DefaultMethod
 	}
 	status := params.Status
 	if status == 0 {
-		status = DEFAULT_STATUS
+		status = DefaultStatus
 	}
 	body := []byte(params.Body)
 	if params.File != "" {
