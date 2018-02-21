@@ -8,8 +8,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "for",
-		Func: For,
-		Args: reflect.TypeOf(ForArgs{}),
+		Func: for_,
+		Args: reflect.TypeOf(forArgs{}),
 		Help: `For loop.
 
 Arguments:
@@ -34,14 +34,14 @@ Examples:
 	})
 }
 
-type ForArgs struct {
+type forArgs struct {
 	For string
 	In  []interface{} `expression`
 	Do  build.Steps   `steps`
 }
 
-func For(context *build.Context, args interface{}) error {
-	params := args.(ForArgs)
+func for_(context *build.Context, args interface{}) error {
+	params := args.(forArgs)
 	for _, value := range params.In {
 		context.SetProperty(params.For, value)
 		err := params.Do.Run(context)

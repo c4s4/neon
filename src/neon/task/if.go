@@ -8,8 +8,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "if",
-		Func: If,
-		Args: reflect.TypeOf(IfArgs{}),
+		Func: if_,
+		Args: reflect.TypeOf(ifArgs{}),
 		Help: `If condition.
 
 Arguments:
@@ -29,14 +29,14 @@ Examples:
 	})
 }
 
-type IfArgs struct {
+type ifArgs struct {
 	If   bool        `expression`
 	Then build.Steps `steps`
 	Else build.Steps `optional steps`
 }
 
-func If(context *build.Context, args interface{}) error {
-	params := args.(IfArgs)
+func if_(context *build.Context, args interface{}) error {
+	params := args.(ifArgs)
 	if params.If {
 		err := params.Then.Run(context)
 		if err != nil {

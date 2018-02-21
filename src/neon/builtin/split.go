@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "split",
-		Func: Split,
+		Func: split,
 		Help: `Split strings.
 
 Arguments:
@@ -28,6 +28,6 @@ Examples:
 	})
 }
 
-func Split(str, sep string) []string {
+func split(str, sep string) []string {
 	return strings.Split(str, sep)
 }

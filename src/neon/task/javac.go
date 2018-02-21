@@ -13,8 +13,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "javac",
-		Func: Javac,
-		Args: reflect.TypeOf(JavacArgs{}),
+		Func: javac,
+		Args: reflect.TypeOf(javacArgs{}),
 		Help: `Compile Java source files.
 
 Arguments:
@@ -39,7 +39,7 @@ Examples:
 	})
 }
 
-type JavacArgs struct {
+type javacArgs struct {
 	Javac   []string `file wrap`
 	Source  string   `file`
 	Exclude []string `optional file wrap`
@@ -47,8 +47,8 @@ type JavacArgs struct {
 	Cp      string   `optional`
 }
 
-func Javac(context *build.Context, args interface{}) error {
-	params := args.(JavacArgs)
+func javac(context *build.Context, args interface{}) error {
+	params := args.(javacArgs)
 	if !util.DirExists(params.Dest) {
 		err := os.MkdirAll(params.Dest, util.DIR_FILE_MODE)
 		if err != nil {

@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "absolute",
-		Func: Absolute,
+		Func: absolute,
 		Help: `Return absolute value of a given path.
 
 Arguments:
@@ -27,7 +27,7 @@ Examples:
 	})
 }
 
-func Absolute(path string) string {
+func absolute(path string) string {
 	abs, err := filepath.Abs(path)
 	if err != nil {
 		panic(err)

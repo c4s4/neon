@@ -5,7 +5,7 @@ import (
 )
 
 func TestJsonDecode(t *testing.T) {
-	if JsonEncode(JsonDecode(`["foo", "bar"]`)) != `["foo", "bar"]` {
+	if jsonEncode(jsonDecode(`["foo", "bar"]`)) != `["foo", "bar"]` {
 		t.Errorf("Error decoding json")
 	}
 }

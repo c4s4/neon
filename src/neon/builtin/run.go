@@ -9,7 +9,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "run",
-		Func: Run,
+		Func: run,
 		Help: `Run given command and return output.
 
 Arguments:
@@ -30,7 +30,7 @@ Examples:
 	})
 }
 
-func Run(command string, params ...string) string {
+func run(command string, params ...string) string {
 	cmd := exec.Command(command, params...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {

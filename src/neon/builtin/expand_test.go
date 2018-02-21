@@ -9,5 +9,5 @@ import (
 func TestExpand(t *testing.T) {
 	user, _ := user.Current()
 	home := user.HomeDir
-	Assert(util.PathToUnix(Expand("~/foo")), util.PathToUnix(home+"/foo"), t)
+	Assert(util.PathToUnix(expand("~/foo")), util.PathToUnix(home+"/foo"), t)
 }

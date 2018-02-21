@@ -6,7 +6,7 @@ import (
 )
 
 func TestNow(t *testing.T) {
-	if !regexp.MustCompile(`\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d`).MatchString(Now()) {
+	if !regexp.MustCompile(`\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d`).MatchString(now()) {
 		t.Errorf("Error builtin now")
 	}
 }

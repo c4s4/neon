@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "filename",
-		Func: Filename,
+		Func: filename,
 		Help: `Return filename of a given path.
 
 Arguments:
@@ -27,6 +27,6 @@ Examples:
 	})
 }
 
-func Filename(path string) string {
+func filename(path string) string {
 	return filepath.Base(path)
 }

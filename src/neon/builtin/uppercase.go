@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "uppercase",
-		Func: Uppercase,
+		Func: uppercase,
 		Help: `Put a string in upper case.
 
 Arguments:
@@ -27,6 +27,6 @@ Examples:
 	})
 }
 
-func Uppercase(message string) string {
+func uppercase(message string) string {
 	return strings.ToUpper(message)
 }

@@ -9,7 +9,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "read",
-		Func: Read,
+		Func: read,
 		Help: `Read given file and return its content as a string.
 
 Arguments:
@@ -28,7 +28,7 @@ Examples:
 	})
 }
 
-func Read(file string) string {
+func read(file string) string {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
 		panic(err.Error())

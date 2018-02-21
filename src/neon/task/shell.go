@@ -12,8 +12,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "$",
-		Func: Shell,
-		Args: reflect.TypeOf(ShellArgs{}),
+		Func: shell,
+		Args: reflect.TypeOf(shellArgs{}),
 		Help: `Execute a command and return output and value.
 
 Arguments:
@@ -42,14 +42,14 @@ Notes:
 	})
 }
 
-type ShellArgs struct {
+type shellArgs struct {
 	Shell []string `name:"$" wrap`
 	To    string   `name:"=" optional`
 }
 
-func Shell(context *build.Context, args interface{}) error {
-	params := args.(ShellArgs)
-	output, err := Run(params.Shell, params.To == "", context)
+func shell(context *build.Context, args interface{}) error {
+	params := args.(shellArgs)
+	output, err := run(params.Shell, params.To == "", context)
 	if err != nil {
 		if output != "" {
 			context.Message(output)
@@ -62,17 +62,17 @@ func Shell(context *build.Context, args interface{}) error {
 	return nil
 }
 
-func Run(command []string, pipe bool, context *build.Context) (string, error) {
+func run(command []string, pipe bool, context *build.Context) (string, error) {
 	if len(command) == 0 {
 		return "", fmt.Errorf("empty command")
 	} else if len(command) < 2 {
-		return RunString(command[0], pipe, context)
+		return runString(command[0], pipe, context)
 	} else {
-		return RunList(command, pipe, context)
+		return runList(command, pipe, context)
 	}
 }
 
-func RunList(cmd []string, pipe bool, context *build.Context) (string, error) {
+func runList(cmd []string, pipe bool, context *build.Context) (string, error) {
 	command := exec.Command(cmd[0], cmd[1:]...)
 	dir, err := os.Getwd()
 	if err != nil {
@@ -101,7 +101,7 @@ func RunList(cmd []string, pipe bool, context *build.Context) (string, error) {
 	}
 }
 
-func RunString(cmd string, pipe bool, context *build.Context) (string, error) {
+func runString(cmd string, pipe bool, context *build.Context) (string, error) {
 	shell, err := context.Build.GetShell()
 	if err != nil {
 		return "", err

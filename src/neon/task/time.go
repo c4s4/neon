@@ -9,8 +9,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "time",
-		Func: Time,
-		Args: reflect.TypeOf(TimeArgs{}),
+		Func: time_,
+		Args: reflect.TypeOf(timeArgs{}),
 		Help: `Record duration to run a block of steps.
 
 Arguments:
@@ -29,13 +29,13 @@ Examples:
 	})
 }
 
-type TimeArgs struct {
+type timeArgs struct {
 	Time build.Steps `steps`
 	To   string      `optional`
 }
 
-func Time(context *build.Context, args interface{}) error {
-	params := args.(TimeArgs)
+func time_(context *build.Context, args interface{}) error {
+	params := args.(timeArgs)
 	start := time.Now()
 	err := params.Time.Run(context)
 	if err != nil {

@@ -7,7 +7,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "keys",
-		Func: Keys,
+		Func: keys,
 		Help: `Return keys of gien map.
 
 Arguments:
@@ -26,7 +26,7 @@ Examples:
 	})
 }
 
-func Keys(themap map[interface{}]interface{}) []interface{} {
+func keys(themap map[interface{}]interface{}) []interface{} {
 	keys := make([]interface{}, 0, len(themap))
 	for key := range themap {
 		keys = append(keys, key)

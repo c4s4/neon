@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "list",
-		Func: List,
+		Func: list,
 		Help: `Return a list:
 - If the object is already a list, return the object.
 - If the object is not a list, wrap it into a list.
@@ -29,7 +29,7 @@ Examples:
 	})
 }
 
-func List(object interface{}) []interface{} {
+func list(object interface{}) []interface{} {
 	value := reflect.ValueOf(object)
 	if value.Kind() == reflect.Slice {
 		return value.Interface().([]interface{})

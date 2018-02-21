@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "ospath",
-		Func: OsPath,
+		Func: osPath,
 		Help: `Convert path to running OS.
 
 Arguments:
@@ -27,7 +27,7 @@ Examples:
 	})
 }
 
-func OsPath(path string) string {
+func osPath(path string) string {
 	if util.Windows() {
 		return util.PathToWindows(path)
 	} else {

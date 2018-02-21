@@ -5,7 +5,7 @@ import (
 )
 
 func TestSplit(t *testing.T) {
-	splitted := Split("foo bar", " ")
+	splitted := split("foo bar", " ")
 	if len(splitted) != 2 {
 		t.Errorf("Error builtin split")
 	}

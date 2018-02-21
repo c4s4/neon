@@ -9,8 +9,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "assert",
-		Func: Assert,
-		Args: reflect.TypeOf(AssertArgs{}),
+		Func: assert,
+		Args: reflect.TypeOf(assertArgs{}),
 		Help: `Make an assertion and fail if assertion is false.
 
 Arguments:
@@ -24,12 +24,12 @@ Examples:
 	})
 }
 
-type AssertArgs struct {
+type assertArgs struct {
 	Assert bool `expression`
 }
 
-func Assert(context *build.Context, args interface{}) error {
-	params := args.(AssertArgs)
+func assert(context *build.Context, args interface{}) error {
+	params := args.(assertArgs)
 	if !params.Assert {
 		return fmt.Errorf("assertion failed")
 	}

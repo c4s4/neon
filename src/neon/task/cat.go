@@ -10,8 +10,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "cat",
-		Func: Cat,
-		Args: reflect.TypeOf(CatArgs{}),
+		Func: cat,
+		Args: reflect.TypeOf(catArgs{}),
 		Help: `Print the content of a given file on the console.
 
 Arguments:
@@ -25,12 +25,12 @@ Examples:
 	})
 }
 
-type CatArgs struct {
+type catArgs struct {
 	Cat string `file`
 }
 
-func Cat(context *build.Context, args interface{}) error {
-	params := args.(CatArgs)
+func cat(context *build.Context, args interface{}) error {
+	params := args.(catArgs)
 	content, err := ioutil.ReadFile(params.Cat)
 	if err != nil {
 		return fmt.Errorf("printing content of file '%s': %v", params.Cat, err)

@@ -10,7 +10,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "expand",
-		Func: Expand,
+		Func: expand,
 		Help: `Expand file name replacing ~/ with home directory.
 
 Arguments:
@@ -29,7 +29,7 @@ Examples:
 	})
 }
 
-func Expand(path string) string {
+func expand(path string) string {
 	if strings.HasPrefix(path, "~/") {
 		user, _ := user.Current()
 		home := user.HomeDir

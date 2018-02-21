@@ -11,8 +11,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "copy",
-		Func: Copy,
-		Args: reflect.TypeOf(CopyArgs{}),
+		Func: copy,
+		Args: reflect.TypeOf(copyArgs{}),
 		Help: `Copy file(s).
 
 Arguments:
@@ -47,7 +47,7 @@ Notes:
 	})
 }
 
-type CopyArgs struct {
+type copyArgs struct {
 	Copy    []string `file wrap`
 	Dir     string   `optional file`
 	Exclude []string `optional file wrap`
@@ -56,8 +56,8 @@ type CopyArgs struct {
 	Flat    bool     `optional`
 }
 
-func Copy(context *build.Context, args interface{}) error {
-	params := args.(CopyArgs)
+func copy(context *build.Context, args interface{}) error {
+	params := args.(copyArgs)
 	if (params.Tofile != "" && params.Todir != "") ||
 		(params.Tofile == "" && params.Todir == "") {
 		return fmt.Errorf("one and only one of parameters 'tofile' an 'todir' may be set")

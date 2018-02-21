@@ -9,7 +9,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "filter",
-		Func: Filter,
+		Func: filter,
 		Help: `Filter a list of files with excludes.
 
 Arguments:
@@ -34,7 +34,7 @@ Notes:
 	})
 }
 
-func Filter(includes []string, excludes ...string) []string {
+func filter(includes []string, excludes ...string) []string {
 	var filtered []string
 	for _, include := range includes {
 		excluded := false

@@ -13,8 +13,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "unzip",
-		Func: Unzip,
-		Args: reflect.TypeOf(UnzipArgs{}),
+		Func: unzip,
+		Args: reflect.TypeOf(unzipArgs{}),
 		Help: `Expand a zip file in a directory.
 
 Arguments:
@@ -30,22 +30,22 @@ Examples:
 	})
 }
 
-type UnzipArgs struct {
+type unzipArgs struct {
 	Unzip string `file`
 	Todir string `file`
 }
 
-func Unzip(context *build.Context, args interface{}) error {
-	params := args.(UnzipArgs)
+func unzip(context *build.Context, args interface{}) error {
+	params := args.(unzipArgs)
 	context.Message("Unzipping archive '%s' to directory '%s'...", params.Unzip, params.Todir)
-	err := UnzipFile(params.Unzip, params.Todir)
+	err := unzipFile(params.Unzip, params.Todir)
 	if err != nil {
 		return fmt.Errorf("expanding archive: %v", err)
 	}
 	return nil
 }
 
-func UnzipFile(file, dir string) error {
+func unzipFile(file, dir string) error {
 	reader, err := zip.OpenReader(file)
 	if err != nil {
 		return fmt.Errorf("opening source zip file %s: %v", file, err)

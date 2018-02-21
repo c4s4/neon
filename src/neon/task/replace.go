@@ -13,8 +13,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "replace",
-		Func: Replace,
-		Args: reflect.TypeOf(ReplaceArgs{}),
+		Func: replace,
+		Args: reflect.TypeOf(replaceArgs{}),
 		Help: `Replace text matching patterns in files.
 
 Arguments:
@@ -32,15 +32,15 @@ Examples:
 	})
 }
 
-type ReplaceArgs struct {
+type replaceArgs struct {
 	Replace []string `file wrap`
 	With    map[string]string
 	Dir     string   `optional file`
 	Exclude []string `optional file`
 }
 
-func Replace(context *build.Context, args interface{}) error {
-	params := args.(ReplaceArgs)
+func replace(context *build.Context, args interface{}) error {
+	params := args.(replaceArgs)
 	files, err := util.FindFiles(params.Dir, params.Replace, params.Exclude, false)
 	if err != nil {
 		return fmt.Errorf("getting source files for copy task: %v", err)
@@ -61,7 +61,7 @@ func Replace(context *build.Context, args interface{}) error {
 		for old, new := range params.With {
 			text = strings.Replace(text, old, new, -1)
 		}
-		err = ioutil.WriteFile(file, []byte(text), FILE_MODE)
+		err = ioutil.WriteFile(file, []byte(text), FileMode)
 		if err != nil {
 			return fmt.Errorf("writing file '%s': %v", file, err)
 		}

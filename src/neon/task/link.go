@@ -10,8 +10,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "link",
-		Func: Link,
-		Args: reflect.TypeOf(LinkArgs{}),
+		Func: link,
+		Args: reflect.TypeOf(linkArgs{}),
 		Help: `Create a symbolic link.
 
 Arguments:
@@ -27,13 +27,13 @@ Examples:
 	})
 }
 
-type LinkArgs struct {
+type linkArgs struct {
 	Link string `file`
 	To   string `file`
 }
 
-func Link(context *build.Context, args interface{}) error {
-	params := args.(LinkArgs)
+func link(context *build.Context, args interface{}) error {
+	params := args.(linkArgs)
 	context.Message("Linking file '%s' to '%s'", params.Link, params.To)
 	err := os.Symlink(params.Link, params.To)
 	if err != nil {

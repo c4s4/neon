@@ -9,8 +9,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "while",
-		Func: While,
-		Args: reflect.TypeOf(WhileArgs{}),
+		Func: while,
+		Args: reflect.TypeOf(whileArgs{}),
 		Help: `While loop.
 
 Arguments:
@@ -27,13 +27,13 @@ Examples:
 	})
 }
 
-type WhileArgs struct {
+type whileArgs struct {
 	While string
 	Do    build.Steps `steps`
 }
 
-func While(context *build.Context, args interface{}) error {
-	params := args.(WhileArgs)
+func while(context *build.Context, args interface{}) error {
+	params := args.(whileArgs)
 	for {
 		result, err := context.EvaluateExpression(params.While)
 		if err != nil {

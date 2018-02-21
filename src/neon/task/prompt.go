@@ -13,8 +13,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "prompt",
-		Func: Prompt,
-		Args: reflect.TypeOf(PromptArgs{}),
+		Func: prompt,
+		Args: reflect.TypeOf(promptArgs{}),
 		Help: `Prompt the user for the value of a given property matching a pattern.
 
 Arguments:
@@ -40,7 +40,7 @@ Examples:
 	})
 }
 
-type PromptArgs struct {
+type promptArgs struct {
 	Prompt  string
 	To      string
 	Default string `optional`
@@ -48,8 +48,8 @@ type PromptArgs struct {
 	Error   string `optional`
 }
 
-func Prompt(context *build.Context, args interface{}) error {
-	params := args.(PromptArgs)
+func prompt(context *build.Context, args interface{}) error {
+	params := args.(promptArgs)
 	message := params.Prompt
 	if params.Default != "" {
 		message += " [" + params.Default + "]"

@@ -7,7 +7,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "jsonencode",
-		Func: JsonEncode,
+		Func: jsonEncode,
 		Help: `Encode given variable in Json format.
 
 Arguments:
@@ -26,7 +26,7 @@ Examples:
 	})
 }
 
-func JsonEncode(object interface{}) string {
+func jsonEncode(object interface{}) string {
 	bytes, err := build.PropertyToString(object, true)
 	if err != nil {
 		panic(err)

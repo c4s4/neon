@@ -10,8 +10,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "read",
-		Func: Read,
-		Args: reflect.TypeOf(ReadArgs{}),
+		Func: read,
+		Args: reflect.TypeOf(readArgs{}),
 		Help: `Read given file as text and put its content in a variable.
 
 Arguments:
@@ -27,13 +27,13 @@ Examples:
 	})
 }
 
-type ReadArgs struct {
+type readArgs struct {
 	Read string `file`
 	To   string
 }
 
-func Read(context *build.Context, args interface{}) error {
-	params := args.(ReadArgs)
+func read(context *build.Context, args interface{}) error {
+	params := args.(readArgs)
 	content, err := ioutil.ReadFile(params.Read)
 	if err != nil {
 		return fmt.Errorf("reading content of file '%s': %v", params.Read, err)

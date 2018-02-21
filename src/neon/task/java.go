@@ -11,8 +11,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "java",
-		Func: Java,
-		Args: reflect.TypeOf(JavaArgs{}),
+		Func: java,
+		Args: reflect.TypeOf(javaArgs{}),
 		Help: `Run Java virtual machine.
 
 Arguments:
@@ -30,14 +30,14 @@ Examples:
 	})
 }
 
-type JavaArgs struct {
+type javaArgs struct {
 	Java string
 	Cp   string
 	Args []string `optional wrap`
 }
 
-func Java(context *build.Context, args interface{}) error {
-	params := args.(JavaArgs)
+func java(context *build.Context, args interface{}) error {
+	params := args.(javaArgs)
 	opt := []string{"-cp", params.Cp, params.Java}
 	opt = append(opt, params.Args...)
 	command := exec.Command("java", opt...)

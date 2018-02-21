@@ -9,7 +9,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "directory",
-		Func: Directory,
+		Func: directory,
 		Help: `Return directory of a given path.
 
 Arguments:
@@ -28,6 +28,6 @@ Examples:
 	})
 }
 
-func Directory(path string) string {
+func directory(path string) string {
 	return util.PathToUnix(filepath.Dir(path))
 }

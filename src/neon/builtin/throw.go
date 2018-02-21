@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "throw",
-		Func: Throw,
+		Func: throw,
 		Help: `Throw an error that will cause script failure.
 
 Arguments:
@@ -27,6 +27,6 @@ Examples:
 	})
 }
 
-func Throw(message string) error {
+func throw(message string) error {
 	return fmt.Errorf(message)
 }

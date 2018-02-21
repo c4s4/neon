@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "contains",
-		Func: Contains,
+		Func: contains,
 		Help: `Contains strings.
 
 Arguments:
@@ -28,7 +28,7 @@ Examples:
 	})
 }
 
-func Contains(elements interface{}, s string) bool {
+func contains(elements interface{}, s string) bool {
 	slice := reflect.ValueOf(elements)
 	if slice.Kind() == reflect.Interface {
 		slice = slice.Elem()

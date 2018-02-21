@@ -11,6 +11,7 @@
   fixed:
   - "Fixed integration tests on Windows."
   - "Error is propagated while occurring in call task, stopping the build."
+  - "Removed warnings from code."
 
 - version: 0.11.0
   date:    2018-01-20

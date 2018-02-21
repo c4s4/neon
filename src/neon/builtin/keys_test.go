@@ -5,7 +5,7 @@ import (
 )
 
 func TestKeys(t *testing.T) {
-	keys := Keys(map[interface{}]interface{}{"foo": 1, "bar": 2})
+	keys := keys(map[interface{}]interface{}{"foo": 1, "bar": 2})
 	if len(keys) != 2 {
 		t.Errorf("Error builtin keys")
 	}

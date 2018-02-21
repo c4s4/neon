@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "lowercase",
-		Func: Lowercase,
+		Func: lowercase,
 		Help: `Put a string in lower case.
 
 Arguments:
@@ -27,6 +27,6 @@ Examples:
 	})
 }
 
-func Lowercase(message string) string {
+func lowercase(message string) string {
 	return strings.ToLower(message)
 }

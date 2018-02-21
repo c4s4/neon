@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "unescapeurl",
-		Func: UnescapeUrl,
+		Func: unescapeUrl,
 		Help: `Unescape given URL.
 
 Arguments:
@@ -27,7 +27,7 @@ Examples:
 	})
 }
 
-func UnescapeUrl(path string) string {
+func unescapeUrl(path string) string {
 	unescaped, err := url.PathUnescape(path)
 	if err != nil {
 		panic(err)

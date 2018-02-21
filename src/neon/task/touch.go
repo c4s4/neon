@@ -13,8 +13,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "touch",
-		Func: Touch,
-		Args: reflect.TypeOf(TouchArgs{}),
+		Func: touch,
+		Args: reflect.TypeOf(touchArgs{}),
 		Help: `Touch a file (create it or change its time).
 
 Arguments:
@@ -33,12 +33,12 @@ Notes:
 	})
 }
 
-type TouchArgs struct {
+type touchArgs struct {
 	Touch []string `file wrap`
 }
 
-func Touch(context *build.Context, args interface{}) error {
-	params := args.(TouchArgs)
+func touch(context *build.Context, args interface{}) error {
+	params := args.(touchArgs)
 	context.Message("Touching %d file(s)", len(params.Touch))
 	for _, file := range params.Touch {
 		if util.FileExists(file) {
@@ -48,7 +48,7 @@ func Touch(context *build.Context, args interface{}) error {
 				return fmt.Errorf("changing times of file '%s': %v", file, err)
 			}
 		} else {
-			err := ioutil.WriteFile(file, []byte{}, FILE_MODE)
+			err := ioutil.WriteFile(file, []byte{}, FileMode)
 			if err != nil {
 				return fmt.Errorf("creating file '%s': %v", file, err)
 			}

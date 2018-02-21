@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "unixpath",
-		Func: UnixPath,
+		Func: unixPath,
 		Help: `Convert a path to Unix format.
 
 Arguments:
@@ -27,6 +27,6 @@ Examples:
 	})
 }
 
-func UnixPath(path string) string {
+func unixPath(path string) string {
 	return util.PathToUnix(path)
 }
