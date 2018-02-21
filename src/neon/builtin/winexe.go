@@ -42,7 +42,6 @@ func winExe(command string) string {
 			command = command + ".exe"
 		}
 		return strings.Replace(command, "/", "\\", -1)
-	} else {
-		return command
 	}
+	return command
 }

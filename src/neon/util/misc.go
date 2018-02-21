@@ -20,9 +20,8 @@ func ToString(object interface{}) (string, error) {
 	}
 	if str.Kind() == reflect.String {
 		return str.Interface().(string), nil
-	} else {
-		return "", fmt.Errorf("%#v is not a string", str)
 	}
+	return "", fmt.Errorf("%#v is not a string", str)
 }
 
 // ToSliceString return interface as a slice of strings:
@@ -42,9 +41,8 @@ func ToSliceString(object interface{}) ([]string, error) {
 			}
 		}
 		return result, nil
-	} else {
-		return nil, fmt.Errorf("must be a slice of strings")
 	}
+	return nil, fmt.Errorf("must be a slice of strings")
 }
 
 // ToMapStringString return interface as a map with string keys and values:
@@ -109,7 +107,7 @@ func IsSlice(object interface{}) bool {
 	return reflect.ValueOf(object).Kind() == reflect.Slice
 }
 
-// Return the maximum length of given lines:
+// MaxLineLength returns the maximum length of given lines:
 // - lines: lines to examine
 // Return: maximum length of lines as an integer
 func MaxLineLength(lines []string) int {
@@ -122,7 +120,7 @@ func MaxLineLength(lines []string) int {
 	return length
 }
 
-// Tells if we are running on windows
+// Windows tells if we are running on windows
 // Return: a boolean that tells if we are running on windows
 func Windows() bool {
 	return runtime.GOOS == "windows"

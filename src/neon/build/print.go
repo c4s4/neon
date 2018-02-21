@@ -8,11 +8,7 @@ import (
 	"unicode/utf8"
 )
 
-const (
-	DEFAULT_WIDTH = 80
-)
-
-// Flag that tells if we print on console without color
+// Grey is a flag that tells if we print on console without color
 var Grey = false
 
 // Color definitions
@@ -42,7 +38,7 @@ func Title(text string) {
 	}
 }
 
-// PrintOK prints a green OK on the console
+// PrintOk prints a green OK on the console
 func PrintOk() {
 	if Grey {
 		printGrey("OK")

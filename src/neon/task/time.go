@@ -3,13 +3,13 @@ package task
 import (
 	"neon/build"
 	"reflect"
-	"time"
+	t "time"
 )
 
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "time",
-		Func: time_,
+		Func: time,
 		Args: reflect.TypeOf(timeArgs{}),
 		Help: `Record duration to run a block of steps.
 
@@ -34,14 +34,14 @@ type timeArgs struct {
 	To   string      `optional`
 }
 
-func time_(context *build.Context, args interface{}) error {
+func time(context *build.Context, args interface{}) error {
 	params := args.(timeArgs)
-	start := time.Now()
+	start := t.Now()
 	err := params.Time.Run(context)
 	if err != nil {
 		return err
 	}
-	duration := time.Now().Sub(start).Seconds()
+	duration := t.Now().Sub(start).Seconds()
 	if params.To != "" {
 		context.SetProperty(params.To, duration)
 	} else {

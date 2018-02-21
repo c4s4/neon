@@ -6,7 +6,9 @@ import (
 )
 
 const (
+	// FileMode is default file mode
 	FileMode    = 0644
+	// DirFileMode is default file mode for directories
 	DirFileMode = 0755
 )
 
@@ -30,7 +32,6 @@ func RemoveStep(message string) string {
 	position := strings.Index(message, ":")
 	if position > -1 {
 		return message[position+2:]
-	} else {
-		return message
 	}
+	return message
 }

@@ -92,13 +92,12 @@ func runList(cmd []string, pipe bool, context *build.Context) (string, error) {
 			return "", fmt.Errorf("executing command: %v", err)
 		}
 		return "", nil
-	} else {
-		bytes, err := command.CombinedOutput()
-		if err != nil {
-			return string(bytes), fmt.Errorf("executing command: %v", err)
-		}
-		return string(bytes), nil
 	}
+	bytes, err := command.CombinedOutput()
+	if err != nil {
+		return string(bytes), fmt.Errorf("executing command: %v", err)
+	}
+	return string(bytes), nil
 }
 
 func runString(cmd string, pipe bool, context *build.Context) (string, error) {
@@ -128,11 +127,10 @@ func runString(cmd string, pipe bool, context *build.Context) (string, error) {
 			return "", fmt.Errorf("executing command: %v", err)
 		}
 		return "", nil
-	} else {
-		bytes, err := command.CombinedOutput()
-		if err != nil {
-			return string(bytes), fmt.Errorf("executing command: %v", err)
-		}
-		return string(bytes), nil
 	}
+	bytes, err := command.CombinedOutput()
+	if err != nil {
+		return string(bytes), fmt.Errorf("executing command: %v", err)
+	}
+	return string(bytes), nil
 }

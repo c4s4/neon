@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// A step has a Run() method
+// Step has a Run() method
 type Step interface {
 	Run(context *Context) error
 }
@@ -28,7 +28,7 @@ func NewStep(step interface{}) (Step, error) {
 	}
 }
 
-// A script step is made of a string
+// ScriptTest is made of a string
 type ScriptStep struct {
 	Script string
 }
@@ -55,13 +55,13 @@ func (step ScriptStep) Run(context *Context) error {
 	return nil
 }
 
-// Structure for a task step
+// TaskStep for a task step
 type TaskStep struct {
 	Desc TaskDesc
 	Args TaskArgs
 }
 
-// Make a task step
+// NewTaskStep makes a task step
 // - args: task args
 // Return:
 // - built step

@@ -30,7 +30,6 @@ Examples:
 func osPath(path string) string {
 	if util.Windows() {
 		return util.PathToWindows(path)
-	} else {
-		return util.PathToUnix(path)
 	}
+	return util.PathToUnix(path)
 }
