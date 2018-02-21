@@ -17,6 +17,7 @@ const (
 	DefaultBuildFile = "build.yml"
 )
 
+// Version is passed while compiling
 var Version string
 
 // ParseCommandLine parses command line and returns parsed options
