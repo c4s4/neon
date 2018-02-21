@@ -15,8 +15,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "untar",
-		Func: Untar,
-		Args: reflect.TypeOf(UntarArgs{}),
+		Func: untar,
+		Args: reflect.TypeOf(untarArgs{}),
 		Help: `Expand a tar file in a directory.
 
 Arguments:
@@ -37,22 +37,22 @@ Notes:
 	})
 }
 
-type UntarArgs struct {
+type untarArgs struct {
 	Untar string `file`
 	Todir string `file`
 }
 
-func Untar(context *build.Context, args interface{}) error {
-	params := args.(UntarArgs)
+func untar(context *build.Context, args interface{}) error {
+	params := args.(untarArgs)
 	context.Message("Untarring archive '%s' to directory '%s'...", params.Untar, params.Todir)
-	err := UntarFile(params.Untar, params.Todir)
+	err := untarFile(params.Untar, params.Todir)
 	if err != nil {
 		return fmt.Errorf("expanding archive: %v", err)
 	}
 	return nil
 }
 
-func UntarFile(file, dir string) error {
+func untarFile(file, dir string) error {
 	reader, err := os.Open(file)
 	if err != nil {
 		return fmt.Errorf("opening source tar file %s: %v", file, err)

@@ -17,16 +17,16 @@ import (
 )
 
 const (
-	DEFAULT_REPOSITORY = "http://central.maven.org/maven2"
+	DefaultRepository = "http://central.maven.org/maven2"
 )
 
-var LOCAL_REPOSITORY = util.ExpandUserHome("~/.java/repository")
+var LocalRepository = util.ExpandUserHome("~/.java/repository")
 
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "classpath",
-		Func: Classpath,
-		Args: reflect.TypeOf(ClasspathArgs{}),
+		Func: classpath,
+		Args: reflect.TypeOf(classpathArgs{}),
 		Help: `Build a Java classpath.
 
 Arguments:
@@ -74,7 +74,7 @@ Notes:
 	})
 }
 
-type ClasspathArgs struct {
+type classpathArgs struct {
 	Classpath    string
 	Classes      []string `optional file wrap`
 	Jars         []string `optional file wrap`
@@ -84,8 +84,9 @@ type ClasspathArgs struct {
 	Todir        string   `optional file`
 }
 
-func Classpath(context *build.Context, args interface{}) error {
-	params := args.(ClasspathArgs)
+// Classpath builds a Java classpath.
+func classpath(context *build.Context, args interface{}) error {
+	params := args.(classpathArgs)
 	// get dependencies
 	var err error
 	var jars []string
@@ -123,8 +124,8 @@ func Classpath(context *build.Context, args interface{}) error {
 }
 
 func getDependencies(dependencies, scopes, repositories []string, context *build.Context) ([]string, error) {
-	if !util.DirExists(LOCAL_REPOSITORY) {
-		os.MkdirAll(LOCAL_REPOSITORY, util.DIR_FILE_MODE)
+	if !util.DirExists(LocalRepository) {
+		os.MkdirAll(LocalRepository, util.DIR_FILE_MODE)
 	}
 	var deps []string
 	for _, dependency := range dependencies {
@@ -138,7 +139,7 @@ func getDependencies(dependencies, scopes, repositories []string, context *build
 }
 
 func getDependency(file string, scopes, repositories []string, context *build.Context) ([]string, error) {
-	var dependencies Dependencies
+	var dependencies dependencies
 	source, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -150,7 +151,7 @@ func getDependency(file string, scopes, repositories []string, context *build.Co
 	var paths []string
 	for _, dependency := range dependencies {
 		if selected(scopes, dependency.Scopes) {
-			path := dependency.Path(LOCAL_REPOSITORY)
+			path := dependency.Path(LocalRepository)
 			paths = append(paths, path)
 			if !util.FileExists(path) {
 				err = downloadDependency(dependency, repositories, context)
@@ -166,15 +167,15 @@ func getDependency(file string, scopes, repositories []string, context *build.Co
 	return paths, nil
 }
 
-func downloadDependency(dependency Dependency, repositories []string, context *build.Context) error {
+func downloadDependency(dependency dependency, repositories []string, context *build.Context) error {
 	context.Message("Downloading dependency '%s'", dependency.String())
-	path := dependency.Path(LOCAL_REPOSITORY)
+	path := dependency.Path(LocalRepository)
 	dir := filepath.Dir(path)
 	if !util.DirExists(dir) {
 		os.MkdirAll(dir, util.DIR_FILE_MODE)
 	}
 	if repositories == nil {
-		repositories = []string{DEFAULT_REPOSITORY}
+		repositories = []string{DefaultRepository}
 	}
 	var err error
 	for _, repository := range repositories {
@@ -208,22 +209,22 @@ func download(path, url string) error {
 	return nil
 }
 
-type Dependency struct {
+type dependency struct {
 	Group    string
 	Artifact string
 	Version  string
 	Scopes   []string
 }
 
-func (d *Dependency) Path(root string) string {
+func (d *dependency) Path(root string) string {
 	return fmt.Sprintf("%s/%s/%s/%s/%s-%s.jar", root, strings.Replace(d.Group, ".", "/", -1), d.Artifact, d.Version, d.Artifact, d.Version)
 }
 
-func (d *Dependency) String() string {
+func (d *dependency) String() string {
 	return fmt.Sprintf("%s/%s/%s", d.Group, d.Artifact, d.Version)
 }
 
-type Dependencies []Dependency
+type dependencies []dependency
 
 func selected(classpath, dependency []string) bool {
 	if dependency == nil {

@@ -9,8 +9,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "super",
-		Func: Super,
-		Args: reflect.TypeOf(SuperArgs{}),
+		Func: super,
+		Args: reflect.TypeOf(superArgs{}),
 		Help: `Call target with same name in parent build file.
 
 Arguments:
@@ -28,9 +28,9 @@ Notes:
 	})
 }
 
-type SuperArgs struct{}
+type superArgs struct{}
 
-func Super(context *build.Context, args interface{}) error {
+func super(context *build.Context, args interface{}) error {
 	ok, err := context.Build.RunParentTarget(context, context.Stack.Last().Name)
 	if err != nil {
 		return err

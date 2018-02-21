@@ -8,8 +8,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "try",
-		Func: Try,
-		Args: reflect.TypeOf(TryArgs{}),
+		Func: try,
+		Args: reflect.TypeOf(tryArgs{}),
 		Help: `Try/catch/finally construct.
 
 Arguments:
@@ -41,14 +41,14 @@ Notes:
 	})
 }
 
-type TryArgs struct {
+type tryArgs struct {
 	Try     build.Steps `steps`
 	Catch   build.Steps `optional steps`
 	Finally build.Steps `optional steps`
 }
 
-func Try(context *build.Context, args interface{}) error {
-	params := args.(TryArgs)
+func try(context *build.Context, args interface{}) error {
+	params := args.(tryArgs)
 	context.SetProperty("_error", "")
 	var tryError error
 	var catchError error

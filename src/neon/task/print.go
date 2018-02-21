@@ -8,8 +8,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "print",
-		Func: Print,
-		Args: reflect.TypeOf(PrintArgs{}),
+		Func: print,
+		Args: reflect.TypeOf(printArgs{}),
 		Help: `Print a message on the console.
 
 Arguments:
@@ -23,12 +23,12 @@ Examples:
 	})
 }
 
-type PrintArgs struct {
+type printArgs struct {
 	Print string
 }
 
-func Print(context *build.Context, args interface{}) error {
-	params := args.(PrintArgs)
+func print(context *build.Context, args interface{}) error {
+	params := args.(printArgs)
 	context.Message(params.Print)
 	return nil
 }

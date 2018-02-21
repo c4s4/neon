@@ -8,8 +8,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "call",
-		Func: Call,
-		Args: reflect.TypeOf(CallArgs{}),
+		Func: call,
+		Args: reflect.TypeOf(callArgs{}),
 		Help: `Call a build target.
 
 Arguments:
@@ -23,12 +23,12 @@ Examples:
 	})
 }
 
-type CallArgs struct {
+type callArgs struct {
 	Call []string `wrap`
 }
 
-func Call(context *build.Context, args interface{}) error {
-	params := args.(CallArgs)
+func call(context *build.Context, args interface{}) error {
+	params := args.(callArgs)
 	for _, target := range params.Call {
 		context.Message("Calling target '%s'", target)
 		err := context.Build.RunTarget(context, target)

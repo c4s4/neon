@@ -12,8 +12,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "chmod",
-		Func: Chmod,
-		Args: reflect.TypeOf(ChmodArgs{}),
+		Func: chmod,
+		Args: reflect.TypeOf(chmodArgs{}),
 		Help: `Change mode of files.
 
 Arguments:
@@ -43,15 +43,15 @@ Notes:
 	})
 }
 
-type ChmodArgs struct {
+type chmodArgs struct {
 	Chmod   []string `file wrap`
 	Mode    int
 	Dir     string   `optional file`
 	Exclude []string `optional file wrap`
 }
 
-func Chmod(context *build.Context, args interface{}) error {
-	params := args.(ChmodArgs)
+func chmod(context *build.Context, args interface{}) error {
+	params := args.(chmodArgs)
 	files, err := util.FindFiles(params.Dir, params.Chmod, params.Exclude, true)
 	if err != nil {
 		return fmt.Errorf("getting source files for chmod task: %v", err)

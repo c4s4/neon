@@ -12,8 +12,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "move",
-		Func: Move,
-		Args: reflect.TypeOf(MoveArgs{}),
+		Func: move,
+		Args: reflect.TypeOf(moveArgs{}),
 		Help: `Move file(s).
 
 Arguments:
@@ -48,7 +48,7 @@ Notes:
 	})
 }
 
-type MoveArgs struct {
+type moveArgs struct {
 	Move    []string `file wrap`
 	Dir     string   `optional file`
 	Exclude []string `optional file wrap`
@@ -57,8 +57,8 @@ type MoveArgs struct {
 	Flat    bool     `optional`
 }
 
-func Move(context *build.Context, args interface{}) error {
-	params := args.(MoveArgs)
+func move(context *build.Context, args interface{}) error {
+	params := args.(moveArgs)
 	if (params.Tofile != "" && params.Todir != "") ||
 		(params.Tofile == "" && params.Todir == "") {
 		return fmt.Errorf("one and only one of parameters 'tofile' an 'todir' may be set")

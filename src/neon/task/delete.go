@@ -12,8 +12,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "delete",
-		Func: Delete,
-		Args: reflect.TypeOf(DeleteArgs{}),
+		Func: delete,
+		Args: reflect.TypeOf(deleteArgs{}),
 		Help: `Delete files or directories (recursively).
 
 Arguments:
@@ -36,14 +36,14 @@ Notes:
 	})
 }
 
-type DeleteArgs struct {
+type deleteArgs struct {
 	Delete  []string `file wrap`
 	Dir     string   `optional file`
 	Exclude []string `optional file wrap`
 }
 
-func Delete(context *build.Context, args interface{}) error {
-	params := args.(DeleteArgs)
+func delete(context *build.Context, args interface{}) error {
+	params := args.(deleteArgs)
 	files, err := util.FindFiles(params.Dir, params.Delete, params.Exclude, true)
 	if err != nil {
 		return fmt.Errorf("getting source files for delete task: %v", err)

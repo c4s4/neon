@@ -10,8 +10,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "write",
-		Func: Write,
-		Args: reflect.TypeOf(WriteArgs{}),
+		Func: write,
+		Args: reflect.TypeOf(writeArgs{}),
 		Help: `Write text into given file.
 
 Arguments:
@@ -29,21 +29,21 @@ Examples:
 	})
 }
 
-type WriteArgs struct {
+type writeArgs struct {
 	Write  string `file`
 	Text   string `optional`
 	Append bool   `optional`
 }
 
-func Write(context *build.Context, args interface{}) error {
-	params := args.(WriteArgs)
+func write(context *build.Context, args interface{}) error {
+	params := args.(writeArgs)
 	var mode int
 	if params.Append {
 		mode = os.O_CREATE | os.O_WRONLY | os.O_APPEND
 	} else {
 		mode = os.O_CREATE | os.O_WRONLY | os.O_TRUNC
 	}
-	file, err := os.OpenFile(params.Write, mode, FILE_MODE)
+	file, err := os.OpenFile(params.Write, mode, FileMode)
 	if err != nil {
 		return fmt.Errorf("opening file '%s': %v", params.Write, err)
 	}

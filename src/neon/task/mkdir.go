@@ -11,8 +11,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "mkdir",
-		Func: Mkdir,
-		Args: reflect.TypeOf(MkdirArgs{}),
+		Func: mkdir,
+		Args: reflect.TypeOf(mkdirArgs{}),
 		Help: `Make a directory.
 
 Arguments:
@@ -26,16 +26,16 @@ Examples:
 	})
 }
 
-type MkdirArgs struct {
+type mkdirArgs struct {
 	Mkdir []string `file wrap`
 }
 
-func Mkdir(context *build.Context, args interface{}) error {
-	params := args.(MkdirArgs)
+func mkdir(context *build.Context, args interface{}) error {
+	params := args.(mkdirArgs)
 	for _, dir := range params.Mkdir {
 		if !util.DirExists(dir) {
 			context.Message("Making directory '%s'", dir)
-			err := os.MkdirAll(dir, DIR_FILE_MODE)
+			err := os.MkdirAll(dir, DirFileMode)
 			if err != nil {
 				return fmt.Errorf("making directory '%s': %s", dir, err)
 			}

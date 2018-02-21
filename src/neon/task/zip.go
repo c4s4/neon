@@ -15,8 +15,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "zip",
-		Func: Zip,
-		Args: reflect.TypeOf(ZipArgs{}),
+		Func: zip_,
+		Args: reflect.TypeOf(zipArgs{}),
 		Help: `Create a Zip archive.
 
 Arguments:
@@ -35,7 +35,7 @@ Examples:
 	})
 }
 
-type ZipArgs struct {
+type zipArgs struct {
 	Zip     []string `file wrap`
 	Dir     string   `optional file`
 	Exclude []string `optional file wrap`
@@ -43,15 +43,15 @@ type ZipArgs struct {
 	Prefix  string   `optional`
 }
 
-func Zip(context *build.Context, args interface{}) error {
-	params := args.(ZipArgs)
+func zip_(context *build.Context, args interface{}) error {
+	params := args.(zipArgs)
 	files, err := util.FindFiles(params.Dir, params.Zip, params.Exclude, false)
 	if err != nil {
 		return fmt.Errorf("getting source files for zip task: %v", err)
 	}
 	if len(files) > 0 {
 		context.Message("Zipping %d file(s) in '%s'", len(files), params.Tofile)
-		err = WriteZip(params.Dir, files, params.Prefix, params.Tofile)
+		err = writeZip(params.Dir, files, params.Prefix, params.Tofile)
 		if err != nil {
 			return fmt.Errorf("zipping files: %v", err)
 		}
@@ -59,7 +59,7 @@ func Zip(context *build.Context, args interface{}) error {
 	return nil
 }
 
-func WriteZip(dir string, files []string, prefix, to string) error {
+func writeZip(dir string, files []string, prefix, to string) error {
 	archive, err := os.Create(to)
 	if err != nil {
 		return fmt.Errorf("creating zip archive: %v", err)

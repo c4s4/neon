@@ -17,8 +17,8 @@ const (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "request",
-		Func: Request,
-		Args: reflect.TypeOf(RequestArgs{}),
+		Func: request,
+		Args: reflect.TypeOf(requestArgs{}),
 		Help: `Perform an HTTP request.
 
 Arguments:
@@ -47,7 +47,7 @@ Notes:
 	})
 }
 
-type RequestArgs struct {
+type requestArgs struct {
 	Request  string
 	Method   string            `optional`
 	Headers  map[string]string `optional`
@@ -58,8 +58,8 @@ type RequestArgs struct {
 	Status   int               `optional`
 }
 
-func Request(context *build.Context, args interface{}) error {
-	params := args.(RequestArgs)
+func request(context *build.Context, args interface{}) error {
+	params := args.(requestArgs)
 	var err error
 	method := params.Method
 	if method == "" {

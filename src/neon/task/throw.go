@@ -9,8 +9,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "throw",
-		Func: Throw,
-		Args: reflect.TypeOf(ThrowArgs{}),
+		Func: throw,
+		Args: reflect.TypeOf(throwArgs{}),
 		Help: `Throws an error.
 
 Arguments:
@@ -31,11 +31,11 @@ Notes:
 	})
 }
 
-type ThrowArgs struct {
+type throwArgs struct {
 	Throw string
 }
 
-func Throw(context *build.Context, args interface{}) error {
-	params := args.(ThrowArgs)
+func throw(context *build.Context, args interface{}) error {
+	params := args.(throwArgs)
 	return fmt.Errorf(params.Throw)
 }

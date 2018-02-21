@@ -9,8 +9,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "sleep",
-		Func: Sleep,
-		Args: reflect.TypeOf(SleepArgs{}),
+		Func: sleep,
+		Args: reflect.TypeOf(sleepArgs{}),
 		Help: `Sleep given number of seconds.
 		
 Arguments:
@@ -26,12 +26,12 @@ Examples:
 	})
 }
 
-type SleepArgs struct {
+type sleepArgs struct {
 	Sleep float64
 }
 
-func Sleep(context *build.Context, args interface{}) error {
-	params := args.(SleepArgs)
+func sleep(context *build.Context, args interface{}) error {
+	params := args.(sleepArgs)
 	context.Message("Sleeping for %g seconds...", params.Sleep)
 	time.Sleep(time.Duration(params.Sleep) * time.Second)
 	return nil

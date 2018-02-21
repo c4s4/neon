@@ -8,8 +8,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "pass",
-		Func: Pass,
-		Args: reflect.TypeOf(PassArgs{}),
+		Func: pass,
+		Args: reflect.TypeOf(passArgs{}),
 		Help: `Does nothing.
 
 Arguments:
@@ -27,8 +27,8 @@ Notes:
 	})
 }
 
-type PassArgs struct{}
+type passArgs struct{}
 
-func Pass(context *build.Context, args interface{}) error {
+func pass(context *build.Context, args interface{}) error {
 	return nil
 }

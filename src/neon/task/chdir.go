@@ -10,8 +10,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "chdir",
-		Func: Chdir,
-		Args: reflect.TypeOf(ChdirArgs{}),
+		Func: chdir,
+		Args: reflect.TypeOf(chdirArgs{}),
 		Help: `Change current working directory.
 
 Arguments:
@@ -29,12 +29,12 @@ Notes:
 	})
 }
 
-type ChdirArgs struct {
+type chdirArgs struct {
 	Chdir string `file`
 }
 
-func Chdir(context *build.Context, args interface{}) error {
-	params := args.(ChdirArgs)
+func chdir(context *build.Context, args interface{}) error {
+	params := args.(chdirArgs)
 	context.Message("Changing working directory to '%s'", params.Chdir)
 	err := os.Chdir(params.Chdir)
 	if err != nil {

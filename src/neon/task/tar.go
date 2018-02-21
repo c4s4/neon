@@ -17,8 +17,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "tar",
-		Func: Tar,
-		Args: reflect.TypeOf(TarArgs{}),
+		Func: tar_,
+		Args: reflect.TypeOf(tarArgs{}),
 		Help: `Create a tar archive.
 
 Arguments:
@@ -42,7 +42,7 @@ Notes:
 	})
 }
 
-type TarArgs struct {
+type tarArgs struct {
 	Tar     []string `file wrap`
 	Dir     string   `optional file`
 	Exclude []string `optional file wrap`
@@ -50,15 +50,15 @@ type TarArgs struct {
 	Prefix  string   `optional`
 }
 
-func Tar(context *build.Context, args interface{}) error {
-	params := args.(TarArgs)
+func tar_(context *build.Context, args interface{}) error {
+	params := args.(tarArgs)
 	files, err := util.FindFiles(params.Dir, params.Tar, params.Exclude, false)
 	if err != nil {
 		return fmt.Errorf("getting source files for tar task: %v", err)
 	}
 	if len(files) > 0 {
 		context.Message("Tarring %d file(s) into '%s'", len(files), params.Tofile)
-		err = Writetar(params.Dir, files, params.Prefix, params.Tofile)
+		err = writeTar(params.Dir, files, params.Prefix, params.Tofile)
 		if err != nil {
 			return fmt.Errorf("tarring files: %v", err)
 		}
@@ -66,7 +66,7 @@ func Tar(context *build.Context, args interface{}) error {
 	return nil
 }
 
-func Writetar(dir string, files []string, prefix, to string) error {
+func writeTar(dir string, files []string, prefix, to string) error {
 	stream, err := os.Create(to)
 	if err != nil {
 		return fmt.Errorf("creating tar archive: %v", err)

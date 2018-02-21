@@ -9,8 +9,8 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "threads",
-		Func: Threads,
-		Args: reflect.TypeOf(ThreadsArgs{}),
+		Func: threads,
+		Args: reflect.TypeOf(threadsArgs{}),
 		Help: `Run steps in threads.
 
 Arguments:
@@ -51,15 +51,15 @@ well.`,
 	})
 }
 
-type ThreadsArgs struct {
+type threadsArgs struct {
 	Threads int
 	Input   []interface{} `optional`
 	Steps   build.Steps   `steps`
 	Verbose bool          `optional`
 }
 
-func Threads(context *build.Context, args interface{}) error {
-	params := args.(ThreadsArgs)
+func threads(context *build.Context, args interface{}) error {
+	params := args.(threadsArgs)
 	input := make(chan interface{}, len(params.Input))
 	for _, d := range params.Input {
 		input <- d
@@ -72,7 +72,7 @@ func Threads(context *build.Context, args interface{}) error {
 	}
 	output := make(chan interface{}, len(input))
 	for i := 0; i < params.Threads; i++ {
-		go RunThread(params.Steps, context, i, input, output, &wg, error, params.Verbose)
+		go runThread(params.Steps, context, i, input, output, &wg, error, params.Verbose)
 	}
 	wg.Wait()
 	var out []interface{}
@@ -102,7 +102,7 @@ func Threads(context *build.Context, args interface{}) error {
 	}
 }
 
-func RunThread(steps build.Steps, ctx *build.Context, index int, input chan interface{}, output chan interface{},
+func runThread(steps build.Steps, ctx *build.Context, index int, input chan interface{}, output chan interface{},
 	wg *sync.WaitGroup, errors chan error, verbose bool) {
 	if verbose {
 		ctx.Message("Thread %d started", index)
