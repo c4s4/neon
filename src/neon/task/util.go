@@ -7,7 +7,7 @@ import (
 
 const (
 	// FileMode is default file mode
-	FileMode    = 0644
+	FileMode = 0644
 	// DirFileMode is default file mode for directories
 	DirFileMode = 0755
 )
