@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "if",
-		Func: if_,
+		Func: ifFunc,
 		Args: reflect.TypeOf(ifArgs{}),
 		Help: `If condition.
 
@@ -35,7 +35,7 @@ type ifArgs struct {
 	Else build.Steps `optional steps`
 }
 
-func if_(context *build.Context, args interface{}) error {
+func ifFunc(context *build.Context, args interface{}) error {
 	params := args.(ifArgs)
 	if params.If {
 		err := params.Then.Run(context)

@@ -51,7 +51,7 @@ targets:
     steps:
     - print: "Building neon binary in 'bin/neon'"
     - delete: 'bin/neon'
-    - $: ['go', 'install', '-ldflags', '-X main.VERSION=={VERSION}', =NAME]
+    - $: ['go', 'install', '-ldflags', '-X main.Version=={VERSION}', =NAME]
 
   refs:
     doc: Generate reference documentation
