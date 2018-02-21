@@ -4,17 +4,17 @@ import (
 	"github.com/c4s4/anko/vm"
 )
 
-// Descriptor for a builtin function
+// BuiltinDesc is a descriptor for a builtin function
 type BuiltinDesc struct {
 	Name string
 	Func interface{}
 	Help string
 }
 
-// Map of builtin descriptors by name
+// BuiltinMap is a map of builtin descriptors by name
 var BuiltinMap = make(map[string]BuiltinDesc)
 
-// AddBuitin adds given builtin to the map
+// AddBuiltin adds given builtin to the map
 // - desc: builtin description
 func AddBuiltin(desc BuiltinDesc) {
 	if _, ok := BuiltinMap[desc.Name]; ok {

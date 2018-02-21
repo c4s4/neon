@@ -8,10 +8,11 @@ import (
 )
 
 const (
-	DEFAULT_TERMINAL_WIDTH = 80
+	// DefaultTerminalWidth is the terminal width when undefined
+	DefaultTerminalWidth = 80
 )
 
-// Get terminal width
+// TerminalWidth returns the terminal width
 func TerminalWidth() int {
 	type winsize struct {
 		Row    uint16
@@ -25,8 +26,7 @@ func TerminalWidth() int {
 		uintptr(syscall.TIOCGWINSZ),
 		uintptr(unsafe.Pointer(ws)))
 	if int(retCode) == -1 {
-		return DEFAULT_TERMINAL_WIDTH
-	} else {
-		return int(ws.Col)
+		return DefaultTerminalWidth
 	}
+	return int(ws.Col)
 }
