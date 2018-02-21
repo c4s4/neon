@@ -33,10 +33,10 @@ Examples:
 }
 
 type replaceArgs struct {
-	Replace []string          `neon:"file,wrap"`
+	Replace []string `neon:"file,wrap"`
 	With    map[string]string
-	Dir     string            `neon:"optional,file"`
-	Exclude []string          `neon:"optional,file"`
+	Dir     string   `neon:"optional,file"`
+	Exclude []string `neon:"optional,file"`
 }
 
 func replace(context *build.Context, args interface{}) error {

@@ -66,7 +66,7 @@ func chmod(context *build.Context, args interface{}) error {
 		}
 		err := os.Chmod(file, os.FileMode(params.Mode))
 		if err != nil {
-			return fmt.Errorf("changing mode of file '%s' to %s: %v", file, params.Mode, err)
+			return fmt.Errorf("changing mode of file '%s' to %#o: %v", file, params.Mode, err)
 		}
 	}
 	return nil
