@@ -51,13 +51,13 @@ Notes:
 
 type requestArgs struct {
 	Request  string
-	Method   string            `optional`
-	Headers  map[string]string `optional`
-	Body     string            `optional`
-	File     string            `optional file`
-	Username string            `optional`
-	Password string            `optional`
-	Status   int               `optional`
+	Method   string            `neon:"optional"`
+	Headers  map[string]string `neon:"optional"`
+	Body     string            `neon:"optional"`
+	File     string            `neon:"optional,file"`
+	Username string            `neon:"optional"`
+	Password string            `neon:"optional"`
+	Status   int               `neon:"optional"`
 }
 
 func request(context *build.Context, args interface{}) error {

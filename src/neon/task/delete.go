@@ -37,9 +37,9 @@ Notes:
 }
 
 type deleteArgs struct {
-	Delete  []string `file wrap`
-	Dir     string   `optional file`
-	Exclude []string `optional file wrap`
+	Delete  []string `neon:"file,wrap"`
+	Dir     string   `neon:"optional,file"`
+	Exclude []string `neon:"optional,file,wrap"`
 }
 
 func delete(context *build.Context, args interface{}) error {

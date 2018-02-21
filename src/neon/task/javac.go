@@ -40,11 +40,11 @@ Examples:
 }
 
 type javacArgs struct {
-	Javac   []string `file wrap`
-	Source  string   `file`
-	Exclude []string `optional file wrap`
-	Dest    string   `file`
-	Cp      string   `optional`
+	Javac   []string `neon:"file,wrap"`
+	Source  string   `neon:"file"`
+	Exclude []string `neon:"optional,file,wrap"`
+	Dest    string   `neon:"file"`
+	Cp      string   `neon:"optional"`
 }
 
 func javac(context *build.Context, args interface{}) error {

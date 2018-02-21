@@ -26,7 +26,7 @@ Examples:
 }
 
 type catArgs struct {
-	Cat string `file`
+	Cat string `neon:"file"`
 }
 
 func cat(context *build.Context, args interface{}) error {

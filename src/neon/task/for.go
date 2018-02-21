@@ -36,8 +36,8 @@ Examples:
 
 type forArgs struct {
 	For string
-	In  []interface{} `expression`
-	Do  build.Steps   `steps`
+	In  []interface{} `neon:"expression"`
+	Do  build.Steps   `neon:"steps"`
 }
 
 func forFunc(context *build.Context, args interface{}) error {

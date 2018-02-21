@@ -25,7 +25,7 @@ Examples:
 }
 
 type assertArgs struct {
-	Assert bool `expression`
+	Assert bool `neon:"expression"`
 }
 
 func assert(context *build.Context, args interface{}) error {

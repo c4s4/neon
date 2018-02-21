@@ -30,9 +30,9 @@ Examples:
 }
 
 type writeArgs struct {
-	Write  string `file`
-	Text   string `optional`
-	Append bool   `optional`
+	Write  string `neon:"file"`
+	Text   string `neon:"optional"`
+	Append bool   `neon:"optional"`
 }
 
 func write(context *build.Context, args interface{}) error {

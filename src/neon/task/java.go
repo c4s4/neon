@@ -33,7 +33,7 @@ Examples:
 type javaArgs struct {
 	Java string
 	Cp   string
-	Args []string `optional wrap`
+	Args []string `neon:"optional,wrap"`
 }
 
 func java(context *build.Context, args interface{}) error {

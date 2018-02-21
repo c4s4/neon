@@ -27,7 +27,7 @@ Examples:
 }
 
 type mkdirArgs struct {
-	Mkdir []string `file wrap`
+	Mkdir []string `neon:"file,wrap"`
 }
 
 func mkdir(context *build.Context, args interface{}) error {

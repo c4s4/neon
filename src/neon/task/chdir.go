@@ -30,7 +30,7 @@ Notes:
 }
 
 type chdirArgs struct {
-	Chdir string `file`
+	Chdir string `neon:"file"`
 }
 
 func chdir(context *build.Context, args interface{}) error {

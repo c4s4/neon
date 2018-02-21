@@ -43,9 +43,9 @@ Examples:
 type promptArgs struct {
 	Prompt  string
 	To      string
-	Default string `optional`
-	Pattern string `optional`
-	Error   string `optional`
+	Default string `neon:"optional"`
+	Pattern string `neon:"optional"`
+	Error   string `neon:"optional"`
 }
 
 func prompt(context *build.Context, args interface{}) error {
