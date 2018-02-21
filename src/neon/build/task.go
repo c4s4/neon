@@ -104,34 +104,49 @@ func ValidateTaskArgs(args TaskArgs, typ reflect.Type) error {
 	// iterate on fields of the parameters types and check argument types
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
-		name := GetQuality(field, FieldName)
-		if name == "" {
-			name = strings.ToLower(field.Name)
+		name, err := checkArgumentType(field, args)
+		if err != nil {
+			return err
 		}
 		fields = append(fields, name)
-		// check field is not missing
-		if _, ok := args[name]; !ok {
-			if !FieldIs(field, FieldOptional) {
-				return fmt.Errorf("missing mandatory field '%s'", name)
-			}
-		}
-		value := args[name]
-		// parse steps fields
-		if FieldIs(field, "steps") && value != nil {
-			steps, err := NewSteps(value)
-			if err != nil {
-				return fmt.Errorf("parsing field '%s': %v", name, err)
-			}
-			args[name] = steps
-		}
-		// check field type
-		if !CheckType(field, value) {
-			return fmt.Errorf("field '%s' must be of type '%s' ('%s' provided)",
-				name, field.Type, reflect.TypeOf(value))
-		}
 	}
 	// check that we don't have unknown args
-	if !(typ.NumField() == 0 && len(args) == 1) {
+	if err := checkUnknownArgs(fields, args); err != nil {
+		return err
+	}
+	return nil
+}
+
+func checkArgumentType(field reflect.StructField, args TaskArgs) (string, error) {
+	name := GetQuality(field, FieldName)
+	if name == "" {
+		name = strings.ToLower(field.Name)
+	}
+	// check field is not missing
+	if _, ok := args[name]; !ok {
+		if !FieldIs(field, FieldOptional) {
+			return "", fmt.Errorf("missing mandatory field '%s'", name)
+		}
+	}
+	value := args[name]
+	// parse steps fields
+	if FieldIs(field, "steps") && value != nil {
+		steps, err := NewSteps(value)
+		if err != nil {
+			return "", fmt.Errorf("parsing field '%s': %v", name, err)
+		}
+		args[name] = steps
+	}
+	// check field type
+	if !CheckType(field, value) {
+		return "", fmt.Errorf("field '%s' must be of type '%s' ('%s' provided)",
+			name, field.Type, reflect.TypeOf(value))
+	}
+	return name, nil
+}
+
+func checkUnknownArgs(fields []string, args TaskArgs) error {
+	if !(len(fields) == 0 && len(args) == 1) {
 		for name := range args {
 			found := false
 			for _, n := range fields {
@@ -223,24 +238,9 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 			// evaluate expressions in context
 			if reflect.TypeOf(val).Kind() == reflect.String &&
 				(IsExpression(val.(string)) || FieldIs(field, FieldExpression)) {
-				str := val.(string)
-				if IsExpression(str) {
-					str = str[1:]
-				}
-				val, err = context.EvaluateExpression(str)
+				val, err = evaluateExpression(field, val, context)
 				if err != nil {
 					return nil, err
-				}
-				expected := field.Type
-				actual := reflect.TypeOf(val)
-				if actual != expected {
-					// we accept if expected is slice of interfaces and actual is slice
-					if !(expected.Kind() == reflect.Slice && actual.Kind() == reflect.Slice) &&
-						// or if slice and wrap
-						!(expected == reflect.SliceOf(actual) && FieldIs(field, FieldWrap)) {
-						return nil, fmt.Errorf("bad expression return type, expected '%v' but '%v' was returned",
-							expected, actual)
-					}
 				}
 			}
 			// evaluate arguments
@@ -250,16 +250,7 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 			}
 			// evaluate strings to replace "={expression}" with its value
 			if reflect.TypeOf(val).Kind() == reflect.String {
-				str := val.(string)
-				// replace '\=' with '='
-				if strings.HasPrefix(str, `\`+CharExpression) {
-					str = str[1:]
-				}
-				// expand home if field tagged 'file'
-				if FieldIs(field, FieldFile) {
-					str = util.ExpandUserHome(str)
-				}
-				val = str
+				val = evaluateStrings(val, field)
 			}
 			// wrap values if necessary
 			if FieldIs(field, FieldWrap) && !(reflect.TypeOf(val).Kind() == reflect.Slice) {
@@ -272,6 +263,44 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interf
 		}
 	}
 	return value.Interface(), nil
+}
+
+func evaluateStrings(val interface{}, field reflect.StructField) interface{} {
+	str := val.(string)
+	// replace '\=' with '='
+	if strings.HasPrefix(str, `\`+CharExpression) {
+		str = str[1:]
+	}
+	// expand home if field tagged 'file'
+	if FieldIs(field, FieldFile) {
+		str = util.ExpandUserHome(str)
+	}
+	val = str
+	return val
+}
+
+func evaluateExpression(field reflect.StructField, val interface{}, context *Context) (interface{}, error) {
+	var err error
+	str := val.(string)
+	if IsExpression(str) {
+		str = str[1:]
+	}
+	val, err = context.EvaluateExpression(str)
+	if err != nil {
+		return nil, err
+	}
+	expected := field.Type
+	actual := reflect.TypeOf(val)
+	if actual != expected {
+		// we accept if expected is slice of interfaces and actual is slice
+		if !(expected.Kind() == reflect.Slice && actual.Kind() == reflect.Slice) &&
+		// or if slice and wrap
+			!(expected == reflect.SliceOf(actual) && FieldIs(field, FieldWrap)) {
+			return nil, fmt.Errorf("bad expression return type, expected '%v' but '%v' was returned",
+				expected, actual)
+		}
+	}
+	return val, nil
 }
 
 // CopyValue copy given value in another

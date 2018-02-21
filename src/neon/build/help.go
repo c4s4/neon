@@ -12,22 +12,48 @@ import (
 // - context: context of the build
 // Return: error if something went wrong
 func (build *Build) Info(context *Context) error {
-	// print build information
+	build.infoDoc()
+	build.infoDefault()
+	build.infoRepository()
+	build.infoSingleton(context)
+	build.infoParents()
+	build.infoConfiguration()
+	build.infoContext()
+	if err := build.infoProperties(context); err != nil {
+		return err
+	}
+	build.infoEnvironment()
+	build.infoTargets()
+	return nil
+}
+
+func (build *Build) infoDoc() {
 	if build.Doc != "" {
 		Message("doc: %s", build.Doc)
 	}
+}
+
+func (build *Build) infoDefault() {
 	if len(build.Default) > 0 {
 		defaults := "[" + strings.Join(build.Default, ", ") + "]"
 		Message("default: %s", defaults)
 	}
+}
+
+func (build *Build) infoRepository() {
 	Message("repository: %s", build.Repository)
+}
+
+func (build *Build) infoSingleton(context *Context) {
 	if build.Singleton != "" {
 		port, err := context.EvaluateExpression(build.Singleton)
 		if err == nil {
 			Message("singleton: %d", port)
 		}
 	}
-	// print parent build files
+}
+
+func (build *Build) infoParents() {
 	if len(build.Parents) > 0 {
 		Message("")
 		Message("extends:")
@@ -35,7 +61,9 @@ func (build *Build) Info(context *Context) error {
 			Message("- %s", extend)
 		}
 	}
-	// print configuration files
+}
+
+func (build *Build) infoConfiguration() {
 	if len(build.Config) > 0 {
 		Message("")
 		Message("configuration:")
@@ -43,7 +71,9 @@ func (build *Build) Info(context *Context) error {
 			Message("- %s", config)
 		}
 	}
-	// print context scripts
+}
+
+func (build *Build) infoContext() {
 	if len(build.Scripts) > 0 {
 		Message("")
 		Message("context:")
@@ -51,7 +81,9 @@ func (build *Build) Info(context *Context) error {
 			Message("- %s", script)
 		}
 	}
-	// print build properties
+}
+
+func (build *Build) infoProperties(context *Context) error {
 	length := util.MaxLineLength(build.Properties.Fields())
 	if len(build.Properties) > 0 {
 		Message("")
@@ -68,12 +100,15 @@ func (build *Build) Info(context *Context) error {
 			PrintTarget(name, valueStr, []string{}, length)
 		}
 	}
-	// print build environment
+	return nil
+}
+
+func (build *Build) infoEnvironment() {
 	var names []string
 	for name := range build.Environment {
 		names = append(names, name)
 	}
-	length = util.MaxLineLength(names)
+	length := util.MaxLineLength(names)
 	sort.Strings(names)
 	if len(build.Environment) > 0 {
 		Message("")
@@ -83,13 +118,15 @@ func (build *Build) Info(context *Context) error {
 			PrintTarget(name, value, []string{}, length)
 		}
 	}
-	// print targets documentation
+}
+
+func (build *Build) infoTargets() {
 	targets := build.GetTargets()
-	names = make([]string, 0)
+	names := make([]string, 0)
 	for name := range targets {
 		names = append(names, name)
 	}
-	length = util.MaxLineLength(names)
+	length := util.MaxLineLength(names)
 	sort.Strings(names)
 	if len(names) > 0 {
 		Message("")
@@ -99,7 +136,6 @@ func (build *Build) Info(context *Context) error {
 			PrintTarget(name, target.Doc, target.Depends, length)
 		}
 	}
-	return nil
 }
 
 // PrintTarget prints target documentation on console
