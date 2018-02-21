@@ -19,7 +19,7 @@ const (
 	RegexpPlugin = `[\w-]+/[\w-]+`
 )
 
-// Fileds is the list of possible root fields for a build file
+// Fields is the list of possible root fields for a build file
 var Fields = []string{"doc", "default", "extends", "repository", "context",
 	"singleton", "shell", "properties", "configuration", "environment", "targets"}
 

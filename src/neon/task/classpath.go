@@ -17,9 +17,11 @@ import (
 )
 
 const (
+	// DefaultRepository is default repository location
 	DefaultRepository = "http://central.maven.org/maven2"
 )
 
+// LocalRepository is default location for local repository
 var LocalRepository = util.ExpandUserHome("~/.java/repository")
 
 func init() {
@@ -125,7 +127,7 @@ func classpath(context *build.Context, args interface{}) error {
 
 func getDependencies(dependencies, scopes, repositories []string, context *build.Context) ([]string, error) {
 	if !util.DirExists(LocalRepository) {
-		os.MkdirAll(LocalRepository, util.DIR_FILE_MODE)
+		os.MkdirAll(LocalRepository, util.DirFileMode)
 	}
 	var deps []string
 	for _, dependency := range dependencies {
@@ -172,7 +174,7 @@ func downloadDependency(dependency dependency, repositories []string, context *b
 	path := dependency.Path(LocalRepository)
 	dir := filepath.Dir(path)
 	if !util.DirExists(dir) {
-		os.MkdirAll(dir, util.DIR_FILE_MODE)
+		os.MkdirAll(dir, util.DirFileMode)
 	}
 	if repositories == nil {
 		repositories = []string{DefaultRepository}
@@ -242,7 +244,7 @@ func selected(classpath, dependency []string) bool {
 
 func copyJarsToDir(jars []string, dir string) error {
 	if !util.DirExists(dir) {
-		os.MkdirAll(dir, util.DIR_FILE_MODE)
+		os.MkdirAll(dir, util.DirFileMode)
 	}
 	for _, jar := range jars {
 		dest := p.Join(dir, p.Base(jar))

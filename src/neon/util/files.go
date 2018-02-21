@@ -15,7 +15,8 @@ import (
 )
 
 const (
-	DIR_FILE_MODE = 0755
+	// DirFileMode is default directory file mode
+	DirFileMode = 0755
 )
 
 // ReadFile reads given file and return it as a byte slice:
@@ -39,9 +40,8 @@ func FileExists(file string) bool {
 	file = ExpandUserHome(file)
 	if stat, err := os.Stat(file); err == nil && !stat.IsDir() {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
 // DirExists tells if directory exists:
@@ -51,9 +51,8 @@ func DirExists(dir string) bool {
 	dir = ExpandUserHome(dir)
 	if stat, err := os.Stat(dir); err == nil && stat.IsDir() {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
 // CopyFile copies source file to destination, preserving mode:
@@ -117,7 +116,7 @@ func CopyFilesToDir(dir string, files []string, toDir string, flatten bool) erro
 			dest = filepath.Join(toDir, file)
 			destDir := filepath.Dir(dest)
 			if !DirExists(destDir) {
-				err := os.MkdirAll(destDir, DIR_FILE_MODE)
+				err := os.MkdirAll(destDir, DirFileMode)
 				if err != nil {
 					return fmt.Errorf("creating directory for destination file: %v", err)
 				}
@@ -131,7 +130,7 @@ func CopyFilesToDir(dir string, files []string, toDir string, flatten bool) erro
 	return nil
 }
 
-// MoveFileToDir moves files in source directory to destination:
+// MoveFilesToDir moves files in source directory to destination:
 // - dir: root directory of source files
 // - files: globs of files to move
 // - toDir: destination directory
@@ -154,7 +153,7 @@ func MoveFilesToDir(dir string, files []string, toDir string, flatten bool) erro
 			dest = filepath.Join(toDir, file)
 			destDir := filepath.Dir(dest)
 			if !DirExists(destDir) {
-				err := os.MkdirAll(destDir, DIR_FILE_MODE)
+				err := os.MkdirAll(destDir, DirFileMode)
 				if err != nil {
 					return fmt.Errorf("creating directory for destination file: %v", err)
 				}
@@ -189,9 +188,8 @@ func ExpandAndJoinToRoot(root, path string) string {
 	path = ExpandUserHome(path)
 	if filepath.IsAbs(path) {
 		return path
-	} else {
-		return filepath.Join(root, path)
 	}
+	return filepath.Join(root, path)
 }
 
 // PathToUnix turns a path to Unix format (with "/"):
@@ -222,7 +220,7 @@ func PathToWindows(path string) string {
 	return path
 }
 
-// Find files in the context:
+// FindFiles finds files in the context:
 // - dir: the search root directory (current dir if empty)
 // - includes: the list of globs to include
 // - excludes: the list of globs to exclude

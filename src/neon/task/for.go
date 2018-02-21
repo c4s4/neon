@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddTask(build.TaskDesc{
 		Name: "for",
-		Func: for_,
+		Func: forFunc,
 		Args: reflect.TypeOf(forArgs{}),
 		Help: `For loop.
 
@@ -40,7 +40,7 @@ type forArgs struct {
 	Do  build.Steps   `steps`
 }
 
-func for_(context *build.Context, args interface{}) error {
+func forFunc(context *build.Context, args interface{}) error {
 	params := args.(forArgs)
 	for _, value := range params.In {
 		context.SetProperty(params.For, value)

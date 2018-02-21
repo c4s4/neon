@@ -28,7 +28,7 @@ func NewStep(step interface{}) (Step, error) {
 	}
 }
 
-// ScriptTest is made of a string
+// ScriptStep is made of a string
 type ScriptStep struct {
 	Script string
 }

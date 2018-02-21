@@ -50,7 +50,7 @@ type javacArgs struct {
 func javac(context *build.Context, args interface{}) error {
 	params := args.(javacArgs)
 	if !util.DirExists(params.Dest) {
-		err := os.MkdirAll(params.Dest, util.DIR_FILE_MODE)
+		err := os.MkdirAll(params.Dest, util.DirFileMode)
 		if err != nil {
 			return fmt.Errorf("making destination diectory: %v", err)
 		}

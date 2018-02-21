@@ -13,15 +13,16 @@ import (
 )
 
 const (
-	DEFAULT_BUILD_FILE = "build.yml"
+	// DefaultBuildFile is the default name for build file
+	DefaultBuildFile = "build.yml"
 )
 
-var VERSION string
+var Version string
 
-// Parse command line and return parsed options
+// ParseCommandLine parses command line and returns parsed options
 func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, string, string, bool,
 	string, bool, bool, []string) {
-	file := flag.String("file", DEFAULT_BUILD_FILE, "Build file to run")
+	file := flag.String("file", DefaultBuildFile, "Build file to run")
 	info := flag.Bool("info", false, "Print build information")
 	version := flag.Bool("version", false, "Print neon version")
 	props := flag.String("props", "", "Build properties")
@@ -44,7 +45,7 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 		*builtin, *refs, *install, *repo, *grey, *template, *templates, *parents, targets
 }
 
-// Find build file and return its path
+// FindBuildFile finds build file and returns its path
 // - name: the name of the build file
 // Return:
 // - path of found build file
@@ -60,13 +61,12 @@ func FindBuildFile(name string) (string, error) {
 		path := filepath.Join(dir, file)
 		if util.FileExists(path) {
 			return path, nil
-		} else {
-			parent := filepath.Dir(dir)
-			if parent == dir {
-				return "", fmt.Errorf("build file not found")
-			}
-			dir = parent
 		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return "", fmt.Errorf("build file not found")
+		}
+		dir = parent
 	}
 }
 
@@ -93,7 +93,7 @@ func main() {
 		_build.PrintReference()
 		return
 	} else if version {
-		_build.Message(VERSION)
+		_build.Message(Version)
 		return
 	} else if install != "" {
 		err := _build.InstallPlugin(install, repo)
@@ -146,7 +146,7 @@ func main() {
 	}
 }
 
-// Print an error and exit if any
+// PrintError prints an error and exits if any
 // - error: the error to check
 // - code: the exit code if error is not nil
 func PrintError(err error, code int) {
