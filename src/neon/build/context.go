@@ -61,7 +61,7 @@ func NewContext(build *Build) *Context {
 // NewThreadContext builds a context for a thread by copying the build context
 // - thread: the number of the thread, starting with 0
 // - input: the thread input
-// - ouput: the thread output
+// - output: the thread output
 // Return: a pointer to the context
 func (context *Context) NewThreadContext(thread int, input interface{}, output interface{}) *Context {
 	another := &Context{
