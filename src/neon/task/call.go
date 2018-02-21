@@ -31,7 +31,10 @@ func Call(context *build.Context, args interface{}) error {
 	params := args.(CallArgs)
 	for _, target := range params.Call {
 		context.Message("Calling target '%s'", target)
-		context.Build.RunTarget(context, target)
+		err := context.Build.RunTarget(context, target)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
