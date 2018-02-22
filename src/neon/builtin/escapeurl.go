@@ -8,7 +8,7 @@ import (
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "escapeurl",
-		Func: escapeUrl,
+		Func: escapeURL,
 		Help: `Escape given URL.
 
 Arguments:
@@ -27,7 +27,7 @@ Examples:
 	})
 }
 
-func escapeUrl(path string) string {
+func escapeURL(path string) string {
 	url, err := url.Parse(path)
 	if err != nil {
 		panic(err)
