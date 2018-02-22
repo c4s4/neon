@@ -1,7 +1,7 @@
 # Neon build file (http://github.com/c4s4/neon)
 
 doc:     Build file for NeON
-default: [clean, bin, test, integ]
+default: [clean, check, test, integ]
 extends:
 - c4s4/build/golang.yml
 - c4s4/build/release.yml
@@ -9,10 +9,14 @@ extends:
 
 properties:
   NAME:      'neon'
+  PACKAGE:   =NAME
   ARC_DIR:   '={BUILD_DIR}/={NAME}-={VERSION}'
   REFERENCE: 'doc/reference.md'
   LIBRARIES:
   - 'github.com/mitchellh/gox'
+  - 'github.com/fzipp/gocyclo'
+  - 'golang.org/x/lint/golint'
+  - 'github.com/gordonklaus/ineffassign'
   - 'gopkg.in/yaml.v2'
   - 'github.com/c4s4/anko'
   - 'github.com/mattn/go-zglob'
@@ -83,7 +87,7 @@ targets:
     doc: Generate binaries for all platforms
     steps:
     - mkdir: '={BUILD_DIR}/bin/'
-    - $: ['gox', '-ldflags', '-X main.VERSION=={VERSION}',
+    - $: ['gox', '-ldflags', '-X main.Version=={VERSION}',
           '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', =NAME]
 
   archive:
@@ -116,5 +120,5 @@ targets:
     doc: Build binary for Windows
     steps:
     - mkdir: =BUILD_DIR
-    - $: ['gox', '-ldflags', '-X main.VERSION=={VERSION}', 
+    - $: ['gox', '-ldflags', '-X main.Version=={VERSION}', 
           '-osarch=windows/386', '-output=={BUILD_DIR}/={NAME}', =NAME]
