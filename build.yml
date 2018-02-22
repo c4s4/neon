@@ -112,7 +112,7 @@ targets:
       tofile: '={BUILD_DIR}/={NAME}-={VERSION}.tar.gz'
 
   release:
-    depends: [clean, test, integ, refs, archive]
+    depends: [clean, check, test, integ, refs, archive]
     steps:
     - super:
 
