@@ -13,6 +13,8 @@
   - "Error is propagated while occurring in call task, stopping the build."
   - "Removed all warnings from code (100% with all tools on goreportcard.com)."
   - "Improved singleton port parsing and error reporting."
+  - "Fixed infinite loop detection while calling two times a target on command
+     line."
 
 - version: 0.11.0
   date:    2018-01-20
