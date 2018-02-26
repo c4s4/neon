@@ -1,7 +1,7 @@
 # Neon build file (http://github.com/c4s4/neon)
 
 doc:     Build file for NeON
-default: [clean, check, test, integ]
+default: [clean, check, test]
 extends:
 - c4s4/build/golang.yml
 - c4s4/build/release.yml
@@ -27,28 +27,6 @@ environment:
   PATH:   '={_BASE}/bin:${PATH}'
 
 targets:
-
-  fmt:
-    doc: Reformat code
-    steps:
-    - print: 'Formatting code with fmt'
-    - $: ['gofmt', '-s', '-w', 'src/neon/']
-
-  test:                                                                         
-    doc: Run Go tests
-    steps:
-    - $: ['go', 'test', '={NAME}/...']
-
-  integ:
-    doc:     Run integration tests
-    depends: bin
-    steps:
-    - print: 'Running integration tests'
-    - for: 'file'
-      in:  'find("test", "**/*.yml")'
-      do:
-      - print: "Running build file '={file}'"
-      - $: ['bin/neon', '-file', 'test/={file}']
 
   bin:
     doc: Build neon binary
@@ -115,10 +93,3 @@ targets:
     depends: [clean, check, test, integ, refs, archive]
     steps:
     - super:
-
-  windows:
-    doc: Build binary for Windows
-    steps:
-    - mkdir: =BUILD_DIR
-    - $: ['gox', '-ldflags', '-X main.Version=={VERSION}', 
-          '-osarch=windows/386', '-output=={BUILD_DIR}/={NAME}', =NAME]
