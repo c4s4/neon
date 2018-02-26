@@ -246,6 +246,7 @@ func (build *Build) Run(context *Context, targets []string) error {
 		}
 	}
 	for _, target := range targets {
+		context.Stack = NewStack()
 		err := build.RunTarget(context, target)
 		if err != nil {
 			return err
