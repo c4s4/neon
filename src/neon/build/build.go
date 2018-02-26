@@ -331,7 +331,11 @@ func (build *Build) EnsureSingle(context *Context) error {
 	}
 	port, ok := singleton.(int64)
 	if !ok {
-		return fmt.Errorf("singleton port expression '%s' must return an integer", expression)
+		portInt, ok := singleton.(int)
+		if !ok {
+			return fmt.Errorf("singleton port expression '%s' must return an integer", expression)
+		}
+		port = int64(portInt)
 	}
 	if port < 0 || port > 65535 {
 		return fmt.Errorf("singleton port port must be between 0 and 65535")
