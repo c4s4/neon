@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"gopkg.in/yaml.v2"
-	"strings"
 )
 
 const (
@@ -338,11 +337,7 @@ func (build *Build) EnsureSingle(context *Context) error {
 	}
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
-		if strings.HasSuffix(err.Error(), "permission denied") {
-			return fmt.Errorf("you don't have permission to listen port %d", port)
-		} else {
-			return fmt.Errorf("another instance of the build is already running")
-		}
+		return fmt.Errorf("listening singleton port: %v", err)
 	}
 	go func() {
 		for {
