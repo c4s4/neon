@@ -246,6 +246,7 @@ func (build *Build) Run(context *Context, targets []string) error {
 		}
 	}
 	for _, target := range targets {
+		context.Stack = NewStack()
 		err := build.RunTarget(context, target)
 		if err != nil {
 			return err
@@ -320,17 +321,24 @@ func (build *Build) EnsureSingle(context *Context) error {
 	if build.Singleton == "" {
 		return nil
 	}
-	singleton, err := context.EvaluateExpression(build.Singleton)
-	if err != nil {
-		return fmt.Errorf("evaluating singleton port expression '%s': %v", build.Singleton, err)
+	expression := build.Singleton
+	if IsExpression(expression) {
+		expression = expression[1:]
 	}
-	port, ok := singleton.(int)
+	singleton, err := context.EvaluateExpression(expression)
+	if err != nil {
+		return fmt.Errorf("evaluating singleton port expression '%s': %v", expression, err)
+	}
+	port, ok := singleton.(int64)
 	if !ok {
-		return fmt.Errorf("singleton port expression '%s' must return an integer", build.Singleton)
+		return fmt.Errorf("singleton port expression '%s' must return an integer", expression)
+	}
+	if port < 0 || port > 65535 {
+		return fmt.Errorf("singleton port port must be between 0 and 65535")
 	}
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
-		return fmt.Errorf("another instance of the build is already running")
+		return fmt.Errorf("listening singleton port: %v", err)
 	}
 	go func() {
 		for {
