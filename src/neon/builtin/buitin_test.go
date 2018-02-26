@@ -1,7 +1,8 @@
-package main
+package builtin
 
 import (
 	_build "neon/build"
+	_ "neon/task"
 	"neon/util"
 	"os"
 	"path"
@@ -10,7 +11,7 @@ import (
 )
 
 const (
-	TestDir = "../../test"
+	TestDir = "../../../test/builtin"
 )
 
 // TestIntegration runs all test build files (in test directory).
