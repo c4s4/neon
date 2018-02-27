@@ -11,15 +11,26 @@ const (
 	FileMode = 0644
 )
 
-func tempFile() string {
-	tempFile, _ := ioutil.TempFile("", "files_test.tmp")
+func makeTempFile(dir string, t *testing.T) string {
+	tempFile, err := ioutil.TempFile(dir, "files_test.tmp")
+	if err != nil {
+		t.Fail()
+	}
 	return tempFile.Name()
 }
 
+func writeTempFile(dir string, t *testing.T) string {
+	tempFile := makeTempFile(dir, t)
+	err := ioutil.WriteFile(tempFile, []byte("test"), FileMode)
+	if err != nil {
+		t.Fail()
+	}
+	return tempFile
+}
+
 func TestReadFile(t *testing.T) {
-	tempFile := tempFile()
+	tempFile := writeTempFile("", t)
 	defer os.Remove(tempFile)
-	ioutil.WriteFile(tempFile, []byte("test"), FileMode)
 	text, err := ReadFile(tempFile)
 	if err != nil {
 		t.Fail()
@@ -34,7 +45,7 @@ func TestReadFile(t *testing.T) {
 }
 
 func TestFileExists(t *testing.T) {
-	tempFile := tempFile()
+	tempFile := writeTempFile("", t)
 	defer os.Remove(tempFile)
 	if !FileExists(tempFile) {
 		t.Fail()
@@ -54,15 +65,11 @@ func TestDirExists(t *testing.T) {
 }
 
 func TestCopyFile(t *testing.T) {
-	srcFile := tempFile()
+	srcFile := writeTempFile("", t)
 	defer os.Remove(srcFile)
 	dstFile := path.Join(os.TempDir(), "test.tmp")
 	defer os.Remove(dstFile)
-	err := ioutil.WriteFile(srcFile, []byte("test"), FileMode)
-	if err != nil {
-		t.Fail()
-	}
-	err = CopyFile(srcFile, dstFile)
+	err := CopyFile(srcFile, dstFile)
 	if err != nil {
 		t.Fail()
 	}
@@ -73,6 +80,70 @@ func TestCopyFile(t *testing.T) {
 	if string(text) != "test" {
 		t.Fail()
 	}
+}
+
+func TestCopyFilesToDir(t *testing.T) {
+	srcDir := path.Join(os.TempDir(), "src")
+	dstDir := path.Join(os.TempDir(), "dst")
+	if err := os.MkdirAll(srcDir, DirFileMode); err != nil {
+		t.Fail()
+	}
+	if err := os.MkdirAll(dstDir, DirFileMode); err != nil {
+		t.Fail()
+	}
+	tmpFile1 := makeTempFile(srcDir, t)
+	println(tmpFile1)
+	defer os.Remove(tmpFile1)
+	tmpFile2 := makeTempFile(srcDir, t)
+	println(tmpFile2)
+	defer os.Remove(tmpFile2)
+	err := CopyFilesToDir(srcDir, []string{path.Base(tmpFile1), path.Base(tmpFile2)}, dstDir, false)
+	if err != nil {
+		t.Fail()
+	}
+	newFile1 := path.Join(dstDir, path.Base(tmpFile1))
+	newFile2 := path.Join(dstDir, path.Base(tmpFile2))
+	if !FileExists(newFile1) {
+		t.Fail()
+	}
+	if !FileExists(newFile2) {
+		t.Fail()
+	}
+	os.RemoveAll(srcDir)
+	os.RemoveAll(dstDir)
+}
+
+func TestMoveFilesToDir(t *testing.T) {
+	srcDir := path.Join(os.TempDir(), "src")
+	dstDir := path.Join(os.TempDir(), "dst")
+	if err := os.MkdirAll(srcDir, DirFileMode); err != nil {
+		t.Fail()
+	}
+	if err := os.MkdirAll(dstDir, DirFileMode); err != nil {
+		t.Fail()
+	}
+	tmpFile1 := makeTempFile(srcDir, t)
+	tmpFile2 := makeTempFile(srcDir, t)
+	err := MoveFilesToDir(srcDir, []string{path.Base(tmpFile1), path.Base(tmpFile2)}, dstDir, false)
+	if err != nil {
+		t.Fail()
+	}
+	newFile1 := path.Join(dstDir, path.Base(tmpFile1))
+	newFile2 := path.Join(dstDir, path.Base(tmpFile2))
+	if !FileExists(newFile1) {
+		t.Fail()
+	}
+	if !FileExists(newFile2) {
+		t.Fail()
+	}
+	if FileExists(tmpFile1) {
+		t.Fail()
+	}
+	if FileExists(tmpFile2) {
+		t.Fail()
+	}
+	os.RemoveAll(srcDir)
+	os.RemoveAll(dstDir)
 }
 
 func TestWindowsToUnix(t *testing.T) {
