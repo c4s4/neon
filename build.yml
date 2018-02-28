@@ -90,6 +90,6 @@ targets:
       tofile: '={BUILD_DIR}/={NAME}-={VERSION}.tar.gz'
 
   release:
-    depends: [clean, check, test, integ, refs, archive]
+    depends: [clean, check, test, refs, archive]
     steps:
     - super:
