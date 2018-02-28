@@ -124,7 +124,9 @@ func (build *Build) infoTargets() {
 	targets := build.GetTargets()
 	names := make([]string, 0)
 	for name := range targets {
-		names = append(names, name)
+		if !strings.HasPrefix(name, "_") {
+			names = append(names, name)
+		}
 	}
 	length := util.MaxLineLength(names)
 	sort.Strings(names)
