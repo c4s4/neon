@@ -176,6 +176,9 @@ func (context *Context) EvaluateExpression(expression string) (interface{}, erro
 	if err != nil {
 		return nil, FormatScriptError(err)
 	}
+	if !value.IsValid() {
+		return nil, nil
+	}
 	return value.Interface(), nil
 }
 
