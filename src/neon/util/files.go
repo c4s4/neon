@@ -179,19 +179,6 @@ func ExpandUserHome(path string) string {
 	return path
 }
 
-// ExpandAndJoinToRoot expand path starting with "~/" or append to root if
-// relative:
-// - root: root path to ajoin to if relative
-// - path: the path to expand
-// Return: expanded path
-func ExpandAndJoinToRoot(root, path string) string {
-	path = ExpandUserHome(path)
-	if filepath.IsAbs(path) {
-		return path
-	}
-	return filepath.Join(root, path)
-}
-
 // PathToUnix turns a path to Unix format (with "/"):
 // - path: path to turn to unix format
 // Return: converted path
