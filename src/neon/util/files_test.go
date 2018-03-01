@@ -3,7 +3,9 @@ package util
 import (
 	"io/ioutil"
 	"os"
+	"os/user"
 	"path"
+	"strings"
 	"testing"
 )
 
@@ -144,6 +146,22 @@ func TestMoveFilesToDir(t *testing.T) {
 	}
 	os.RemoveAll(srcDir)
 	os.RemoveAll(dstDir)
+}
+
+func TestExpandUserHome(t *testing.T) {
+	user, _ := user.Current()
+	home := user.HomeDir
+	expanded := ExpandUserHome("~/foo")
+	if !strings.HasPrefix(expanded, home) {
+		t.Fail()
+	}
+	if !strings.HasSuffix(expanded, "foo") {
+		t.Fail()
+	}
+	expanded = ExpandUserHome("foo")
+	if expanded != "foo" {
+		t.Fail()
+	}
 }
 
 func TestWindowsToUnix(t *testing.T) {

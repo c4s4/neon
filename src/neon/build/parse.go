@@ -3,6 +3,7 @@ package build
 import (
 	"fmt"
 	"neon/util"
+	"path/filepath"
 	"strconv"
 
 	"gopkg.in/yaml.v2"
@@ -186,7 +187,10 @@ func ParseConfiguration(object util.Object, build *Build) error {
 			return fmt.Errorf("getting configuration file: %v", err)
 		}
 		for _, file := range files {
-			file = util.ExpandAndJoinToRoot(build.Dir, file)
+			file = util.ExpandUserHome(file)
+			if !filepath.IsAbs(file) {
+				file = filepath.Join(build.Dir, file)
+			}
 			source, err := util.ReadFile(file)
 			if err != nil {
 				return fmt.Errorf("reading configuration file: %v", err)
