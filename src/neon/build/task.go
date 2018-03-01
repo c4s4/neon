@@ -292,8 +292,8 @@ func evaluateExpression(field reflect.StructField, val interface{}, context *Con
 		if val == nil ||
 			// we accept if expected is slice of interfaces and actual is slice
 			!(expected.Kind() == reflect.Slice && actual.Kind() == reflect.Slice) &&
-			// or if slice and wrap
-			!(expected == reflect.SliceOf(actual) && FieldIs(field, FieldWrap)) {
+				// or if slice and wrap
+				!(expected == reflect.SliceOf(actual) && FieldIs(field, FieldWrap)) {
 			return nil, fmt.Errorf("bad expression return type, expected '%v' but '%v' was returned",
 				expected, actual)
 		}
