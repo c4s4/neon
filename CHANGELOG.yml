@@ -16,6 +16,7 @@
   - "Improved singleton port parsing and error reporting."
   - "Fixed infinite loop detection while calling two times a target on command
      line."
+  - "Fixed a bug on task super while called in a parent build file."
 
 - version: 0.11.0
   date:    2018-01-20
