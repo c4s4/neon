@@ -2,7 +2,7 @@
 /bin/
 /lib/
 /pkg/
+/.vscode/
 /src/github.com/
 /src/golang.org
 /src/gopkg.in/
-/.vscode/
