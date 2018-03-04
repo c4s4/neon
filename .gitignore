@@ -1,7 +1,6 @@
-/build/
 /bin/
-/lib/
 /pkg/
+/build/
 /.vscode/
 /src/github.com/
 /src/golang.org
