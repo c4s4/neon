@@ -55,6 +55,16 @@ func DirExists(dir string) bool {
 	return false
 }
 
+// FileIsExecutable tells if given file is executable by user:
+// - file: file to test
+// Return: a boolean that tells if file is executable by user
+func FileIsExecutable(file string) bool {
+	if stat, err := os.Stat(file); err == nil && stat.Mode()|0100 != 0 {
+		return true
+	}
+	return false
+}
+
 // CopyFile copies source file to destination, preserving mode:
 // - source: the source file
 // - dest: the destination file
