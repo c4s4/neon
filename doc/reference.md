@@ -989,6 +989,44 @@ Notes:
 
 - Files may be filtered with filter() builtin.
 
+findinpath
+----------
+
+Find executables in PATH.
+
+Arguments:
+
+- The executable to find.
+
+Returns:
+
+- A list of absolute paths to the executable, in the order of the PATH.
+
+Examples:
+
+    # find python in path
+    findinpath("python")
+    # returns: ["/opt/python/current/bin/python", /usr/bin/python"]
+
+followlink
+----------
+
+Follow symbolic link.
+
+Arguments:
+
+- The symbolic link to follow.
+
+Returns:
+
+- The path with symbolic links followed.
+
+Examples:
+
+    # follow symbolic link 'foo'
+    followlink("foo")
+    # returns: 'bar'
+
 join
 ----
 
