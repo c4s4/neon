@@ -11,6 +11,7 @@ Arguments:
 - $: command to run (string or list of strings).
 - =: name of the variable to set with command output, output to console if not
   set (string, optional).
+- -: options to pass on command line after command (strings, optional).
 
 Examples:
 
@@ -18,7 +19,10 @@ Examples:
     - $: 'ls -al'
       =: 'files'
     # execute command as a list of strings and output on console
-    - $: ['ls', '-al']
+	- $: ['ls', '-al']
+	# run pylint on all python files except those in venv
+	- $: 'pylint'
+	  -: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
 
 Notes:
 
@@ -1245,6 +1249,27 @@ Examples:
     # read VERSION file and set variable version with ots content
     read("VERSION")
     # returns: the contents of "VERSION" file
+
+replace
+-------
+
+Replace string with another.
+
+Arguments:
+
+- The strings where take place replacements.
+- The substring to replace.
+- The replacement substring.
+
+Returns:
+
+- Replaced string.
+
+Examples:
+
+    # replace "foo" with "bar" in string "spam foo eggs"
+    replace("spam foo eggs", "foo", "bar")
+    # returns: "spam bar eggs"
 
 run
 ---
