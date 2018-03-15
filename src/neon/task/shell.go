@@ -21,6 +21,7 @@ Arguments:
 - $: command to run (string or list of strings).
 - =: name of the variable to set with command output, output to console if not
   set (string, optional).
+- -: options to pass on command line after command (strings, optional).
 
 Examples:
 
@@ -28,7 +29,10 @@ Examples:
     - $: 'ls -al'
       =: 'files'
     # execute command as a list of strings and output on console
-    - $: ['ls', '-al']
+	- $: ['ls', '-al']
+	# run pylint on all python files except those in venv
+	- $: 'pylint'
+	  -: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
 
 Notes:
 
@@ -45,11 +49,12 @@ Notes:
 type shellArgs struct {
 	Shell []string `neon:"name=$,wrap"`
 	To    string   `neon:"name==,optional"`
+	Opts  []string `neon:"name=-,expression,optional"`
 }
 
 func shell(context *build.Context, args interface{}) error {
 	params := args.(shellArgs)
-	output, err := run(params.Shell, params.To == "", context)
+	output, err := run(params.Shell, params.To == "", params.Opts, context)
 	if err != nil {
 		if output != "" {
 			context.Message(output)
@@ -62,7 +67,10 @@ func shell(context *build.Context, args interface{}) error {
 	return nil
 }
 
-func run(command []string, pipe bool, context *build.Context) (string, error) {
+func run(command []string, pipe bool, options []string, context *build.Context) (string, error) {
+	if options != nil {
+		command = append(command, options...)
+	}
 	if len(command) == 0 {
 		return "", fmt.Errorf("empty command")
 	} else if len(command) < 2 {
