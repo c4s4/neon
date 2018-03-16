@@ -1168,6 +1168,28 @@ Examples:
     lowercase("FooBAR")
     # returns: "foobar"
 
+newer
+-----
+
+Tells if source is newer than result file (if any).
+
+Arguments:
+
+- source: source file that must exist.
+- result: result file (may not exist).
+
+Returns:
+
+- A boolean that tells if source is newer than result. If result file doesn't
+  exists, this returns true.
+
+Examples:
+
+    # generate PDF if source Markdown changed
+    if newer("source.md", "result.pdf") {
+    	compile("source.md")
+    }
+
 now
 ---
 
@@ -1189,28 +1211,6 @@ Examples:
     # to get date in ISO format
     now()[0:10]
     # returns: "2006-01-02"
-
-older
------
-
-Tells if source is older than result file (if any).
-
-Arguments:
-
-- source: source file that must exist.
-- result: result file (may not exist).
-
-Returns:
-
-- A boolean that tells if source is older tha result. If result file doesn't
-  exists, this returns true.
-
-Examples:
-
-    # generate PDF if source Markdown changed
-    if older("source.md", "result.pdf") {
-    	compile("source.md")
-    }
 
 ospath
 ------
