@@ -1,0 +1,37 @@
+doc: Built file to test builds
+default: builtin_newer
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_newer:
+    doc: Test the newer builtin function
+    steps:
+    - delete: '#{BUILD_DIR}/newer'
+    - mkdir: '#{BUILD_DIR}/newer'
+    - touch: '#{BUILD_DIR}/newer/source'
+    - sleep: 0.1
+    - touch: '#{BUILD_DIR}/newer/result'
+    - |
+      if newer(joinpath(BUILD_DIR, "newer/source"), joinpath(BUILD_DIR, "newer/result")) {
+        throw("Newer test failure")
+      } else {
+        println("Newer test success")
+      }
+    - sleep: 0.1
+    - touch: '#{BUILD_DIR}/newer/source'
+    - |
+      if newer(joinpath(BUILD_DIR, "newer/source"), joinpath(BUILD_DIR, "newer/result")) {
+        println("Newer test success")
+      } else {
+        throw("Newer test failure")
+      }
+    - delete: '#{BUILD_DIR}/newer/result'
+    - |
+      if newer(joinpath(BUILD_DIR, "newer/source"), joinpath(BUILD_DIR, "newer/result")) {
+        println("Newer test success")
+      } else {
+        throw("Newer test failure")
+      }
