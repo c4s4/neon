@@ -7,9 +7,9 @@ import (
 
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
-		Name: "older",
-		Func: older,
-		Help: `Tells if source is older than result file (if any).
+		Name: "newer",
+		Func: newer,
+		Help: `Tells if source is newer than result file (if any).
 
 Arguments:
 
@@ -18,19 +18,19 @@ Arguments:
 
 Returns:
 
-- A boolean that tells if source is older tha result. If result file doesn't
+- A boolean that tells if source is newer than result. If result file doesn't
   exists, this returns true.
 
 Examples:
 
     # generate PDF if source Markdown changed
-    if older("source.md", "result.pdf") {
+    if newer("source.md", "result.pdf") {
     	compile("source.md")
     }`,
 	})
 }
 
-func older(source, result string) bool {
+func newer(source, result string) bool {
 	info, err := os.Stat(source)
 	if err != nil {
 		panic("could no get info about source file")
