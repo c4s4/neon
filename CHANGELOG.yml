@@ -1,7 +1,7 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
 - version: 0.12.0
-  date:    2018-03-16
+  date:    2018-03-17
   summary: Added template and parent discovery
   added:
   - "Added template discovery, so that you can call template 'golang' instead
@@ -11,6 +11,7 @@
   - "Hide targets which name starts with an underscore in build information."
   - "Added findinpath(), followlink() and replace() builtins."
   - "Added option argument for shell task."
+  - "Added output redirection options in shell task."
   fixed:
   - "Fixed integration tests on Windows."
   - "Error is propagated while occurring in call task, stopping the build."
