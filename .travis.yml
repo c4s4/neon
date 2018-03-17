@@ -1,4 +1,6 @@
 language: go
+go:
+- '1.10'
 install:
 - ln -s $HOME/gopath/src/github.com/c4s4/neon/src/neon $HOME/gopath/src/neon
 - go get -t -v ./...
