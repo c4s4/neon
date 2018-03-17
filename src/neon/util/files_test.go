@@ -9,10 +9,6 @@ import (
 	"testing"
 )
 
-const (
-	FileMode = 0644
-)
-
 func makeTempFile(dir string, t *testing.T) string {
 	tempFile, err := ioutil.TempFile(dir, "files_test.tmp")
 	if err != nil {
