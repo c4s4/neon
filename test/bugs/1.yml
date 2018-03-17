@@ -1,0 +1,7 @@
+default: bug
+
+targets:
+
+  bug:
+    steps:
+      - $: ['ls', 1]
