@@ -9,20 +9,26 @@ Execute a command and return output and value.
 Arguments:
 
 - $: command to run (string or list of strings).
-- =: name of the variable to set with command output, output to console if not
-  set (string, optional).
-- -: options to pass on command line after command (strings, optional).
+- +: options to pass on command line after command (strings, optional).
+- n=: write command output into named property. Values for n are: 1 for stdout,
+  2 for stderr and 3 for stdout and stderr.
+- n>: write command output in named file. Values for n are: 1 for stdout,
+  2 for stderr and 3 for stdout and stderr.
+- n>>: append command output to named file. Values for n are: 1 for stdout,
+  2 for stderr and 3 for stdout and stderr.
+- nx: disable command output. Values for n are: 1 for stdout, 2 for stderr and
+  3 for stdout and stderr.
 
 Examples:
 
     # execute ls command and get result in 'files' variable
-    - $: 'ls -al'
-      =: 'files'
+    - $:  'ls -al'
+      1=: 'files'
     # execute command as a list of strings and output on console
 	- $: ['ls', '-al']
 	# run pylint on all python files except those in venv
 	- $: 'pylint'
-	  -: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
+	  +: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
 
 Notes:
 
