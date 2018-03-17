@@ -2,7 +2,9 @@ package task
 
 import (
 	"fmt"
+	"io"
 	"neon/build"
+	"neon/util"
 	"os"
 	"os/exec"
 	"reflect"
@@ -19,20 +21,26 @@ func init() {
 Arguments:
 
 - $: command to run (string or list of strings).
-- =: name of the variable to set with command output, output to console if not
-  set (string, optional).
-- -: options to pass on command line after command (strings, optional).
+- +: options to pass on command line after command (strings, optional).
+- n=: write command output into named property. Values for n are: 1 for stdout,
+  2 for stderr and 3 for stdout and stderr.
+- n>: write command output in named file. Values for n are: 1 for stdout,
+  2 for stderr and 3 for stdout and stderr.
+- n>>: append command output to named file. Values for n are: 1 for stdout,
+  2 for stderr and 3 for stdout and stderr.
+- nx: disable command output. Values for n are: 1 for stdout, 2 for stderr and
+  3 for stdout and stderr.
 
 Examples:
 
     # execute ls command and get result in 'files' variable
-    - $: 'ls -al'
-      =: 'files'
+    - $:  'ls -al'
+      1=: 'files'
     # execute command as a list of strings and output on console
 	- $: ['ls', '-al']
 	# run pylint on all python files except those in venv
 	- $: 'pylint'
-	  -: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
+	  +: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
 
 Notes:
 
@@ -48,70 +56,139 @@ Notes:
 
 type shellArgs struct {
 	Shell []string `neon:"name=$,wrap"`
-	To    string   `neon:"name==,optional"`
-	Opts  []string `neon:"name=-,expression,optional"`
+	Args  []string `neon:"name=+,expression,optional"`
+	Del1  bool     `neon:"name=1x,bool,optional"`
+	Del2  bool     `neon:"name=2x,bool,optional"`
+	Del3  bool     `neon:"name=3x,bool,optional"`
+	Red1  string   `neon:"name=1>,file,optional"`
+	Red2  string   `neon:"name=2>,file,optional"`
+	Red3  string   `neon:"name=3>,file,optional"`
+	App1  string   `neon:"name=1>>,file,optional"`
+	App2  string   `neon:"name=2>>,file,optional"`
+	App3  string   `neon:"name=3>>,file,optional"`
+	Var1  string   `neon:"name=1=,optional"`
+	Var2  string   `neon:"name=2=,optional"`
+	Var3  string   `neon:"name=3=,optional"`
 }
 
 func shell(context *build.Context, args interface{}) error {
 	params := args.(shellArgs)
-	output, err := run(params.Shell, params.To == "", params.Opts, context)
-	if err != nil {
-		if output != "" {
-			context.Message(output)
-		}
-		return err
+	// writers to stdout and stderr
+	stdout := []io.Writer{os.Stdout}
+	stderr := []io.Writer{os.Stderr}
+	// string builder to redirect in a property
+	var builder *strings.Builder
+	property := ""
+	// disable output on stdout or stderr
+	if params.Del1 || params.Del3 {
+		stdout = []io.Writer{}
 	}
-	if params.To != "" {
-		context.SetProperty(params.To, strings.TrimSpace(string(output)))
+	if params.Del2 || params.Del3 {
+		stderr = []io.Writer{}
+	}
+	// redirect stdout in a file
+	if params.Red1+params.Red3 != "" {
+		filename := params.Red1 + params.Red3
+		file, err := os.Create(filename)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		stdout = append(stdout, file)
+	}
+	// redirect stderr in a file
+	if params.Red2+params.Red3 != "" {
+		filename := params.Red2 + params.Red3
+		file, err := os.Create(filename)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		stderr = append(stderr, file)
+	}
+	// append stdout to a file
+	if params.App1+params.App3 != "" {
+		filename := params.App1 + params.App3
+		file, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND, util.FileMode)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		stdout = append(stdout, file)
+	}
+	// append stderr to a file
+	if params.App2+params.App3 != "" {
+		filename := params.App2 + params.App3
+		file, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND, util.FileMode)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		stdout = append(stderr, file)
+	}
+	// write stdout in a property
+	if params.Var1+params.Var3 != "" {
+		builder = &strings.Builder{}
+		stdout = append(stdout, builder)
+		property = params.Var1 + params.Var3
+	}
+	// write stderr in a property
+	if params.Var2+params.Var3 != "" {
+		builder = &strings.Builder{}
+		stdout = append(stderr, builder)
+		property = params.Var2 + params.Var3
+	}
+	// put writers in a multi writer
+	multiStdout := io.MultiWriter(stdout...)
+	multiStderr := io.MultiWriter(stderr...)
+	err := run(params.Shell, params.Args, multiStdout, multiStderr, context)
+	if builder != nil {
+		context.SetProperty(property, strings.TrimSpace(builder.String()))
+	}
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
-func run(command []string, pipe bool, options []string, context *build.Context) (string, error) {
-	if options != nil {
-		command = append(command, options...)
+func run(command []string, args []string, stdout, stderr io.Writer, context *build.Context) error {
+	if args != nil {
+		command = append(command, args...)
 	}
 	if len(command) == 0 {
-		return "", fmt.Errorf("empty command")
+		return fmt.Errorf("empty command")
 	} else if len(command) < 2 {
-		return runString(command[0], pipe, context)
+		return runString(command[0], stdout, stderr, context)
 	} else {
-		return runList(command, pipe, context)
+		return runList(command, stdout, stderr, context)
 	}
 }
 
-func runList(cmd []string, pipe bool, context *build.Context) (string, error) {
+func runList(cmd []string, stdout, stderr io.Writer, context *build.Context) error {
 	command := exec.Command(cmd[0], cmd[1:]...)
 	dir, err := os.Getwd()
 	if err != nil {
-		return "", fmt.Errorf("getting current working directory: %v", err)
+		return fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
 	command.Env, err = context.EvaluateEnvironment()
 	if err != nil {
-		return "", fmt.Errorf("building environment: %v", err)
+		return fmt.Errorf("building environment: %v", err)
 	}
-	if pipe {
-		command.Stdin = os.Stdin
-		command.Stdout = os.Stdout
-		command.Stderr = os.Stderr
-		err = command.Run()
-		if err != nil {
-			return "", fmt.Errorf("executing command: %v", err)
-		}
-		return "", nil
-	}
-	bytes, err := command.CombinedOutput()
+	command.Stdin = os.Stdin
+	command.Stdout = stdout
+	command.Stderr = stderr
+	err = command.Run()
 	if err != nil {
-		return string(bytes), fmt.Errorf("executing command: %v", err)
+		return fmt.Errorf("executing command: %v", err)
 	}
-	return string(bytes), nil
+	return nil
 }
 
-func runString(cmd string, pipe bool, context *build.Context) (string, error) {
+func runString(cmd string, stdout, stderr io.Writer, context *build.Context) error {
 	shell, err := context.Build.GetShell()
 	if err != nil {
-		return "", err
+		return err
 	}
 	binary := shell[0]
 	arguments := shell[1:]
@@ -119,26 +196,19 @@ func runString(cmd string, pipe bool, context *build.Context) (string, error) {
 	command := exec.Command(binary, arguments...)
 	dir, err := os.Getwd()
 	if err != nil {
-		return "", fmt.Errorf("getting current working directory: %v", err)
+		return fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
 	command.Env, err = context.EvaluateEnvironment()
 	if err != nil {
-		return "", fmt.Errorf("building environment: %v", err)
+		return fmt.Errorf("building environment: %v", err)
 	}
-	if pipe {
-		command.Stdin = os.Stdin
-		command.Stdout = os.Stdout
-		command.Stderr = os.Stderr
-		err = command.Run()
-		if err != nil {
-			return "", fmt.Errorf("executing command: %v", err)
-		}
-		return "", nil
-	}
-	bytes, err := command.CombinedOutput()
+	command.Stdin = os.Stdin
+	command.Stdout = stdout
+	command.Stderr = stderr
+	err = command.Run()
 	if err != nil {
-		return string(bytes), fmt.Errorf("executing command: %v", err)
+		return fmt.Errorf("executing command: %v", err)
 	}
-	return string(bytes), nil
+	return nil
 }
