@@ -12,8 +12,8 @@ targets:
     - if: '_OS != "windows"'
       then:
       # test shell
-      - $: 'echo "TEST"'
-        =: 'result'
+      - $:  'echo "TEST"'
+        1=: 'result'
       - |
         if result != "TEST" {
           throw("$ test failure")
@@ -21,8 +21,8 @@ targets:
           println("$ test success")
         }
       # test command
-      - $: ['echo', 'TEST']
-        =: 'result'
+      - $:  ['echo', 'TEST']
+        1=: 'result'
       - |
         if result != "TEST" {
           throw("$ test failure")
@@ -31,8 +31,8 @@ targets:
         }
       # test shell with property
       - 'message = "foo"'
-      - $: 'echo "={message}"'
-        =: 'result'
+      - $:  'echo "={message}"'
+        1=: 'result'
       - |
         if result != "foo" {
           throw("$ test failure")
@@ -41,8 +41,8 @@ targets:
         }
       # test command with property
       - 'message = "foo"'
-      - $: ['echo', '={message}']
-        =: 'result'
+      - $:  ['echo', '={message}']
+        1=: 'result'
       - |
         if result != "foo" {
           throw("$ test failure")
@@ -52,7 +52,7 @@ targets:
       - for: 'i'
         in:  'range(3)'
         do:
-        - $: ['echo', '={i}']
-          =: 'result'
+        - $:  ['echo', '={i}']
+          1=: 'result'
         - print: '={i}'
         - assert: 'result == toString(i)'

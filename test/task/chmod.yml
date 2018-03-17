@@ -17,8 +17,8 @@ targets:
       - chmod: 'test.txt'
         dir:   '={BUILD_DIR}/chmod'
         mode:  0755
-      - $: ['ls', '-l', '={BUILD_DIR}/chmod/test.txt']
-        =: 'mode'
+      - $:  ['ls', '-l', '={BUILD_DIR}/chmod/test.txt']
+        1=: 'mode'
       - if: 'mode[0:10] != "-rwxr-xr-x"'
         then:
         - throw: 'Chmod test failure'
@@ -29,8 +29,8 @@ targets:
         dir:     '={BUILD_DIR}/chmod'
         exclude: '*.txt'
         mode:  0644
-      - $: ['ls', '-l', '={BUILD_DIR}/chmod/test.txt']
-        =: 'mode'
+      - $:  ['ls', '-l', '={BUILD_DIR}/chmod/test.txt']
+        1=: 'mode'
       - if: 'mode[0:10] != "-rwxr-xr-x"'
         then:
         - throw: 'Chmod test failure'
