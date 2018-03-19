@@ -871,6 +871,25 @@ Examples:
     dir = directory("/foo/bar/spam.txt")
     # returns: "/foo/bar"
 
+env
+---
+
+Get environment variable.
+
+Arguments:
+
+- The name of the environment variable to get value for.
+
+Returns:
+
+- The value of this environment variable.
+
+Examples:
+
+    # get PATH environment variable
+    env("PATH")
+    # returns: value of the environment variable PATH
+
 escapeurl
 ---------
 
