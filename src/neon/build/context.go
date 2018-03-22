@@ -28,9 +28,10 @@ const (
 )
 
 var (
-	regexpExp   = regexp.MustCompile(`\\{0,2}[#=]{.*?}`)
-	regexpEnv   = regexp.MustCompile(`\\{0,2}[#=$]{.*?}`)
-	regexpParts = regexp.MustCompile(`(\\{0,2})([#=$]){(.*)}`)
+	regexpExp   = regexp.MustCompile(`\\*[#=]{.*?([^\\])}`)
+	regexpEnv   = regexp.MustCompile(`\\*[#=$]{.*?}`)
+	regexpParts = regexp.MustCompile(`(\\*)([#=$]){(.*)}`)
+	regexpClose = regexp.MustCompile(`\\*}`)
 )
 
 // Context is the context of the build
@@ -195,13 +196,19 @@ func (context *Context) EvaluateString(text string) (string, error) {
 		char := parts[2]
 		source := parts[3]
 		// expression was escaped
-		if prefix == `\` {
-			return char + `{` + source + `}`
+		if len(prefix)%2 == 1 {
+			return strings.Repeat(`\`, len(prefix)/2) + char + `{` + source + `}`
 		}
 		// expression not escaped
-		if prefix == `\\` {
-			prefix = `\`
+		if len(prefix)%2 == 0 {
+			prefix = strings.Repeat(`\`, len(prefix)/2)
 		}
+		// replace escaped closing curly braces "\}"" in expression
+		source = regexpClose.ReplaceAllStringFunc(source, func(text string) string {
+			text = text[:len(text)-1]
+			slash := strings.Repeat(`\`, len(text)/2)
+			return slash + `}`
+		})
 		value, err := context.EvaluateExpression(source)
 		if err != nil {
 			errors = append(errors, err)

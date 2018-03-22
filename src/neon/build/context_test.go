@@ -9,19 +9,47 @@ import (
 func TestEvaluateString(t *testing.T) {
 	context := NewContext(nil)
 	if actual, err := context.EvaluateString(`foo`); err != nil || actual != `foo` {
-		t.Errorf("TestEvaluateString failure")
+		t.Errorf("TestEvaluateString failure: '%s'", actual)
+	}
+	if actual, err := context.EvaluateString(`foo ={`); err != nil || actual != `foo ={` {
+		t.Errorf("TestEvaluateString failure: '%s'", actual)
 	}
 	if actual, err := context.EvaluateString(`foo #{"bar"}`); err != nil || actual != `foo bar` {
-		t.Errorf("TestEvaluateString failure")
+		t.Errorf("TestEvaluateString failure: '%s'", actual)
 	}
 	if actual, err := context.EvaluateString(`foo ={"bar"}`); err != nil || actual != `foo bar` {
-		t.Errorf("TestEvaluateString failure")
+		t.Errorf("TestEvaluateString failure: '%s'", actual)
 	}
 	if actual, err := context.EvaluateString(`foo ={1+1}`); err != nil || actual != `foo 2` {
-		t.Errorf("TestEvaluateString failure")
+		t.Errorf("TestEvaluateString failure: '%s'", actual)
 	}
+}
+
+func TestEvaluateStringEscape(t *testing.T) {
+	context := NewContext(nil)
 	if actual, err := context.EvaluateString(`foo \={bar}`); err != nil || actual != `foo ={bar}` {
-		t.Errorf("TestEvaluateString failure")
+		t.Errorf("TestEvaluateString failure: '%s'", actual)
+	}
+	if actual, err := context.EvaluateString(`foo \\={"bar"}`); err != nil || actual != `foo \bar` {
+		t.Errorf("TestEvaluateString failure: '%s'", actual)
+	}
+	if actual, err := context.EvaluateString(`foo \\\={bar}`); err != nil || actual != `foo \={bar}` {
+		t.Errorf("TestEvaluateString failure: '%s'", actual)
+	}
+	if actual, err := context.EvaluateString(`foo \\\\={"bar"}`); err != nil || actual != `foo \\bar` {
+		t.Errorf("TestEvaluateString failure: '%s'", actual)
+	}
+	if actual, err := context.EvaluateString(`foo \#{bar}`); err != nil || actual != `foo #{bar}` {
+		t.Errorf("TestEvaluateString failure: '%s'", actual)
+	}
+	if actual, err := context.EvaluateString(`foo \\#{"bar"}`); err != nil || actual != `foo \bar` {
+		t.Errorf("TestEvaluateString failure: '%s'", actual)
+	}
+	if actual, err := context.EvaluateString(`foo \\\#{bar}`); err != nil || actual != `foo \#{bar}` {
+		t.Errorf("TestEvaluateString failure: '%s'", actual)
+	}
+	if actual, err := context.EvaluateString(`foo \\\\#{"bar"}`); err != nil || actual != `foo \\bar` {
+		t.Errorf("TestEvaluateString failure: '%s'", actual)
 	}
 }
 
@@ -48,6 +76,9 @@ func TestEvaluateStringWithProperties(t *testing.T) {
 	}
 	if _, err := context.EvaluateString(`={XXX}`); err == nil || err.Error() != `Undefined symbol 'XXX' (at line 1, column 1)` {
 		t.Errorf("TestEvaluateStringWithProperties failure")
+	}
+	if actual, err := context.EvaluateString(`={if true {"true"\} else {"false"\}}`); err != nil || actual != "true" {
+		t.Errorf("TestEvaluateStringWithProperties failure: '%v' - '%s'", err, actual)
 	}
 }
 
