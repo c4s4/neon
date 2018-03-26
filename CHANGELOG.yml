@@ -13,6 +13,7 @@
   - "Added option argument for shell task."
   - "Added output redirection options in shell task. Note that existing '='
      argument of shell task has been renamed '3='."
+  - "Added configuration file in '~/.neon/settings.yml'."
   fixed:
   - "Fixed integration tests on Windows."
   - "Error is propagated while occurring in call task, stopping the build."

@@ -147,7 +147,7 @@ func ParseExtends(object util.Object, build *Build) error {
 			if err != nil {
 				return fmt.Errorf("searching parent build file '%s': %v", extend, err)
 			}
-			parent, err := NewBuild(file)
+			parent, err := NewBuild(file, filepath.Dir(file))
 			if err != nil {
 				return fmt.Errorf("loading parent build file '%s': %v", extend, err)
 			}

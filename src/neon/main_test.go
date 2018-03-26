@@ -35,14 +35,17 @@ func TestParseCommandLine(t *testing.T) {
 }
 
 func TestFindBuildFile(t *testing.T) {
-	file, err := FindBuildFile("build.yml")
+	file, base, err := FindBuildFile("build.yml")
 	if err != nil {
 		t.Errorf("error finding build file: %v", err)
 	}
 	if !strings.HasSuffix(file, "neon/build.yml") {
 		t.Errorf("expected 'test' but got '%s' instead", file)
 	}
-	_, err = FindBuildFile("toto.xyz")
+	if !strings.HasSuffix(base, "neon") {
+		t.Errorf("expected 'test' but got '%s' instead", file)
+	}
+	_, _, err = FindBuildFile("toto.xyz")
 	if err == nil {
 		t.Errorf("error finding build file")
 	}

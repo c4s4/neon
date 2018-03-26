@@ -87,24 +87,24 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 // Return:
 // - path of found build file
 // - an error if something went wrong
-func FindBuildFile(name string) (string, error) {
+func FindBuildFile(name string) (string, string, error) {
 	absolute, err := filepath.Abs(name)
 	if err != nil {
-		return "", fmt.Errorf("getting build file path: %v", err)
+		return "", "", fmt.Errorf("getting build file path: %v", err)
 	}
 	file := filepath.Base(absolute)
 	dir := filepath.Dir(absolute)
 	for {
 		path := filepath.Join(dir, file)
 		if util.FileExists(path) {
-			return path, nil
+			return path, dir, nil
 		}
 		if path, ok := configuration.Files[dir]; ok && util.FileExists(path) {
-			return path, nil
+			return path, dir, nil
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
-			return "", fmt.Errorf("build file not found")
+			return "", "", fmt.Errorf("build file not found")
 		}
 		dir = parent
 	}
@@ -158,9 +158,9 @@ func main() {
 		file, err = _build.TemplatePath(template, repo)
 		PrintError(err, 1)
 	}
-	path, err := FindBuildFile(file)
+	path, base, err := FindBuildFile(file)
 	PrintError(err, 1)
-	build, err := _build.NewBuild(path)
+	build, err := _build.NewBuild(path, base)
 	PrintError(err, 2)
 	err = build.SetCommandLineProperties(props)
 	PrintError(err, 3)
