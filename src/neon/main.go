@@ -160,6 +160,7 @@ func main() {
 	}
 	path, base, err := FindBuildFile(file)
 	PrintError(err, 1)
+	_build.Message("Build: %s", path)
 	build, err := _build.NewBuild(path, base)
 	PrintError(err, 2)
 	err = build.SetCommandLineProperties(props)
