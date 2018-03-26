@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	_build "neon/build"
 	_ "neon/builtin"
 	_ "neon/task"
@@ -15,10 +17,44 @@ import (
 const (
 	// DefaultBuildFile is the default name for build file
 	DefaultBuildFile = "build.yml"
+	// DefaultConfiguration is the default location for configuration file
+	DefaultConfiguration = "~/.neon/settings.yml"
 )
+
+// Configuration holds configuration properties
+type Configuration struct {
+	// Files maps directories to build files
+	Files map[string]string
+}
 
 // Version is passed while compiling
 var Version string
+
+// Configuration is loaded configuration
+var configuration = &Configuration{}
+
+// LoadConfiguration loads configuration file
+func LoadConfiguration() (*Configuration, error) {
+	configuration := Configuration{}
+	file := util.ExpandUserHome(DefaultConfiguration)
+	if util.FileExists(file) {
+		source, err := ioutil.ReadFile(file)
+		if err != nil {
+			return nil, err
+		}
+		err = yaml.Unmarshal(source, &configuration)
+		if err != nil {
+			return nil, err
+		}
+	}
+	// expand user homes in files
+	abs := make(map[string]string)
+	for dir, build := range configuration.Files {
+		abs[util.ExpandUserHome(dir)] = util.ExpandUserHome(build)
+	}
+	configuration.Files = abs
+	return &configuration, nil
+}
 
 // ParseCommandLine parses command line and returns parsed options
 func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, string, string, bool,
@@ -63,6 +99,9 @@ func FindBuildFile(name string) (string, error) {
 		if util.FileExists(path) {
 			return path, nil
 		}
+		if path, ok := configuration.Files[dir]; ok && util.FileExists(path) {
+			return path, nil
+		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
 			return "", fmt.Errorf("build file not found")
@@ -73,7 +112,14 @@ func FindBuildFile(name string) (string, error) {
 
 // Program entry point
 func main() {
+	var err error
 	start := time.Now()
+	// load configuration file
+	configuration, err = LoadConfiguration()
+	if err != nil {
+		PrintError(fmt.Errorf("loading configuration file '%s': %v", DefaultConfiguration, err), 6)
+	}
+	// parse command line
 	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, refs, install, repo, grey, template,
 		templates, parents, targets := ParseCommandLine()
 	// options that do not require we load build file
@@ -109,7 +155,6 @@ func main() {
 	}
 	// options that do require we load build file
 	if template != "" {
-		var err error
 		file, err = _build.TemplatePath(template, repo)
 		PrintError(err, 1)
 	}
