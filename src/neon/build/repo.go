@@ -229,7 +229,7 @@ func LinkPath(name, repo string) string {
 	if path.IsAbs(name) {
 		return name
 	}
-	if  strings.HasPrefix(name, "./") {
+	if strings.HasPrefix(name, "./") {
 		return util.ExpandUserHome(filepath.Join(repo, name[2:]))
 	}
 	if repo == "" {
