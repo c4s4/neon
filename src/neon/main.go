@@ -23,8 +23,8 @@ const (
 
 // Configuration holds configuration properties
 type Configuration struct {
-	// Files maps directories to build files
-	Files map[string]string
+	// Links associates build files to directories
+	Links map[string]string
 }
 
 // Version is passed while compiling
@@ -49,10 +49,10 @@ func LoadConfiguration() (*Configuration, error) {
 	}
 	// expand user homes in files
 	abs := make(map[string]string)
-	for dir, build := range configuration.Files {
+	for dir, build := range configuration.Links {
 		abs[util.ExpandUserHome(dir)] = util.ExpandUserHome(build)
 	}
-	configuration.Files = abs
+	configuration.Links = abs
 	return &configuration, nil
 }
 
@@ -84,10 +84,11 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 
 // FindBuildFile finds build file and returns its path
 // - name: the name of the build file
+// - repo: the repository path
 // Return:
 // - path of found build file
 // - an error if something went wrong
-func FindBuildFile(name string) (string, string, error) {
+func FindBuildFile(name, repo string) (string, string, error) {
 	absolute, err := filepath.Abs(name)
 	if err != nil {
 		return "", "", fmt.Errorf("getting build file path: %v", err)
@@ -99,8 +100,11 @@ func FindBuildFile(name string) (string, string, error) {
 		if util.FileExists(path) {
 			return path, dir, nil
 		}
-		if path, ok := configuration.Files[dir]; ok && util.FileExists(path) {
-			return path, dir, nil
+		if path, ok := configuration.Links[dir]; ok {
+			path = _build.LinkPath(path, repo)
+			if util.FileExists(path) {
+				return path, dir, nil
+			}
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
@@ -158,7 +162,7 @@ func main() {
 		file, err = _build.TemplatePath(template, repo)
 		PrintError(err, 1)
 	}
-	path, base, err := FindBuildFile(file)
+	path, base, err := FindBuildFile(file, repo)
 	PrintError(err, 1)
 	_build.Message("Build: %s", path)
 	build, err := _build.NewBuild(path, base)
