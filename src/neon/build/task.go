@@ -221,8 +221,13 @@ func IsValueOfType(value interface{}, typ reflect.Type) bool {
 // Return:
 // - result: as an interface{}
 // - error: if something went wrong
-func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interface{}, error) {
-	var err error
+func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (result interface{}, err error) {
+	// recover panics when copying
+	defer func() {
+		if r := recover(); r != nil {
+			result, err = nil, fmt.Errorf("evaluating task args: %v", r)
+		}
+	}()
 	value := reflect.New(typ).Elem()
 	for i := 0; i < value.NumField(); i++ {
 		field := typ.Field(i)
