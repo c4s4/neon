@@ -172,7 +172,7 @@ func TestTaskCall(t *testing.T) {
 	}
 }
 
-func TestValueOfType(t *testing.T) {
+func TestIsValueOfType(t *testing.T) {
 	if !IsValueOfType(1, reflect.TypeOf(1)) {
 		t.Fail()
 	}
@@ -184,6 +184,9 @@ func TestValueOfType(t *testing.T) {
 	}
 	if !IsValueOfType(map[string]interface{}{"foo": "bar"},
 		reflect.TypeOf(map[string]string{"foo": "bar"})) {
+		t.Fail()
+	}
+	if IsValueOfType([]interface{}{"foo", 1}, reflect.TypeOf([]string{"foo"})) {
 		t.Fail()
 	}
 }

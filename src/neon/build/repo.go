@@ -22,6 +22,9 @@ var RegexpParentName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.yml`)
 // RegexpTemplateName is regexp for template name
 var RegexpTemplateName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.tpl`)
 
+// RegexpLinkName is regexp for parent name
+var RegexpLinkName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.yml`)
+
 // FindParents finds parent build files in given repository.
 // - repo: the NeON repository (defaults to '~/.neon')
 // Return:
@@ -213,4 +216,24 @@ func PrintTemplates(repo string) {
 	for _, file := range files {
 		fmt.Println(file)
 	}
+}
+
+// LinkPath return the link path:
+// - name: the name of the build file (such as 'c4s4/build/build.yml')
+// - repo: the repository for plugins (defaults to '~/.neon')
+// Return: link path (as '~/.neon/c4s4/build/build.yml')
+func LinkPath(name, repo string) string {
+	if repo == "" {
+		repo = DefaultRepo
+	}
+	if path.IsAbs(name) {
+		return name
+	}
+	if strings.HasPrefix(name, "./") {
+		return util.ExpandUserHome(filepath.Join(repo, name[2:]))
+	}
+	if repo == "" {
+		repo = DefaultRepo
+	}
+	return util.ExpandUserHome(filepath.Join(repo, name))
 }

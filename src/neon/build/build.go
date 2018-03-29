@@ -44,11 +44,16 @@ type Build struct {
 
 // NewBuild makes a build from a build file
 // - file: path of the build file
+// - base: base of the build
 // Return:
 // - Pointer to the build
 // - error if something went wrong
-func NewBuild(file string) (*Build, error) {
+func NewBuild(file, base string) (*Build, error) {
 	object, build, err := parseBuildFile(file)
+	if err != nil {
+		return nil, err
+	}
+	err = setDirectories(build, base)
 	if err != nil {
 		return nil, err
 	}
@@ -90,6 +95,7 @@ func NewBuild(file string) (*Build, error) {
 	}
 	build.Properties = build.GetProperties()
 	build.Environment = build.GetEnvironment()
+
 	build.SetDir(build.Dir)
 	return build, nil
 }
@@ -98,16 +104,6 @@ func parseBuildFile(file string) (util.Object, *Build, error) {
 	build := &Build{}
 	file = util.ExpandUserHome(file)
 	build.File = filepath.Base(file)
-	base, err := filepath.Abs(filepath.Dir(file))
-	if err != nil {
-		return nil, nil, fmt.Errorf("getting build file directory: %v", err)
-	}
-	build.Dir = base
-	here, err := os.Getwd()
-	if err != nil {
-		return nil, nil, fmt.Errorf("getting current directory: %v", err)
-	}
-	build.Here = here
 	source, err := util.ReadFile(file)
 	if err != nil {
 		return nil, nil, fmt.Errorf("loading build file '%s': %v", file, err)
@@ -117,6 +113,16 @@ func parseBuildFile(file string) (util.Object, *Build, error) {
 		return nil, nil, fmt.Errorf("build must be a map with string keys: %v", err)
 	}
 	return object, build, nil
+}
+
+func setDirectories(build *Build, base string) error {
+	build.Dir = base
+	here, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("getting build file directory: %v", err)
+	}
+	build.Here = here
+	return nil
 }
 
 // GetProperties returns build properties, including those inherited from
