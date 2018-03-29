@@ -9,7 +9,7 @@
   - "Added parent discovery, so that you can extend parent 'golang' instead
      of 'c4s4/build/golang.yml' for instance."
   - "Hide targets which name starts with an underscore in build information."
-  - "Added findinpath(), followlink(), replace() and env() builtins."
+  - "Added findinpath(), followlink(), replace(), env() and trim() builtins."
   - "Added option argument for shell task."
   - "Added output redirection options in shell task. Note that existing '='
      argument of shell task has been renamed '3='."
