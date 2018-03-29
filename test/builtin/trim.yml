@@ -1,0 +1,17 @@
+doc: Built file to test builds
+default: builtin_trim
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_trim:
+    doc: Test the trim builtin function
+    steps:
+    - |
+      if trim("\tfoo bar\n   ") != "foo bar" {
+        throw("Trim test failure")
+      } else {
+        println("Trim test success")
+      }

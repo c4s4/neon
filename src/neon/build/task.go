@@ -202,7 +202,12 @@ func IsValueOfType(value interface{}, typ reflect.Type) bool {
 	}
 	// if value and type are slices, test elements
 	if reflect.TypeOf(value).Kind() == reflect.Slice && typ.Kind() == reflect.Slice {
-		return IsValueOfType(reflect.ValueOf(value).Index(0).Interface(), typ.Elem())
+		for i := 0; i < reflect.ValueOf(value).Len(); i++ {
+			if !IsValueOfType(reflect.ValueOf(value).Index(i).Interface(), typ.Elem()) {
+				return false
+			}
+		}
+		return true
 	}
 	// if value and type are maps, test key and value
 	if reflect.TypeOf(value).Kind() == reflect.Map && typ.Kind() == reflect.Map {
@@ -221,8 +226,13 @@ func IsValueOfType(value interface{}, typ reflect.Type) bool {
 // Return:
 // - result: as an interface{}
 // - error: if something went wrong
-func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (interface{}, error) {
-	var err error
+func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (result interface{}, err error) {
+	// recover panics when copying
+	defer func() {
+		if r := recover(); r != nil {
+			result, err = nil, fmt.Errorf("evaluating task args: %v", r)
+		}
+	}()
 	value := reflect.New(typ).Elem()
 	for i := 0; i < value.NumField(); i++ {
 		field := typ.Field(i)

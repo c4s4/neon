@@ -76,3 +76,14 @@ targets:
     depends: [clean, check, test, refs, archive]
     steps:
     - super:
+
+  bugs:
+    doc: Run bug build files
+    depends: bin
+    steps:
+    - for: file
+      in:  'find(joinpath("test", "bugs"), "*.yml")'
+      do:
+      - 'path = joinpath("test", "bugs", file)'
+      - print: "Running build file '={path}'"
+      - $: ['bin/neon', '-file', =path]

@@ -1356,6 +1356,25 @@ Examples:
     throw("Some tests failed")
     # returns: nothing, the script is interrupted on error
 
+trim
+----
+
+Trim spaces from given string.
+
+Arguments:
+
+- The string to trim.
+
+Returns:
+
+- Trimed string.
+
+Examples:
+
+    # trim string "\tfoo bar\n   "
+    trim("\tfoo bar\n  ")
+    # returns: "foo bar"
+
 unescapeurl
 -----------
 
