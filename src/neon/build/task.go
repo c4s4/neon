@@ -202,7 +202,12 @@ func IsValueOfType(value interface{}, typ reflect.Type) bool {
 	}
 	// if value and type are slices, test elements
 	if reflect.TypeOf(value).Kind() == reflect.Slice && typ.Kind() == reflect.Slice {
-		return IsValueOfType(reflect.ValueOf(value).Index(0).Interface(), typ.Elem())
+		for i := 0; i < reflect.ValueOf(value).Len(); i++ {
+			if !IsValueOfType(reflect.ValueOf(value).Index(i).Interface(), typ.Elem()) {
+				return false
+			}
+		}
+		return true
 	}
 	// if value and type are maps, test key and value
 	if reflect.TypeOf(value).Kind() == reflect.Map && typ.Kind() == reflect.Map {
