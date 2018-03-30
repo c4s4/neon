@@ -21,15 +21,45 @@ var Themes = map[string]map[string][]color.Attribute{
 		"ok":    {color.FgGreen, color.Bold},
 		"error": {color.FgRed, color.Bold},
 	},
+	"red": {
+		"title": {color.FgRed},
+		"ok":    {color.FgRed, color.Bold},
+		"error": {color.FgRed, color.Bold, color.ReverseVideo},
+	},
+	"green": {
+		"title": {color.FgGreen},
+		"ok":    {color.FgGreen, color.Bold},
+		"error": {color.FgGreen, color.Bold, color.ReverseVideo},
+	},
+	"blue": {
+		"title": {color.FgBlue},
+		"ok":    {color.FgBlue, color.Bold},
+		"error": {color.FgBlue, color.Bold, color.ReverseVideo},
+	},
+	"fire": {
+		"title": {color.FgRed},
+		"ok":    {color.FgGreen, color.Bold, color.Underline},
+		"error": {color.FgRed, color.Bold, color.Underline},
+	},
 	"marine": {
 		"title": {color.FgBlue},
-		"ok":    {color.FgGreen, color.BgBlack, color.Bold},
-		"error": {color.FgRed, color.BgBlack, color.Bold},
+		"ok":    {color.FgGreen, color.Bold, color.Underline},
+		"error": {color.FgRed, color.Bold, color.Underline},
+	},
+	"nature": {
+		"title": {color.FgGreen},
+		"ok":    {color.FgGreen, color.Bold, color.Underline},
+		"error": {color.FgRed, color.Bold, color.Underline},
 	},
 	"bold": {
 		"title": {color.FgYellow, color.Bold},
 		"ok":    {color.FgGreen, color.Underline, color.Bold},
 		"error": {color.FgRed, color.Underline, color.Bold},
+	},
+	"reverse": {
+		"title": {color.ReverseVideo},
+		"ok":    {color.ReverseVideo, color.Bold},
+		"error": {color.ReverseVideo, color.Bold},
 	},
 }
 
