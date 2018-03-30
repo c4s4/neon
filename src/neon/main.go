@@ -27,6 +27,8 @@ type Configuration struct {
 	Grey bool
 	// Theme applies named theme
 	Theme string
+	// Colors of custom theme
+	Colors *_build.Colors
 	// Time will print execution time
 	Time bool
 	// Repo location
@@ -59,10 +61,18 @@ func LoadConfiguration() (*Configuration, error) {
 	_build.Grey = configuration.Grey
 	// apply theme
 	if configuration.Theme != "" {
-		err := _build.ApplyTheme(configuration.Theme)
+		err := _build.ApplyThemeByName(configuration.Theme)
 		if err != nil {
 			return nil, err
 		}
+	}
+	// apply custome theme
+	if configuration.Colors != nil {
+		theme, err := _build.ParseTheme(configuration.Colors)
+		if err != nil {
+			return nil, err
+		}
+		_build.ApplyTheme(theme)
 	}
 	// expand user homes in files
 	abs := make(map[string]string)
@@ -188,7 +198,7 @@ func main() {
 		_build.PrintParents(repo)
 		return
 	} else if theme != "" {
-		err := _build.ApplyTheme(theme)
+		err := _build.ApplyThemeByName(theme)
 		PrintError(err, 8)
 	} else if themes {
 		_build.PrintThemes()
