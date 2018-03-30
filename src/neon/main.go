@@ -153,8 +153,6 @@ func main() {
 			repo = _build.DefaultRepo
 		}
 	}
-	// DEBUG
-	println(">>>>>>>>>>>>>>>>>>", repo)
 	if grey {
 		_build.Grey = true
 	}
