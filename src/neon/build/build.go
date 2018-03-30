@@ -45,10 +45,11 @@ type Build struct {
 // NewBuild makes a build from a build file
 // - file: path of the build file
 // - base: base of the build
+// - repo: repository location
 // Return:
 // - Pointer to the build
 // - error if something went wrong
-func NewBuild(file, base string) (*Build, error) {
+func NewBuild(file, base, repo string) (*Build, error) {
 	object, build, err := parseBuildFile(file)
 	if err != nil {
 		return nil, err
@@ -72,7 +73,7 @@ func NewBuild(file, base string) (*Build, error) {
 	if err := ParseDoc(object, build); err != nil {
 		return nil, err
 	}
-	if err := ParseRepository(object, build); err != nil {
+	if err := ParseRepository(object, build, repo); err != nil {
 		return nil, err
 	}
 	if err := ParseContext(object, build); err != nil {

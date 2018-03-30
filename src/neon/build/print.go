@@ -8,13 +8,54 @@ import (
 	"unicode/utf8"
 )
 
+const (
+	defaultTheme = "bee"
+)
+
+type colorizer func(a ...interface{}) string
+
+// Themes is a map of themes by name
+var Themes = map[string]map[string][]color.Attribute{
+	"bee": {
+		"title": {color.FgYellow},
+		"ok":    {color.FgGreen, color.Bold},
+		"error": {color.FgRed, color.Bold},
+	},
+	"marine": {
+		"title": {color.FgBlue},
+		"ok":    {color.FgGreen, color.BgBlack, color.Bold},
+		"error": {color.FgRed, color.BgBlack, color.Bold},
+	},
+	"bold": {
+		"title": {color.FgYellow, color.Bold},
+		"ok":    {color.FgGreen, color.Underline, color.Bold},
+		"error": {color.FgRed, color.Underline, color.Bold},
+	},
+}
+
 // Grey is a flag that tells if we print on console without color
 var Grey = false
 
 // Color definitions
-var red = color.New(color.FgRed, color.Bold).SprintFunc()
-var yellow = color.New(color.FgYellow).SprintFunc()
-var green = color.New(color.FgGreen, color.Bold).SprintFunc()
+var colorTitle colorizer
+var colorOk colorizer
+var colorError colorizer
+
+// apply default theme
+func init() {
+	ApplyTheme(defaultTheme)
+}
+
+// ApplyTheme applies named theme
+func ApplyTheme(theme string) error {
+	if _, ok := Themes[theme]; !ok {
+		return fmt.Errorf("unknown theme '%s'", theme)
+	}
+	colorTitle = color.New(Themes[theme]["title"]...).SprintFunc()
+	colorOk = color.New(Themes[theme]["ok"]...).SprintFunc()
+	colorError = color.New(Themes[theme]["error"]...).SprintFunc()
+	return nil
+}
 
 // Message prints a message on console:
 // - text: text to print (that might embed fields to print, such as "%s")
@@ -34,7 +75,7 @@ func Title(text string) {
 	if Grey {
 		printGrey(message)
 	} else {
-		printColor(yellow(message))
+		printColor(colorTitle(message))
 	}
 }
 
@@ -43,7 +84,7 @@ func PrintOk() {
 	if Grey {
 		printGrey("OK")
 	} else {
-		printColor(green("OK"))
+		printColor(colorOk("OK"))
 	}
 }
 
@@ -54,7 +95,7 @@ func PrintError(text string) {
 	if Grey {
 		printGrey("ERROR %s", text)
 	} else {
-		printColor("%s %s", red("ERROR"), text)
+		printColor("%s %s", colorError("ERROR"), text)
 	}
 }
 

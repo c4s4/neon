@@ -11,9 +11,9 @@ func TestParseCommandLine(t *testing.T) {
 	os.Args = []string{"cmd", "-file", "file", "-info", "-version", "-props", "{foo: bar, spam: eggs}",
 		"-time", "-tasks", "-task", "task", "-targets", "-builtins", "-builtin", "builtin",
 		"-refs", "-install", "install", "-repo", "repo", "-grey", "-template", "template",
-		"-templates", "-parents", "target1", "target2"}
+		"-templates", "-themes", "-theme", "test", "-parents", "target1", "target2"}
 	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, refs, install,
-		repo, grey, template, templates, parents, targets := ParseCommandLine()
+		repo, grey, template, templates, parents, theme, themes, targets := ParseCommandLine()
 	Assert(file, "file", t)
 	Assert(info, true, t)
 	Assert(version, true, t)
@@ -31,6 +31,8 @@ func TestParseCommandLine(t *testing.T) {
 	Assert(template, "template", t)
 	Assert(templates, true, t)
 	Assert(parents, true, t)
+	Assert(theme, "test", t)
+	Assert(themes, true, t)
 	Assert(targets, []string{"target1", "target2"}, t)
 }
 

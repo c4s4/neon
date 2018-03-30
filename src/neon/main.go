@@ -23,6 +23,14 @@ const (
 
 // Configuration holds configuration properties
 type Configuration struct {
+	// Grey disables color output
+	Grey bool
+	// Theme applies named theme
+	Theme string
+	// Time will print execution time
+	Time bool
+	// Repo location
+	Repo string
 	// Links associates build files to directories
 	Links map[string]string
 }
@@ -47,6 +55,15 @@ func LoadConfiguration() (*Configuration, error) {
 			return nil, err
 		}
 	}
+	// apply grey
+	_build.Grey = configuration.Grey
+	// apply theme
+	if configuration.Theme != "" {
+		err := _build.ApplyTheme(configuration.Theme)
+		if err != nil {
+			return nil, err
+		}
+	}
 	// expand user homes in files
 	abs := make(map[string]string)
 	for dir, build := range configuration.Links {
@@ -58,7 +75,7 @@ func LoadConfiguration() (*Configuration, error) {
 
 // ParseCommandLine parses command line and returns parsed options
 func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool, string, string, bool,
-	string, bool, bool, []string) {
+	string, bool, bool, string, bool, []string) {
 	file := flag.String("file", DefaultBuildFile, "Build file to run")
 	info := flag.Bool("info", false, "Print build information")
 	version := flag.Bool("version", false, "Print neon version")
@@ -71,15 +88,17 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 	builtin := flag.String("builtin", "", "Print help on given builtin")
 	refs := flag.Bool("refs", false, "Print tasks and builtins reference")
 	install := flag.String("install", "", "Install given plugin")
-	repo := flag.String("repo", _build.DefaultRepo, "Neon plugin repository for installation")
+	repo := flag.String("repo", "", "Neon plugin repository for installation")
 	grey := flag.Bool("grey", false, "Print on terminal without colors")
 	template := flag.String("template", "", "Run given template")
 	templates := flag.Bool("templates", false, "List available templates in repository")
 	parents := flag.Bool("parents", false, "List available parent build files in repository")
+	theme := flag.String("theme", "", "Apply given color theme")
+	themes := flag.Bool("themes", false, "Print all available color themes")
 	flag.Parse()
 	targets := flag.Args()
 	return *file, *info, *version, *props, *timeit, *tasks, *task, *targs, *builtins,
-		*builtin, *refs, *install, *repo, *grey, *template, *templates, *parents, targets
+		*builtin, *refs, *install, *repo, *grey, *template, *templates, *parents, *theme, *themes, targets
 }
 
 // FindBuildFile finds build file and returns its path
@@ -125,9 +144,23 @@ func main() {
 	}
 	// parse command line
 	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, refs, install, repo, grey, template,
-		templates, parents, targets := ParseCommandLine()
+		templates, parents, theme, themes, targets := ParseCommandLine()
 	// options that do not require we load build file
-	_build.Grey = grey
+	if repo == "" {
+		if configuration.Repo != "" {
+			repo = configuration.Repo
+		} else {
+			repo = _build.DefaultRepo
+		}
+	}
+	// DEBUG
+	println(">>>>>>>>>>>>>>>>>>", repo)
+	if grey {
+		_build.Grey = true
+	}
+	if timeit {
+		configuration.Time = true
+	}
 	if tasks {
 		_build.PrintTasks()
 		return
@@ -156,6 +189,12 @@ func main() {
 	} else if parents {
 		_build.PrintParents(repo)
 		return
+	} else if theme != "" {
+		err := _build.ApplyTheme(theme)
+		PrintError(err, 8)
+	} else if themes {
+		_build.PrintThemes()
+		return
 	}
 	// options that do require we load build file
 	if template != "" {
@@ -165,7 +204,7 @@ func main() {
 	path, base, err := FindBuildFile(file, repo)
 	PrintError(err, 1)
 	_build.Message("Build: %s", path)
-	build, err := _build.NewBuild(path, base)
+	build, err := _build.NewBuild(path, base, repo)
 	PrintError(err, 2)
 	err = build.SetCommandLineProperties(props)
 	PrintError(err, 3)
@@ -186,7 +225,7 @@ func main() {
 		PrintError(err, 5)
 		err = build.Run(context, targets)
 		duration := time.Now().Sub(start)
-		if timeit || duration.Seconds() > 10 {
+		if configuration.Time || duration.Seconds() > 10 {
 			_build.Message("Build duration: %s", duration.String())
 		}
 		PrintError(err, 5)
