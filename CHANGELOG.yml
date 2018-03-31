@@ -1,9 +1,12 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
 - version: 0.12.0
-  date:    2018-03-29
-  summary: Added template and parent discovery
+  date:    2018-03-31
+  summary: Added configuration file and themes
   added:
+  - "Added configuration file in '~/.neon/settings.yml' with grey, theme, time,
+     repo, colors and links configuration fields."
+  - "Added predefined themes and theme definition in configuration."
   - "Added template discovery, so that you can call template 'golang' instead
      of 'c4s4/build/golang.tpl' for instance."
   - "Added parent discovery, so that you can extend parent 'golang' instead
@@ -13,7 +16,6 @@
   - "Added option argument for shell task."
   - "Added output redirection options in shell task. Note that existing '='
      argument of shell task has been renamed '3='."
-  - "Added configuration file in '~/.neon/settings.yml'."
   fixed:
   - "Fixed integration tests on Windows."
   - "Error is propagated while occurring in call task, stopping the build."

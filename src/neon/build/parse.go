@@ -102,9 +102,10 @@ func ParseDoc(object util.Object, build *Build) error {
 // ParseRepository parses repository field of the build:
 // - object: the object to parse
 // - build: build that is being constructed
+// - repo: repository location
 // Return: an error if something went wrong
-func ParseRepository(object util.Object, build *Build) error {
-	build.Repository = DefaultRepo
+func ParseRepository(object util.Object, build *Build, repo string) error {
+	build.Repository = repo
 	if object.HasField("repository") {
 		repository, err := object.GetString("repository")
 		if err != nil {
@@ -147,7 +148,7 @@ func ParseExtends(object util.Object, build *Build) error {
 			if err != nil {
 				return fmt.Errorf("searching parent build file '%s': %v", extend, err)
 			}
-			parent, err := NewBuild(file, filepath.Dir(file))
+			parent, err := NewBuild(file, filepath.Dir(file), build.Repository)
 			if err != nil {
 				return fmt.Errorf("loading parent build file '%s': %v", extend, err)
 			}

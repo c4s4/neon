@@ -2,19 +2,48 @@ package build
 
 import (
 	"fmt"
-	"github.com/fatih/color"
 	"neon/util"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/fatih/color"
 )
+
+const (
+	defaultTheme = "bee"
+)
+
+type colorizer func(a ...interface{}) string
 
 // Grey is a flag that tells if we print on console without color
 var Grey = false
 
 // Color definitions
-var red = color.New(color.FgRed, color.Bold).SprintFunc()
-var yellow = color.New(color.FgYellow).SprintFunc()
-var green = color.New(color.FgGreen, color.Bold).SprintFunc()
+var colorTitle colorizer
+var colorOk colorizer
+var colorError colorizer
+
+// apply default theme
+func init() {
+	ApplyThemeByName(defaultTheme)
+}
+
+// ApplyThemeByName applies named theme
+func ApplyThemeByName(name string) error {
+	theme, ok := Themes[name]
+	if !ok {
+		return fmt.Errorf("unknown theme '%s'", name)
+	}
+	ApplyTheme(theme)
+	return nil
+}
+
+// ApplyTheme applies given theme
+func ApplyTheme(theme *Theme) {
+	colorTitle = color.New(theme.Title...).SprintFunc()
+	colorOk = color.New(theme.Ok...).SprintFunc()
+	colorError = color.New(theme.Error...).SprintFunc()
+}
 
 // Message prints a message on console:
 // - text: text to print (that might embed fields to print, such as "%s")
@@ -34,7 +63,7 @@ func Title(text string) {
 	if Grey {
 		printGrey(message)
 	} else {
-		printColor(yellow(message))
+		printColor(colorTitle(message))
 	}
 }
 
@@ -43,7 +72,7 @@ func PrintOk() {
 	if Grey {
 		printGrey("OK")
 	} else {
-		printColor(green("OK"))
+		printColor(colorOk("OK"))
 	}
 }
 
@@ -54,7 +83,7 @@ func PrintError(text string) {
 	if Grey {
 		printGrey("ERROR %s", text)
 	} else {
-		printColor("%s %s", red("ERROR"), text)
+		printColor("%s %s", colorError("ERROR"), text)
 	}
 }
 

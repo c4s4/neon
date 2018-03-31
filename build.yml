@@ -25,7 +25,7 @@ properties:
   - 'github.com/c4s4/anko'
   - 'github.com/mattn/go-zglob'
   - 'github.com/fatih/color'
-  CYCLOMAX: 20
+  CYCLOMAX: 25
 
 environment:
   GOPATH: =_BASE

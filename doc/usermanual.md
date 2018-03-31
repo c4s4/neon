@@ -21,6 +21,7 @@ and builtins, see [Reference](reference.md) documentation.
   - [Shell task](#shell-task)
   - [Script task](#script-task)
 - [Command line options](#command-line-options)
+- [Configuration file](#configuration-file)
 - [Build inheritance](#build-inheritance)
 - [NeON repository](#neon-repository)
 - [Project templates](#project-templates)
@@ -797,6 +798,10 @@ Usage of neon:
     	Run given template
   -templates
     	List available templates in repository
+  -theme string
+    	Apply given color theme
+  -themes
+    	Print all available color themes
   -time
     	Print build duration
   -version
@@ -850,9 +855,107 @@ generated).
 
 By default, build output is colored on Unix systems for dark terminals (that is
 white letters on black background). You can disable colorization with `-grey`
-option.
+option. You can choose a theme with `-theme name` option. To list all available
+themes, you should use option `-themes`. You can define your own theme in
+configuration file (see below).
 
 Option `-version` will print NeON version.
+
+Configuration file
+------------------
+
+You can define options to use each time you run NeON with a configuration file
+*~/.neon/settings.yml*. This file looks like:
+
+```yaml
+# NeON Configuration File
+
+# grey tells if we should print output without color
+grey: false
+# theme applies named theme
+theme: bee
+# time will print execution time
+time: false
+# repo location
+repo: ~/.neon
+
+# colors to define a custom theme
+colors:
+  title: [FgYellow]
+  ok:    [FgHiGreen, Bold]
+  error: [FgHiRed, Bold]
+
+# links define build files for given directories
+links:
+  ~/doc: ~/.neon/c4s4/build/projects.yml
+```
+
+This example shows default values. You may omit fields in your configuration
+file, they will have their default value. You can also omit your configuration
+file altogether.
+
+You can define your own theme with `color` field. It has three fields: *title*,
+*ok* and *error*, to define colors for titles, OK and ERROR messages. For each
+of these entries, you list color attributes as defined bellow:
+
+### Attributes
+
+They affect printed text. Reset resets all settings and is not useful (as 
+settings are reset anyway before and after each printed text). Note that
+blink is not supported by all terminals.
+
+- Reset
+- Bold
+- Faint
+- Italic
+- Underline
+- BlinkSlow
+- BlinkRapid
+- ReverseVideo
+- Concealed
+- CrossedOut
+
+### Foreground colors
+
+They define colors for text.
+
+- FgBlack
+- FgRed
+- FgGreen
+- FgYellow
+- FgBlue
+- FgMagenta
+- FgCyan
+- FgWhite
+- FgHiBlack
+- FgHiRed
+- FgHiGreen
+- FgHiYellow
+- FgHiBlue
+- FgHiMagenta
+- FgHiCyan
+- FgHiWhite
+
+### Background colors
+
+They define color for text background.
+
+- BgBlack
+- BgRed
+- BgGreen
+- BgYellow
+- BgBlue
+- BgMagenta
+- BgCyan
+- BgWhite
+- BgHiBlack
+- BgHiRed
+- BgHiGreen
+- BgHiYellow
+- BgHiBlue
+- BgHiMagenta
+- BgHiCyan
+- BgHiWhite
 
 Build inheritance
 -----------------
