@@ -41,6 +41,21 @@ var Themes = map[string]*Theme{
 		Ok:    []color.Attribute{color.FgBlue, color.Bold},
 		Error: []color.Attribute{color.FgBlue, color.Bold, color.ReverseVideo},
 	},
+	"yellow": &Theme{
+		Title: []color.Attribute{color.FgYellow},
+		Ok:    []color.Attribute{color.FgYellow, color.Bold},
+		Error: []color.Attribute{color.FgYellow, color.Bold, color.ReverseVideo},
+	},
+	"magenta": &Theme{
+		Title: []color.Attribute{color.FgMagenta},
+		Ok:    []color.Attribute{color.FgMagenta, color.Bold},
+		Error: []color.Attribute{color.FgMagenta, color.Bold, color.ReverseVideo},
+	},
+	"cyan": &Theme{
+		Title: []color.Attribute{color.FgCyan},
+		Ok:    []color.Attribute{color.FgCyan, color.Bold},
+		Error: []color.Attribute{color.FgCyan, color.Bold, color.ReverseVideo},
+	},
 	"fire": &Theme{
 		Title: []color.Attribute{color.FgRed},
 		Ok:    []color.Attribute{color.FgGreen, color.Bold, color.Underline},
