@@ -26,6 +26,11 @@ var Themes = map[string]*Theme{
 		Ok:    []color.Attribute{color.FgGreen, color.Bold},
 		Error: []color.Attribute{color.FgRed, color.Bold},
 	},
+	"rgb": &Theme{
+		Title: []color.Attribute{color.FgBlue},
+		Ok:    []color.Attribute{color.FgGreen, color.Bold},
+		Error: []color.Attribute{color.FgRed, color.Bold},
+	},
 	"red": &Theme{
 		Title: []color.Attribute{color.FgRed},
 		Ok:    []color.Attribute{color.FgRed, color.Bold},
