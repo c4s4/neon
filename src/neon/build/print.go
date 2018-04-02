@@ -52,6 +52,17 @@ func Message(text string, args ...interface{}) {
 	printGrey(text, args...)
 }
 
+// Info prints an information message on console:
+// - text: text to print (that might embed fields to print, such as "%s")
+// - args: arguments for the text to print
+func Info(text string, args ...interface{}) {
+	if Grey {
+		printGrey(text, args...)
+	} else {
+		printColor(colorTitle(text), args...)
+	}
+}
+
 // Title prints a title on the console
 // - text: text of the title to print
 func Title(text string) {

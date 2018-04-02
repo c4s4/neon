@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	_build "neon/build"
 	_ "neon/builtin"
@@ -12,6 +11,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -211,7 +212,7 @@ func main() {
 	}
 	path, base, err := FindBuildFile(file, repo)
 	PrintError(err, 1)
-	_build.Message("Build: %s", path)
+	_build.Info("Build: %s", path)
 	build, err := _build.NewBuild(path, base, repo)
 	PrintError(err, 2)
 	err = build.SetCommandLineProperties(props)
@@ -234,7 +235,7 @@ func main() {
 		err = build.Run(context, targets)
 		duration := time.Now().Sub(start)
 		if configuration.Time || duration.Seconds() > 10 {
-			_build.Message("Build duration: %s", duration.String())
+			_build.Info("Build duration: %s", duration.String())
 		}
 		PrintError(err, 5)
 		_build.PrintOk()
