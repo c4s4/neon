@@ -18,6 +18,7 @@ Arguments:
   2 for stderr and 3 for stdout and stderr.
 - nx: disable command output. Values for n are: 1 for stdout, 2 for stderr and
   3 for stdout and stderr.
+- <: send given text to standard input of the process.
 
 Examples:
 

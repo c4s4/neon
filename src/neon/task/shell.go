@@ -30,6 +30,7 @@ Arguments:
   2 for stderr and 3 for stdout and stderr.
 - nx: disable command output. Values for n are: 1 for stdout, 2 for stderr and
   3 for stdout and stderr.
+- <: send given text to standard input of the process.
 
 Examples:
 
@@ -69,10 +70,13 @@ type shellArgs struct {
 	Var1  string   `neon:"name=1=,optional"`
 	Var2  string   `neon:"name=2=,optional"`
 	Var3  string   `neon:"name=3=,optional"`
+	In    string   `neon:"name=<,optional"`
 }
 
 func shell(context *build.Context, args interface{}) error {
 	params := args.(shellArgs)
+	// reader from stdin
+	var stdin io.Reader = os.Stdin
 	// writers to stdout and stderr
 	stdout := []io.Writer{os.Stdout}
 	stderr := []io.Writer{os.Stderr}
@@ -138,10 +142,14 @@ func shell(context *build.Context, args interface{}) error {
 		stdout = append(stderr, builder)
 		property = params.Var2 + params.Var3
 	}
+	// write in standart input
+	if params.In != "" {
+		stdin = strings.NewReader(params.In)
+	}
 	// put writers in a multi writer
 	multiStdout := io.MultiWriter(stdout...)
 	multiStderr := io.MultiWriter(stderr...)
-	err := run(params.Shell, params.Args, multiStdout, multiStderr, context)
+	err := run(params.Shell, params.Args, multiStdout, multiStderr, stdin, context)
 	if builder != nil {
 		context.SetProperty(property, strings.TrimSpace(builder.String()))
 	}
@@ -151,20 +159,20 @@ func shell(context *build.Context, args interface{}) error {
 	return nil
 }
 
-func run(command []string, args []string, stdout, stderr io.Writer, context *build.Context) error {
+func run(command []string, args []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context) error {
 	if args != nil {
 		command = append(command, args...)
 	}
 	if len(command) == 0 {
 		return fmt.Errorf("empty command")
 	} else if len(command) < 2 {
-		return runString(command[0], stdout, stderr, context)
+		return runString(command[0], stdout, stderr, stdin, context)
 	} else {
-		return runList(command, stdout, stderr, context)
+		return runList(command, stdout, stderr, stdin, context)
 	}
 }
 
-func runList(cmd []string, stdout, stderr io.Writer, context *build.Context) error {
+func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context) error {
 	command := exec.Command(cmd[0], cmd[1:]...)
 	dir, err := os.Getwd()
 	if err != nil {
@@ -175,7 +183,7 @@ func runList(cmd []string, stdout, stderr io.Writer, context *build.Context) err
 	if err != nil {
 		return fmt.Errorf("building environment: %v", err)
 	}
-	command.Stdin = os.Stdin
+	command.Stdin = stdin
 	command.Stdout = stdout
 	command.Stderr = stderr
 	err = command.Run()
@@ -185,7 +193,7 @@ func runList(cmd []string, stdout, stderr io.Writer, context *build.Context) err
 	return nil
 }
 
-func runString(cmd string, stdout, stderr io.Writer, context *build.Context) error {
+func runString(cmd string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context) error {
 	shell, err := context.Build.GetShell()
 	if err != nil {
 		return err
@@ -203,7 +211,7 @@ func runString(cmd string, stdout, stderr io.Writer, context *build.Context) err
 	if err != nil {
 		return fmt.Errorf("building environment: %v", err)
 	}
-	command.Stdin = os.Stdin
+	command.Stdin = stdin
 	command.Stdout = stdout
 	command.Stderr = stderr
 	err = command.Run()
