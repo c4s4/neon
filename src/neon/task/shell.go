@@ -139,7 +139,7 @@ func shell(context *build.Context, args interface{}) error {
 	// write stderr in a property
 	if params.Var2+params.Var3 != "" {
 		builder = &strings.Builder{}
-		stdout = append(stderr, builder)
+		stderr = append(stderr, builder)
 		property = params.Var2 + params.Var3
 	}
 	// write in standart input
