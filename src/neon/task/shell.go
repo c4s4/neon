@@ -81,7 +81,7 @@ func shell(context *build.Context, args interface{}) error {
 	stdout := []io.Writer{os.Stdout}
 	stderr := []io.Writer{os.Stderr}
 	// string builder to redirect in a property
-	var builder *strings.Builder
+	builder := &strings.Builder{}
 	property := ""
 	// disable output on stdout or stderr
 	if params.Del1 || params.Del3 {
@@ -128,18 +128,16 @@ func shell(context *build.Context, args interface{}) error {
 			return err
 		}
 		defer file.Close()
-		stdout = append(stderr, file)
+		stderr = append(stderr, file)
 	}
 	// write stdout in a property
 	if params.Var1+params.Var3 != "" {
-		builder = &strings.Builder{}
 		stdout = append(stdout, builder)
 		property = params.Var1 + params.Var3
 	}
 	// write stderr in a property
 	if params.Var2+params.Var3 != "" {
-		builder = &strings.Builder{}
-		stdout = append(stderr, builder)
+		stderr = append(stderr, builder)
 		property = params.Var2 + params.Var3
 	}
 	// write in standart input
@@ -150,7 +148,7 @@ func shell(context *build.Context, args interface{}) error {
 	multiStdout := io.MultiWriter(stdout...)
 	multiStderr := io.MultiWriter(stderr...)
 	err := run(params.Shell, params.Args, multiStdout, multiStderr, stdin, context)
-	if builder != nil {
+	if property != "" {
 		context.SetProperty(property, strings.TrimSpace(builder.String()))
 	}
 	if err != nil {
