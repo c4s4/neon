@@ -128,7 +128,7 @@ func shell(context *build.Context, args interface{}) error {
 			return err
 		}
 		defer file.Close()
-		stdout = append(stderr, file)
+		stderr = append(stderr, file)
 	}
 	// write stdout in a property
 	if params.Var1+params.Var3 != "" {
