@@ -138,6 +138,11 @@ A build file is a YAML map. First level fields are the following:
 	```
   Note that commands defined as lists will not run with these shells, thus
   options won't be evaluated and `${USER}` will stay as is.
+- **version** is an expression that checks required NeON version to run the
+  build file. For instance, if your build file requires NeON version *0.12*
+  or greater and a version under *0.15.0*, you would write :
+  `version: 'greaterorequal("0.12") && lower("0.15")'`. Have a look at builtins
+  *greater*, *greaterorequal*, *lower* and *lowerorequal*.
 - **properties** is a map of properties of the build file. See section
   *Properties* for more information about build properties.
 - **configuration** is a list of YAML files to load as build properties.

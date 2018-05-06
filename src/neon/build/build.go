@@ -2,14 +2,13 @@ package build
 
 import (
 	"fmt"
+	"gopkg.in/yaml.v2"
 	"neon/util"
 	"net"
 	"os"
 	"path/filepath"
 	"runtime"
 	"time"
-
-	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -20,8 +19,8 @@ const (
 )
 
 // Fields is the list of possible root fields for a build file
-var Fields = []string{"doc", "default", "extends", "repository", "context",
-	"singleton", "shell", "properties", "configuration", "environment", "targets"}
+var Fields = []string{"doc", "default", "extends", "repository", "context", "singleton",
+	"shell", "properties", "configuration", "environment", "targets", "version"}
 
 // Build structure
 type Build struct {
@@ -40,6 +39,7 @@ type Build struct {
 	Environment map[string]string
 	Targets     map[string]*Target
 	Parents     []*Build
+	Version     string
 }
 
 // NewBuild makes a build from a build file
@@ -94,9 +94,11 @@ func NewBuild(file, base, repo string) (*Build, error) {
 	if err := ParseTargets(object, build); err != nil {
 		return nil, err
 	}
+	if err := ParseVersion(object, build); err != nil {
+		return nil, err
+	}
 	build.Properties = build.GetProperties()
 	build.Environment = build.GetEnvironment()
-
 	build.SetDir(build.Dir)
 	return build, nil
 }
@@ -243,6 +245,9 @@ func (build *Build) GetDefault() []string {
 // - targets: targets to run as a slice of strings
 // Return: error if something went wrong
 func (build *Build) Run(context *Context, targets []string) error {
+	if err := build.CheckVersion(context); err != nil {
+		return err
+	}
 	if err := build.EnsureSingle(context); err != nil {
 		return err
 	}
@@ -357,5 +362,24 @@ func (build *Build) EnsureSingle(context *Context) error {
 			time.Sleep(100 * time.Millisecond)
 		}
 	}()
+	return nil
+}
+
+// CheckVersion checks evaluates version expression to check that NeON version is OK
+func (build *Build) CheckVersion(context *Context) error {
+	if build.Version == "" {
+		return nil
+	}
+	result, err := context.EvaluateExpression(build.Version)
+	if err != nil {
+		return fmt.Errorf("evaluating version expression: %v", err)
+	}
+	versionOK, ok := result.(bool)
+	if !ok {
+		return fmt.Errorf("version expression should return a boolean")
+	}
+	if !versionOK {
+		return fmt.Errorf("neon version '%s' doesn't meet requirements in version field", NeonVersion)
+	}
 	return nil
 }

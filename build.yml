@@ -38,7 +38,7 @@ targets:
     steps:
     - print: "Building neon binary in 'bin/neon'"
     - delete: 'bin/neon'
-    - $: ['go', 'install', '-ldflags', '-X main.Version=={VERSION}', =NAME]
+    - $: ['go', 'install', '-ldflags', '-X neon/build.NeonVersion=={VERSION}', =NAME]
 
   refs:
     doc: Generate reference documentation
@@ -63,7 +63,7 @@ targets:
     doc: Generate binaries for all platforms
     steps:
     - mkdir: '={BUILD_DIR}/bin/'
-    - $: ['gox', '-ldflags', '-X main.Version=={VERSION}',
+    - $: ['gox', '-ldflags', '-X neon/build.NeonVersion=={VERSION}',
           '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', =NAME]
 
   archive:
