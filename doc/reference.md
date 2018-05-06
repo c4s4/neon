@@ -1057,6 +1057,44 @@ Examples:
     followlink("foo")
     # returns: 'bar'
 
+greater
+-------
+
+Check that NeON version is greater that given version.
+
+Arguments:
+
+- The version to check against.
+
+Returns:
+
+- A boolean telling if NeON version is greater than given version.
+
+Examples:
+
+    # check that NeON version is greater than 0.12.0
+    greater("0.12.0")
+    # return true if version is greater than 0.12.0, false otherwise
+
+greaterorequal
+--------------
+
+Check that NeON version is greater or equal that given version.
+
+Arguments:
+
+- The version to check against.
+
+Returns:
+
+- A boolean telling if NeON version is greater or equal than given version.
+
+Examples:
+
+    # check that NeON version is greater or equal than 0.12.0
+    greaterorequal("0.12.0")
+    # return true if version is greater or equal than 0.12.0, false otherwise
+
 join
 ----
 
@@ -1175,6 +1213,25 @@ Examples:
     list(foo)
 	# return foo if already a list or [foo] otherwise
 
+lower
+-----
+
+Check that NeON version is lower that given version.
+
+Arguments:
+
+- The version to check against.
+
+Returns:
+
+- A boolean telling if NeON version is lower than given version.
+
+Examples:
+
+    # check that NeON version is lower than 0.12.0
+    greater("0.12.0")
+    # return true if version is lower than 0.12.0, false otherwise
+
 lowercase
 ---------
 
@@ -1193,6 +1250,25 @@ Examples:
     # set string in lower case
     lowercase("FooBAR")
     # returns: "foobar"
+
+lowerorequal
+------------
+
+Check that NeON version is lower or equal that given version.
+
+Arguments:
+
+- The version to check against.
+
+Returns:
+
+- A boolean telling if NeON version is lower or equal than given version.
+
+Examples:
+
+    # check that NeON version is lower or equal than 0.12.0
+    lowerorequal("0.12.0")
+    # return true if version is lower or equal than 0.12.0, false otherwise
 
 newer
 -----
