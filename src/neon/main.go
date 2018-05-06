@@ -38,9 +38,6 @@ type Configuration struct {
 	Links map[string]string
 }
 
-// Version is passed while compiling
-var Version string
-
 // Configuration is loaded configuration
 var configuration = &Configuration{}
 
@@ -186,7 +183,7 @@ func main() {
 		_build.PrintReference()
 		return
 	} else if version {
-		_build.Message(Version)
+		_build.Message(_build.NeonVersion)
 		return
 	} else if install != "" {
 		err := _build.InstallPlugin(install, repo)

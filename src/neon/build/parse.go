@@ -256,3 +256,19 @@ func ParseTargets(object util.Object, build *Build) error {
 	}
 	return nil
 }
+
+// ParseVersion parses NeON version requirement of the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
+func ParseVersion(object util.Object, build *Build) error {
+	build.Version = ""
+	if object.HasField("version") {
+		version, err := object.GetString("version")
+		if err != nil {
+			return fmt.Errorf("getting neon version: %v", err)
+		}
+		build.Version = version
+	}
+	return nil
+}
