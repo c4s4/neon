@@ -1,7 +1,7 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
 - version: 0.13.0-SNAPSHOT
-  date:    2018-05-06
+  date:    2018-05-07
   summary: Added input in shell task
   added:
   - "Added intput in shell task, with < argument."
