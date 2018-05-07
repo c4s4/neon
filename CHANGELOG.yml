@@ -6,6 +6,7 @@
   added:
   - "Added intput in shell task, with < argument."
   - "Added version field to check required NeON version."
+  - "Added appendpath builtin."
   fixed:
   - "Fixed shell stderr output to a property."
 
