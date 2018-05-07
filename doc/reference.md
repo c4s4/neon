@@ -833,6 +833,27 @@ Examples:
     path = absolute("foo/../bar/spam.txt")
     # returns: "/home/user/build/bar/spam.txt"
 
+appendpath
+----------
+
+Append root directory to paths.
+
+Arguments:
+
+- The root directory.
+- The paths to append.
+
+Returns:
+
+- Appended paths as a list.
+
+Examples:
+
+    # append root "foo" to paths "spam" and "eggs"
+    appendpath("foo", "spam", "eggs")
+	# returns: ["foo/spam", "foo/eggs"] on Linux and
+	# ["foo\spam", "foo\eggs"] on Windows
+
 contains
 --------
 
@@ -1130,7 +1151,7 @@ Returns:
 
 Examples:
 
-    # join paths "/foo", "bar" and "spam.txt"
+    # join paths "foo", "bar" and "spam.txt"
     joinpath("foo", "bar", "spam.txt")
     # returns: "foo/bar/spam.txt" on a Linux box and "foo\bar\spam.txt" on
     # Windows
