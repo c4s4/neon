@@ -2,8 +2,8 @@ package builtin
 
 import (
 	"neon/build"
-	"reflect"
 	"path/filepath"
+	"reflect"
 )
 
 func init() {
