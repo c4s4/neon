@@ -17,5 +17,9 @@ targets:
       - print: '#{_input}^2 = #{_output}'
     - |
       sort = import("sort")
-      sort.Ints(_output)
-    - assert: 'toString(_output) == "[0 1 4 9 16 25 36 49 64 81]"'
+      ints = make([]int, len(_output))
+      for i=0; i<len(ints); i++ {
+        ints[i] = toInt(_output[i])
+      }
+      sort.Ints(ints)
+    - assert: 'toString(ints) == "[0 1 4 9 16 25 36 49 64 81]"'
