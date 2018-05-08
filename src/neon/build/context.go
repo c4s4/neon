@@ -3,6 +3,7 @@ package build
 import (
 	"fmt"
 	"github.com/mattn/anko/core"
+	"github.com/mattn/anko/packages"
 	"github.com/mattn/anko/parser"
 	"github.com/mattn/anko/vm"
 	"io/ioutil"
@@ -49,6 +50,7 @@ type Context struct {
 func NewContext(build *Build) *Context {
 	v := vm.NewEnv()
 	core.Import(v)
+	packages.DefineImport(v)
 	LoadBuiltins(v)
 	context := &Context{
 		VM:    v,
