@@ -17,10 +17,6 @@ properties:
   - {files: 'bin/*', dir: =BUILD_DIR}
   - {files: 'doc/*.pdf', dir: =BUILD_DIR}
   LIBRARIES:
-  - 'github.com/mitchellh/gox'
-  - 'github.com/fzipp/gocyclo'
-  - 'golang.org/x/lint/golint'
-  - 'github.com/gordonklaus/ineffassign'
   - 'gopkg.in/yaml.v2'
   - 'github.com/mattn/anko'
   - 'github.com/mattn/go-zglob'
