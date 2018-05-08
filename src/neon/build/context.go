@@ -2,6 +2,9 @@ package build
 
 import (
 	"fmt"
+	"github.com/mattn/anko/core"
+	"github.com/mattn/anko/parser"
+	"github.com/mattn/anko/vm"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -9,10 +12,6 @@ import (
 	"runtime"
 	"sort"
 	"strings"
-
-	anko_core "github.com/c4s4/anko/builtins"
-	"github.com/c4s4/anko/parser"
-	"github.com/c4s4/anko/vm"
 )
 
 const (
@@ -49,7 +48,7 @@ type Context struct {
 // Return: a pointer to the context
 func NewContext(build *Build) *Context {
 	v := vm.NewEnv()
-	anko_core.LoadAllBuiltins(v)
+	core.Import(v)
 	LoadBuiltins(v)
 	context := &Context{
 		VM:    v,
@@ -164,7 +163,7 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return value.Interface(), nil
+	return value, nil
 }
 
 // EvaluateExpression evaluate given expression in the context
@@ -177,10 +176,11 @@ func (context *Context) EvaluateExpression(expression string) (interface{}, erro
 	if err != nil {
 		return nil, FormatScriptError(err)
 	}
-	if !value.IsValid() {
-		return nil, nil
-	}
-	return value.Interface(), nil
+	// TODO: check that this is not necessary anymore
+	// if !value.IsValid() {
+	// 	return nil, nil
+	// }
+	return value, nil
 }
 
 // EvaluateString replaces '#{expression}' with the value of the expression

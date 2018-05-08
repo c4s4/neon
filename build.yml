@@ -22,7 +22,7 @@ properties:
   - 'golang.org/x/lint/golint'
   - 'github.com/gordonklaus/ineffassign'
   - 'gopkg.in/yaml.v2'
-  - 'github.com/c4s4/anko'
+  - 'github.com/mattn/anko'
   - 'github.com/mattn/go-zglob'
   - 'github.com/fatih/color'
   CYCLOMAX: 25
@@ -87,3 +87,10 @@ targets:
       - 'path = joinpath("test", "bugs", file)'
       - print: "Running build file '={path}'"
       - $: ['bin/neon', '-file', =path]
+  
+  c4s4-anko:
+    doc: Replace import c4s4/anko with mattn/anko
+    steps:
+    - replace: 'src/neon/**/*.go'
+      with:
+        'c4s4/anko': 'mattn/anko'
