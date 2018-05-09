@@ -1,5 +1,9 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 0.14.0-SNAPSHOT
+  date:    2018-05-09
+  summary: Using Anko from Mattn
+
 - version: 0.13.0-SNAPSHOT
   date:    2018-05-07
   summary: Added input in shell task
