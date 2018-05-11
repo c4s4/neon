@@ -4,8 +4,8 @@
   date:    2018-05-09
   summary: Using Anko from Mattn
 
-- version: 0.13.0-SNAPSHOT
-  date:    2018-05-07
+- version: 0.13.0
+  date:    2018-05-10
   summary: Added input in shell task
   added:
   - "Added intput in shell task, with < argument."
