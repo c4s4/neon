@@ -67,7 +67,7 @@ func NewContext(build *Build) *Context {
 // Return: a pointer to the context
 func (context *Context) NewThreadContext(thread int, input interface{}, output interface{}) *Context {
 	another := &Context{
-		VM:    context.VM.Copy(),
+		VM:    context.VM.DeepCopy(),
 		Build: context.Build,
 		Stack: context.Stack.Copy(),
 	}
