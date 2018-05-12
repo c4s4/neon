@@ -9,8 +9,8 @@ install:
 - go get github.com/mattn/go-zglob
 - go get github.com/fatih/color
 # replace github.com/mattn/anko with github.com/c4s4/anko
-- rm -rf $HOME/gopath/src/github.com/mattn/neon
-- ln -s $HOME/gopath/src/github.com/c4s4/neon $HOME/gopath/src/github.com/mattn/neon
+- rm -rf $HOME/gopath/src/github.com/mattn/anko
+- ln -s $HOME/gopath/src/github.com/c4s4/anko $HOME/gopath/src/github.com/mattn/anko
 script:
 - go test -race -coverprofile=coverage.txt -covermode=atomic
 after_success:
