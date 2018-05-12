@@ -8,4 +8,4 @@ targets:
 
   bug:
     steps:
-      - $: ['ls', 1]
+    - $: ['ls', 1]
