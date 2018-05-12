@@ -11,7 +11,7 @@ install:
 - rm -rf $HOME/gopath/src/github.com/mattn/anko
 - ln -s $HOME/gopath/src/github.com/c4s4/anko $HOME/gopath/src/github.com/mattn/anko
 # fix gopath
-#- ln -s $HOME/gopath/src/github.com/c4s4/neon/src/neon $HOME/gopath/src/neon
+- ln -s $HOME/gopath/src/github.com/c4s4/neon/src/neon $HOME/gopath/src/neon
 script:
 - go test -race -coverprofile=coverage.txt -covermode=atomic github.com/c4s4/neon/...
 after_success:
