@@ -2,7 +2,6 @@ language: go
 go:
 - 1.10.2
 install:
-- ln -s $HOME/gopath/src/github.com/c4s4/neon/src/neon $HOME/gopath/src/neon
 # import dependencies
 - go get gopkg.in/yaml.v2
 - go get github.com/c4s4/anko
@@ -11,6 +10,8 @@ install:
 # replace github.com/mattn/anko with github.com/c4s4/anko
 - rm -rf $HOME/gopath/src/github.com/mattn/anko
 - ln -s $HOME/gopath/src/github.com/c4s4/anko $HOME/gopath/src/github.com/mattn/anko
+# fix gopath
+- ln -s $HOME/gopath/src/github.com/c4s4/neon/src/neon $HOME/gopath/src/neon
 script:
 - go test -race -coverprofile=coverage.txt -covermode=atomic
 after_success:
