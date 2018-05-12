@@ -3,7 +3,12 @@ go:
 - 1.10.2
 install:
 - ln -s $HOME/gopath/src/github.com/c4s4/neon/src/neon $HOME/gopath/src/neon
-- go get -t -v ./...
+# import dependencies
+- go get gopkg.in/yaml.v2
+- go get github.com/c4s4/anko
+- go get github.com/mattn/go-zglob
+- go get github.com/fatih/color
+# replace github.com/mattn/anko with github.com/c4s4/anko
 - rm -rf $HOME/gopath/src/github.com/mattn/neon
 - ln -s $HOME/gopath/src/github.com/c4s4/neon $HOME/gopath/src/github.com/mattn/neon
 script:
