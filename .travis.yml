@@ -4,6 +4,8 @@ go:
 install:
 - ln -s $HOME/gopath/src/github.com/c4s4/neon/src/neon $HOME/gopath/src/neon
 - go get -t -v ./...
+- rm -rf $HOME/gopath/src/github.com/mattn/neon
+- ln -s $HOME/gopath/src/github.com/c4s4/neon $HOME/gopath/src/github.com/mattn/neon
 script:
 - go test -race -coverprofile=coverage.txt -covermode=atomic
 after_success:
