@@ -1,7 +1,7 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
 - version: 0.14.0-SNAPSHOT
-  date:    2018-05-09
+  date:    2018-05-14
   summary: Using Anko from Mattn
   fixed:
   - "Priority to configuration file while looking for build file."
