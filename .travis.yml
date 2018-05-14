@@ -1,6 +1,18 @@
 language: go
 go:
-- '1.10'
+- 1.10.2
 install:
+# import dependencies
+- go get gopkg.in/yaml.v2
+- go get github.com/c4s4/anko
+- go get github.com/mattn/go-zglob
+- go get github.com/fatih/color
+# replace github.com/mattn/anko with github.com/c4s4/anko
+- rm -rf $HOME/gopath/src/github.com/mattn/anko
+- ln -s $HOME/gopath/src/github.com/c4s4/anko $HOME/gopath/src/github.com/mattn/anko
+# fix gopath
 - ln -s $HOME/gopath/src/github.com/c4s4/neon/src/neon $HOME/gopath/src/neon
-- go get -t -v ./...
+script:
+- go test -race -coverprofile=coverage.txt -covermode=atomic github.com/c4s4/neon/...
+after_success:
+- bash <(curl -s https://codecov.io/bash)
