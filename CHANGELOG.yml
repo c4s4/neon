@@ -3,6 +3,8 @@
 - version: 0.14.0-SNAPSHOT
   date:    2018-05-09
   summary: Using Anko from Mattn
+  fixed:
+  - "Priority to configuration file while looking for build file."
 
 - version: 0.13.0
   date:    2018-05-10
