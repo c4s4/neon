@@ -17,10 +17,10 @@ properties:
   - {files: 'bin/*', dir: =BUILD_DIR}
   - {files: 'doc/*.pdf', dir: =BUILD_DIR}
   LIBRARIES:
-  - 'gopkg.in/yaml.v2'
-  - 'github.com/c4s4/anko'
-  - 'github.com/mattn/go-zglob'
-  - 'github.com/fatih/color'
+  - gopkg.in/yaml.v2
+  - github.com/mattn/anko
+  - github.com/mattn/go-zglob
+  - github.com/fatih/color
   CYCLOMAX: 25
 
 environment:
@@ -28,16 +28,6 @@ environment:
   PATH:   '={_BASE}/bin:${PATH}'
 
 targets:
-
-  libs:
-    doc: Get dependencies
-    steps:
-    - delete: '={_BASE}/src/github.com'
-    - delete: '={_BASE}/src/gopakg.in'
-    - super:
-    - delete: '={_BASE}/src/github.com/mattn/anko'
-    - link: '={_BASE}/src/github.com/c4s4/anko'
-      to:   '={_BASE}/src/github.com/mattn/anko'
 
   bin:
     doc: Build neon binary
