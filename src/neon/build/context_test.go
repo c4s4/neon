@@ -74,8 +74,8 @@ func TestEvaluateStringWithProperties(t *testing.T) {
 	if actual, err := context.EvaluateString(`={FOO} ={BAR}`); err != nil || actual != `foo bar` {
 		t.Errorf("TestEvaluateStringWithProperties failure")
 	}
-	if _, err := context.EvaluateString(`={XXX}`); err == nil || err.Error() != `Undefined symbol 'XXX' (at line 1, column 1)` {
-		t.Errorf("TestEvaluateStringWithProperties failure")
+	if _, err := context.EvaluateString(`={XXX}`); err == nil || err.Error() != `undefined symbol 'XXX' (at line 1, column 1)` {
+		t.Errorf("TestEvaluateStringWithProperties failure: %v", err)
 	}
 	if actual, err := context.EvaluateString(`={if true {"true"\} else {"false"\}}`); err != nil || actual != "true" {
 		t.Errorf("TestEvaluateStringWithProperties failure: '%v' - '%s'", err, actual)

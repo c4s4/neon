@@ -1,7 +1,7 @@
 package build
 
 import (
-	"github.com/c4s4/anko/vm"
+	"github.com/mattn/anko/vm"
 )
 
 // BuiltinDesc is a descriptor for a builtin function
