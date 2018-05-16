@@ -1,0 +1,17 @@
+default: test
+extends: golang
+
+properties:
+  VERSION: ''
+  MAP:
+    'foo': 1
+    'bar': 2
+  LIST: ["1", "2", "3"]
+
+targets:
+
+  test:
+    steps:
+    - print: 'foo: ={MAP["foo"]}'
+    - print: 'map: ={MAP}'
+    - print: 'list: ={LIST}'
