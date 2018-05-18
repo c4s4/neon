@@ -39,10 +39,10 @@ Examples:
     - $:  'ls -al'
       1=: 'files'
     # execute command as a list of strings and output on console
-	- $: ['ls', '-al']
-	# run pylint on all python files except those in venv
-	- $: 'pylint'
-	  +: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
+    - $: ['ls', '-al']
+    # run pylint on all python files except those in venv
+    - $: 'pylint'
+      +: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
 
 Notes:
 
