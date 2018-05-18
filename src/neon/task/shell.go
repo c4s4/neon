@@ -31,6 +31,7 @@ Arguments:
 - nx: disable command output. Values for n are: 1 for stdout, 2 for stderr and
   3 for stdout and stderr.
 - <: send given text to standard input of the process.
+- :: print command on terminal before running it.
 
 Examples:
 
@@ -71,6 +72,7 @@ type shellArgs struct {
 	Var2  string   `neon:"name=2=,optional"`
 	Var3  string   `neon:"name=3=,optional"`
 	In    string   `neon:"name=<,optional"`
+	Verb  bool     `neon:"name=:,bool,optional"`
 }
 
 func shell(context *build.Context, args interface{}) error {
@@ -147,7 +149,7 @@ func shell(context *build.Context, args interface{}) error {
 	// put writers in a multi writer
 	multiStdout := io.MultiWriter(stdout...)
 	multiStderr := io.MultiWriter(stderr...)
-	err := run(params.Shell, params.Args, multiStdout, multiStderr, stdin, context)
+	err := run(params.Shell, params.Args, multiStdout, multiStderr, stdin, context, params.Verb)
 	if property != "" {
 		context.SetProperty(property, strings.TrimSpace(builder.String()))
 	}
@@ -157,20 +159,23 @@ func shell(context *build.Context, args interface{}) error {
 	return nil
 }
 
-func run(command []string, args []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context) error {
+func run(command []string, args []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, verbose bool) error {
 	if args != nil {
 		command = append(command, args...)
 	}
 	if len(command) == 0 {
 		return fmt.Errorf("empty command")
 	} else if len(command) < 2 {
-		return runString(command[0], stdout, stderr, stdin, context)
+		return runString(command[0], stdout, stderr, stdin, context, verbose)
 	} else {
-		return runList(command, stdout, stderr, stdin, context)
+		return runList(command, stdout, stderr, stdin, context, verbose)
 	}
 }
 
-func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context) error {
+func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, verbose bool) error {
+	if verbose {
+		context.Message("Running command: %s", strings.Join(cmd, " "))
+	}
 	command := exec.Command(cmd[0], cmd[1:]...)
 	dir, err := os.Getwd()
 	if err != nil {
@@ -191,7 +196,10 @@ func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *b
 	return nil
 }
 
-func runString(cmd string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context) error {
+func runString(cmd string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, verbose bool) error {
+	if verbose {
+		context.Message("Running command: %s", cmd)
+	}
 	shell, err := context.Build.GetShell()
 	if err != nil {
 		return err
