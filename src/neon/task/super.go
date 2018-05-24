@@ -37,7 +37,7 @@ func super(context *build.Context, args interface{}) error {
 		return err
 	}
 	if !ok {
-		return fmt.Errorf("no target '%s' found in parent build files", context.Stack.Last())
+		return fmt.Errorf("no target '%s' found in parent build files", target.Name)
 	}
 	return nil
 }
