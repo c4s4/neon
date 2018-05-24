@@ -1,0 +1,14 @@
+# Bug 3: Error accessing map elements
+
+default: test
+
+properties:
+  MAP:
+    'foo': 1
+    'bar': 2
+
+targets:
+
+  test:
+    steps:
+    - print: 'foo: ={MAP["foo"]}'
