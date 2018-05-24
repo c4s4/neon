@@ -7,7 +7,8 @@
   - "Added option on shell task to print running command."
   fixed:
   - "Priority to configuration file while looking for build file."
-  - "Fixed bad error message when parent target was not found calling super."
+  - "Fixed bug #4: bad error message when parent target was not found calling super."
+  - "Fixed bug #5: error calling super after a call, where super target is wrong."
 
 - version: 0.13.0
   date:    2018-05-10
