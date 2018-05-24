@@ -1,6 +1,6 @@
 # Bug 3: Error accessing map elements
 
-default: test
+default: bug-3
 
 properties:
   MAP:
@@ -9,6 +9,6 @@ properties:
 
 targets:
 
-  test:
+  bug-3:
     steps:
     - print: 'foo: ={MAP["foo"]}'

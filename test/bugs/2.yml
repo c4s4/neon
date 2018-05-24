@@ -2,10 +2,10 @@
 # Type is checked on the first element of the list only.
 # Fixed on 2018-03-29.
 
-default: bug
+default: bug-2
 
 targets:
 
-  bug:
+  bug-2:
     steps:
     - $: ['ls', 1]
