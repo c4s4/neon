@@ -5,8 +5,11 @@
   summary: Using Anko from Mattn
   added:
   - "Added option on shell task to print running command."
+  - "Added task neon (to run another build file)."
   fixed:
   - "Priority to configuration file while looking for build file."
+  - "Fixed bug #2: crash on heterogenous list types."
+  - "Fixed bug #3: map access (fixed in Anko)."
   - "Fixed bug #4: bad error message when parent target was not found calling super."
   - "Fixed bug #5: error calling super after a call, where super target is wrong."
 

@@ -1,0 +1,24 @@
+doc: Built file to test tasks
+default: task_neon
+
+properties:
+  BUILD_DIR: '../../build'
+
+targets:
+
+  task_neon:
+    doc: Test task neon
+    steps:
+    - neon:    'print.yml'
+    - neon:    'print.yml'
+      targets: 'task_print'
+    - neon:    'print.yml'
+      targets: ['task_print']
+    - try:
+      - neon:    'print.yml'
+        targets: 'toto'
+      catch:
+      - if: "_error != \"running build 'print.yml': target 'toto' not found\""
+        then:
+        - throw: 'Neon task failed: ={_error}'
+    - print: 'Neon test success'
