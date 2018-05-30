@@ -18,7 +18,7 @@ func init() {
 
 Arguments:
 
-- move: globs of files to move (strings, file, wrap)
+- move: globs of files to move (strings, file, wrap).
 - dir: root directory for globs (string, optional, file).
 - exclude: globs of files to exclude (strings, optional, file, wrap).
 - tofile: file to move file to (string, optional, file).
