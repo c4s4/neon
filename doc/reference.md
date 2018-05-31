@@ -1133,6 +1133,26 @@ Examples:
     greaterorequal("0.12.0")
     # return true if version is greater or equal than 0.12.0, false otherwise
 
+haskey
+------
+
+Tells if a map contains given key.
+
+Arguments:
+
+- The map to test.
+- The key to test.
+
+Returns:
+
+- A boolean telling if the map contains given key.
+
+Examples:
+
+    # Tell if map "map" contains key "key"
+    haskey(map, "key")
+    # returns: true or false
+
 join
 ----
 
