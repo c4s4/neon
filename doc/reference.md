@@ -19,6 +19,7 @@ Arguments:
 - nx: disable command output. Values for n are: 1 for stdout, 2 for stderr and
   3 for stdout and stderr.
 - <: send given text to standard input of the process.
+- :: print command on terminal before running it.
 
 Examples:
 
@@ -26,10 +27,10 @@ Examples:
     - $:  'ls -al'
       1=: 'files'
     # execute command as a list of strings and output on console
-	- $: ['ls', '-al']
-	# run pylint on all python files except those in venv
-	- $: 'pylint'
-	  +: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
+    - $: ['ls', '-al']
+    # run pylint on all python files except those in venv
+    - $: 'pylint'
+      +: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
 
 Notes:
 
@@ -362,7 +363,7 @@ Move file(s).
 
 Arguments:
 
-- move: globs of files to move (strings, file, wrap)
+- move: globs of files to move (strings, file, wrap).
 - dir: root directory for globs (string, optional, file).
 - exclude: globs of files to exclude (strings, optional, file, wrap).
 - tofile: file to move file to (string, optional, file).
@@ -389,6 +390,22 @@ Notes:
 
 - Parameter 'tofile' is valid if only one file was selected by globs.
 - One and only one of parameters 'tofile' and 'todir' might be set.
+
+neon
+----
+
+Run a NeON build.
+
+Arguments:
+
+- neon: the build file to run (string).
+- targets: the target(s) to run (strings, wrap, optional).
+
+Examples:
+
+    # run target 'foo' of build file 'bar/build.yml'
+    - neon:    'bar/build.yml'
+      targets: 'foo'
 
 pass
 ----
