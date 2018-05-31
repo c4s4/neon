@@ -123,16 +123,19 @@ func FindBuildFile(name, repo string) (string, string, error) {
 	file := filepath.Base(absolute)
 	dir := filepath.Dir(absolute)
 	for {
-		path := filepath.Join(dir, file)
-		if util.FileExists(path) {
-			return path, dir, nil
-		}
+		// first look in configuration file links
 		if path, ok := configuration.Links[dir]; ok {
 			path = _build.LinkPath(path, repo)
 			if util.FileExists(path) {
 				return path, dir, nil
 			}
 		}
+		// if not found, look in current directory
+		path := filepath.Join(dir, file)
+		if util.FileExists(path) {
+			return path, dir, nil
+		}
+		// if not found, loop in parent directory
 		parent := filepath.Dir(dir)
 		if parent == dir {
 			return "", "", fmt.Errorf("build file not found")

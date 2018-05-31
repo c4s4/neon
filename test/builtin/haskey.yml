@@ -1,0 +1,19 @@
+doc: Built file to test builtin haskey
+default: builtin_haskey
+
+properties:
+  MAP:
+    foo: bar
+
+targets:
+
+  builtin_haskey:
+    doc: Test the haskey builtin function
+    steps:
+    - if: '!haskey(MAP, "foo")'
+      then:
+      - throw: 'Haskey test failure'
+    - if: 'haskey(MAP, "bar")'
+      then:
+      - throw: 'Haskey test failure'
+    - print: 'Haskey test success'

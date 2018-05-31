@@ -1,5 +1,19 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 0.14.0-SNAPSHOT
+  date:    2018-05-31
+  summary: Using Anko from Mattn
+  added:
+  - "Added option on shell task to print running command."
+  - "Added task neon (to run another build file)."
+  - "Added haskey builtin (to test if a map has given key)."
+  fixed:
+  - "Priority to configuration file while looking for build file."
+  - "Fixed bug #2: crash on heterogenous list types."
+  - "Fixed bug #3: map access (fixed in Anko)."
+  - "Fixed bug #4: bad error message when parent target was not found calling super."
+  - "Fixed bug #5: error calling super after a call, where super target is wrong."
+
 - version: 0.13.0
   date:    2018-05-10
   summary: Added input in shell task

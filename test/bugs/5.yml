@@ -1,0 +1,14 @@
+# Bug 5: when calling super after a call, super target is wrong
+
+default: bug-5
+
+targets:
+
+  test:
+    steps:
+    - pass:
+
+  bug-5:
+    steps:
+    - call: test
+    - super:

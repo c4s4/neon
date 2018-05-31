@@ -45,6 +45,17 @@ func (stack *Stack) Push(target *Target) error {
 	return nil
 }
 
+// Pop target on the stack
+// Return: error if something went wrong
+func (stack *Stack) Pop() error {
+	length := len(stack.Targets)
+	if length == 0 {
+		return fmt.Errorf("no target on stack")
+	}
+	stack.Targets = stack.Targets[:length-1]
+	return nil
+}
+
 // Last gets the last target on stack
 // Return: last target on stack
 func (stack *Stack) Last() *Target {

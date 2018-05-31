@@ -37,6 +37,9 @@ func TestParseCommandLine(t *testing.T) {
 }
 
 func TestFindBuildFile(t *testing.T) {
+	if os.Getenv("TRAVIS") == "true" {
+		t.Skip("skip test on travis")
+	}
 	file, base, err := FindBuildFile("build.yml", "")
 	if err != nil {
 		t.Errorf("error finding build file: %v", err)
