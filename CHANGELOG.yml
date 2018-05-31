@@ -6,6 +6,7 @@
   added:
   - "Added option on shell task to print running command."
   - "Added task neon (to run another build file)."
+  - "Added haskey builtin (to test if a map has given key)."
   fixed:
   - "Priority to configuration file while looking for build file."
   - "Fixed bug #2: crash on heterogenous list types."
