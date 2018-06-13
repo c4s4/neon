@@ -239,6 +239,17 @@ func (build *Build) GetDefault() []string {
 	return build.Default
 }
 
+// GetScripts return a list of context scripts to run.
+// Return: the list of context scripts
+func (build *Build) GetScripts() []string {
+	var scripts []string
+	for _, parent := range build.Parents {
+		scripts = append(scripts, parent.GetScripts()...)
+	}
+	scripts = append(scripts, build.Scripts...)
+	return scripts
+}
+
 // Run runs given targets in a build context. If no target is given, runs
 // default one.
 // - context: the context to run into
