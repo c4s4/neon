@@ -93,8 +93,13 @@ func (context *Context) Init() error {
 // InitScripts loads build scripts in context
 // Return: an error if something went wrong
 func (context *Context) InitScripts() error {
-	for _, script := range context.Build.Scripts {
-		source, err := ioutil.ReadFile(script)
+	scripts := context.Build.GetScripts()
+	for _, script := range scripts {
+		path, err := context.Build.ParentPath(script)
+		if err != nil {
+			return fmt.Errorf("getting script path '%s': %v", script, err)
+		}
+		source, err := ioutil.ReadFile(path)
 		if err != nil {
 			return fmt.Errorf("reading script '%s': %v", script, err)
 		}

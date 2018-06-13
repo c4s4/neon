@@ -1,0 +1,12 @@
+# Bug 6: doesn't load parent context
+
+default: bug-6
+extends: ./6.parent.yml
+
+targets:
+
+  bug-6:
+    steps:
+    - if: '!defined("DEFINED")'
+      then:
+      - throw: 'Test failed'
