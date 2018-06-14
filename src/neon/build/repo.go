@@ -22,6 +22,9 @@ var RegexpParentName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.yml`)
 // RegexpTemplateName is regexp for template name
 var RegexpTemplateName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.tpl`)
 
+// RegexpTemplateName is regexp for script name
+var RegexpScriptName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.ank`)
+
 // RegexpLinkName is regexp for parent name
 var RegexpLinkName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.yml`)
 
@@ -246,4 +249,22 @@ func LinkPath(name, repo string) string {
 		repo = DefaultRepo
 	}
 	return util.ExpandUserHome(filepath.Join(repo, name))
+}
+
+// ScriptPath returns file path for script with given name.
+// - name: the name of the script (as "c4s4/build/foo.ank")
+// Return:
+// - the script path as a string (as /home/casa/.neon/c4s4/build/foo.ank)
+// - error if something went wrong
+func (build *Build) ScriptPath(name string) (string, error) {
+	if path.IsAbs(name) {
+		return name, nil
+	}
+	if strings.HasPrefix(name, "./") {
+		return filepath.Join(build.Dir, name), nil
+	}
+	if RegexpScriptName.MatchString(name) {
+		return util.ExpandUserHome(filepath.Join(build.Repository, name)), nil
+	}
+	return "", fmt.Errorf("script '%s' was not found", name)
 }

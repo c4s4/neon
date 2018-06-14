@@ -95,7 +95,7 @@ func (context *Context) Init() error {
 func (context *Context) InitScripts() error {
 	scripts := context.Build.GetScripts()
 	for _, script := range scripts {
-		path, err := context.Build.ParentPath(script)
+		path, err := context.Build.ScriptPath(script)
 		if err != nil {
 			return fmt.Errorf("getting script path '%s': %v", script, err)
 		}
