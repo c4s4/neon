@@ -1,7 +1,7 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 1.0.0-rc-1
-  date:    2018-06-14
+- version: 1.0.0-rc-2
+  date:    2018-06-00
   summary: Using original Anko
   added:
   - "Added option on shell task to print running command."
