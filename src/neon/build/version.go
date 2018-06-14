@@ -16,19 +16,19 @@ type Version struct {
 	Fields []int
 }
 
-// Snapshot is the suffix for SNAPSHOT versions
-const Snapshot = "-SNAPSHOT"
+// Suffixes is the suffix for SNAPSHOT versions
+const Suffixes = "SNAPSHOT|ALPHA|BETA|RC|snapshot|alpha|beta|rc"
 
 // RegexpVersion is a regexp for software version
-var RegexpVersion = regexp.MustCompile(fmt.Sprintf(`^\d+(\.\d+)*(%s)?$`, Snapshot))
+var RegexpVersion = regexp.MustCompile(fmt.Sprintf(`^\d+(\.\d+)*(-%s)?$`, Suffixes))
 
 // NewVersion builds a Version from its string representation
 func NewVersion(version string) (*Version, error) {
 	if !RegexpVersion.MatchString(version) {
 		return nil, fmt.Errorf("%s is not a valid version number", version)
 	}
-	if strings.HasSuffix(version, Snapshot) {
-		version = version[:len(version)-len(Snapshot)]
+	if strings.HasSuffix(version, Suffixes) {
+		version = version[:len(version)-len(Suffixes)]
 	}
 	parts := strings.Split(version, ".")
 	fields := make([]int, len(parts))
