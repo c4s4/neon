@@ -22,7 +22,7 @@ var RegexpParentName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.yml`)
 // RegexpTemplateName is regexp for template name
 var RegexpTemplateName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.tpl`)
 
-// RegexpTemplateName is regexp for script name
+// RegexpScriptName is regexp for script name
 var RegexpScriptName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.ank`)
 
 // RegexpLinkName is regexp for parent name
