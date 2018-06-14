@@ -8,8 +8,8 @@ extends:
 properties:
   NAME:      'neon'
   PACKAGE:   =NAME
-  ARC_DIR:   '={BUILD_DIR}/={NAME}-={VERSION}'
   REFERENCE: 'doc/reference.md'
+  ARC_DIR:   '={BUILD_DIR}/={NAME}-={VERSION}'
   ARC_FILES:
   - files: ['CHANGELOG.yml', 'LICENSE.txt', 'README.md', 'bash/*']
   - {files: 'bin/*', dir: =BUILD_DIR}
