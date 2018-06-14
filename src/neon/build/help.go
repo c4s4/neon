@@ -89,8 +89,8 @@ func (build *Build) infoProperties(context *Context) error {
 		Message("")
 		Message("properties:")
 		names := make([]string, 0, len(build.Properties))
-	    for name := range build.Properties {
-    	    names = append(names, name)
+		for name := range build.Properties {
+			names = append(names, name)
 		}
 		sort.Strings(names)
 		for _, name := range names {
