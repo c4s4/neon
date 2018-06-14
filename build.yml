@@ -4,14 +4,12 @@ doc:     Build file for NeON
 default: [clean, fmt, check, test]
 extends:
 - c4s4/build/golang.yml
-- c4s4/build/release.yml
-- c4s4/build/github.yml
 
 properties:
   NAME:      'neon'
   PACKAGE:   =NAME
-  ARC_DIR:   '={BUILD_DIR}/={NAME}-={VERSION}'
   REFERENCE: 'doc/reference.md'
+  ARC_DIR:   '={BUILD_DIR}/={NAME}-={VERSION}'
   ARC_FILES:
   - files: ['CHANGELOG.yml', 'LICENSE.txt', 'README.md', 'bash/*']
   - {files: 'bin/*', dir: =BUILD_DIR}

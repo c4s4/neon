@@ -88,7 +88,12 @@ func (build *Build) infoProperties(context *Context) error {
 	if len(build.Properties) > 0 {
 		Message("")
 		Message("properties:")
+		names := make([]string, 0, len(build.Properties))
 		for name := range build.Properties {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		for _, name := range names {
 			value, err := context.GetProperty(name)
 			if err != nil {
 				return fmt.Errorf("getting property '%s': %v", name, err)
