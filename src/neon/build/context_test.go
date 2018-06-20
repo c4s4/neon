@@ -39,6 +39,10 @@ func TestEvaluateStringEscape(t *testing.T) {
 	if actual, err := context.EvaluateString(`foo \\\\={"bar"}`); err != nil || actual != `foo \\bar` {
 		t.Errorf("TestEvaluateString failure: '%s'", actual)
 	}
+}
+
+func TestEvaluateStringEscapeOldStyle(t *testing.T) {
+	context := NewContext(nil)
 	if actual, err := context.EvaluateString(`foo \#{bar}`); err != nil || actual != `foo #{bar}` {
 		t.Errorf("TestEvaluateString failure: '%s'", actual)
 	}
