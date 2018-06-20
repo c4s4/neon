@@ -2,12 +2,6 @@
 
 - version: 1.0.0-rc-3
   date:    2018-06-20
-  summary: Fixed all warnings
-  fixed:
-  - "Fixed all warnings so that code quality is 100% on goreportcard."
-
-- version: 1.0.0-rc-2
-  date:    2018-06-14
   summary: Using original Anko
   added:
   - "Added option on shell task to print running command."
@@ -20,8 +14,9 @@
   - "Fixed issue #4: bad error message when parent target was not found calling super."
   - "Fixed issue #5: error calling super after a call, where super target is wrong."
   - "Fixed issue #6: doesn't load context script of parents build files."
-  - "Sort properties by name on build information screen."
+  - "Fixed order of properties on build information screen."
   - "Fixed NeON version parsing for version checks."
+  - "Fixed all warnings so that code quality is 100% on goreportcard."
 
 - version: 0.13.0
   date:    2018-05-10
