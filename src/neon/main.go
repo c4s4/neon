@@ -164,46 +164,21 @@ func main() {
 			repo = _build.DefaultRepo
 		}
 	}
-	if grey {
-		_build.Grey = true
+	_build.Grey = grey
+	configuration.Time = timeit
+	if printHelp(tasks, builtins, templates, parents, themes, refs, task, builtin, repo) {
+		return
 	}
-	if timeit {
-		configuration.Time = true
-	}
-	if tasks {
-		_build.PrintTasks()
-		return
-	} else if task != "" {
-		_build.PrintHelpTask(task)
-		return
-	} else if builtins {
-		_build.PrintBuiltins()
-		return
-	} else if builtin != "" {
-		_build.PrintHelpBuiltin(builtin)
-		return
-	} else if refs {
-		_build.PrintReference()
-		return
-	} else if version {
+	if version {
 		_build.Message(_build.NeonVersion)
 		return
 	} else if install != "" {
 		err := _build.InstallPlugin(install, repo)
 		PrintError(err, 6)
 		return
-	} else if templates {
-		_build.PrintTemplates(repo)
-		return
-	} else if parents {
-		_build.PrintParents(repo)
-		return
 	} else if theme != "" {
 		err := _build.ApplyThemeByName(theme)
 		PrintError(err, 8)
-	} else if themes {
-		_build.PrintThemes()
-		return
 	}
 	// options that do require we load build file
 	if template != "" {
@@ -241,6 +216,35 @@ func main() {
 		_build.PrintOk()
 		return
 	}
+}
+
+func printHelp(tasks, builtins, templates, parents, themes, refs bool, task, builtin, repo string) bool {
+	if tasks {
+		_build.PrintTasks()
+		return true
+	} else if task != "" {
+		_build.PrintHelpTask(task)
+		return true
+	} else if builtins {
+		_build.PrintBuiltins()
+		return true
+	} else if builtin != "" {
+		_build.PrintHelpBuiltin(builtin)
+		return true
+	} else if templates {
+		_build.PrintTemplates(repo)
+		return true
+	} else if parents {
+		_build.PrintParents(repo)
+		return true
+	} else if themes {
+		_build.PrintThemes()
+		return true
+	} else if refs {
+		_build.PrintReference()
+		return true
+	}
+	return false
 }
 
 // PrintError prints an error and exits if any
