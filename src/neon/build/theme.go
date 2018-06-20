@@ -21,67 +21,67 @@ type Theme struct {
 
 // Themes is a map of themes by name
 var Themes = map[string]*Theme{
-	"bee": &Theme{
+	"bee": {
 		Title: []color.Attribute{color.FgYellow},
 		Ok:    []color.Attribute{color.FgGreen, color.Bold},
 		Error: []color.Attribute{color.FgRed, color.Bold},
 	},
-	"rgb": &Theme{
+	"rgb": {
 		Title: []color.Attribute{color.FgBlue},
 		Ok:    []color.Attribute{color.FgGreen, color.Bold},
 		Error: []color.Attribute{color.FgRed, color.Bold},
 	},
-	"red": &Theme{
+	"red": {
 		Title: []color.Attribute{color.FgRed},
 		Ok:    []color.Attribute{color.FgRed, color.Bold},
 		Error: []color.Attribute{color.FgRed, color.Bold, color.ReverseVideo},
 	},
-	"green": &Theme{
+	"green": {
 		Title: []color.Attribute{color.FgGreen},
 		Ok:    []color.Attribute{color.FgGreen, color.Bold},
 		Error: []color.Attribute{color.FgGreen, color.Bold, color.ReverseVideo},
 	},
-	"blue": &Theme{
+	"blue": {
 		Title: []color.Attribute{color.FgBlue},
 		Ok:    []color.Attribute{color.FgBlue, color.Bold},
 		Error: []color.Attribute{color.FgBlue, color.Bold, color.ReverseVideo},
 	},
-	"yellow": &Theme{
+	"yellow": {
 		Title: []color.Attribute{color.FgYellow},
 		Ok:    []color.Attribute{color.FgYellow, color.Bold},
 		Error: []color.Attribute{color.FgYellow, color.Bold, color.ReverseVideo},
 	},
-	"magenta": &Theme{
+	"magenta": {
 		Title: []color.Attribute{color.FgMagenta},
 		Ok:    []color.Attribute{color.FgMagenta, color.Bold},
 		Error: []color.Attribute{color.FgMagenta, color.Bold, color.ReverseVideo},
 	},
-	"cyan": &Theme{
+	"cyan": {
 		Title: []color.Attribute{color.FgCyan},
 		Ok:    []color.Attribute{color.FgCyan, color.Bold},
 		Error: []color.Attribute{color.FgCyan, color.Bold, color.ReverseVideo},
 	},
-	"fire": &Theme{
+	"fire": {
 		Title: []color.Attribute{color.FgRed},
 		Ok:    []color.Attribute{color.FgGreen, color.Bold, color.Underline},
 		Error: []color.Attribute{color.FgRed, color.Bold, color.Underline},
 	},
-	"marine": &Theme{
+	"marine": {
 		Title: []color.Attribute{color.FgBlue},
 		Ok:    []color.Attribute{color.FgGreen, color.Bold, color.Underline},
 		Error: []color.Attribute{color.FgRed, color.Bold, color.Underline},
 	},
-	"nature": &Theme{
+	"nature": {
 		Title: []color.Attribute{color.FgGreen},
 		Ok:    []color.Attribute{color.FgGreen, color.Bold, color.Underline},
 		Error: []color.Attribute{color.FgRed, color.Bold, color.Underline},
 	},
-	"bold": &Theme{
+	"bold": {
 		Title: []color.Attribute{color.FgYellow, color.Bold},
 		Ok:    []color.Attribute{color.FgGreen, color.Underline, color.Bold},
 		Error: []color.Attribute{color.FgRed, color.Underline, color.Bold},
 	},
-	"reverse": &Theme{
+	"reverse": {
 		Title: []color.Attribute{color.ReverseVideo},
 		Ok:    []color.Attribute{color.ReverseVideo, color.Bold},
 		Error: []color.Attribute{color.ReverseVideo, color.Bold},

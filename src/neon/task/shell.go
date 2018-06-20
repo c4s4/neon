@@ -80,18 +80,11 @@ func shell(context *build.Context, args interface{}) error {
 	// reader from stdin
 	var stdin io.Reader = os.Stdin
 	// writers to stdout and stderr
-	stdout := []io.Writer{os.Stdout}
-	stderr := []io.Writer{os.Stderr}
+	stdout := getStdout(params)
+	stderr := getStderr(params)
 	// string builder to redirect in a property
 	builder := &strings.Builder{}
 	property := ""
-	// disable output on stdout or stderr
-	if params.Del1 || params.Del3 {
-		stdout = []io.Writer{}
-	}
-	if params.Del2 || params.Del3 {
-		stderr = []io.Writer{}
-	}
 	// redirect stdout in a file
 	if params.Red1+params.Red3 != "" {
 		filename := params.Red1 + params.Red3
@@ -157,6 +150,22 @@ func shell(context *build.Context, args interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func getStdout(params shellArgs) []io.Writer {
+	// output disabled on stdout
+	if params.Del1 || params.Del3 {
+		return []io.Writer{}
+	}
+	return []io.Writer{os.Stdout}
+}
+
+func getStderr(params shellArgs) []io.Writer {
+	// output disabled on stderr
+	if params.Del2 || params.Del3 {
+		return []io.Writer{}
+	}
+	return []io.Writer{os.Stderr}
 }
 
 func run(command []string, args []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, verbose bool) error {

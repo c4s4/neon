@@ -19,7 +19,6 @@ properties:
   - github.com/mattn/anko
   - github.com/mattn/go-zglob
   - github.com/fatih/color
-  CYCLOMAX: 25
 
 environment:
   GOPATH: =_BASE
