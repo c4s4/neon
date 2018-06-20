@@ -54,53 +54,64 @@ func NewBuild(file, base, repo string) (*Build, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = setDirectories(build, base)
-	if err != nil {
+	if err := setDirectories(build, base); err != nil {
 		return nil, err
 	}
 	if err := object.CheckFields(Fields); err != nil {
 		return nil, fmt.Errorf("parsing build file: %v", err)
 	}
-	if err := ParseSingleton(object, build); err != nil {
-		return nil, err
-	}
-	if err := ParseShell(object, build); err != nil {
-		return nil, err
-	}
-	if err := ParseDefault(object, build); err != nil {
-		return nil, err
-	}
-	if err := ParseDoc(object, build); err != nil {
-		return nil, err
-	}
-	if err := ParseRepository(object, build, repo); err != nil {
-		return nil, err
-	}
-	if err := ParseContext(object, build); err != nil {
-		return nil, err
-	}
-	if err := ParseExtends(object, build); err != nil {
-		return nil, err
-	}
-	if err := ParseProperties(object, build); err != nil {
-		return nil, err
-	}
-	if err := ParseConfiguration(object, build); err != nil {
-		return nil, err
-	}
-	if err := ParseEnvironment(object, build); err != nil {
-		return nil, err
-	}
-	if err := ParseTargets(object, build); err != nil {
-		return nil, err
-	}
-	if err := ParseVersion(object, build); err != nil {
+	if err := ParseFields(object, build, repo); err != nil {
 		return nil, err
 	}
 	build.Properties = build.GetProperties()
 	build.Environment = build.GetEnvironment()
 	build.SetDir(build.Dir)
 	return build, nil
+}
+
+// ParseFields parses build file fields:
+// - object: the build as an object.
+// - build: the build object.
+// - repo: the repository.
+// Return: an error if something went wrong.
+func ParseFields(object util.Object, build *Build, repo string) error {
+	if err := ParseSingleton(object, build); err != nil {
+		return err
+	}
+	if err := ParseShell(object, build); err != nil {
+		return err
+	}
+	if err := ParseDefault(object, build); err != nil {
+		return err
+	}
+	if err := ParseDoc(object, build); err != nil {
+		return err
+	}
+	if err := ParseRepository(object, build, repo); err != nil {
+		return err
+	}
+	if err := ParseContext(object, build); err != nil {
+		return err
+	}
+	if err := ParseExtends(object, build); err != nil {
+		return err
+	}
+	if err := ParseProperties(object, build); err != nil {
+		return err
+	}
+	if err := ParseConfiguration(object, build); err != nil {
+		return err
+	}
+	if err := ParseEnvironment(object, build); err != nil {
+		return err
+	}
+	if err := ParseTargets(object, build); err != nil {
+		return err
+	}
+	if err := ParseVersion(object, build); err != nil {
+		return err
+	}
+	return nil
 }
 
 func parseBuildFile(file string) (util.Object, *Build, error) {
