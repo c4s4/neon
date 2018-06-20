@@ -108,10 +108,7 @@ func ParseFields(object util.Object, build *Build, repo string) error {
 	if err := ParseTargets(object, build); err != nil {
 		return err
 	}
-	if err := ParseVersion(object, build); err != nil {
-		return err
-	}
-	return nil
+	return ParseVersion(object, build)
 }
 
 func parseBuildFile(file string) (util.Object, *Build, error) {
