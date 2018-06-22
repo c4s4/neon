@@ -3,8 +3,8 @@
 package builtin
 
 import (
-	"testing"
 	"strings"
+	"testing"
 )
 
 func TestEnv(t *testing.T) {
