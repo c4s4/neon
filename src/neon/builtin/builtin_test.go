@@ -1,6 +1,8 @@
 package builtin
 
 import (
+	"fmt"
+	"io/ioutil"
 	_build "neon/build"
 	_ "neon/task"
 	"neon/util"
@@ -9,10 +11,12 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
+	"time"
 )
 
 const (
-	TestDir = "../../../test/builtin"
+	TestDir  = "../../../test/builtin"
+	BuildDir = "../../../build"
 )
 
 // Assert make an assertion for testing purpose, failing test if different:
@@ -61,6 +65,25 @@ func RunBuildFile(file, dir string) error {
 	err = build.Run(context, []string{})
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+// Touch touches given file:
+// - file: the name of the file
+// Return error if something went wrong
+func Touch(file string) error {
+	if util.FileExists(file) {
+		time := time.Now()
+		err := os.Chtimes(file, time, time)
+		if err != nil {
+			return fmt.Errorf("changing times of file '%s': %v", file, err)
+		}
+	} else {
+		err := ioutil.WriteFile(file, []byte{}, 0755)
+		if err != nil {
+			return fmt.Errorf("creating file '%s': %v", file, err)
+		}
 	}
 	return nil
 }
