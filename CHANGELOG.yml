@@ -1,11 +1,12 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 1.0.0-rc-3
-  date:    2018-06-20
+- version: 1.0.0-rc-4
+  date:    2018-07-09
   summary: Using original Anko
   added:
   - "Added option on shell task to print running command."
-  - "Added task neon (to run another build file)."
+  - "Added task neon (to run another build file) and singleton (to ensure a
+     block of steps runs in a single instance)."
   - "Added haskey builtin (to test if a map has given key)."
   fixed:
   - "Priority to configuration file while looking for build file."
