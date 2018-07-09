@@ -25,6 +25,7 @@ Examples:
 
     # ensure one single instance is waiting
 	- singleton: 12345
+	  steps:
 	  - sleep: 10.0`,
 	})
 }
