@@ -546,6 +546,24 @@ Notes:
 - Response body is stored in variable _body.
 - Response headers are stored in variable _headers.
 
+singleton
+---------
+
+Ensure that only one instance of a block of steps is running.
+
+Arguments:
+
+- singleton: port we are listening to, should be between 1024 and 65535 (integer).
+- steps: steps we want to run (steps).
+- wait: tells if we wait until resource if released (if true) or stop on error
+  (if false, which is default) (bool, optional).
+
+Examples:
+
+    # ensure one single instance is waiting
+	- singleton: 12345
+	  - sleep: 10.0
+
 sleep
 -----
 
