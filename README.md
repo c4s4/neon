@@ -32,11 +32,12 @@ following completions:
 Documentation
 -------------
 
-There are three sources of documentation:
+There are four sources of documentation:
 
 - [The quick start guide](doc/quickstart.md).
 - [The user manual](doc/usermanual.md)
 - [The reference guide](doc/reference.md).
+- [Slides in French](http://sweetohm.net/slides/slides-neon)
 
 Build
 -----

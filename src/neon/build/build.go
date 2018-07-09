@@ -267,8 +267,13 @@ func (build *Build) Run(context *Context, targets []string) error {
 	if err := build.CheckVersion(context); err != nil {
 		return err
 	}
-	if err := build.EnsureSingle(context); err != nil {
+	var listener net.Listener
+	var err error
+	if listener, err = build.EnsureSingle(context); err != nil {
 		return err
+	}
+	if listener != nil {
+		defer listener.Close()
 	}
 	if len(targets) == 0 {
 		targets = build.GetDefault()
@@ -347,10 +352,10 @@ func (build *Build) GetShell() ([]string, error) {
 // instance is running on a machine. Fails if another instance is already
 // running on same port.
 // - context: build context
-// Return: an error if another instance is running on same port
-func (build *Build) EnsureSingle(context *Context) error {
+// Return: a listener and an error if another instance is running on same port
+func (build *Build) EnsureSingle(context *Context) (net.Listener, error) {
 	if build.Singleton == "" {
-		return nil
+		return nil, nil
 	}
 	expression := build.Singleton
 	if IsExpression(expression) {
@@ -358,22 +363,29 @@ func (build *Build) EnsureSingle(context *Context) error {
 	}
 	singleton, err := context.EvaluateExpression(expression)
 	if err != nil {
-		return fmt.Errorf("evaluating singleton port expression '%s': %v", expression, err)
+		return nil, fmt.Errorf("evaluating singleton port expression '%s': %v", expression, err)
 	}
 	port, ok := singleton.(int64)
 	if !ok {
 		portInt, ok := singleton.(int)
 		if !ok {
-			return fmt.Errorf("singleton port expression '%s' must return an integer", expression)
+			return nil, fmt.Errorf("singleton port expression '%s' must return an integer", expression)
 		}
 		port = int64(portInt)
 	}
+	return ListenPort(int(port))
+}
+
+// ListenPort listens given port:
+// - port: port to listen.
+// Return: listener and error if any
+func ListenPort(port int) (net.Listener, error) {
 	if port < 0 || port > 65535 {
-		return fmt.Errorf("singleton port port must be between 0 and 65535")
+		return nil, fmt.Errorf("singleton port port must be between 0 and 65535")
 	}
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
-		return fmt.Errorf("listening singleton port: %v", err)
+		return nil, fmt.Errorf("listening singleton port: %v", err)
 	}
 	go func() {
 		for {
@@ -381,7 +393,7 @@ func (build *Build) EnsureSingle(context *Context) error {
 			time.Sleep(100 * time.Millisecond)
 		}
 	}()
-	return nil
+	return listener, nil
 }
 
 // CheckVersion checks evaluates version expression to check that NeON version is OK
