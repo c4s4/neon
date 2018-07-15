@@ -37,7 +37,7 @@ func TestIntegration(t *testing.T) {
 // RunBuildFile runs given build file
 func RunBuildFile(file, dir string) error {
 	defer os.Chdir(dir)
-	build, err := _build.NewBuild(file, filepath.Dir(file), "~/.neon")
+	build, err := _build.NewBuild(file, filepath.Dir(file), "")
 	if err != nil {
 		return err
 	}

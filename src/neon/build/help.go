@@ -248,3 +248,13 @@ func PrintReference() {
 		Message("")
 	}
 }
+
+// PrintThemes prints the list of all available themes.
+func PrintThemes() {
+	var themes []string
+	for theme := range Themes {
+		themes = append(themes, theme)
+	}
+	sort.Strings(themes)
+	Message(strings.Join(themes, " "))
+}
