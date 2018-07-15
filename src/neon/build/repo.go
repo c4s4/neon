@@ -29,16 +29,12 @@ var RegexpScriptName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.ank`)
 var RegexpLinkName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.yml`)
 
 // FindParents finds parent build files in given repository.
-// - repo: the NeON repository (defaults to '~/.neon')
+// - repository: the NeON repository (defaults to '~/.neon')
 // Return:
 // - list of parent build files relative to repo.
 // - error if something went wrong.
-func FindParents(repo string) ([]string, error) {
-	if repo == "" {
-		repo = DefaultRepo
-	}
-	repo = util.ExpandUserHome(repo)
-	files, err := util.FindFiles(repo, []string{"*/*/*.yml"}, nil, false)
+func FindParents(repository string) ([]string, error) {
+	files, err := util.FindFiles(repository, []string{"*/*/*.yml"}, nil, false)
 	if err != nil {
 		return nil, err
 	}
@@ -48,12 +44,12 @@ func FindParents(repo string) ([]string, error) {
 
 // FindParent finds a parent in given repository.
 // - parent: the parent to find (such as "golang").
-// - repo: the NeON repository (defaults to '~/.neon')
+// - repository: the NeON repository (defaults to '~/.neon')
 // Return:
-// - parent path relative to repo (such as "c4s4/build/golang.tpl").
+// - parent path relative to repository (such as "c4s4/build/golang.tpl").
 // - error if something went wrong.
-func FindParent(parent, repo string) ([]string, error) {
-	files, err := FindParents(repo)
+func FindParent(parent, repository string) ([]string, error) {
+	files, err := FindParents(repository)
 	if err != nil {
 		return nil, err
 	}
@@ -104,14 +100,13 @@ func InstallPlugin(plugin, repository string) error {
 	if !re.MatchString(plugin) {
 		return fmt.Errorf("plugin name '%s' is invalid", plugin)
 	}
-	repopath := filepath.Join(repository, plugin)
-	if util.DirExists(repopath) {
-		Message("Plugin '%s' already installed in '%s'", plugin, repopath)
+	pluginPath := filepath.Join(repository, plugin)
+	if util.DirExists(pluginPath) {
+		Message("Plugin '%s' already installed in '%s'", plugin, pluginPath)
 		return nil
 	}
-	absolute := util.ExpandUserHome(repopath)
-	repo := "git://" + PluginSite + "/" + plugin + ".git"
-	command := exec.Command("git", "clone", repo, absolute)
+	gitRepository := "git://" + PluginSite + "/" + plugin + ".git"
+	command := exec.Command("git", "clone", gitRepository, pluginPath)
 	Message("Running command '%s'...", strings.Join(command.Args, " "))
 	output, err := command.CombinedOutput()
 	if err != nil {
@@ -121,18 +116,14 @@ func InstallPlugin(plugin, repository string) error {
 		Message(message)
 		return fmt.Errorf("installing plugin '%s'", plugin)
 	}
-	Message("Plugin '%s' installed in '%s'", plugin, repopath)
+	Message("Plugin '%s' installed in '%s'", plugin, pluginPath)
 	return nil
 }
 
 // PrintParents prints parent build files in repository:
-// - repo: the NeON repository (defaults to '~/.neon')
-func PrintParents(repo string) {
-	if repo == "" {
-		repo = DefaultRepo
-	}
-	repo = util.ExpandUserHome(repo)
-	files, err := util.FindFiles(repo, []string{"*/*/*.yml"}, nil, false)
+// - repository: the NeON repository (defaults to '~/.neon')
+func PrintParents(repository string) {
+	files, err := util.FindFiles(repository, []string{"*/*/*.yml"}, nil, false)
 	if err != nil {
 		panic(err)
 	}
@@ -144,27 +135,13 @@ func PrintParents(repo string) {
 	}
 }
 
-// PrintThemes prints the list of all available themes.
-func PrintThemes() {
-	var themes []string
-	for theme := range Themes {
-		themes = append(themes, theme)
-	}
-	sort.Strings(themes)
-	Message(strings.Join(themes, " "))
-}
-
 // FindTemplates finds templates in given repository.
-// - repo: the NeON repository (defaults to '~/.neon')
+// - repository: the NeON repository (defaults to '~/.neon')
 // Return:
 // - list of template files relative to repo.
 // - error if something went wrong.
-func FindTemplates(repo string) ([]string, error) {
-	if repo == "" {
-		repo = DefaultRepo
-	}
-	repo = util.ExpandUserHome(repo)
-	files, err := util.FindFiles(repo, []string{"*/*/*.tpl"}, nil, false)
+func FindTemplates(repository string) ([]string, error) {
+	files, err := util.FindFiles(repository, []string{"*/*/*.tpl"}, nil, false)
 	if err != nil {
 		return nil, err
 	}
@@ -174,12 +151,12 @@ func FindTemplates(repo string) ([]string, error) {
 
 // FindTemplate finds a template in given repository.
 // - template: the template to find (such as "golang").
-// - repo: the NeON repository (defaults to '~/.neon')
+// - repository: the NeON repository (defaults to '~/.neon')
 // Return:
 // - templates path relative to repo (such as "c4s4/build/golang.tpl").
 // - error if something went wrong.
-func FindTemplate(template, repo string) ([]string, error) {
-	files, err := FindTemplates(repo)
+func FindTemplate(template, repository string) ([]string, error) {
+	files, err := FindTemplates(repository)
 	if err != nil {
 		return nil, err
 	}
@@ -197,32 +174,29 @@ func FindTemplate(template, repo string) ([]string, error) {
 
 // TemplatePath return the template path:
 // - name: the name of the template (such as 'c4s4/build/golang.tpl')
-// - repo: the repository for plugins (defaults to '~/.neon')
+// - repository: the repository for plugins (defaults to '~/.neon')
 // Return: template path (as '~/.neon/c4s4/build/golang.tpl')
-func TemplatePath(name, repo string) (string, error) {
+func TemplatePath(name, repository string) (string, error) {
 	if path.IsAbs(name) || strings.HasPrefix(name, "./") {
 		return name, nil
 	}
-	if repo == "" {
-		repo = DefaultRepo
-	}
 	if RegexpTemplateName.MatchString(name) {
-		return util.ExpandUserHome(filepath.Join(repo, name)), nil
+		return filepath.Join(repository, name), nil
 	}
-	templates, err := FindTemplate(name, repo)
+	templates, err := FindTemplate(name, repository)
 	if err != nil || len(templates) == 0 {
 		return "", fmt.Errorf("template '%s' was not found", name)
 	}
 	if len(templates) > 1 {
 		return "", fmt.Errorf("there are %d templates matching name '%s'", len(templates), name)
 	}
-	return util.ExpandUserHome(filepath.Join(repo, templates[0])), nil
+	return filepath.Join(repository, templates[0]), nil
 }
 
 // PrintTemplates prints templates in repository:
-// - repo: the NeON repository (defaults to '~/.neon')
-func PrintTemplates(repo string) {
-	files, err := FindTemplates(repo)
+// - repository: the NeON repository (defaults to '~/.neon')
+func PrintTemplates(repository string) {
+	files, err := FindTemplates(repository)
 	if err != nil {
 		panic(err)
 	}
@@ -233,22 +207,16 @@ func PrintTemplates(repo string) {
 
 // LinkPath return the link path:
 // - name: the name of the build file (such as 'c4s4/build/build.yml')
-// - repo: the repository for plugins (defaults to '~/.neon')
+// - repository: the repository for plugins (defaults to '~/.neon')
 // Return: link path (as '~/.neon/c4s4/build/build.yml')
-func LinkPath(name, repo string) string {
-	if repo == "" {
-		repo = DefaultRepo
-	}
+func LinkPath(name, repository string) string {
 	if path.IsAbs(name) {
 		return name
 	}
 	if strings.HasPrefix(name, "./") {
-		return util.ExpandUserHome(filepath.Join(repo, name[2:]))
+		return filepath.Join(repository, name[2:])
 	}
-	if repo == "" {
-		repo = DefaultRepo
-	}
-	return util.ExpandUserHome(filepath.Join(repo, name))
+	return filepath.Join(repository, name)
 }
 
 // ScriptPath returns file path for script with given name.

@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	// DefaultRepo is local repository root directory
-	DefaultRepo = "~/.neon"
+	// DefaultRepository is local repository root directory
+	DefaultRepository = "~/.neon"
 	// RegexpPlugin is regexp for a plugin name
 	RegexpPlugin = `[\w-]+/[\w-]+`
 )

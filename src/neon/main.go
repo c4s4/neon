@@ -161,7 +161,7 @@ func main() {
 		if configuration.Repo != "" {
 			repo = configuration.Repo
 		} else {
-			repo = _build.DefaultRepo
+			repo = _build.DefaultRepository
 		}
 	}
 	_build.Grey = grey

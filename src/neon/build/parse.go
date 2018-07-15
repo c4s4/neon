@@ -102,17 +102,21 @@ func ParseDoc(object util.Object, build *Build) error {
 // ParseRepository parses repository field of the build:
 // - object: the object to parse
 // - build: build that is being constructed
-// - repo: repository location
+// - repo: repository location passed on command line
 // Return: an error if something went wrong
-func ParseRepository(object util.Object, build *Build, repo string) error {
-	build.Repository = repo
+func ParseRepository(object util.Object, build *Build, repository string) error {
 	if object.HasField("repository") {
-		repository, err := object.GetString("repository")
+		buildRepository, err := object.GetString("repository")
 		if err != nil {
 			return fmt.Errorf("getting build repository: %v", err)
 		}
-		build.Repository = repository
+		build.Repository = buildRepository
 	}
+	build.Repository = repository
+	if build.Repository == "" {
+		build.Repository = DefaultRepository
+	}
+	build.Repository = util.ExpandUserHome(build.Repository)
 	return nil
 }
 
