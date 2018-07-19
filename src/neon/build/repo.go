@@ -201,7 +201,7 @@ func PrintTemplates(repository string) {
 		panic(err)
 	}
 	for _, file := range files {
-		fmt.Println(file)
+		fmt.Println(util.PathToUnix(file))
 	}
 }
 
