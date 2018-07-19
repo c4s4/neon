@@ -36,12 +36,16 @@ Examples:
 
 func winExe(command string) string {
 	if util.Windows() {
-		if strings.HasSuffix(command, ".sh") {
-			command = command[:len(command)-3] + ".bat"
-		} else {
-			command = command + ".exe"
-		}
-		return strings.Replace(command, "/", "\\", -1)
+		return toWindows(command)
 	}
 	return command
+}
+
+func toWindows(command string) string {
+	if strings.HasSuffix(command, ".sh") {
+		command = command[:len(command)-3] + ".bat"
+	} else {
+		command = command + ".exe"
+	}
+	return strings.Replace(command, "/", "\\", -1)
 }
