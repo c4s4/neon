@@ -163,6 +163,7 @@ func main() {
 		} else {
 			repo = _build.DefaultRepository
 		}
+		repo = util.ExpandUserHome(repo)
 	}
 	_build.Grey = grey
 	configuration.Time = timeit
