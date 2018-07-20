@@ -38,7 +38,7 @@ func FindParents(repository string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	for i:=0; i<len(files); i++ {
+	for i := 0; i < len(files); i++ {
 		files[i] = util.PathToUnix(files[i])
 	}
 	return files, nil
@@ -149,7 +149,7 @@ func FindTemplates(repository string) ([]string, error) {
 		return nil, err
 	}
 	sort.Strings(files)
-	for i:=0; i<len(files); i++ {
+	for i := 0; i < len(files); i++ {
 		files[i] = util.PathToUnix(files[i])
 	}
 	return files, nil
