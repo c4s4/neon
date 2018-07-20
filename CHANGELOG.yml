@@ -1,7 +1,7 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 1.0.0-rc-6
-  date:    2018-07-19
+- version: 1.0.0-rc-7
+  date:    2018-07-20
   summary: Using original Anko
   added:
   - "Added option on shell task to print running command."
@@ -16,6 +16,8 @@
   - "Fixed issue #5: error calling super after a call, where super target is wrong."
   - "Fixed issue #6: doesn't load context script of parents build files."
   - "Fixed issue #7: repository not found on Windows."
+  - "Fixed issue #8: error listing templates on Windows."
+  - "Fixed issue #9: Short templates not found on Windows "
   - "Fixed order of properties on build information screen."
   - "Fixed NeON version parsing for version checks."
   - "Fixed repository location on Windows."
