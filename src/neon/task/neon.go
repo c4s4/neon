@@ -35,6 +35,7 @@ type neonArgs struct {
 
 func neon(context *build.Context, args interface{}) error {
 	params := args.(neonArgs)
+	// FIXME: path relative to build directory
 	path, err := filepath.Abs(params.Neon)
 	if err != nil {
 		return fmt.Errorf("getting build file path: %v", err)
@@ -50,12 +51,12 @@ func neon(context *build.Context, args interface{}) error {
 	}
 	defer os.Chdir(dir)
 	os.Chdir(newBuild.Dir)
-	buildContext := build.NewContext(newBuild)
-	err = buildContext.Init()
+	newContext := build.NewContext(newBuild)
+	err = newContext.Init()
 	if err != nil {
 		return fmt.Errorf("initializing build context: %v", err)
 	}
-	err = newBuild.Run(context, params.Targets)
+	err = newBuild.Run(newContext, params.Targets)
 	if err != nil {
 		return fmt.Errorf("running build '%s': %v", params.Neon, err)
 	}
