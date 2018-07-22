@@ -131,7 +131,7 @@ func TestHasField(t *testing.T) {
 	}
 }
 
-func TestToMapStringString(t *testing.T) {
+func TestObjectToMapStringString(t *testing.T) {
 	object := Object{"foo": "1", "bar": "2"}
 	actual, err := object.ToMapStringString()
 	if err != nil {
