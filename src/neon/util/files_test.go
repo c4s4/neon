@@ -5,26 +5,10 @@ import (
 	"os"
 	"os/user"
 	"path"
+	"reflect"
 	"strings"
 	"testing"
 )
-
-func makeTempFile(dir string, t *testing.T) string {
-	tempFile, err := ioutil.TempFile(dir, "files_test.tmp")
-	if err != nil {
-		t.Fail()
-	}
-	return tempFile.Name()
-}
-
-func writeTempFile(dir string, t *testing.T) string {
-	tempFile := makeTempFile(dir, t)
-	err := ioutil.WriteFile(tempFile, []byte("test"), FileMode)
-	if err != nil {
-		t.Fail()
-	}
-	return tempFile
-}
 
 func TestReadFile(t *testing.T) {
 	tempFile := writeTempFile("", t)
@@ -59,6 +43,19 @@ func TestDirExists(t *testing.T) {
 	}
 	if DirExists("dir_that_doesnt_exist") {
 		t.Fail()
+	}
+}
+
+func TestFileIsExecutable(t *testing.T) {
+	tempFile := writeTempFile("", t)
+	defer os.Remove(tempFile)
+	// FIXME: this test doesn't work
+	// if FileIsExecutable(tempFile) {
+	// 	t.Errorf("File should not be executable")
+	// }
+	os.Chmod(tempFile, 0744)
+	if !FileIsExecutable(tempFile) {
+		t.Errorf("File should be executable")
 	}
 }
 
@@ -174,4 +171,53 @@ func TestUnixToWindows(t *testing.T) {
 	Assert(PathToWindows("/foo/bar"), "\\foo\\bar", t)
 	Assert(PathToWindows("/C/foo/bar"), "C:\\foo\\bar", t)
 	Assert(PathToWindows("/c/foo/bar"), "c:\\foo\\bar", t)
+}
+
+func TestJoinPath(t *testing.T) {
+	expected := []string{"dir/foo", "dir/bar", "/spam"}
+	dir := "dir"
+	includes := []string{"foo", "bar", "/spam"}
+	actual := joinPath(dir, includes)
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("Bad selectIncluded: %v", actual)
+	}
+}
+
+func TestFilterExcluded(t *testing.T) {
+	expected := []string{"foo", "bar", "foo/spam"}
+	candidates := []string{"foo", "bar", "foo/spam", "bar/spam"}
+	excluded := []string{"bar/**/*"}
+	actual := filterExcluded(candidates, excluded)
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("Error calling filterExcluded: %v", actual)
+	}
+}
+
+func TestMakeRelative(t *testing.T) {
+	expected := []string{"bar", "bar/smap", "../eggs"}
+	dir := "/foo"
+	paths := []string{"/foo/bar", "/foo/bar/smap", "/eggs"}
+	actual, err := makeRelative(dir, paths)
+	if err != nil || !reflect.DeepEqual(expected, actual) {
+		t.Errorf("Error calling makeRelative: %v", actual)
+	}
+}
+
+// Utility functions
+
+func makeTempFile(dir string, t *testing.T) string {
+	tempFile, err := ioutil.TempFile(dir, "files_test.tmp")
+	if err != nil {
+		t.Fail()
+	}
+	return tempFile.Name()
+}
+
+func writeTempFile(dir string, t *testing.T) string {
+	tempFile := makeTempFile(dir, t)
+	err := ioutil.WriteFile(tempFile, []byte("test"), FileMode)
+	if err != nil {
+		t.Fail()
+	}
+	return tempFile
 }
