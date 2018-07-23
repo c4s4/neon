@@ -2,7 +2,7 @@ package builtin
 
 import (
 	"neon/build"
-	"reflect"
+	"neon/util"
 )
 
 func init() {
@@ -28,23 +28,13 @@ Examples:
 	})
 }
 
-func contains(elements interface{}, s string) bool {
-	slice := reflect.ValueOf(elements)
-	if slice.Kind() == reflect.Interface {
-		slice = slice.Elem()
+func contains(elements interface{}, value string) bool {
+	slice, err := util.ToSliceString(elements)
+	if err != nil {
+		panic(err)
 	}
-	if slice.Kind() != reflect.Slice {
-		panic("Contains first argument must ba a list of strings")
-	}
-	for i := 0; i < slice.Len(); i++ {
-		value := slice.Index(i)
-		if value.Kind() == reflect.Interface {
-			value = value.Elem()
-		}
-		if value.Kind() != reflect.String {
-			panic("Contains first argument must ba a list of strings")
-		}
-		if value.String() == s {
+	for i := 0; i < len(slice); i++ {
+		if slice[i] == value {
 			return true
 		}
 	}
