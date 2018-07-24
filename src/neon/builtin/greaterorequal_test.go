@@ -20,3 +20,12 @@ func TestGreaterOrEqual(t *testing.T) {
 		t.Errorf("greaterorequal test failure")
 	}
 }
+
+func TestGreaterOrEqualPanic(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+	greaterOrEqual("x.y.z")
+}
