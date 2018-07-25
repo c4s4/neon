@@ -60,6 +60,9 @@ type threadsArgs struct {
 
 func threads(context *build.Context, args interface{}) error {
 	params := args.(threadsArgs)
+	if params.Input == nil {
+		params.Input = make([]interface{}, params.Threads)
+	}
 	input := make(chan interface{}, len(params.Input))
 	for _, d := range params.Input {
 		input <- d
