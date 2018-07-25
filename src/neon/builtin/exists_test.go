@@ -15,4 +15,7 @@ func TestExists(t *testing.T) {
 			t.Errorf("Error builtin exists")
 		}
 	}
+	if exists("/path/that/doesnt/exist") {
+		t.Errorf("Error builtin exists")
+	}
 }
