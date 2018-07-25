@@ -26,3 +26,12 @@ func TestContains(t *testing.T) {
 		t.Errorf("Error builtin contains")
 	}
 }
+
+func TestContainsPanic(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+	contains([]interface{}{"foo", 2}, "bar")
+}
