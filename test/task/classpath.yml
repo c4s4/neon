@@ -9,17 +9,36 @@ targets:
   task_classpath:
     doc: Test task classpath
     steps:
-    - mkdir: '={BUILD_DIR}/chmod'
+    - mkdir: '={BUILD_DIR}/classpath/jars'
+    # classpath with jar files
     - touch:
-      - '={BUILD_DIR}/chmod/foo.jar'
-      - '={BUILD_DIR}/chmod/bar.jar'
+      - '={BUILD_DIR}/classpath/foo.jar'
+      - '={BUILD_DIR}/classpath/bar.jar'
     - classpath: classpath
-      classes:   '={BUILD_DIR}/chmod'
-      jars:      '={BUILD_DIR}/chmod/*.jar'
+      classes:   '={BUILD_DIR}/classpath'
+      jars:      '={BUILD_DIR}/classpath/*.jar'
+      todir:     '={BUILD_DIR}/classpath/jars'
     - 'strings = import("strings")'
     - 'classpath = strings.Replace(classpath, ";", ":", -1)'
-    - if: 'classpath != "../../build/chmod:../../build/chmod/bar.jar:../../build/chmod/foo.jar"'
+    - if: 'classpath != "../../build/classpath:../../build/classpath/bar.jar:../../build/classpath/foo.jar"'
       then:
       - throw: 'Classpath test failure: ={classpath}'
-      else:
-      - print: 'Classpath test succes'
+    - 'jars = find(BUILD_DIR+"/classpath/jars", "*.jar")'
+    - if: 'toString(jars) != "[bar.jar foo.jar]"'
+      then:
+      - throw: 'Jar files: ={toString(jars)}'
+    # classpath with dependencies file
+    - write: '={BUILD_DIR}/classpath/dependencies.yml'
+      text: |    
+            - group:    junit
+              artifact: junit
+              version:  4.12
+              scopes:   [test]
+    - classpath:    'classpath'
+      dependencies: '={BUILD_DIR}/classpath/dependencies.yml'
+      todir:        '={BUILD_DIR}/classpath/jars'
+      scopes:       'test'
+    - if: 'classpath != env("HOME")+"/.java/repository/junit/junit/4.12/junit-4.12.jar"'
+      then:
+      - throw: 'Classpath test failure: ={classpath}'
+    - print: 'Classpath test success'

@@ -21,7 +21,6 @@ func TestLower(t *testing.T) {
 	}
 }
 
-
 func TestLowerPanic(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
