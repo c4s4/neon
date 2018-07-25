@@ -46,6 +46,8 @@ type promptArgs struct {
 	Default string `neon:"optional"`
 	Pattern string `neon:"optional"`
 	Error   string `neon:"optional"`
+	// input is for testing purpose only and is not documented
+	Input []string `neon:"optional"`
 }
 
 func prompt(context *build.Context, args interface{}) error {
@@ -55,12 +57,25 @@ func prompt(context *build.Context, args interface{}) error {
 		message += " [" + params.Default + "]"
 	}
 	message += ": "
+	var input chan string
+	if params.Input != nil {
+		input = make(chan string, len(params.Input))
+		for _, s := range params.Input {
+			input <- s
+		}
+	}
 	done := false
 	for !done {
 		fmt.Print(message)
-		value, err := bufio.NewReader(os.Stdin).ReadString('\n')
-		if err != nil {
-			return fmt.Errorf("reading user input: %v", err)
+		var value string
+		if input != nil {
+			value = <-input
+		} else {
+			var err error
+			value, err = bufio.NewReader(os.Stdin).ReadString('\n')
+			if err != nil {
+				return fmt.Errorf("reading user input: %v", err)
+			}
 		}
 		value = strings.TrimSpace(value)
 		if value == "" && params.Default != "" {
