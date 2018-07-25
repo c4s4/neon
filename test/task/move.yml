@@ -25,6 +25,11 @@ targets:
       if unixpath(files_dst) != "[move/dst/foo.txt]" || unixpath(files_src) != "[move/src/bar.txt]" {
         throw("ERROR: " + files_dst + " + " + files_src)
       }
+    - move:   '={BUILD_DIR}/move/dst/foo.txt'
+      tofile: '={BUILD_DIR}/move/src/spam.txt'
+    - if: '!exists(BUILD_DIR+"/move/src/spam.txt")'
+      then:
+      - throw: 'Move test failure'
     # error tofile and todir
     - try:
       - move:   '**/*.txt'
