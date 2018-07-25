@@ -20,3 +20,12 @@ func TestGreater(t *testing.T) {
 		t.Errorf("greater test failure")
 	}
 }
+
+func TestGreaterPanic(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+	greater("x.y.z")
+}
