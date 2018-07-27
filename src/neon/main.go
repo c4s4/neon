@@ -38,12 +38,10 @@ type Configuration struct {
 	Links map[string]string
 }
 
-// Configuration is loaded configuration
-var configuration = &Configuration{}
-
-// LoadConfiguration loads configuration file
-func LoadConfiguration() (*Configuration, error) {
-	configuration := Configuration{}
+// ParseConfiguration parses configuration file.
+// Return: built Configuration struct and error if any
+func ParseConfiguration() (*Configuration, error) {
+	var configuration Configuration
 	file := util.ExpandUserHome(DefaultConfiguration)
 	if util.FileExists(file) {
 		source, err := ioutil.ReadFile(file)
@@ -54,6 +52,15 @@ func LoadConfiguration() (*Configuration, error) {
 		if err != nil {
 			return nil, err
 		}
+	}
+	return &configuration, nil
+}
+
+// LoadConfiguration loads configuration file
+func LoadConfiguration() (*Configuration, error) {
+	configuration, err := ParseConfiguration()
+	if err != nil {
+		return nil, err
 	}
 	// apply grey
 	_build.Grey = configuration.Grey
@@ -78,7 +85,7 @@ func LoadConfiguration() (*Configuration, error) {
 		abs[util.ExpandUserHome(dir)] = util.ExpandUserHome(build)
 	}
 	configuration.Links = abs
-	return &configuration, nil
+	return configuration, nil
 }
 
 // ParseCommandLine parses command line and returns parsed options
@@ -115,7 +122,7 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 // Return:
 // - path of found build file
 // - an error if something went wrong
-func FindBuildFile(name, repo string) (string, string, error) {
+func FindBuildFile(name, repo string, configuration *Configuration) (string, string, error) {
 	absolute, err := filepath.Abs(name)
 	if err != nil {
 		return "", "", fmt.Errorf("getting build file path: %v", err)
@@ -149,7 +156,7 @@ func main() {
 	var err error
 	start := time.Now()
 	// load configuration file
-	configuration, err = LoadConfiguration()
+	configuration, err := LoadConfiguration()
 	if err != nil {
 		PrintError(fmt.Errorf("loading configuration file '%s': %v", DefaultConfiguration, err), 6)
 	}
@@ -186,7 +193,7 @@ func main() {
 		file, err = _build.TemplatePath(template, repo)
 		PrintError(err, 1)
 	}
-	path, base, err := FindBuildFile(file, repo)
+	path, base, err := FindBuildFile(file, repo, configuration)
 	PrintError(err, 1)
 	_build.Info("Build %s", path)
 	build, err := _build.NewBuild(path, base, repo)
