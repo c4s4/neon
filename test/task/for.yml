@@ -35,3 +35,15 @@ targets:
       } else {
         println("For test success")
       }
+    # for with an error
+    - try:
+      - for: i
+        in:  [1, 2, 3]
+        do:
+        - throw: 'Test success'
+      - throw: 'Test failure'
+      catch:
+      - if: '_error == "Test error"'
+        then:
+        - throw: 'For test error'
+      - print: 'For test success'

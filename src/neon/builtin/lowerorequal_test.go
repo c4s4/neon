@@ -23,3 +23,12 @@ func TestLowerOrEqual(t *testing.T) {
 		t.Errorf("lowerorequal test failure")
 	}
 }
+
+func TestLowerOrEqualPanic(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+	lowerOrEqual("x.y.z")
+}

@@ -1,0 +1,23 @@
+doc: Built file to test tasks
+default: task_singleton
+
+properties:
+  BUILD_DIR: '../../build'
+
+targets:
+
+  task_singleton:
+    doc: Test task singleton
+    steps:
+    - time:
+      - threads: 3
+        steps:
+        - singleton: 12345
+          wait:      true
+          steps:
+          - sleep: 1.0
+      to: duration
+    - if: 'duration < 2.9 || duration > 3.1'
+      then:
+      - throw: 'Singleton test failure, duration: ={duration}'
+    - print: 'Singleton test success'

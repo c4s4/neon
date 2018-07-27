@@ -227,8 +227,8 @@ func PathToWindows(path string) string {
 // Return the list of files as a slice of strings
 func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, error) {
 	var err error
-	included := selectIncluded(dir, includes)
-	excluded := selectExcluded(dir, excludes)
+	included := joinPath(dir, includes)
+	excluded := joinPath(dir, excludes)
 	included, err = filterFolders(included, folder)
 	if err != nil {
 		return nil, err
@@ -242,26 +242,15 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
 	return files, nil
 }
 
-func selectIncluded(dir string, includes []string) []string {
-	var included []string
-	for _, include := range includes {
-		if !filepath.IsAbs(include) {
-			include = filepath.Join(dir, include)
+func joinPath(dir string, paths []string) []string {
+	var joined []string
+	for _, path := range paths {
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(dir, path)
 		}
-		included = append(included, include)
+		joined = append(joined, path)
 	}
-	return included
-}
-
-func selectExcluded(dir string, excludes []string) []string {
-	var excluded []string
-	for _, exclude := range excludes {
-		if !filepath.IsAbs(exclude) {
-			exclude = filepath.Join(dir, exclude)
-		}
-		excluded = append(excluded, exclude)
-	}
-	return excluded
+	return joined
 }
 
 func filterFolders(included []string, folder bool) ([]string, error) {

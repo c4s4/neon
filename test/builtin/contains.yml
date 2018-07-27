@@ -3,12 +3,27 @@ default: builtin_contains
 
 properties:
   BUILD_DIR: "../../build"
+  LIST:      ['foo', 'bar']
 
 targets:
 
   builtin_contains:
     doc: Test the contains builtin function
     steps:
+    - |
+      s = contains(LIST, "bar")
+      if !s {
+        throw("contains test failure")
+      } else {
+        println("Contains test success")
+      }
+    - |
+      s = contains(LIST, "toto")
+      if s {
+        throw("contains test failure")
+      } else {
+        println("Contains test success")
+      }
     - |
       s = contains(["foo", "bar"], "bar")
       if !s {

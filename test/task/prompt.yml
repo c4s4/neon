@@ -1,15 +1,10 @@
 doc: Built file to test tasks
-default: pass
+default: task_prompt
 
 properties:
   BUILD_DIR: '../../build'
 
 targets:
-
-  pass:
-    doc: Default target that does nothing
-    steps:
-    - print: 'Prompt test skipped'
 
   task_prompt:
     doc: Test task prompt
@@ -20,4 +15,5 @@ targets:
       default: '18'
       pattern: '^\d+$'
       error:   'Age must be a positive integer'
+      input:   ['-1', 'toto', '51']
     - assert: 'age == "51"'

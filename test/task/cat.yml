@@ -9,7 +9,18 @@ targets:
   task_cat:
     doc: Test task cat
     steps:
+    # nominal case
     - mkdir: '={BUILD_DIR}/cat'
     - write: '={BUILD_DIR}/cat/test.txt'
-      text:  'Write test success'
+      text:  'Cat test success'
     - cat:   '={BUILD_DIR}/cat/test.txt'
+    # error case
+    - try:
+      - cat: 'filethatdoesntexist.txt'
+      - throw: 'Test failure'
+      catch:
+      - if: '_error == "Test failure"'
+        then:
+        - print: =_error
+        - throw: 'Cat test failure'
+    - print: 'Cat test success'

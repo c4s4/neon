@@ -11,6 +11,7 @@ targets:
     steps:
     - if: '_OS != "windows"'
       then:
+      - mkdir: '={BUILD_DIR}/shell'
       # test shell
       - $:  'echo "TEST"'
         1=: 'result'
@@ -56,3 +57,58 @@ targets:
           1=: 'result'
         - print: '={i}'
         - assert: 'result == toString(i)'
+      # test file redirection
+      - $:  'echo "TEST"'
+        1>: '={BUILD_DIR}/shell/test.txt'
+      - |
+        if read(BUILD_DIR+"/shell/test.txt") != "TEST" {
+          throw("$ test failure")
+        } else {
+          println("$ test success")
+        }
+      # test stderr file redirection
+      - $:  'echo "TEST2" >> /dev/stderr'
+        2>: '={BUILD_DIR}/shell/test2.txt'
+      - |
+        if read(BUILD_DIR+"/shell/test2.txt") != "TEST2" {
+          throw("$ test failure")
+        } else {
+          println("$ test success")
+        }
+      # test append to a file
+      - $:  'echo "TEST"'
+        1>>: '={BUILD_DIR}/shell/test.txt'
+      - |
+        if read(BUILD_DIR+"/shell/test.txt") != "TEST\nTEST" {
+          throw("$ test failure")
+        } else {
+          println("$ test success")
+        }
+      # test append stderr to a file
+      - $:  'echo "TEST2" >> /dev/stderr'
+        2>>: '={BUILD_DIR}/shell/test2.txt'
+      - |
+        if read(BUILD_DIR+"/shell/test2.txt") != "TEST2\nTEST2" {
+          throw("$ test failure")
+        } else {
+          println("$ test success")
+        }
+      # test redirection stderr into property
+      - $:  'echo "TEST" >> /dev/stderr'
+        2=: 'result'
+      - |
+        if result != "TEST" {
+          throw("$ test failure")
+        } else {
+          println("$ test success")
+        }
+      # test write on input
+      - $:  'sed "s/hello/hi/"'
+        <:  'hello there'
+        1=: 'result'
+      - |
+        if result != "hi there" {
+          throw("$ test failure")
+        } else {
+          println("$ test success")
+        }

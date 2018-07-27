@@ -9,6 +9,7 @@ targets:
   task_move:
     doc: Test task move
     steps:
+    # nominal case
     - mkdir: '={BUILD_DIR}/move/src'
     - mkdir: '={BUILD_DIR}/move/dst'
     - touch:
@@ -23,6 +24,26 @@ targets:
       files_src = toString(find(BUILD_DIR, "move/src/*"))
       if unixpath(files_dst) != "[move/dst/foo.txt]" || unixpath(files_src) != "[move/src/bar.txt]" {
         throw("ERROR: " + files_dst + " + " + files_src)
-      } else {
-        println("Move test success")
       }
+    - move:   '={BUILD_DIR}/move/dst/foo.txt'
+      tofile: '={BUILD_DIR}/move/src/spam.txt'
+    - if: '!exists(BUILD_DIR+"/move/src/spam.txt")'
+      then:
+      - throw: 'Move test failure'
+    # error tofile and todir
+    - try:
+      - move:   '**/*.txt'
+        todir:  '={BUILD_DIR}/move/dst'
+        tofile: 'test.txt'
+      catch:
+      - if: "_error != \"one and only one of parameters 'tofile' an 'todir' may be set\""
+        then:
+        - throw: 'Move test failure'
+    - try:
+      - move:   '*'
+        tofile: '={BUILD_DIR}/move/dst/test.txt'
+      catch:
+      - if: "_error != \"can't move more than one file to a given file, use todir instead\""
+        then:
+        - throw: 'Move test failure'
+    - print: 'Move test success'

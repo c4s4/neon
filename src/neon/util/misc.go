@@ -8,6 +8,9 @@ import (
 	"unicode/utf8"
 )
 
+// GOOS is the OS name
+var GOOS = runtime.GOOS
+
 // ToString returns a string from an interface:
 // - object: the string as an interface
 // Return:
@@ -123,7 +126,7 @@ func MaxLineLength(lines []string) int {
 // Windows tells if we are running on windows
 // Return: a boolean that tells if we are running on windows
 func Windows() bool {
-	return runtime.GOOS == "windows"
+	return GOOS == "windows"
 }
 
 // RemoveBlankLines removes blank lines of given string:
