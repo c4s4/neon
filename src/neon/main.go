@@ -38,11 +38,12 @@ type Configuration struct {
 	Links map[string]string
 }
 
-// ParseConfiguration parses configuration file.
+// ParseConfiguration parses configuration file:
+// - file: the configuration file to parse.
 // Return: built Configuration struct and error if any
-func ParseConfiguration() (*Configuration, error) {
+func ParseConfiguration(file string) (*Configuration, error) {
 	var configuration Configuration
-	file := util.ExpandUserHome(DefaultConfiguration)
+	file = util.ExpandUserHome(file)
 	if util.FileExists(file) {
 		source, err := ioutil.ReadFile(file)
 		if err != nil {
@@ -58,7 +59,7 @@ func ParseConfiguration() (*Configuration, error) {
 
 // LoadConfiguration loads configuration file
 func LoadConfiguration() (*Configuration, error) {
-	configuration, err := ParseConfiguration()
+	configuration, err := ParseConfiguration(DefaultConfiguration)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +72,7 @@ func LoadConfiguration() (*Configuration, error) {
 			return nil, err
 		}
 	}
-	// apply custome theme
+	// apply custom theme
 	if configuration.Colors != nil {
 		theme, err := _build.ParseTheme(configuration.Colors)
 		if err != nil {
