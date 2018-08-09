@@ -57,9 +57,11 @@ func ParseConfiguration(file string) (*Configuration, error) {
 	return &configuration, nil
 }
 
-// LoadConfiguration loads configuration file
-func LoadConfiguration() (*Configuration, error) {
-	configuration, err := ParseConfiguration(DefaultConfiguration)
+// LoadConfiguration loads configuration file:
+// - file: configuration file to load
+// Return: configuration and error if any
+func LoadConfiguration(file string) (*Configuration, error) {
+	configuration, err := ParseConfiguration(file)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +159,7 @@ func main() {
 	var err error
 	start := time.Now()
 	// load configuration file
-	configuration, err := LoadConfiguration()
+	configuration, err := LoadConfiguration(DefaultConfiguration)
 	if err != nil {
 		PrintError(fmt.Errorf("loading configuration file '%s': %v", DefaultConfiguration, err), 6)
 	}
