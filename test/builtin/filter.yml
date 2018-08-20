@@ -14,7 +14,7 @@ targets:
       - "#{BUILD_DIR}/filter/foo.txt"
       - "#{BUILD_DIR}/filter/bar.txt"
     - |
-      files = toString(filter(find(BUILD_DIR, "filter/**/*.txt"), "filter/**/bar*"))
+      files = filter(find(BUILD_DIR, "filter/**/*.txt"), "filter/**/bar*")
       if unixpath(files) != "[filter/foo.txt]" {
         throw("ERROR: " + files)
       } else {
