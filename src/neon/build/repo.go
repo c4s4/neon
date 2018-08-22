@@ -67,22 +67,6 @@ func FindParent(parent, repository string) ([]string, error) {
 	return parents, nil
 }
 
-// PrintParents prints parent build files in repository:
-// - repository: the NeON repository (defaults to '~/.neon')
-func PrintParents(repository string) {
-	files, err := util.FindFiles(repository, []string{"*/*/*.yml"}, nil, false)
-	if err != nil {
-		panic(err)
-	}
-	for _, file := range files {
-		file = util.PathToUnix(file)
-		name := path.Base(file)
-		if name != "CHANGELOG.yml" && name != "build.yml" {
-			fmt.Println(file)
-		}
-	}
-}
-
 // ParentPath returns file path for plugin with given name.
 // - name: the name of the plugin (as "c4s4/build/foo.yml" or "foo")
 // Return:
@@ -197,18 +181,6 @@ func TemplatePath(name, repository string) (string, error) {
 		return "", fmt.Errorf("there are %d templates matching name '%s'", len(templates), name)
 	}
 	return filepath.Join(repository, templates[0]), nil
-}
-
-// PrintTemplates prints templates in repository:
-// - repository: the NeON repository (defaults to '~/.neon')
-func PrintTemplates(repository string) {
-	files, err := FindTemplates(repository)
-	if err != nil {
-		panic(err)
-	}
-	for _, file := range files {
-		fmt.Println(file)
-	}
 }
 
 // LinkPath return the link path:
