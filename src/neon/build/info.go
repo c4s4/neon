@@ -18,7 +18,7 @@ func (build *Build) Info(context *Context) (string, error) {
 	info += build.infoDefault()
 	info += build.infoRepository()
 	info += build.infoSingleton(context)
-	info += build.infoParents()
+	info += build.infoExtends()
 	info += build.infoConfiguration()
 	info += build.infoContext()
 	info += "\n"
@@ -72,9 +72,9 @@ func (build *Build) infoSingleton(context *Context) string {
 	return info
 }
 
-func (build *Build) infoParents() string {
+func (build *Build) infoExtends() string {
 	info := ""
-	if len(build.Parents) > 0 {
+	if len(build.Extends) > 0 {
 		info += "extends:\n"
 		for _, extend := range build.Extends {
 			info += "- " + extend + "\n"
