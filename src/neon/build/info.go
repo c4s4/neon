@@ -216,9 +216,8 @@ func InfoTask(task string) string {
 	descriptor, found := TaskMap[task]
 	if found {
 		return descriptor.Help
-	} else {
-		return fmt.Sprintf("Func '%s' was not found", task)
 	}
+	return fmt.Sprintf("Func '%s' was not found", task)
 }
 
 // InfoBuiltins generates the list of all builtins on console
@@ -239,9 +238,8 @@ func InfoBuiltin(builtin string) string {
 	descriptor, found := BuiltinMap[builtin]
 	if found {
 		return descriptor.Help
-	} else {
-		return fmt.Sprintf("Builtin '%s' was not found", builtin)
 	}
+	return fmt.Sprintf("Builtin '%s' was not found", builtin)
 }
 
 // InfoThemes generates the list of all available themes.
