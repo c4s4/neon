@@ -50,7 +50,7 @@ func TestInfoExtends(t *testing.T) {
 	}
 }
 
-func TestInfoConfig(t *testing.T) {
+func TestInfoConfiguration(t *testing.T) {
 	build := &Build{
 		Config: []string{"foo", "bar"},
 	}
@@ -78,6 +78,19 @@ func TestInfoBuiltins(t *testing.T) {
 	builtins := InfoBuiltins()
 	if builtins != "test" {
 		t.Errorf("Bad builtins: %s", builtins)
+	}
+}
+
+func TestInfoBuiltin(t *testing.T) {
+	BuiltinMap = make(map[string]BuiltinDesc)
+	AddBuiltin(BuiltinDesc{
+		Name: "test",
+		Func: TestInfoBuiltins,
+		Help: `Test documentation.`,
+	})
+	info := InfoBuiltin("test")
+	if info != "Test documentation." {
+		t.Errorf("Bad builtin info: %s", info)
 	}
 }
 
