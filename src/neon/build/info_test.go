@@ -69,9 +69,15 @@ func TestInfoContext(t *testing.T) {
 }
 
 func TestInfoBuiltins(t *testing.T) {
+	BuiltinMap = make(map[string]BuiltinDesc)
+	AddBuiltin(BuiltinDesc{
+		Name: "test",
+		Func: TestInfoBuiltins,
+		Help: `Test documentation.`,
+	})
 	builtins := InfoBuiltins()
 	if builtins != "test" {
-		t.Errorf("Bad builtins")
+		t.Errorf("Bad builtins: %s", builtins)
 	}
 }
 
