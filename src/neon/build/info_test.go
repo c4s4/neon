@@ -2,6 +2,7 @@ package build
 
 import (
 	"testing"
+	"reflect"
 )
 
 func TestInfoDoc(t *testing.T) {
@@ -98,5 +99,49 @@ func TestInfoThemes(t *testing.T) {
 	themes := InfoThemes()
 	if themes != "bee blue bold cyan fire green magenta marine nature red reverse rgb yellow" {
 		t.Errorf("Bad themes")
+	}
+}
+
+func testFunc(context *Context, args interface{}) error {
+	return nil
+}
+
+func TestInfoReference(t *testing.T) {
+	BuiltinMap = make(map[string]BuiltinDesc)
+	AddBuiltin(BuiltinDesc{
+		Name: "builtin",
+		Func: TestInfoReference,
+		Help: `Builtin documentation.`,
+	})
+	type testArgs struct {
+		Test string
+	}
+	TaskMap = make(map[string]TaskDesc)
+	AddTask(TaskDesc{
+		Name: "task",
+		Func: testFunc,
+		Args: reflect.TypeOf(testArgs{}),
+		Help: `Task documentation.`,
+	})
+	actual := InfoReference()
+	expected := `Tasks Reference
+===============
+
+task
+----
+
+Task documentation.
+
+
+Builtins Reference
+==================
+
+builtin
+-------
+
+Builtin documentation.
+`
+	if actual != expected {
+		t.Errorf("Bad reference: %s", actual)
 	}
 }
