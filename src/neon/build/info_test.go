@@ -73,6 +73,40 @@ func TestInfoContext(t *testing.T) {
 	}
 }
 
+func TestInfoTasks(t *testing.T) {
+	TaskMap = make(map[string]TaskDesc)
+	type testArgs struct {
+		Test string
+	}
+	AddTask(TaskDesc{
+		Name: "task",
+		Func: testFunc,
+		Args: reflect.TypeOf(testArgs{}),
+		Help: `Task documentation.`,
+	})
+	tasks := InfoTasks()
+	if tasks != "task" {
+		t.Errorf("Bad tasks: %s", tasks)
+	}
+}
+
+func TestInfoTask(t *testing.T) {
+	TaskMap = make(map[string]TaskDesc)
+	type testArgs struct {
+		Test string
+	}
+	AddTask(TaskDesc{
+		Name: "task",
+		Func: testFunc,
+		Args: reflect.TypeOf(testArgs{}),
+		Help: `Task documentation.`,
+	})
+	task := InfoTask("task")
+	if task != "Task documentation." {
+		t.Errorf("Bad task: %s", task)
+	}
+}
+
 func TestInfoBuiltins(t *testing.T) {
 	BuiltinMap = make(map[string]BuiltinDesc)
 	AddBuiltin(BuiltinDesc{
