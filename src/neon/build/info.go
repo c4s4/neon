@@ -180,7 +180,7 @@ func FormatTarget(name, doc string, depends []string, length int) string {
 	if len(depends) > 0 {
 		deps = "[" + strings.Join(depends, ", ") + "]"
 	}
-	if doc != "" {
+	if doc != "" && deps != "" {
 		deps = " " + deps
 	}
 	return fmt.Sprintf("  %s: %s%s%s", name,

@@ -73,6 +73,27 @@ func TestInfoContext(t *testing.T) {
 	}
 }
 
+func TestInfoTargets(t *testing.T) {
+	build := &Build{
+		Targets: map[string]*Target{
+			"test1": &Target{
+				Doc: "Test 1 doc",
+				Depends: []string{"foo", "bar"},
+			},
+			"test2": &Target{
+				Doc: "Test 2 doc",
+			},
+		},
+	}
+	expected := `targets:
+  test1: Test 1 doc [foo, bar]
+  test2: Test 2 doc
+`
+	if build.infoTargets() != expected {
+		t.Errorf("Bad targets info: '%s'", build.infoTargets())
+	}
+}
+
 func TestInfoTasks(t *testing.T) {
 	TaskMap = make(map[string]TaskDesc)
 	type testArgs struct {
