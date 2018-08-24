@@ -300,9 +300,8 @@ func InfoReference() string {
 	for _, task := range tasks {
 		info += task + "\n"
 		info += strings.Repeat("-", len(task)) + "\n\n"
-		info += TaskMap[task].Help + "\n"
+		info += TaskMap[task].Help + "\n\n"
 	}
-	info += "\n"
 	info += "Builtins Reference\n"
 	info += "==================\n\n"
 	var builtins []string
@@ -313,7 +312,7 @@ func InfoReference() string {
 	for _, builtin := range builtins {
 		info += builtin + "\n"
 		info += strings.Repeat("-", len(builtin)) + "\n\n"
-		info += BuiltinMap[builtin].Help + "\n"
+		info += BuiltinMap[builtin].Help + "\n\n"
 	}
-	return info
+	return strings.TrimSpace(info)
 }

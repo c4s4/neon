@@ -198,8 +198,7 @@ Builtins Reference
 builtin
 -------
 
-Builtin documentation.
-`
+Builtin documentation.`
 	if actual != expected {
 		t.Errorf("Bad reference: %s", actual)
 	}
