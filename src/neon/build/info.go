@@ -300,7 +300,7 @@ func InfoReference() string {
 	for _, task := range tasks {
 		info += task + "\n"
 		info += strings.Repeat("-", len(task)) + "\n\n"
-		info += TaskMap[task].Help + "\n\n"
+		info += TaskMap[task].Help + "\n"
 	}
 	info += "\n"
 	info += "Builtins Reference\n"

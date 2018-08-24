@@ -1,8 +1,8 @@
 package build
 
 import (
-	"testing"
 	"reflect"
+	"testing"
 )
 
 func TestInfoDoc(t *testing.T) {
@@ -131,7 +131,6 @@ task
 ----
 
 Task documentation.
-
 
 Builtins Reference
 ==================
