@@ -9,6 +9,49 @@ import (
 	"testing"
 )
 
+func TestInfo(t *testing.T) {
+	build := &Build{
+		Doc:        "Test documentation",
+		Default:    []string{"default"},
+		Repository: "repository",
+		Singleton:  "12345",
+		Extends:    []string{"foo", "bar"},
+		Config:     []string{"foo", "bar"},
+		Scripts:    []string{"foo", "bar"},
+		Targets: map[string]*Target{
+			"test1": {
+				Doc:     "Test 1 doc",
+				Depends: []string{"foo", "bar"},
+			},
+			"test2": {
+				Doc: "Test 2 doc",
+			},
+		},
+	}
+	context := NewContext(build)
+	expected := `doc: Test documentation
+default: [default]
+repository: repository
+singleton: 12345
+extends:
+- foo
+- bar
+configuration:
+- foo
+- bar
+context:
+- foo
+- bar
+
+targets:
+  test1: Test 1 doc [foo, bar]
+  test2: Test 2 doc`
+	info, _ := build.Info(context)
+	if info != expected {
+		t.Errorf("Bad build info: %s", info)
+	}
+}
+
 func TestInfoDoc(t *testing.T) {
 	build := Build{
 		Doc: "Test documentation",
@@ -76,11 +119,11 @@ func TestInfoContext(t *testing.T) {
 func TestInfoTargets(t *testing.T) {
 	build := &Build{
 		Targets: map[string]*Target{
-			"test1": &Target{
-				Doc: "Test 1 doc",
+			"test1": {
+				Doc:     "Test 1 doc",
 				Depends: []string{"foo", "bar"},
 			},
-			"test2": &Target{
+			"test2": {
 				Doc: "Test 2 doc",
 			},
 		},
