@@ -17,7 +17,7 @@ func TestInfo(t *testing.T) {
 		Singleton:  "12345",
 		Extends:    []string{"foo", "bar"},
 		Config:     []string{"foo", "bar"},
-		Scripts:    []string{"foo", "bar"},
+		//Scripts:    []string{"foo", "bar"},
 		Targets: map[string]*Target{
 			"test1": {
 				Doc:     "Test 1 doc",
@@ -27,8 +27,21 @@ func TestInfo(t *testing.T) {
 				Doc: "Test 2 doc",
 			},
 		},
+		Environment: map[string]string {
+			"FOO": "SPAM",
+			"BAR": "EGGS",
+		},
+		Properties: map[string]interface{}{
+			"foo": "spam",
+			"bar": "eggs",
+		},
 	}
 	context := NewContext(build)
+	err := context.Init()
+	if err != nil {
+		t.Errorf("Failure: %v", err)
+	}
+	//build.Properties = build.GetProperties()
 	expected := `doc: Test documentation
 default: [default]
 repository: repository
@@ -39,14 +52,22 @@ extends:
 configuration:
 - foo
 - bar
-context:
-- foo
-- bar
+
+environment:
+  BAR: "EGGS"
+  FOO: "SPAM"
+
+properties:
+  bar: "eggs"
+  foo: "spam"
 
 targets:
   test1: Test 1 doc [foo, bar]
   test2: Test 2 doc`
-	info, _ := build.Info(context)
+	info, err := build.Info(context)
+	if err != nil {
+		t.Errorf("Failure: %v", err)
+	}
 	if info != expected {
 		t.Errorf("Bad build info: %s", info)
 	}
