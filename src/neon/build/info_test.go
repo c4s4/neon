@@ -137,6 +137,45 @@ func TestInfoContext(t *testing.T) {
 	}
 }
 
+func TestInfoProperties(t *testing.T) {
+	build := &Build{
+		Properties: map[string]interface{}{
+			"foo": "spam",
+			"bar": "eggs",
+		},
+	}
+	context := NewContext(build)
+	context.Init()
+	properties, err := build.infoProperties(context)
+	if err != nil {
+		t.Errorf("getting properties: %v", err)
+	}
+	expected := `properties:
+  bar: "eggs"
+  foo: "spam"
+`
+	if properties != expected {
+		t.Errorf("Bad properties info: %s", properties)
+	}
+}
+
+func TestInfoEnvironment(t *testing.T) {
+	build := &Build{
+		Environment: map[string]string{
+			"FOO": "SPAM",
+			"BAR": "EGGS",
+		},
+	}
+	environment := build.infoEnvironment()
+	expected := `environment:
+  BAR: "EGGS"
+  FOO: "SPAM"
+`
+	if environment != expected {
+		t.Errorf("Bad properties info: %s", environment)
+	}
+}
+
 func TestInfoTargets(t *testing.T) {
 	build := &Build{
 		Targets: map[string]*Target{
