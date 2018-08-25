@@ -40,10 +40,6 @@ func TestNewVersion(t *testing.T) {
 	if err == nil {
 		t.Error("Error parsing version")
 	}
-	_, err = NewVersion("a")
-	if err == nil {
-		t.Error("Error parsing version")
-	}
 	actual, err = NewVersion("1.2.3-SNAPSHOT")
 	if err != nil {
 		t.Error("Error parsing version", err)

@@ -27,7 +27,7 @@ func TestInfo(t *testing.T) {
 				Doc: "Test 2 doc",
 			},
 		},
-		Environment: map[string]string {
+		Environment: map[string]string{
 			"FOO": "SPAM",
 			"BAR": "EGGS",
 		},

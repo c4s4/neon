@@ -1,8 +1,8 @@
 package build
 
 import (
-	"testing"
 	"reflect"
+	"testing"
 )
 
 func TestParseSingleton(t *testing.T) {
