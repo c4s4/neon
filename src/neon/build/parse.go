@@ -112,7 +112,9 @@ func ParseRepository(object util.Object, build *Build, repository string) error 
 		}
 		build.Repository = buildRepository
 	}
-	build.Repository = repository
+	if repository != "" {
+		build.Repository = repository
+	}
 	if build.Repository == "" {
 		build.Repository = DefaultRepository
 	}

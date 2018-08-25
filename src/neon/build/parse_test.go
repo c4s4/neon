@@ -1,6 +1,7 @@
 package build
 
 import (
+	"neon/util"
 	"reflect"
 	"testing"
 )
@@ -66,5 +67,44 @@ func TestParseDefault(t *testing.T) {
 	ParseDefault(object, build)
 	if !reflect.DeepEqual(build.Default, []string{"test"}) {
 		t.Errorf("Bad build default: %v", build.Default)
+	}
+}
+
+func TestParseDoc(t *testing.T) {
+	object := map[string]interface{}{
+		"doc": "test",
+	}
+	build := &Build{}
+	ParseDoc(object, build)
+	if build.Doc != "test" {
+		t.Errorf("Bad build doc: %v", build.Doc)
+	}
+}
+
+func TestParseRepository(t *testing.T) {
+	// repo in build file
+	object := map[string]interface{}{
+		"repository": "repo",
+	}
+	build := &Build{}
+	ParseRepository(object, build, "")
+	if build.Repository != "repo" {
+		t.Errorf("Bad build repo: %v", build.Repository)
+	}
+	// repo on command line
+	object = map[string]interface{}{
+		"repository": "repo",
+	}
+	build = &Build{}
+	ParseRepository(object, build, "commandline")
+	if build.Repository != "commandline" {
+		t.Errorf("Bad build repo: %v", build.Repository)
+	}
+	// default repo
+	object = map[string]interface{}{}
+	build = &Build{}
+	ParseRepository(object, build, "")
+	if build.Repository != util.ExpandUserHome(DefaultRepository) {
+		t.Errorf("Bad build repo: %v", build.Repository)
 	}
 }
