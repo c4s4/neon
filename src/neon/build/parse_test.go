@@ -2,6 +2,7 @@ package build
 
 import (
 	"neon/util"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -118,5 +119,99 @@ func TestParseContext(t *testing.T) {
 	expected := []string{"foo", "bar"}
 	if !reflect.DeepEqual(build.Scripts, expected) {
 		t.Errorf("Bad build context: %v", build.Scripts)
+	}
+}
+
+func TestParseExtends(t *testing.T) {
+	object := map[string]interface{}{
+		"extends": []string{"foo", "bar"},
+	}
+	build := &Build{}
+	ParseExtends(object, build)
+	expected := []string{"foo", "bar"}
+	if !reflect.DeepEqual(build.Extends, expected) {
+		t.Errorf("Bad build extends: %v", build.Extends)
+	}
+}
+
+func TestParseProperties(t *testing.T) {
+	object := map[string]interface{}{
+		"properties": map[string]interface{}{
+			"foo": "spam",
+			"bar": "eggs",
+		},
+	}
+	build := &Build{}
+	ParseProperties(object, build)
+	expected := util.Object{
+		"foo": "spam",
+		"bar": "eggs",
+	}
+	if !reflect.DeepEqual(build.Properties, expected) {
+		t.Errorf("Bad build properties: %v != %v", build.Properties, expected)
+	}
+}
+
+func TestParseConfiguration(t *testing.T) {
+	writeFile("/tmp", "config.yml", "foo: spam\nbar: eggs")
+	defer os.RemoveAll("/tmp/config.yml")
+	object := map[string]interface{}{
+		"configuration": []string{"/tmp/config.yml"},
+	}
+	build := &Build{
+		Properties: util.Object{},
+	}
+	ParseConfiguration(object, build)
+	expected := util.Object{
+		"foo": "spam",
+		"bar": "eggs",
+	}
+	if !reflect.DeepEqual(build.Properties, expected) {
+		t.Errorf("Bad build properties: %v", build.Properties)
+	}
+	if !reflect.DeepEqual(build.Config, []string{"/tmp/config.yml"}) {
+		t.Errorf("Bad build config: %v", build.Config)
+	}
+}
+
+func TestParseEnvironment(t *testing.T) {
+	object := map[string]interface{}{
+		"environment": map[string]string{
+			"FOO": "SPAM",
+			"BAR": "EGGS",
+		},
+	}
+	build := &Build{}
+	ParseEnvironment(object, build)
+	expected := map[string]string{
+		"FOO": "SPAM",
+		"BAR": "EGGS",
+	}
+	if !reflect.DeepEqual(build.Environment, expected) {
+		t.Errorf("Bad build environment: %v != %v", build.Environment, expected)
+	}
+}
+
+func TestParseTargets(t *testing.T) {
+	object := map[string]interface{}{
+		"targets": util.Object{
+			"test": util.Object{},
+		},
+	}
+	build := &Build{}
+	ParseTargets(object, build)
+	if _, ok := build.Targets["test"]; !ok {
+		t.Errorf("Bad build targets: missing test")
+	}
+}
+
+func TestParseVersion(t *testing.T) {
+	object := map[string]interface{}{
+		"version": `greaterorequal("0.12")`,
+	}
+	build := &Build{}
+	ParseVersion(object, build)
+	if build.Version != `greaterorequal("0.12")` {
+		t.Errorf("Bad build version: %v", build.Version)
 	}
 }

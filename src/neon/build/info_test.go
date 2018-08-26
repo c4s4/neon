@@ -266,8 +266,8 @@ func TestInfoThemes(t *testing.T) {
 
 func TestInfoTemplates(t *testing.T) {
 	repo := "/tmp/neon"
-	writeFile(repo+"/foo/bar", "template1.tpl")
-	writeFile(repo+"/foo/bar", "template2.tpl")
+	writeFile(repo+"/foo/bar", "template1.tpl", "")
+	writeFile(repo+"/foo/bar", "template2.tpl", "")
 	defer os.RemoveAll(repo)
 	parents := InfoTemplates(repo)
 	if parents != "foo/bar/template1.tpl\nfoo/bar/template2.tpl" {
@@ -277,8 +277,8 @@ func TestInfoTemplates(t *testing.T) {
 
 func TestInfoParents(t *testing.T) {
 	repo := "/tmp/neon"
-	writeFile(repo+"/foo/bar", "parent1.yml")
-	writeFile(repo+"/foo/bar", "parent2.yml")
+	writeFile(repo+"/foo/bar", "parent1.yml", "")
+	writeFile(repo+"/foo/bar", "parent2.yml", "")
 	defer os.RemoveAll(repo)
 	parents := InfoParents(repo)
 	if parents != "foo/bar/parent1.yml\nfoo/bar/parent2.yml" {
@@ -330,11 +330,11 @@ Builtin documentation.`
 
 // Utility functions
 
-func writeFile(dir string, file string) string {
+func writeFile(dir, file, content string) string {
 	if !util.DirExists(dir) {
 		os.MkdirAll(dir, util.DirFileMode)
 	}
 	path := filepath.Join(dir, file)
-	ioutil.WriteFile(path, []byte("test"), util.FileMode)
+	ioutil.WriteFile(path, []byte(content), util.FileMode)
 	return path
 }
