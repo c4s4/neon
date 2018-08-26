@@ -41,6 +41,7 @@ Notes:
   Windows is 'cmd' which can't properly manage arguments with spaces.
 - Argument of a command defined as a list won't be expanded by shell. Thus
   $USER won't be expanded for instance.
+
 assert
 ------
 
@@ -54,6 +55,7 @@ Examples:
 
     # assert that foo == "bar", and fail otherwise
     - assert: 'foo == "bar"'
+
 call
 ----
 
@@ -67,6 +69,7 @@ Examples:
 
     # call target 'foo'
     - call: 'foo'
+
 cat
 ---
 
@@ -80,6 +83,7 @@ Examples:
 
     # print content of LICENSE file on the console
     - cat: "LICENSE"
+
 chdir
 -----
 
@@ -97,6 +101,7 @@ Examples:
 Notes:
 
 - Working directory is set to the build file directory before each target.
+
 chmod
 -----
 
@@ -126,6 +131,7 @@ Notes:
 - We usually set mode with octal integers, starting with '0'. If you don't put
   starting '0', this is decimal integer and you won't probably have expected
   result.
+
 classpath
 ---------
 
@@ -173,6 +179,7 @@ Notes:
 
 - Scopes are optional. If not set, dependency will always be included. If set,
   dependency will be included for classpath with these scopes.
+
 copy
 ----
 
@@ -207,6 +214,7 @@ Notes:
 
 - Parameter 'tofile' is valid if only one file was selected by globs.
 - One and only one of parameters 'tofile' and 'todir' might be set.
+
 delete
 ------
 
@@ -229,6 +237,7 @@ Examples:
 Notes:
 
 - Handle with care: if globs select directories, they are deleted recursively!
+
 for
 ---
 
@@ -253,6 +262,7 @@ Examples:
       in: range(10)
       do:
       - print: '={i}'
+
 if
 --
 
@@ -272,6 +282,7 @@ Examples:
       - print: "hello"
       else:
       - print: "world"
+
 java
 ----
 
@@ -289,6 +300,7 @@ Examples:
     - javac: 'foo.Bar'
       cp:    'build/classes'
       args:  ['foo', 'bar']
+
 javac
 -----
 
@@ -313,6 +325,7 @@ Examples:
       source: 'src'
       dest:   'build/classes'
       cp:     =classpath
+
 link
 ----
 
@@ -328,6 +341,7 @@ Examples:
     # create a link from file 'foo' to 'bar'
     - link: 'foo''
       to:   'bar''
+
 mkdir
 -----
 
@@ -341,6 +355,7 @@ Examples:
 
     # create a directory 'build'
     - mkdir: 'build'
+
 move
 ----
 
@@ -375,6 +390,7 @@ Notes:
 
 - Parameter 'tofile' is valid if only one file was selected by globs.
 - One and only one of parameters 'tofile' and 'todir' might be set.
+
 neon
 ----
 
@@ -390,6 +406,7 @@ Examples:
     # run target 'foo' of build file 'bar/build.yml'
     - neon:    'bar/build.yml'
       targets: 'foo'
+
 pass
 ----
 
@@ -407,6 +424,7 @@ Examples:
 Notes:
 
 - This implementation is super optimized for speed.
+
 path
 ----
 
@@ -424,6 +442,7 @@ Examples:
     # build classpath with jar files in lib directory
     - path: 'lib/*.jar'
       to:   'classpath'
+
 print
 -----
 
@@ -437,6 +456,7 @@ Examples:
 
     # say hello
     - print: 'Hello World!'
+
 prompt
 ------
 
@@ -462,6 +482,7 @@ Examples:
       default: '18'
       pattern: '^\d+$'
       error:   'Age must be a positive integer'
+
 read
 ----
 
@@ -477,6 +498,7 @@ Examples:
     # put content of LICENSE file in license variable
     - read: 'LICENSE'
       to:   'license'
+
 replace
 -------
 
@@ -494,6 +516,7 @@ Examples:
     # replace foo with bar in file test.txt
     - replace: 'test.txt'
       with:    {'foo': 'bar'}
+
 request
 -------
 
@@ -522,6 +545,7 @@ Notes:
 - Response status code is stored in variable _status.
 - Response body is stored in variable _body.
 - Response headers are stored in variable _headers.
+
 singleton
 ---------
 
@@ -540,6 +564,7 @@ Examples:
 	- singleton: 12345
 	  steps:
 	  - sleep: 10.0
+
 sleep
 -----
 
@@ -555,6 +580,7 @@ Examples:
     - sleep: 1.5
     # sleep for 3 seconds (3.0 as a float)
     - sleep: 3.0
+
 super
 -----
 
@@ -572,6 +598,7 @@ Examples:
 Notes:
 
 - This will raise en error if parent build files have no target with same name.
+
 tar
 ---
 
@@ -595,6 +622,7 @@ Notes:
 
 - If archive filename ends with gz (with names such as 'foo.tar.gz' or
   'foo.tgz') the tar archive is also gzip compressed.
+
 threads
 -------
 
@@ -635,6 +663,7 @@ resulting _output property.
 
 Don't change current directory in threads as it would affect other threads as
 well.
+
 throw
 -----
 
@@ -655,6 +684,7 @@ Notes:
 - Property _error is set with the error message.
 - If the error was not catch, the error message will be printed on the console
   as the cause of the build failure.
+
 time
 ----
 
@@ -673,6 +703,7 @@ Examples:
       - print: 'Hello World!'
       to: duration
     - print: 'duration: ={duration}s'
+
 touch
 -----
 
@@ -691,6 +722,7 @@ Notes:
 
 - If the file already exists it changes it modification time.
 - If the file doesn't exist, it creates an empty file.
+
 try
 ---
 
@@ -722,6 +754,7 @@ Examples:
 Notes:
 
 - The error message for the failure is stored in '_error' variable as text.
+
 untar
 -----
 
@@ -742,6 +775,7 @@ Notes:
 
 - If archive filename ends with .gz (with a name such as foo.tar.gz or foo.tgz)
   the tar archive is uncompressed with gzip.
+
 unzip
 -----
 
@@ -757,6 +791,7 @@ Examples:
     # unzip foo.zip to build directory
     - unzip: 'foo.zip'
       todir: 'build'
+
 while
 -----
 
@@ -773,6 +808,7 @@ Examples:
     - while: 'i < 10'
       do:
       - script: 'println(i++)'
+
 write
 -----
 
@@ -790,6 +826,7 @@ Examples:
     # write 'Hello World!' in file greetings.txt
     - write: 'greetings.txt'
       text:  'Hello World!'
+
 zip
 ---
 
@@ -830,6 +867,7 @@ Examples:
     # get absolute value of path "foo/../bar/spam.txt"
     path = absolute("foo/../bar/spam.txt")
     # returns: "/home/user/build/bar/spam.txt"
+
 appendpath
 ----------
 
@@ -850,6 +888,7 @@ Examples:
     appendpath("foo", "spam", "eggs")
 	# returns: ["foo/spam", "foo/eggs"] on Linux and
 	# ["foo\spam", "foo\eggs"] on Windows
+
 contains
 --------
 
@@ -869,6 +908,7 @@ Examples:
     # Tell if the list contains "bar"
     contains(["foo", "bar"], "bar")
     # returns: true
+
 directory
 ---------
 
@@ -887,6 +927,7 @@ Examples:
     # get directory of path "/foo/bar/spam.txt"
     dir = directory("/foo/bar/spam.txt")
     # returns: "/foo/bar"
+
 env
 ---
 
@@ -905,6 +946,7 @@ Examples:
     # get PATH environment variable
     env("PATH")
     # returns: value of the environment variable PATH
+
 escapeurl
 ---------
 
@@ -923,6 +965,7 @@ Examples:
     # escape given URL
     escapeurl("/foo bar")
     # returns: "/foo%20bar"
+
 exists
 ------
 
@@ -941,6 +984,7 @@ Examples:
     # test if given path exists
     exists("/foo/bar")
     # returns: true if file "/foo/bar" exists
+
 expand
 ------
 
@@ -959,6 +1003,7 @@ Examples:
     # expand path ~/.profile
     profile = expand("~/.profile")
     # returns: "/home/casa/.profile" on my machine
+
 filename
 --------
 
@@ -977,6 +1022,7 @@ Examples:
     # get filename of path "/foo/bar/spam.txt"
     filename("/foo/bar/spam.txt")
     # returns: "spam.txt"
+
 filter
 ------
 
@@ -1001,6 +1047,7 @@ Examples:
 Notes:
 
 - Works great with find() builtin.
+
 find
 ----
 
@@ -1027,6 +1074,7 @@ Examples:
 Notes:
 
 - Files may be filtered with filter() builtin.
+
 findinpath
 ----------
 
@@ -1045,6 +1093,7 @@ Examples:
     # find python in path
     findinpath("python")
     # returns: ["/opt/python/current/bin/python", /usr/bin/python"]
+
 followlink
 ----------
 
@@ -1063,6 +1112,7 @@ Examples:
     # follow symbolic link 'foo'
     followlink("foo")
     # returns: 'bar'
+
 greater
 -------
 
@@ -1081,6 +1131,7 @@ Examples:
     # check that NeON version is greater than 0.12.0
     greater("0.12.0")
     # return true if version is greater than 0.12.0, false otherwise
+
 greaterorequal
 --------------
 
@@ -1099,6 +1150,7 @@ Examples:
     # check that NeON version is greater or equal than 0.12.0
     greaterorequal("0.12.0")
     # return true if version is greater or equal than 0.12.0, false otherwise
+
 haskey
 ------
 
@@ -1118,6 +1170,7 @@ Examples:
     # Tell if map "map" contains key "key"
     haskey(map, "key")
     # returns: true or false
+
 join
 ----
 
@@ -1137,6 +1190,7 @@ Examples:
     # join "foo" and "bar" with a space
     join(["foo", "bar"], " ")
     # returns: "foo bar"
+
 joinpath
 --------
 
@@ -1156,6 +1210,7 @@ Examples:
     joinpath("foo", "bar", "spam.txt")
     # returns: "foo/bar/spam.txt" on a Linux box and "foo\bar\spam.txt" on
     # Windows
+
 jsondecode
 ----------
 
@@ -1174,6 +1229,7 @@ Examples:
     # decode given list
     jsondecode("['foo', 'bar']")
     # returns string slice: ["foo", "bar"]
+
 jsonencode
 ----------
 
@@ -1192,6 +1248,7 @@ Examples:
     # encode given list
     jsonencode(["foo", "bar"])
     # returns: "['foo', 'bar']"
+
 keys
 ----
 
@@ -1210,6 +1267,7 @@ Examples:
     # get keys of a map
     keys({"foo": 1, "bar": 2})
     # returns: ["foo", "bar"]
+
 list
 ----
 
@@ -1230,6 +1288,7 @@ Examples:
     # get a list of foo
     list(foo)
 	# return foo if already a list or [foo] otherwise
+
 lower
 -----
 
@@ -1248,6 +1307,7 @@ Examples:
     # check that NeON version is lower than 0.12.0
     greater("0.12.0")
     # return true if version is lower than 0.12.0, false otherwise
+
 lowercase
 ---------
 
@@ -1266,6 +1326,7 @@ Examples:
     # set string in lower case
     lowercase("FooBAR")
     # returns: "foobar"
+
 lowerorequal
 ------------
 
@@ -1284,6 +1345,7 @@ Examples:
     # check that NeON version is lower or equal than 0.12.0
     lowerorequal("0.12.0")
     # return true if version is lower or equal than 0.12.0, false otherwise
+
 newer
 -----
 
@@ -1305,6 +1367,7 @@ Examples:
     if newer("source.md", "result.pdf") {
     	compile("source.md")
     }
+
 now
 ---
 
@@ -1326,6 +1389,7 @@ Examples:
     # to get date in ISO format
     now()[0:10]
     # returns: "2006-01-02"
+
 ospath
 ------
 
@@ -1344,6 +1408,7 @@ Examples:
     # convert path foo/bar to OS format
     path = ospath("foo/bar")
     # will return foo/bar on Unix and foo\bar on Windows
+
 read
 ----
 
@@ -1362,6 +1427,7 @@ Examples:
     # read VERSION file and set variable version with ots content
     read("VERSION")
     # returns: the contents of "VERSION" file
+
 replace
 -------
 
@@ -1382,6 +1448,7 @@ Examples:
     # replace "foo" with "bar" in string "spam foo eggs"
     replace("spam foo eggs", "foo", "bar")
     # returns: "spam bar eggs"
+
 run
 ---
 
@@ -1402,6 +1469,7 @@ Examples:
     # zip files of foo directory in bar.zip file
     run("zip", "-r", "bar.zip", "foo")
     # returns: the trimed output of the command
+
 split
 -----
 
@@ -1421,6 +1489,7 @@ Examples:
     # split "foo bar" with space
     split("foo bar", " ")
     # returns: ["foo"," "bar"]
+
 throw
 -----
 
@@ -1439,6 +1508,7 @@ Examples:
     # stop the script with an error message
     throw("Some tests failed")
     # returns: nothing, the script is interrupted on error
+
 trim
 ----
 
@@ -1457,6 +1527,7 @@ Examples:
     # trim string "\tfoo bar\n   "
     trim("\tfoo bar\n  ")
     # returns: "foo bar"
+
 unescapeurl
 -----------
 
@@ -1475,6 +1546,7 @@ Examples:
     # unescape given URL
     escapeurl("foo%20bar")
     # returns: "foo bar"
+
 unixpath
 --------
 
@@ -1493,6 +1565,7 @@ Examples:
     # convert path to unix
     uppercase("c:\foo\bar")
     # returns: "/c/foo/bar"
+
 uppercase
 ---------
 
@@ -1511,6 +1584,7 @@ Examples:
     # set string in upper case
     uppercase("FooBAR")
     # returns: "FOOBAR"
+
 windowspath
 -----------
 
@@ -1529,6 +1603,7 @@ Examples:
     # convert path to windows
     uppercase("/c/foo/bar")
     # returns: "c:\foo\bar"
+
 winexe
 ------
 
@@ -1553,4 +1628,3 @@ Examples:
     # run script script.sh unix and windows
     run(winexe("script.sh"))
     # will run script.sh on unix and script.bat on windows
-
