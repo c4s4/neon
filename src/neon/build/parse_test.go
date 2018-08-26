@@ -108,3 +108,15 @@ func TestParseRepository(t *testing.T) {
 		t.Errorf("Bad build repo: %v", build.Repository)
 	}
 }
+
+func TestParseContext(t *testing.T) {
+	object := map[string]interface{}{
+		"context": []string{"foo", "bar"},
+	}
+	build := &Build{}
+	ParseContext(object, build)
+	expected := []string{"foo", "bar"}
+	if !reflect.DeepEqual(build.Scripts, expected) {
+		t.Errorf("Bad build context: %v", build.Scripts)
+	}
+}
