@@ -846,7 +846,6 @@ Examples:
     - zip:    'build/**/*'
       tofile: 'build.zip'
 
-
 Builtins Reference
 ==================
 
@@ -1629,4 +1628,3 @@ Examples:
     # run script script.sh unix and windows
     run(winexe("script.sh"))
     # will run script.sh on unix and script.bat on windows
-

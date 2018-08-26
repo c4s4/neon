@@ -9,3 +9,12 @@ func TestEscapeUrl(t *testing.T) {
 		t.Errorf("Error builtin escapeulr")
 	}
 }
+
+func TestEscapeUrlPanic(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+	escapeURL("foo%ZZbar")
+}

@@ -2,7 +2,7 @@ package builtin
 
 import (
 	"neon/build"
-	"reflect"
+	"neon/util"
 	"strings"
 )
 
@@ -30,9 +30,9 @@ Examples:
 }
 
 func joinPath(paths ...interface{}) string {
-	s := make([]string, len(paths))
-	for i, e := range paths {
-		s[i] = reflect.ValueOf(e).String()
+	pathsStrings, err := util.ToSliceString(paths)
+	if err != nil {
+		panic("JoinPath argument must ba a list of strings")
 	}
-	return strings.Join(s, "/")
+	return strings.Join(pathsStrings, "/")
 }

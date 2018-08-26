@@ -38,11 +38,12 @@ type Configuration struct {
 	Links map[string]string
 }
 
-// ParseConfiguration parses configuration file.
+// ParseConfiguration parses configuration file:
+// - file: the configuration file to parse.
 // Return: built Configuration struct and error if any
-func ParseConfiguration() (*Configuration, error) {
+func ParseConfiguration(file string) (*Configuration, error) {
 	var configuration Configuration
-	file := util.ExpandUserHome(DefaultConfiguration)
+	file = util.ExpandUserHome(file)
 	if util.FileExists(file) {
 		source, err := ioutil.ReadFile(file)
 		if err != nil {
@@ -56,9 +57,11 @@ func ParseConfiguration() (*Configuration, error) {
 	return &configuration, nil
 }
 
-// LoadConfiguration loads configuration file
-func LoadConfiguration() (*Configuration, error) {
-	configuration, err := ParseConfiguration()
+// LoadConfiguration loads configuration file:
+// - file: configuration file to load
+// Return: configuration and error if any
+func LoadConfiguration(file string) (*Configuration, error) {
+	configuration, err := ParseConfiguration(file)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +74,7 @@ func LoadConfiguration() (*Configuration, error) {
 			return nil, err
 		}
 	}
-	// apply custome theme
+	// apply custom theme
 	if configuration.Colors != nil {
 		theme, err := _build.ParseTheme(configuration.Colors)
 		if err != nil {
@@ -156,7 +159,7 @@ func main() {
 	var err error
 	start := time.Now()
 	// load configuration file
-	configuration, err := LoadConfiguration()
+	configuration, err := LoadConfiguration(DefaultConfiguration)
 	if err != nil {
 		PrintError(fmt.Errorf("loading configuration file '%s': %v", DefaultConfiguration, err), 6)
 	}
@@ -174,7 +177,7 @@ func main() {
 	}
 	_build.Grey = grey
 	configuration.Time = timeit
-	if printHelp(tasks, builtins, templates, parents, themes, refs, task, builtin, repo) {
+	if printInfo(tasks, builtins, templates, parents, themes, refs, task, builtin, repo) {
 		return
 	}
 	if version {
@@ -201,14 +204,15 @@ func main() {
 	err = build.SetCommandLineProperties(props)
 	PrintError(err, 3)
 	if targs {
-		build.PrintTargets()
+		_build.Message(build.FormatTargets())
 		return
 	} else if info {
 		context := _build.NewContext(build)
 		err = context.Init()
 		PrintError(err, 4)
-		err = build.Info(context)
+		text, err := build.Info(context)
 		PrintError(err, 4)
+		_build.Message(text)
 		return
 	} else {
 		os.Chdir(build.Dir)
@@ -226,30 +230,30 @@ func main() {
 	}
 }
 
-func printHelp(tasks, builtins, templates, parents, themes, refs bool, task, builtin, repo string) bool {
+func printInfo(tasks, builtins, templates, parents, themes, refs bool, task, builtin, repo string) bool {
 	if tasks {
-		_build.PrintTasks()
+		_build.Message(_build.InfoTasks())
 		return true
 	} else if task != "" {
-		_build.PrintHelpTask(task)
+		_build.Message(_build.InfoTask(task))
 		return true
 	} else if builtins {
-		_build.PrintBuiltins()
+		_build.Message(_build.InfoBuiltins())
 		return true
 	} else if builtin != "" {
-		_build.PrintHelpBuiltin(builtin)
+		_build.Message(_build.InfoBuiltin(builtin))
 		return true
 	} else if templates {
-		_build.PrintTemplates(repo)
+		_build.Message(_build.InfoTemplates(repo))
 		return true
 	} else if parents {
-		_build.PrintParents(repo)
+		_build.Message(_build.InfoParents(repo))
 		return true
 	} else if themes {
-		_build.PrintThemes()
+		_build.Message(_build.InfoThemes())
 		return true
 	} else if refs {
-		_build.PrintReference()
+		_build.Message(_build.InfoReference())
 		return true
 	}
 	return false

@@ -2,7 +2,7 @@ package builtin
 
 import (
 	"neon/build"
-	"reflect"
+	"neon/util"
 	"strings"
 )
 
@@ -30,23 +30,9 @@ Examples:
 }
 
 func join(elements interface{}, separator string) string {
-	slice := reflect.ValueOf(elements)
-	if slice.Kind() == reflect.Interface {
-		slice = slice.Elem()
-	}
-	if slice.Kind() != reflect.Slice {
+	elementsStrings, err := util.ToSliceString(elements)
+	if err != nil {
 		panic("Join first argument must ba a list of strings")
 	}
-	result := make([]string, slice.Len())
-	for i := 0; i < slice.Len(); i++ {
-		value := slice.Index(i)
-		if value.Kind() == reflect.Interface {
-			value = value.Elem()
-		}
-		if value.Kind() != reflect.String {
-			panic("Join first argument must ba a list of strings")
-		}
-		result[i] = value.String()
-	}
-	return strings.Join(result, separator)
+	return strings.Join(elementsStrings, separator)
 }

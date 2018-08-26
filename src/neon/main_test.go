@@ -1,11 +1,85 @@
 package main
 
 import (
+	"io/ioutil"
+	"neon/build"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
 )
+
+func TestParseConfiguration(t *testing.T) {
+	file := "/tmp/neon.yml"
+	source := `grey: true
+theme: bee
+time: true
+repo: ~/.neon
+colors:
+  title: [FgBlue]
+  ok:    [FgHiGreen, Bold]
+  error: [FgHiRed, Bold]
+links:
+foo: bars`
+	if err := ioutil.WriteFile(file, []byte(source), 0644); err != nil {
+		t.Errorf("Error writing configuration file")
+	}
+	defer os.Remove(file)
+	configuration, err := ParseConfiguration(file)
+	if err != nil {
+		t.Errorf("Error parsing configuration")
+	}
+	if configuration.Grey != true {
+		t.Errorf("Error parsing configuration")
+	}
+	if configuration.Theme != "bee" {
+		t.Errorf("Error parsing configuration")
+	}
+	if configuration.Time != true {
+		t.Errorf("Error parsing configuration")
+	}
+	if configuration.Repo != "~/.neon" {
+		t.Errorf("Error parsing configuration")
+	}
+}
+
+func TestParseConfigurationError(t *testing.T) {
+	file := "/tmp/neon.yml"
+	source := "- foo\nbar:"
+	if err := ioutil.WriteFile(file, []byte(source), 0644); err != nil {
+		t.Errorf("Error writing configuration file")
+	}
+	defer os.Remove(file)
+	_, err := ParseConfiguration(file)
+	if err == nil || err.Error() != "yaml: line 1: did not find expected '-' indicator" {
+		t.Errorf("Error parsing configuration: %v", err)
+	}
+}
+
+func TestLoadConfiguration(t *testing.T) {
+	file := "/tmp/neon.yml"
+	source := `grey: true
+theme: bee
+time: true
+repo: ~/.neon
+colors:
+  title: [FgBlue]
+  ok:    [FgHiGreen, Bold]
+  error: [FgHiRed, Bold]
+links:
+foo: bars`
+	if err := ioutil.WriteFile(file, []byte(source), 0644); err != nil {
+		t.Errorf("Error writing configuration file")
+	}
+	defer os.Remove(file)
+	_, err := LoadConfiguration(file)
+	if err != nil {
+		t.Errorf("Error parsing configuration")
+	}
+	if build.Grey != true {
+		t.Errorf("Error parsing configuration")
+	}
+}
 
 func TestParseCommandLine(t *testing.T) {
 	os.Args = []string{"cmd", "-file", "file", "-info", "-version", "-props", "{foo: bar, spam: eggs}",
