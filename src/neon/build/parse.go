@@ -148,19 +148,6 @@ func ParseExtends(object util.Object, build *Build) error {
 			return fmt.Errorf("parsing parents: %v", err)
 		}
 		build.Extends = extends
-		var parents []*Build
-		for _, extend := range build.Extends {
-			file, err := build.ParentPath(extend)
-			if err != nil {
-				return fmt.Errorf("searching parent build file '%s': %v", extend, err)
-			}
-			parent, err := NewBuild(file, filepath.Dir(file), build.Repository)
-			if err != nil {
-				return fmt.Errorf("loading parent build file '%s': %v", extend, err)
-			}
-			parents = append(parents, parent)
-		}
-		build.Parents = parents
 	}
 	return nil
 }

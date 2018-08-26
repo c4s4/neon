@@ -63,6 +63,10 @@ func NewBuild(file, base, repo string) (*Build, error) {
 	if err := ParseFields(object, build, repo); err != nil {
 		return nil, err
 	}
+	build.Parents, err = build.GetParents()
+	if err != nil {
+		return nil, err
+	}
 	build.Properties = build.GetProperties()
 	build.Environment = build.GetEnvironment()
 	build.SetDir(build.Dir)
@@ -134,6 +138,24 @@ func setDirectories(build *Build, base string) error {
 	}
 	build.Here = here
 	return nil
+}
+
+// GetParents returns parent build objects.
+// Return list of build objects and an error if any.
+func (build *Build) GetParents() ([]*Build, error) {
+	var parents []*Build
+	for _, extend := range build.Extends {
+		file, err := build.ParentPath(extend)
+		if err != nil {
+			return nil, fmt.Errorf("searching parent build file '%s': %v", extend, err)
+		}
+		parent, err := NewBuild(file, filepath.Dir(file), build.Repository)
+		if err != nil {
+			return nil, fmt.Errorf("loading parent build file '%s': %v", extend, err)
+		}
+		parents = append(parents, parent)
+	}
+	return parents, nil
 }
 
 // GetProperties returns build properties, including those inherited from
