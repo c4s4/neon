@@ -1,7 +1,7 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 1.0.0-rc-9
-  date:    2018-07-27
+- version: 1.0.0-rc-10
+  date:    2018-08-26
   summary: Using original Anko
   added:
   - "Added option on shell task to print running command."
@@ -25,6 +25,7 @@
   - "Fixed all warnings so that code quality is 100% on goreportcard."
   - "Improved test coverage on project."
   - "Fixed an Anko bug regarding testing missing map values against nil."
+  - "Highly improved code coverage to 70%."
 
 - version: 0.13.0
   date:    2018-05-10
