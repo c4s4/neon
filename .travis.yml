@@ -1,6 +1,8 @@
 language: go
 go:
-- 1.10.2
+- 1.11
+env:
+- TRAVIS=true
 install:
 # import dependencies
 - go get gopkg.in/yaml.v2
