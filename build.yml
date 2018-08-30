@@ -26,6 +26,12 @@ environment:
 
 targets:
 
+  test:
+    doc: Run unit tests
+    depends: clean
+    steps:
+    - super:
+
   bin:
     doc: Build neon binary
     steps:
