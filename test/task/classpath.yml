@@ -3,6 +3,7 @@ default: task_classpath
 
 properties:
   BUILD_DIR: '../../build'
+  REPO:      'http://sweetohm.net/repo'
 
 targets:
 
@@ -17,7 +18,7 @@ targets:
     - classpath:    classpath
       classes:      '={BUILD_DIR}/classpath'
       jars:         '={BUILD_DIR}/classpath/*.jar'
-      repositories: 'http://sweetohm.net/repo'
+      repositories: =REPO
       todir:        '={BUILD_DIR}/classpath/jars'
     - 'strings = import("strings")'
     - 'classpath = strings.Replace(classpath, ";", ":", -1)'
@@ -39,6 +40,7 @@ targets:
       dependencies: '={BUILD_DIR}/classpath/dependencies.yml'
       todir:        '={BUILD_DIR}/classpath/jars'
       scopes:       'test'
+      repositories: =REPO
     - if: 'classpath != env("HOME")+"/.java/repository/junit/junit/4.12/junit-4.12.jar"'
       then:
       - throw: 'Classpath test failure: ={classpath}'
