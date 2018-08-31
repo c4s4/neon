@@ -287,6 +287,7 @@ func TestInfoParents(t *testing.T) {
 }
 
 func testFunc(context *Context, args interface{}) error {
+	context.SetProperty("test", "This is a test")
 	return nil
 }
 
