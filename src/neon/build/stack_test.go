@@ -17,10 +17,37 @@ func TestStack(t *testing.T) {
 	if err != nil || !stack.Contains("bar") {
 		t.Errorf("Error contains")
 	}
-	if stack.String() != "foo -> bar" {
+	err = stack.Push(&Target{Name: "foo"})
+	if err == nil || err.Error() != "infinite loop: foo -> bar -> foo" {
+		t.Errorf("Should have raised infinite loop error")
+	}
+	if stack.String() != "foo -> bar -> foo" {
 		t.Errorf("Error ToString: %v", stack.String())
+	}
+	copy := stack.Copy()
+	if copy.String() != "foo -> bar -> foo" {
+		t.Errorf("Error ToString: %v", stack.String())
+	}
+	if stack.Last().Name != "foo" {
+		t.Errorf("Error Last: %v", stack.Last())
+	}
+	err = stack.Pop()
+	if err != nil {
+		t.Errorf("Error poping")
 	}
 	if stack.Last().Name != "bar" {
 		t.Errorf("Error Last: %v", stack.Last())
+	}
+	err = stack.Pop()
+	if err != nil {
+		t.Errorf("Error poping")
+	}
+	err = stack.Pop()
+	if err != nil {
+		t.Errorf("Error poping")
+	}
+	err = stack.Pop()
+	if err == nil {
+		t.Errorf("Error poping")
 	}
 }
