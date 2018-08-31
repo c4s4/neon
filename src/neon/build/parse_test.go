@@ -153,7 +153,7 @@ func TestParseProperties(t *testing.T) {
 }
 
 func TestParseConfiguration(t *testing.T) {
-	writeFile("/tmp", "config.yml", "foo: spam\nbar: eggs")
+	WriteFile("/tmp", "config.yml", "foo: spam\nbar: eggs")
 	defer os.RemoveAll("/tmp/config.yml")
 	object := map[string]interface{}{
 		"configuration": []string{"/tmp/config.yml"},
