@@ -14,10 +14,11 @@ targets:
     - touch:
       - '={BUILD_DIR}/classpath/foo.jar'
       - '={BUILD_DIR}/classpath/bar.jar'
-    - classpath: classpath
-      classes:   '={BUILD_DIR}/classpath'
-      jars:      '={BUILD_DIR}/classpath/*.jar'
-      todir:     '={BUILD_DIR}/classpath/jars'
+    - classpath:    classpath
+      classes:      '={BUILD_DIR}/classpath'
+      jars:         '={BUILD_DIR}/classpath/*.jar'
+      repositories: 'http://sweetohm.net/repo'
+      todir:        '={BUILD_DIR}/classpath/jars'
     - 'strings = import("strings")'
     - 'classpath = strings.Replace(classpath, ";", ":", -1)'
     - if: 'classpath != "../../build/classpath:../../build/classpath/bar.jar:../../build/classpath/foo.jar"'
