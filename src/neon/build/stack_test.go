@@ -50,4 +50,8 @@ func TestStack(t *testing.T) {
 	if err == nil {
 		t.Errorf("Error poping")
 	}
+	last := stack.Last()
+	if last != nil {
+		t.Errorf("Error on last")
+	}
 }
