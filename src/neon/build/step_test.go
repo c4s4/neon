@@ -25,6 +25,9 @@ func TestScriptStep(t *testing.T) {
 	build.SetDir(build.Dir)
 	context := NewContext(build)
 	err = context.Init()
+	if err != nil {
+		t.Errorf("Error during context init: %v", err)
+	}
 	// run this step
 	err = step.Run(context)
 	if err != nil {
@@ -72,6 +75,9 @@ func TestTaskStep(t *testing.T) {
 	build.SetDir(build.Dir)
 	context := NewContext(build)
 	err = context.Init()
+	if err != nil {
+		t.Errorf("Error during context init: %v", err)
+	}
 	// run this step
 	err = step.Run(context)
 	if err != nil {
@@ -114,6 +120,9 @@ func TestSteps(t *testing.T) {
 	build.SetDir(build.Dir)
 	context := NewContext(build)
 	err = context.Init()
+	if err != nil {
+		t.Errorf("Error during context init: %v", err)
+	}
 	// run this step
 	err = steps.Run(context)
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 func TestStack(t *testing.T) {
 	stack := NewStack()
 	foo := &Target{Name: "foo"}
+	bar := &Target{Name: "bar"}
 	err := stack.Push(foo)
 	if err != nil || !stack.Contains("foo") {
 		t.Errorf("Error contains")
@@ -14,7 +15,7 @@ func TestStack(t *testing.T) {
 	if stack.Contains("bar") {
 		t.Errorf("Error contains")
 	}
-	err = stack.Push(&Target{Name: "bar"})
+	err = stack.Push(bar)
 	if err != nil || !stack.Contains("bar") {
 		t.Errorf("Error contains")
 	}
@@ -32,7 +33,16 @@ func TestStack(t *testing.T) {
 	if stack.Last().Name != "foo" {
 		t.Errorf("Error Last: %v", stack.Last())
 	}
-	err = stack.Pop()
+}
+
+func TestStackPop(t *testing.T) {
+	stack := NewStack()
+	foo := &Target{Name: "foo"}
+	bar := &Target{Name: "bar"}
+	stack.Push(foo)
+	stack.Push(bar)
+	stack.Push(foo)
+	err := stack.Pop()
 	if err != nil {
 		t.Errorf("Error poping")
 	}

@@ -1,9 +1,9 @@
 package build
 
 import (
-	"testing"
-	"reflect"
 	"github.com/fatih/color"
+	"reflect"
+	"testing"
 )
 
 func TestParseAttributes(t *testing.T) {

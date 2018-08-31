@@ -24,15 +24,18 @@ func TestTarget(t *testing.T) {
 	build.SetDir(".")
 	context := NewContext(build)
 	err := context.Init()
+	if err != nil {
+		t.Errorf("Error during context init: %v", err)
+	}
 	// parse steps
 	script := `test2 = "This is another test"`
 	task := map[interface{}]interface{}{
 		"test": "This is a test",
 	}
 	object := map[string]interface{}{
-		"doc": "Test target",
+		"doc":     "Test target",
 		"depends": []string{},
-		"steps": []interface{}{script, task},
+		"steps":   []interface{}{script, task},
 	}
 	target, err := NewTarget(build, "test", object)
 	if err != nil {
