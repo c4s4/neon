@@ -36,7 +36,7 @@ func (stack *Stack) Contains(name string) bool {
 // Return: an error if we are in an infinite loop
 func (stack *Stack) Push(target *Target) error {
 	for _, t := range stack.Targets {
-		if t.Name == target.Name {
+		if t == target {
 			stack.Targets = append(stack.Targets, target)
 			return fmt.Errorf("infinite loop: %v", stack.String())
 		}

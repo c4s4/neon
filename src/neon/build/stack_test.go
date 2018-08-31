@@ -6,7 +6,8 @@ import (
 
 func TestStack(t *testing.T) {
 	stack := NewStack()
-	err := stack.Push(&Target{Name: "foo"})
+	foo := &Target{Name: "foo"}
+	err := stack.Push(foo)
 	if err != nil || !stack.Contains("foo") {
 		t.Errorf("Error contains")
 	}
@@ -17,7 +18,7 @@ func TestStack(t *testing.T) {
 	if err != nil || !stack.Contains("bar") {
 		t.Errorf("Error contains")
 	}
-	err = stack.Push(&Target{Name: "foo"})
+	err = stack.Push(foo)
 	if err == nil || err.Error() != "infinite loop: foo -> bar -> foo" {
 		t.Errorf("Should have raised infinite loop error")
 	}
