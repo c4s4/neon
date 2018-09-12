@@ -23,28 +23,6 @@ var colorTitle colorizer
 var colorOk colorizer
 var colorError colorizer
 
-// apply default theme
-func init() {
-	ApplyThemeByName(defaultTheme)
-}
-
-// ApplyThemeByName applies named theme
-func ApplyThemeByName(name string) error {
-	theme, ok := Themes[name]
-	if !ok {
-		return fmt.Errorf("unknown theme '%s'", name)
-	}
-	ApplyTheme(theme)
-	return nil
-}
-
-// ApplyTheme applies given theme
-func ApplyTheme(theme *Theme) {
-	colorTitle = color.New(theme.Title...).SprintFunc()
-	colorOk = color.New(theme.Ok...).SprintFunc()
-	colorError = color.New(theme.Error...).SprintFunc()
-}
-
 // Message prints a message on console:
 // - text: text to print (that might embed fields to print, such as "%s")
 // - args: arguments for the text to print

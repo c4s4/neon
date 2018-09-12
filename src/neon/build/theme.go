@@ -134,6 +134,28 @@ var Attributes = map[string]color.Attribute{
 	"BgHiWhite":    color.BgHiWhite,
 }
 
+// apply default theme
+func init() {
+	ApplyThemeByName(defaultTheme)
+}
+
+// ApplyThemeByName applies named theme
+func ApplyThemeByName(name string) error {
+	theme, ok := Themes[name]
+	if !ok {
+		return fmt.Errorf("unknown theme '%s'", name)
+	}
+	ApplyTheme(theme)
+	return nil
+}
+
+// ApplyTheme applies given theme
+func ApplyTheme(theme *Theme) {
+	colorTitle = color.New(theme.Title...).SprintFunc()
+	colorOk = color.New(theme.Ok...).SprintFunc()
+	colorError = color.New(theme.Error...).SprintFunc()
+}
+
 // ParseAttributes parse attributes
 func ParseAttributes(colors []string) ([]color.Attribute, error) {
 	var attributes []color.Attribute
