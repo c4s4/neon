@@ -5,6 +5,10 @@ import (
 	"github.com/fatih/color"
 )
 
+const (
+	defaultTheme = "bee"
+)
+
 // Colors define a theme
 type Colors struct {
 	Title []string

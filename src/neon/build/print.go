@@ -2,15 +2,10 @@ package build
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"neon/util"
 	"strings"
 	"unicode/utf8"
-
-	"github.com/fatih/color"
-)
-
-const (
-	defaultTheme = "bee"
 )
 
 type colorizer func(a ...interface{}) string
