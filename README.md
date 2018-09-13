@@ -54,7 +54,7 @@ installed, follow these steps:
 - Clone the project with `git clone git@github.com:c4s4/neon.git`.
 - Go into the project directory, that must be *outside* your *GOPATH*.
 - Build the binary with command
-  `go install -ldflags -X neon/build.NeonVersion==VERSION`
+  `go install -ldflags -X  github.com/c4s4/neon/build.NeonVersion==VERSION`
 
 This will product the *neon* binary for your platform and OS in the *bin*
 directory of your *GOPATH*.
