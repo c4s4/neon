@@ -27,7 +27,6 @@ targets:
     doc: Build neon binary
     steps:
     - print: "Building neon binary"
-    - delete: '={BUILD_DIR}/bin/neon'
     - $: ['go', 'install', '-ldflags', '-X neon/build.NeonVersion=={VERSION}']
 
   refs:
