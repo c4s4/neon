@@ -2,7 +2,8 @@ doc: Built file to test tasks
 default: task_classpath
 
 properties:
-  BUILD_DIR: '../../build'
+  BUILD_DIR: '../../.build'
+  REPO:      'http://sweetohm.net/repo'
 
 targets:
 
@@ -14,13 +15,14 @@ targets:
     - touch:
       - '={BUILD_DIR}/classpath/foo.jar'
       - '={BUILD_DIR}/classpath/bar.jar'
-    - classpath: classpath
-      classes:   '={BUILD_DIR}/classpath'
-      jars:      '={BUILD_DIR}/classpath/*.jar'
-      todir:     '={BUILD_DIR}/classpath/jars'
+    - classpath:    classpath
+      classes:      '={BUILD_DIR}/classpath'
+      jars:         '={BUILD_DIR}/classpath/*.jar'
+      repositories: =REPO
+      todir:        '={BUILD_DIR}/classpath/jars'
     - 'strings = import("strings")'
     - 'classpath = strings.Replace(classpath, ";", ":", -1)'
-    - if: 'classpath != "../../build/classpath:../../build/classpath/bar.jar:../../build/classpath/foo.jar"'
+    - if: 'classpath != "../../.build/classpath:../../.build/classpath/bar.jar:../../.build/classpath/foo.jar"'
       then:
       - throw: 'Classpath test failure: ={classpath}'
     - 'jars = find(BUILD_DIR+"/classpath/jars", "*.jar")'
@@ -38,6 +40,7 @@ targets:
       dependencies: '={BUILD_DIR}/classpath/dependencies.yml'
       todir:        '={BUILD_DIR}/classpath/jars'
       scopes:       'test'
+      repositories: =REPO
     - if: 'classpath != env("HOME")+"/.java/repository/junit/junit/4.12/junit-4.12.jar"'
       then:
       - throw: 'Classpath test failure: ={classpath}'

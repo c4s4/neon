@@ -7,37 +7,38 @@ extends:
 
 properties:
   NAME:      'neon'
-  PACKAGE:   =NAME
+  BUILD_DIR: '.build'
   REFERENCE: 'doc/reference.md'
   ARC_DIR:   '={BUILD_DIR}/={NAME}-={VERSION}'
   ARC_FILES:
   - files: ['CHANGELOG.yml', 'LICENSE.txt', 'README.md', 'bash/*']
   - {files: 'bin/*', dir: =BUILD_DIR}
   - {files: 'doc/*.pdf', dir: =BUILD_DIR}
-  LIBRARIES:
-  - gopkg.in/yaml.v2
-  - github.com/mattn/anko
-  - github.com/mattn/go-zglob
-  - github.com/fatih/color
-
-environment:
-  GOPATH: =_BASE
-  PATH:   '={_BASE}/bin:${PATH}'
 
 targets:
+
+  test:
+    doc: Run unit tests
+    depends: clean
+    steps:
+    - super:
 
   bin:
     doc: Build neon binary
     steps:
-    - print: "Building neon binary in 'bin/neon'"
-    - delete: 'bin/neon'
-    - $: ['go', 'install', '-ldflags', '-X neon/build.NeonVersion=={VERSION}', =NAME]
+    - print: "Building neon binary"
+    - mkdir: =BUILD_DIR
+    - delete: '={BUILD_DIR}/bin/neon'
+    - $: ['go', 'build', '-ldflags', '-X github.com/c4s4/neon/build.NeonVersion=={VERSION}',
+          '-o', '={BUILD_DIR}/bin/neon']
 
   refs:
     doc: Generate reference documentation
     depends: bin
     steps:
-    - $: 'bin/neon -refs > ={REFERENCE}'
+    - $:  ['neon', '-refs']
+      1>: ={REFERENCE}
+      1x: true
     - try:
       - $: ['git', 'diff', '--quiet', '--exit-code', =REFERENCE]
       catch:
@@ -56,8 +57,8 @@ targets:
     doc: Generate binaries for all platforms
     steps:
     - mkdir: '={BUILD_DIR}/bin/'
-    - $: ['gox', '-ldflags', '-X neon/build.NeonVersion=={VERSION}',
-          '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', =NAME]
+    - $: ['gox', '-ldflags', '-X github.com/c4s4/neon/build.NeonVersion=={VERSION}',
+          '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}']
 
   archive:
     doc: Generate distribution archive
@@ -87,7 +88,7 @@ targets:
     steps:
     - delete: =BUILD_DIR
     - mkdir:  =BUILD_DIR
-    - $: ['gox', '-ldflags', '-X neon/build.NeonVersion=={VERSION}',
+    - $: ['gox', '-ldflags', '-X github.com/c4s4/neon/build.NeonVersion=={VERSION}',
           '-output=/home/casa/dsk/Todo/shared/neon',
           '-os', 'Windows', '-arch', '386', =NAME]
     - copy:    ['build.yml', 'test/**/*.yml']
