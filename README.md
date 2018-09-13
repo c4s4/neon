@@ -40,19 +40,20 @@ There are four sources of documentation:
 Build
 -----
 
-To build the project without *NeON* already installed, follow these steps:
+This project implements Go *1.11* modules, thus you must use Go version *1.11*
+of above to build *NeON*. To build the project without *NeON* already
+installed, follow these steps:
 
-- Define `GOPATH` environment variable on the directory of the project.
-    ```bash
-    $ export GOPATH=`pwd`
-    ```
-- Go to the project directory and type command `go build neon`.
+- Clone the project with `git clone git@github.com:c4s4/neon.git`.
+- Go into the project directory, that must be *outside* your *GOPATH*.
+- Build the binary with command
+  `go install -ldflags -X neon/build.NeonVersion==VERSION`
 
-This will product the *neon* binary for your platform and OS in the project
-directory.
+This will product the *neon* binary for your platform and OS in the *bin*
+directory of your *GOPATH*.
 
 If neon is already installed, simply type `neon bin`, this will generate neon
-binary in *bin* directory.
+binary in *bin* directory of your *GOPATH*.
 
 Contributors
 ------------

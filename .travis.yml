@@ -3,15 +3,7 @@ go:
 - 1.11
 env:
 - TRAVIS=true
-install:
-# import dependencies
-- go get gopkg.in/yaml.v2
-- go get github.com/mattn/anko
-- go get github.com/mattn/go-zglob
-- go get github.com/fatih/color
-# fix gopath
-- ln -s $HOME/gopath/src/github.com/c4s4/neon/src/neon $HOME/gopath/src/neon
 script:
-- go test -race -coverprofile=coverage.txt -covermode=atomic github.com/c4s4/neon/...
+- go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 after_success:
 - bash <(curl -s https://codecov.io/bash)
