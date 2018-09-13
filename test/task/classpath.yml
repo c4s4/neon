@@ -2,7 +2,7 @@ doc: Built file to test tasks
 default: task_classpath
 
 properties:
-  BUILD_DIR: '../../build'
+  BUILD_DIR: '../../.build'
   REPO:      'http://sweetohm.net/repo'
 
 targets:
@@ -22,7 +22,7 @@ targets:
       todir:        '={BUILD_DIR}/classpath/jars'
     - 'strings = import("strings")'
     - 'classpath = strings.Replace(classpath, ";", ":", -1)'
-    - if: 'classpath != "../../build/classpath:../../build/classpath/bar.jar:../../build/classpath/foo.jar"'
+    - if: 'classpath != "../../.build/classpath:../../.build/classpath/bar.jar:../../.build/classpath/foo.jar"'
       then:
       - throw: 'Classpath test failure: ={classpath}'
     - 'jars = find(BUILD_DIR+"/classpath/jars", "*.jar")'

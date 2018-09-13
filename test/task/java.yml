@@ -2,7 +2,7 @@ doc: Built file to test tasks
 default: task_java
 
 properties:
-  BUILD_DIR: '../../build'
+  BUILD_DIR: '../../../.build'
   JAVA_SRC: 'package test;
 public class Main {
   public static void main(String[] args) throws Exception {

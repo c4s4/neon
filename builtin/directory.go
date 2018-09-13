@@ -1,8 +1,8 @@
 package builtin
 
 import (
-	"neon/build"
-	"neon/util"
+	"github.com/c4s4/neon/build"
+	"github.com/c4s4/neon/util"
 	"path/filepath"
 )
 

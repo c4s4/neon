@@ -2,7 +2,7 @@ package task
 
 import (
 	"fmt"
-	"neon/build"
+	"github.com/c4s4/neon/build"
 	"os"
 	"reflect"
 )

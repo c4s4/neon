@@ -1,7 +1,7 @@
 package builtin
 
 import (
-	"neon/util"
+	"github.com/c4s4/neon/util"
 	"os/user"
 	"testing"
 )

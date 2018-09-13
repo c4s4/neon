@@ -1,7 +1,7 @@
 package build
 
 import (
-	"neon/util"
+	"github.com/c4s4/neon/util"
 	"os"
 	"path/filepath"
 	"reflect"

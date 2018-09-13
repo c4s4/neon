@@ -2,10 +2,10 @@ package builtin
 
 import (
 	"fmt"
+	_build "github.com/c4s4/neon/build"
+	_ "github.com/c4s4/neon/task"
+	"github.com/c4s4/neon/util"
 	"io/ioutil"
-	_build "neon/build"
-	_ "neon/task"
-	"neon/util"
 	"os"
 	"path"
 	"path/filepath"

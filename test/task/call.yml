@@ -2,7 +2,7 @@ doc: Built file to test target call
 default: task_call
 
 properties:
-  BUILD_DIR: '../../build'
+  BUILD_DIR: '../../.build'
 
 targets:
 

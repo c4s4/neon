@@ -2,7 +2,7 @@ package builtin
 
 import (
 	"fmt"
-	"neon/build"
+	"github.com/c4s4/neon/build"
 )
 
 func init() {

@@ -2,7 +2,7 @@ package builtin
 
 import (
 	"encoding/json"
-	"neon/build"
+	"github.com/c4s4/neon/build"
 )
 
 func init() {

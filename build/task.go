@@ -2,7 +2,7 @@ package build
 
 import (
 	"fmt"
-	"neon/util"
+	"github.com/c4s4/neon/util"
 	"reflect"
 	"strings"
 )

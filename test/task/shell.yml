@@ -2,7 +2,7 @@ doc: Built file to test tasks
 default: task_$
 
 properties:
-  BUILD_DIR: '../../build'
+  BUILD_DIR: '../../.build'
 
 targets:
 

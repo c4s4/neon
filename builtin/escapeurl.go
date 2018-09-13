@@ -1,7 +1,7 @@
 package builtin
 
 import (
-	"neon/build"
+	"github.com/c4s4/neon/build"
 	"net/url"
 )
 
