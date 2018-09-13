@@ -14,9 +14,16 @@ NeON is a build tool the way it should be.
 Installation
 ------------
 
-Download latest binary archive at <https://github.com/c4s4/neon/releases>. Unzip
-the archive, put the binary of your platform somewhere in your *PATH* and rename
-it *neon*.
+Go developers which have a Go version *1.11* or above can install latest
+release with following command:
+
+```bash
+$ go get -u github.com/c4s4/neon
+```
+
+Otherwise, you can download latest binary archive at 
+<https://github.com/c4s4/neon/releases>. Unzip the archive, put the binary of
+your platform somewhere in your *PATH* and rename it *neon*.
 
 Unix users can add Bash completion putting file *bash/neon* in
 */etc/bash_completion.d/* directory and adding line
