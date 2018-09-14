@@ -20,7 +20,7 @@ Go developers can install latest release with following command:
 $ go get -u github.com/c4s4/neon
 ```
 
-Note that *NeON* built this way won't display version number with `neon -version` command.
+Note that *NeON* built this way won't display version number with `neon -version` command and that you must build with Go *1.10* or newer.
 
 Otherwise, you can download latest binary archive at <https://github.com/c4s4/neon/releases>. Unzip the archive, put the binary of your platform somewhere in your *PATH* and rename it *neon*.
 
