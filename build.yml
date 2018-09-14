@@ -28,9 +28,16 @@ targets:
     steps:
     - print: "Building neon binary"
     - mkdir: =BUILD_DIR
-    - delete: '={BUILD_DIR}/bin/neon'
+    - delete: '={BUILD_DIR}/neon'
     - $: ['go', 'build', '-ldflags', '-X github.com/c4s4/neon/build.NeonVersion=={VERSION}',
-          '-o', '={BUILD_DIR}/bin/neon']
+          '-o', '={BUILD_DIR}/neon']
+
+  install:
+    doc: Build and install neon binary
+    steps:
+    - print: "Building and installing neon binary"
+    - delete: '={env("GOPATH")}/bin/neon'
+    - $: ['go', 'install', '-ldflags', '-X github.com/c4s4/neon/build.NeonVersion=={VERSION}']
 
   refs:
     doc: Generate reference documentation
