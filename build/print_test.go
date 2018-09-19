@@ -1,10 +1,10 @@
 package build
 
 import (
+	"io/ioutil"
+	"os"
 	"regexp"
 	"testing"
-	"os"
-	"io/ioutil"
 )
 
 func TestMessage(t *testing.T) {
