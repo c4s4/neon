@@ -185,16 +185,35 @@ func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *b
 	if verbose {
 		context.Message("Running command: %s", strings.Join(cmd, " "))
 	}
-	command := exec.Command(cmd[0], cmd[1:]...)
+	environment, err := context.EvaluateEnvironment()
+	if err != nil {
+		return fmt.Errorf("building environment: %v", err)
+	}
+	path := ""
+	for _, variable := range environment {
+		if strings.HasPrefix(variable, "PATH=") {
+			index := strings.Index(variable, "=")
+			path = variable[index+1:]
+		}
+	}
+	if path != "" {
+		oldPath := os.Getenv("PATH")
+		defer os.Setenv("PATH", oldPath)
+		os.Setenv("PATH", path)
+	}
+	executable := cmd[0]
+	executablePath, err := exec.LookPath(executable)
+	if err != nil {
+		return fmt.Errorf("Command '%s' was not found un PATH", executable)
+	}
+	arguments := cmd[1:]
+	command := exec.Command(executablePath, arguments...)
 	dir, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
-	command.Env, err = context.EvaluateEnvironment()
-	if err != nil {
-		return fmt.Errorf("building environment: %v", err)
-	}
+	command.Env = environment
 	command.Stdin = stdin
 	command.Stdout = stdout
 	command.Stderr = stderr
