@@ -10,6 +10,8 @@ targets:
     doc: Test task move
     steps:
     # nominal case
+    - delete: '={BUILD_DIR}/move/src'
+    - delete: '={BUILD_DIR}/move/dst'
     - mkdir: '={BUILD_DIR}/move/src'
     - mkdir: '={BUILD_DIR}/move/dst'
     - touch:

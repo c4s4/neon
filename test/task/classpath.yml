@@ -10,6 +10,7 @@ targets:
   task_classpath:
     doc: Test task classpath
     steps:
+    - delete: '={BUILD_DIR}/classpath/jars'
     - mkdir: '={BUILD_DIR}/classpath/jars'
     # classpath with jar files
     - touch:
@@ -41,7 +42,7 @@ targets:
       todir:        '={BUILD_DIR}/classpath/jars'
       scopes:       'test'
       repositories: =REPO
-    - if: 'classpath != env("HOME")+"/.java/repository/junit/junit/4.12/junit-4.12.jar"'
+    - if: 'unixpath(classpath) != unixpath(env("HOME"))+"/.java/repository/junit/junit/4.12/junit-4.12.jar"'
       then:
       - throw: 'Classpath test failure: ={classpath}'
     - print: 'Classpath test success'

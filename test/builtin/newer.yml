@@ -12,7 +12,7 @@ targets:
     - delete: '#{BUILD_DIR}/newer'
     - mkdir: '#{BUILD_DIR}/newer'
     - touch: '#{BUILD_DIR}/newer/source'
-    - sleep: 0.1
+    - sleep: 0.3
     - touch: '#{BUILD_DIR}/newer/result'
     - |
       if newer(joinpath(BUILD_DIR, "newer/source"), joinpath(BUILD_DIR, "newer/result")) {
@@ -20,7 +20,7 @@ targets:
       } else {
         println("Newer test success")
       }
-    - sleep: 0.1
+    - sleep: 0.3
     - touch: '#{BUILD_DIR}/newer/source'
     - |
       if newer(joinpath(BUILD_DIR, "newer/source"), joinpath(BUILD_DIR, "newer/result")) {

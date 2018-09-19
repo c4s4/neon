@@ -1,7 +1,7 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 1.0.0-rc-12
-  date:    2018-09-19
+- version: 1.0.0-rc-13
+  date:    2018-09-00
   summary: Using original Anko
   added:
   - "Added option on shell task to print running command."
@@ -23,6 +23,7 @@
   - "Fixed order of properties on build information screen."
   - "Fixed NeON version parsing for version checks."
   - "Fixed repository location on Windows."
+  - "Fixed integration tests on Windows."
   - "Fixed all warnings so that code quality is 100% on goreportcard."
   - "Improved test coverage on project."
   - "Fixed an Anko bug regarding testing missing map values against nil."
