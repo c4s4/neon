@@ -49,10 +49,9 @@ func TestDirExists(t *testing.T) {
 func TestFileIsExecutable(t *testing.T) {
 	tempFile := writeTempFile("", t)
 	defer os.Remove(tempFile)
-	// FIXME: this test doesn't work
-	// if FileIsExecutable(tempFile) {
-	// 	t.Errorf("File should not be executable")
-	// }
+	if FileIsExecutable(tempFile) {
+		t.Errorf("File should not be executable")
+	}
 	os.Chmod(tempFile, 0744)
 	if !FileIsExecutable(tempFile) {
 		t.Errorf("File should be executable")
