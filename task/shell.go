@@ -204,7 +204,7 @@ func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *b
 	executable := cmd[0]
 	executablePath, err := exec.LookPath(executable)
 	if err != nil {
-		return fmt.Errorf("Command '%s' was not found un PATH", executable)
+		return fmt.Errorf("command '%s' was not found in PATH", executable)
 	}
 	arguments := cmd[1:]
 	command := exec.Command(executablePath, arguments...)

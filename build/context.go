@@ -173,6 +173,14 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 	return value, nil
 }
 
+// DelProperty deletes given property
+// - name: the name of the property
+// Return:
+// - an error if something went wrong
+func (context *Context) DelProperty(name string) error {
+	return context.VM.Delete(name)
+}
+
 // EvaluateExpression evaluate given expression in the context
 // - expression: the expression to evaluate
 // Return:

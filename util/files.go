@@ -61,7 +61,7 @@ func DirExists(dir string) bool {
 // - file: file to test
 // Return: a boolean that tells if file is executable by user
 func FileIsExecutable(file string) bool {
-	if stat, err := os.Stat(file); err == nil && stat.Mode()|0100 != 0 {
+	if stat, err := os.Stat(file); err == nil && stat.Mode()&0111 != 0 {
 		return true
 	}
 	return false
