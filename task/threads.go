@@ -119,6 +119,7 @@ func runThread(steps build.Steps, ctx *build.Context, index int, input chan inte
 				if verbose {
 					threadContext.Message("Thread %d iteration with input '%v'", index, arg)
 				}
+				threadContext.DelProperty("_output")
 				err := steps.Run(threadContext)
 				out, _ := threadContext.GetProperty("_output")
 				if err != nil {

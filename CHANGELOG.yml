@@ -1,7 +1,7 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
 - version: 1.0.0-rc-13
-  date:    2018-09-00
+  date:    2018-10-09
   summary: Using original Anko
   added:
   - "Added option on shell task to print running command."
@@ -29,6 +29,7 @@
   - "Fixed an Anko bug regarding testing missing map values against nil."
   - "Fixed PATH for list commands (that didn't take user defined PATH into account)."
   - "Highly improved code coverage to 70%."
+  - "Fixed bug on threads _output property cleanup."
 
 - version: 0.13.0
   date:    2018-05-10
