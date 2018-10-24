@@ -96,7 +96,7 @@ Targets
 -------
 
 If we see build files as programs, we could see targets as functions that you
-can call to achieve a given goal. A build file can define more that one target
+can call to achieve a given goal. A build file can define more than one target
 that may depend on each other. For instance:
 
 ```yaml
