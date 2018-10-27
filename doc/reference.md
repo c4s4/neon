@@ -1346,6 +1346,26 @@ Examples:
     lowerorequal("0.12.0")
     # return true if version is lower or equal than 0.12.0, false otherwise
 
+match
+-----
+
+Tell if given string matches a regular expression.
+
+Arguments:
+
+- The regular expression.
+- The string to test.
+
+Returns:
+
+- A boolean telling string matches regular expression.
+
+Examples:
+
+    # tell if string "neon" marchs "n..n" regular expression:
+    match("n..n", "neon")
+    # return true
+
 newer
 -----
 
