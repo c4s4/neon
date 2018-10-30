@@ -2,9 +2,9 @@ package task
 
 import (
 	"fmt"
+	"github.com/c4s4/changelog/lib"
 	"github.com/c4s4/neon/build"
 	"reflect"
-	"github.com/c4s4/changelog/lib"
 )
 
 func init() {
