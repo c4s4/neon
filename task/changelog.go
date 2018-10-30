@@ -12,7 +12,7 @@ func init() {
 		Name: "changelog",
 		Func: changelog,
 		Args: reflect.TypeOf(changelogArgs{}),
-		Help: `Load information from semantic changelog file.
+		Help: `Load changelog information from file.
 
 Arguments:
 
@@ -21,13 +21,12 @@ Arguments:
 
 Note:
 
-- The release version is stored in property _changelog_version.
-- The release date is stored in property _changelog_date.
-- The release summary is stored in property _changelog_summary.
+- The changelog information are stored in _changelog property that is a list of
+  releases objects with fields Version, Date and Summary.
 
 Examples:
 
-    # get changelog information in file 'test.yml':
+    # load changelog information in file 'test.yml':
     - changelog: "test.yml"`,
 	})
 }
@@ -59,9 +58,6 @@ func changelog(context *build.Context, args interface{}) error {
 	if len(changelog) < 1 {
 		return fmt.Errorf("the changelog is empty")
 	}
-	release := changelog[0]
-	context.SetProperty("_changelog_version", release.Version)
-	context.SetProperty("_changelog_date", release.Date)
-	context.SetProperty("_changelog_summary", release.Summary)
+	context.SetProperty("_changelog", changelog)
 	return nil
 }
