@@ -17,12 +17,12 @@ targets:
                date:    2018-10-30
                summary: Test
     - changelog:   '={BUILD_DIR}/changelog/changelog.yml'
-    - if: '_changelog_version != "1.2.3"'
+    - if: '_changelog[0].Version != "1.2.3"'
       then:
       - throw: 'changelog task error'
-    - if: '_changelog_date != "2018-10-30"'
+    - if: '_changelog[0].Date != "2018-10-30"'
       then:
       - throw: 'changelog task error'
-    - if: '_changelog_summary != "Test"'
+    - if: '_changelog[0].Summary != "Test"'
       then:
       - throw: 'changelog task error'
