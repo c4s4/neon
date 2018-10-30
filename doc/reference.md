@@ -84,6 +84,27 @@ Examples:
     # print content of LICENSE file on the console
     - cat: "LICENSE"
 
+changelog
+---------
+
+Load information from semantic changelog file.
+
+Arguments:
+
+- changelog: the name of the changelog file (look for changelog in current
+  directory if omitted).
+
+Note:
+
+- The release version is stored in property _changelog_version.
+- The release date is stored in property _changelog_date.
+- The release summary is stored in property _changelog_summary.
+
+Examples:
+
+    # get changelog information in file 'test.yml':
+    - changelog: "test.yml"
+
 chdir
 -----
 

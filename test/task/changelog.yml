@@ -1,0 +1,28 @@
+doc: Built file to changelog task
+default: task_changelog
+
+properties:
+  BUILD_DIR: '../../.build'
+
+targets:
+
+  task_changelog:
+    doc: Test task changelog
+    steps:
+    # nominal case
+    - mkdir: '={BUILD_DIR}/changelog'
+    - write: '={BUILD_DIR}/changelog/changelog.yml'
+      text:  |
+             - version: 1.2.3
+               date:    2018-10-30
+               summary: Test
+    - changelog:   '={BUILD_DIR}/changelog/changelog.yml'
+    - if: '_changelog_version != "1.2.3"'
+      then:
+      - throw: 'changelog task error'
+    - if: '_changelog_date != "2018-10-30"'
+      then:
+      - throw: 'changelog task error'
+    - if: '_changelog_summary != "Test"'
+      then:
+      - throw: 'changelog task error'

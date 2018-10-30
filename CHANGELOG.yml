@@ -1,12 +1,13 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 1.0.0-rc-14
-  date:    2018-10-27
-  summary: Using original Anko
+- version: 1.0.0-rc-15
+  date:    2018-10-30
+  summary: Release candidate
   added:
   - "Added option on shell task to print running command."
-  - "Added task neon (to run another build file) and singleton (to ensure a
-     block of steps runs in a single instance)."
+  - "Added task neon (to run another build file), singleton (to ensure a block
+     of steps runs in a single instance) and changelog (to get information from
+     semantic changelog file)."
   - "Added haskey builtin (to test if a map has given key)."
   - "Added module support on project (thus must build with Go >= 1.11)."
   - "Added builtin match (to test if given string matches a regular expression)."
