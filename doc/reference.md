@@ -87,7 +87,7 @@ Examples:
 changelog
 ---------
 
-Load information from semantic changelog file.
+Load changelog information from file.
 
 Arguments:
 
@@ -96,13 +96,12 @@ Arguments:
 
 Note:
 
-- The release version is stored in property _changelog_version.
-- The release date is stored in property _changelog_date.
-- The release summary is stored in property _changelog_summary.
+- The changelog information are stored in _changelog property that is a list of
+  releases objects with fields Version, Date and Summary.
 
 Examples:
 
-    # get changelog information in file 'test.yml':
+    # load changelog information in file 'test.yml':
     - changelog: "test.yml"
 
 chdir
@@ -909,6 +908,26 @@ Examples:
     appendpath("foo", "spam", "eggs")
 	# returns: ["foo/spam", "foo/eggs"] on Linux and
 	# ["foo\spam", "foo\eggs"] on Windows
+
+changelog
+---------
+
+Return changelog information from file.
+
+Arguments:
+
+- changelog: the name of the changelog file (look for changelog in current
+  directory if empty string).
+
+Note:
+
+- The function returns a Changelog that is a list of Releases struct with
+  fields Version, Date and Summary.
+
+Examples:
+
+    # get version of last release:
+    - 'VERSION = changelog("")[0].Version'
 
 contains
 --------
