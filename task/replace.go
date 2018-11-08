@@ -34,13 +34,17 @@ Examples:
 
 type replaceArgs struct {
 	Replace []string `neon:"file,wrap"`
-	With    map[string]string
+	With    map[interface{}]interface{}
 	Dir     string   `neon:"optional,file"`
 	Exclude []string `neon:"optional,file"`
 }
 
 func replace(context *build.Context, args interface{}) error {
 	params := args.(replaceArgs)
+	with, err := util.ToMapStringString(params.With)
+	if err != nil {
+		return fmt.Errorf("bad with argument: %v", err)
+	}
 	files, err := util.FindFiles(params.Dir, params.Replace, params.Exclude, false)
 	if err != nil {
 		return fmt.Errorf("getting source files for copy task: %v", err)
@@ -58,7 +62,7 @@ func replace(context *build.Context, args interface{}) error {
 			return fmt.Errorf("reading file '%s': %v", file, err)
 		}
 		text := string(bytes)
-		for old, new := range params.With {
+		for old, new := range with {
 			text = strings.Replace(text, old, new, -1)
 		}
 		err = ioutil.WriteFile(file, []byte(text), FileMode)
