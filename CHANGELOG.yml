@@ -10,7 +10,8 @@
      semantic changelog file)."
   - "Added haskey builtin (to test if a map has given key)."
   - "Added module support on project (thus must build with Go >= 1.11)."
-  - "Added builtin match (to test if given string matches a regular expression)."
+  - "Added builtins match (to test if given string matches a regular expression),
+     yamlencode and yamldecode."
   fixed:
   - "Fixed issue #2: crash on heterogenous list types."
   - "Fixed issue #3: map access (fixed in Anko)."
