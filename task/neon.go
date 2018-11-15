@@ -41,7 +41,7 @@ func neon(context *build.Context, args interface{}) error {
 		return fmt.Errorf("getting build file path: %v", err)
 	}
 	base := filepath.Dir(path)
-	newBuild, err := build.NewBuild(path, base, context.Build.Repository)
+	newBuild, err := build.NewBuild(path, base, context.Build.Repository, context.Build.Template)
 	if err != nil {
 		return fmt.Errorf("instantiating build: %v", err)
 	}

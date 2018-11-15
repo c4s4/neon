@@ -34,7 +34,7 @@ targets:
 		Help: `Task documentation.`,
 	})
 	// load the build file
-	build, err := NewBuild("/tmp/build.yml", "/tmp", "")
+	build, err := NewBuild("/tmp/build.yml", "/tmp", "", false)
 	if err != nil {
 		t.Errorf("Error parsing build file: %v", err)
 	}

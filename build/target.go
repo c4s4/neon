@@ -113,9 +113,16 @@ func (target *Target) Run(context *Context) error {
 		return err
 	}
 	Title(target.Name)
-	err = os.Chdir(target.Build.Dir)
-	if err != nil {
-		return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
+	if target.Build.Template {
+		err = os.Chdir(target.Build.Here)
+		if err != nil {
+			return fmt.Errorf("changing to current directory '%s'", target.Build.Dir)
+		}
+	} else {
+		err = os.Chdir(target.Build.Dir)
+		if err != nil {
+			return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
+		}
 	}
 	err = target.Steps.Run(context)
 	if err != nil {

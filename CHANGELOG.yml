@@ -33,6 +33,7 @@
   - "Fixed PATH for list commands (that didn't take user defined PATH into account)."
   - "Highly improved code coverage to 70%."
   - "Fixed bug on threads _output property cleanup."
+  - "Run templates in current working directory."
 
 - version: 0.13.0
   date:    2018-05-10
