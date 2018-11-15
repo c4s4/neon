@@ -1688,3 +1688,41 @@ Examples:
     # run script script.sh unix and windows
     run(winexe("script.sh"))
     # will run script.sh on unix and script.bat on windows
+
+yamldecode
+----------
+
+Decode given string in YAML format.
+
+Arguments:
+
+- The string in YAML format to decode.
+
+Returns:
+
+- Decoded string.
+
+Examples:
+
+    # decode given list
+    yamldecode("['foo', 'bar']")
+    # returns string slice: ["foo", "bar"]
+
+yamlencode
+----------
+
+Encode given variable in YAML format.
+
+Arguments:
+
+- The variable to encode in YAML format.
+
+Returns:
+
+- Json encoded string.
+
+Examples:
+
+    # encode given list
+    yamlencode(["foo", "bar"])
+    # returns: "['foo', 'bar']"
