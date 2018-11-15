@@ -40,6 +40,7 @@ type Build struct {
 	Targets     map[string]*Target
 	Parents     []*Build
 	Version     string
+	Template    bool
 }
 
 // NewBuild makes a build from a build file
@@ -49,7 +50,7 @@ type Build struct {
 // Return:
 // - Pointer to the build
 // - error if something went wrong
-func NewBuild(file, base, repo string) (*Build, error) {
+func NewBuild(file, base, repo string, template bool) (*Build, error) {
 	object, build, err := parseBuildFile(file)
 	if err != nil {
 		return nil, err
@@ -70,6 +71,7 @@ func NewBuild(file, base, repo string) (*Build, error) {
 	build.Properties = build.GetProperties()
 	build.Environment = build.GetEnvironment()
 	build.SetDir(build.Dir)
+	build.Template = template
 	return build, nil
 }
 
@@ -149,7 +151,7 @@ func (build *Build) GetParents() ([]*Build, error) {
 		if err != nil {
 			return nil, fmt.Errorf("searching parent build file '%s': %v", extend, err)
 		}
-		parent, err := NewBuild(file, filepath.Dir(file), build.Repository)
+		parent, err := NewBuild(file, filepath.Dir(file), build.Repository, build.Template)
 		if err != nil {
 			return nil, fmt.Errorf("loading parent build file '%s': %v", extend, err)
 		}
