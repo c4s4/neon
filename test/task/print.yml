@@ -10,3 +10,4 @@ targets:
     doc: Test task print
     steps:
     - print: '={NAME} test success'
+    - print:
