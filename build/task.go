@@ -136,7 +136,7 @@ func checkArgumentType(field reflect.StructField, args TaskArgs) (string, error)
 	}
 	// check field type
 	if !CheckType(field, value) {
-		return "", fmt.Errorf("field '%s' must be of type '%s' ('%s' provided)",
+		return "", fmt.Errorf("field '%s' must be of type '%s' ('%v' provided)",
 			name, field.Type, reflect.TypeOf(value))
 	}
 	return name, nil
@@ -167,8 +167,12 @@ func checkUnknownArgs(fields []string, args TaskArgs) error {
 func CheckType(field reflect.StructField, value interface{}) bool {
 	valueType := reflect.TypeOf(value)
 	// if field is optional and argument nil, it's OK
-	if FieldIs(field, FieldOptional) && value == nil {
-		return true
+	if value == nil {
+		if FieldIs(field, FieldOptional) {
+			return true
+		} else {
+			return false
+		}
 	}
 	// if argument is an expression it's OK whatever the type
 	if valueType.Kind() == reflect.String &&
