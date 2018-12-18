@@ -1,6 +1,6 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 1.0.0-rc-18
+- version: 1.0.0-rc-19
   date:    2018-12-18
   summary: Release candidate
   added:
@@ -35,6 +35,7 @@
   - "Fixed bug on threads _output property cleanup."
   - "Run templates in current working directory."
   - "Fixed bug on nil task parameter"
+  - "Fixed parent build file evaluation order"
 
 - version: 0.13.0
   date:    2018-05-10
