@@ -1,7 +1,7 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 1.0.0-rc-17
-  date:    2018-11-15
+- version: 1.0.0-rc-18
+  date:    2018-12-18
   summary: Release candidate
   added:
   - "Added option on shell task to print running command."
@@ -34,6 +34,7 @@
   - "Highly improved code coverage to 70%."
   - "Fixed bug on threads _output property cleanup."
   - "Run templates in current working directory."
+  - "Fixed bug on nil task parameter"
 
 - version: 0.13.0
   date:    2018-05-10
