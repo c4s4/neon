@@ -196,7 +196,7 @@ func (build *Build) GetEnvironment() map[string]string {
 // Return: targets as a map of targets with their name as keys
 func (build *Build) GetTargets() map[string]*Target {
 	var targets = make(map[string]*Target)
-	for i := len(build.Parents)-1; i >= 0; i-- {
+	for i := len(build.Parents) - 1; i >= 0; i-- {
 		parent := build.Parents[i]
 		for name, target := range parent.GetTargets() {
 			targets[name] = target
@@ -217,7 +217,7 @@ func (build *Build) GetTargetByName(name string) *Target {
 	if found {
 		return target
 	}
-	for i := len(build.Parents)-1; i >= 0; i-- {
+	for i := len(build.Parents) - 1; i >= 0; i-- {
 		parent := build.Parents[i]
 		target = parent.GetTargetByName(name)
 		if target != nil {
