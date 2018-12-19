@@ -2,8 +2,7 @@
 
 doc:     Build file for NeON
 default: [clean, fmt, check, test]
-extends:
-- c4s4/build/golang.yml
+extends: [golang, git, changelog]
 
 properties:
   NAME:      'neon'
