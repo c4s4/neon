@@ -39,6 +39,7 @@ type Build struct {
 	Environment map[string]string
 	Targets     map[string]*Target
 	Parents     []*Build
+	Root        *Build
 	Version     string
 	Template    bool
 }
@@ -71,6 +72,7 @@ func NewBuild(file, base, repo string, template bool) (*Build, error) {
 	build.Properties = build.GetProperties()
 	build.Environment = build.GetEnvironment()
 	build.SetDir(build.Dir)
+	build.SetRoot(build)
 	build.Template = template
 	return build, nil
 }
@@ -236,6 +238,15 @@ func (build *Build) SetDir(dir string) {
 	}
 }
 
+// SetRoot sets the root build, propagating to parents
+// - build: root build
+func (build *Build) SetRoot(root *Build) {
+	build.Root = root
+	for _, parent := range build.Parents {
+		parent.SetRoot(root)
+	}
+}
+
 // SetCommandLineProperties defines properties passed on command line in the
 // context. These properties overwrite those define in the build file.
 // - props: properties as a YAML map
@@ -259,18 +270,14 @@ func (build *Build) GetDefault() []string {
 	if len(build.Default) > 0 {
 		return build.Default
 	}
-	for _, parent := range build.Parents {
-		if len(parent.Default) > 0 {
-			return parent.Default
-		}
-	}
-	for _, parent := range build.Parents {
+	for i := len(build.Parents) - 1; i >= 0; i-- {
+		parent := build.Parents[i]
 		parentDefault := parent.GetDefault()
 		if len(parentDefault) > 0 {
 			return parentDefault
 		}
 	}
-	return build.Default
+	return nil
 }
 
 // GetScripts return a list of context scripts to run.
