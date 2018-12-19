@@ -102,7 +102,7 @@ func ParseTargetSteps(object util.Object, target *Target) error {
 func (target *Target) Run(context *Context) error {
 	for _, name := range target.Depends {
 		if !context.Stack.Contains(name) {
-			err := target.Build.RunTarget(context, name)
+			err := target.Build.Root.RunTarget(context, name)
 			if err != nil {
 				return err
 			}

@@ -2,14 +2,12 @@
 
 doc:     Build file for NeON
 default: [clean, fmt, check, test]
-extends:
-- c4s4/build/golang.yml
+extends: [golang, git, changelog]
 
 properties:
   NAME:      'neon'
   BUILD_DIR: '.build'
   REFERENCE: 'doc/reference.md'
-  ARC_DIR:   '={BUILD_DIR}/={NAME}-={VERSION}'
   ARC_FILES:
   - files: ['CHANGELOG.yml', 'LICENSE.txt', 'README.md', 'bash/*']
   - {files: 'bin/*', dir: =BUILD_DIR}
@@ -25,6 +23,7 @@ targets:
 
   bin:
     doc: Build neon binary
+    depends: version
     steps:
     - print: "Building neon binary"
     - mkdir: =BUILD_DIR
@@ -34,6 +33,7 @@ targets:
 
   install:
     doc: Build and install neon binary
+    depends: version
     steps:
     - print: "Building and installing neon binary"
     - delete: '={env("GOPATH")}/bin/neon'
@@ -62,6 +62,7 @@ targets:
 
   binaries:
     doc: Generate binaries for all platforms
+    depends: version
     steps:
     - mkdir: '={BUILD_DIR}/bin/'
     - $: ['gox', '-ldflags', '-X github.com/c4s4/neon/build.NeonVersion=={VERSION}',
@@ -92,6 +93,7 @@ targets:
 
   win-exe:
     doc: Generate binary and copy files to test on Windows
+    depends: version
     steps:
     - delete: =BUILD_DIR
     - mkdir:  =BUILD_DIR
