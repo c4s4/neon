@@ -1,7 +1,7 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 1.0.0-rc-19
-  date:    2018-12-18
+- version: 1.0.0-rc-20
+  date:    2018-12-19
   summary: Release candidate
   added:
   - "Added option on shell task to print running command."
