@@ -340,7 +340,8 @@ func (build *Build) RunTarget(context *Context, name string) error {
 // - boolean: that tells if parent target was found
 // - error: if something went wrong
 func (build *Build) RunParentTarget(context *Context, name string) (bool, error) {
-	for _, parent := range build.Parents {
+	for i := len(build.Parents) - 1; i >= 0; i-- {
+		parent := build.Parents[i]
 		target := parent.GetTargetByName(name)
 		if target != nil {
 			err := context.Stack.Push(target)
