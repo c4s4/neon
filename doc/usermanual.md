@@ -1082,6 +1082,22 @@ how to install corresponding plugin. If you extend parent build file
 *foo/bar/spam.yml*, this tells the user that she can install corresponding
 plugin typing `neon -install foo/bar`.
 
+Multiple inheritance is possible as follows:
+
+```yaml
+extends:
+- first
+- second
+- third
+```
+
+Each parent build file overwrites preceding ones, so that properties and
+targets defined in parent build file *first* would be overwritten with those
+defined in *second*. Those defined in *second* would be overwritten by those
+in *third*, and so on. Current build file overwrites properties defined in
+all parent build files. Furthermore, properties or targets defined in a parent
+build file of *third* would overwrite those in preceding build files.
+
 [Back to top](#user-manual)
 
 Neon repository
