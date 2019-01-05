@@ -1,0 +1,56 @@
+#!/bin/sh
+# 
+# Installation script for Unix platforms. To run installation, type :
+# 
+# $ sh -c "$(curl http://sweetohm.net/neon/install)"
+# 
+# or (if you don't have curl installed):
+# 
+# $ sh -c "$(wget -O - http://sweetohm.net/neon/install)"
+
+set -e
+
+# default installation directory
+DEFAULT_DIR="/usr/bin"
+
+# get OS and ARCH and build binary name
+os=`uname | tr '[:upper:]' '[:lower:]'`
+arch=`uname -m`
+
+if [ "$arch" = "i386" ]; then
+    arch="386"
+elif [ "$arch" = "x86_64" ]; then
+    arch="amd64"
+elif [ "$arch" = "arm" ]; then
+    arch="arm"
+fi
+
+binary="neon-${os}-${arch}"
+
+# select command to download binary
+if hash curl 2>/dev/null; then
+    command="curl -o"
+else
+    command="wget -O"
+fi
+
+# download binary in /tmp/neon and make it executable
+${command} /tmp/neon http://sweetohm.net/neon/${binary}
+chmod +x /tmp/neon
+
+# copy to installation directory
+read -p "Installation directory [/usr/bin]? " directory
+if [ -z "$directory" ]
+then
+    directory=${DEFAULT_DIR}
+fi
+
+# copy binary to installation directory
+if [ -w "${directory}" ]
+then
+    mv /tmp/neon ${directory}
+else
+    sudo mv /tmp/neon ${directory}
+fi
+
+echo "neon installed in '${directory}' directory"
