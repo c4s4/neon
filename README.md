@@ -14,6 +14,22 @@ NeON is a build tool the way it should be.
 Installation
 ------------
 
+### Unix users
+
+Unix users may download and install latest NeON release with command:
+
+```bash
+$ sh -c "$(curl http://sweetohm.net/neon/install)"
+```
+
+If *curl* is not installed on you system, you might run:
+
+```bash
+$ sh -c "$(wget -O - http://sweetohm.net/neon/install)"
+```
+
+### Go developers
+
 Go developers can install latest release with following command:
 
 ```bash
@@ -22,13 +38,23 @@ $ go get -u github.com/c4s4/neon
 
 Note that *NeON* built this way won't display version number with `neon -version` command and that you must build with Go *1.10* or newer.
 
+### Binary package
+
 Otherwise, you can download latest binary archive at <https://github.com/c4s4/neon/releases>. Unzip the archive, put the binary of your platform somewhere in your *PATH* and rename it *neon*.
 
-Unix users can add Bash completion putting file *bash/neon* in */etc/bash_completion.d/* directory and adding line `. /etc/bash_completion.d/neon` in your *~/.bashrc* file. This will enable following completions:
+### Bash completion
 
-- Typing `neon ` and hitting TAB will complete on build targets.
-- Typing `neon -task ` and hitting TAB will complete on tasks.
-- Typing `neon -builtin ` and hitting TAB will complete on builtins.
+Unix users can add Bash completion putting file *bash/neon* of the binary archive in */etc/bash_completion.d/* directory and adding following line in their *~/.bashrc* file:
+
+```bash
+. /etc/bash_completion.d/neon
+```
+
+This will enable following completions:
+
+- Typing `neon ` and hitting *TAB* will complete on build targets.
+- Typing `neon -task ` and hitting *TAB* will complete on tasks.
+- Typing `neon -builtin ` and hitting *TAB* will complete on builtins.
 
 Documentation
 -------------
