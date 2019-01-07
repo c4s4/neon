@@ -10,9 +10,6 @@
 
 set -e
 
-# default installation directory
-DEFAULT_DIR="/usr/bin"
-
 # get OS and ARCH and build binary name
 os=`uname | tr '[:upper:]' '[:lower:]'`
 arch=`uname -m`
@@ -30,18 +27,33 @@ echo "arch: ${arch}"
 
 binary="neon-${os}-${arch}"
 
-# on MacOSX directory /usr/bin is protected (even as root),
-# so default install directory is /usr/local/bin
-if [ "$os" = "darwin" ]
+# set default installation directory
+if [ -d "/opt/local/bin" ]
+then
+    DEFAULT_DIR="/opt/local/bin"
+elif [ -d "/opt/bin" ]
+then
+    DEFAULT_DIR="/opt/bin"
+elif [ -d "/usr/local/bin" ]
 then
     DEFAULT_DIR="/usr/local/bin"
+elif [ -d "/usr/bin" ]
+then
+    DEFAULT_DIR="/usr/bin"
+else
+    DEFAULT_DIR="/bin"
 fi
 
 # select command to download binary
-if hash curl 2>/dev/null; then
+if hash curl 2>/dev/null
+then
     command="curl -o"
-else
+elif hash wget 2>/dev/null
+then
     command="wget -O"
+else
+    echo "You must install curl or wget to run this installation script"
+    exit 1
 fi
 
 # download binary in /tmp/neon and make it executable
