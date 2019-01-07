@@ -28,8 +28,8 @@ If *curl* is not installed on you system, you might run:
 $ sh -c "$(wget -O - http://sweetohm.net/neon/install)"
 ```
 
-Note that some directories are protected (even as *root*) on **MacOSX**, thus
-you can't install NeON in */usr/bin* fro instance.
+**Note:** Some directories are protected, even as *root*, on **MacOSX** (since
+*El Capitan* release), thus you can't install NeON in */usr/bin* for instance.
 
 ### Go developers
 
