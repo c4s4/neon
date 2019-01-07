@@ -25,7 +25,17 @@ elif [ "$arch" = "arm" ]; then
     arch="arm"
 fi
 
+echo "os: ${os}"
+echo "arch: ${arch}"
+
 binary="neon-${os}-${arch}"
+
+# on MacOSX directory /usr/bin is protected (even as root),
+# so default install directory is /usr/local/bin
+if [ "$os" = "darwin" ]
+then
+    DEFAULT_DIR="/usr/local/bin"
+fi
 
 # select command to download binary
 if hash curl 2>/dev/null; then
@@ -38,8 +48,8 @@ fi
 ${command} /tmp/neon http://sweetohm.net/neon/${binary}
 chmod +x /tmp/neon
 
-# copy to installation directory
-read -p "Installation directory [/usr/bin]? " directory
+# prompt for installation directory
+read -p "Installation directory [${DEFAULT_DIR}]? " directory
 if [ -z "$directory" ]
 then
     directory=${DEFAULT_DIR}
@@ -51,6 +61,7 @@ then
     mv /tmp/neon ${directory}
 else
     sudo mv /tmp/neon ${directory}
+    sudo chown root: ${directory}/neon
 fi
 
 echo "neon installed in '${directory}' directory"
