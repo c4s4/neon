@@ -14,7 +14,7 @@ NeON is a build tool the way it should be.
 Installation
 ------------
 
-### Unix users
+### Unix users (Linux, BSDs and MacOSX)
 
 Unix users may download and install latest NeON release with command:
 
@@ -27,6 +27,9 @@ If *curl* is not installed on you system, you might run:
 ```bash
 $ sh -c "$(wget -O - http://sweetohm.net/neon/install)"
 ```
+
+Note that some directories are protected (even as *root*) on **MacOSX**, thus
+you can't install NeON in */usr/bin* fro instance.
 
 ### Go developers
 
