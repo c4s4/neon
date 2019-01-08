@@ -1,5 +1,4 @@
-NeON
-====
+# NeON
 
 [![Build Status](https://travis-ci.org/c4s4/neon.svg?branch=master)](https://travis-ci.org/c4s4/neon)
 [![Code Quality](https://goreportcard.com/badge/github.com/c4s4/neon)](https://goreportcard.com/report/github.com/c4s4/neon)
@@ -9,10 +8,9 @@ NeON
 - Project :   <https://github.com/c4s4/neon>.
 - Downloads : <https://github.com/c4s4/neon/releases>.
 
-NeON is a build tool the way it should be.
+NeON is the build tool the way I dreamed it.
 
-Installation
-------------
+## Installation
 
 ### Unix users (Linux, BSDs and MacOSX)
 
@@ -28,8 +26,7 @@ If *curl* is not installed on you system, you might run:
 $ sh -c "$(wget -O - http://sweetohm.net/neon/install)"
 ```
 
-**Note:** Some directories are protected, even as *root*, on **MacOSX** (since
-*El Capitan* release), thus you can't install NeON in */usr/bin* for instance.
+**Note:** Some directories are protected, even as *root*, on **MacOSX** (since *El Capitan* release), thus you can't install NeON in */usr/bin* for instance.
 
 ### Go developers
 
@@ -59,8 +56,7 @@ This will enable following completions:
 - Typing `neon -task ` and hitting *TAB* will complete on tasks.
 - Typing `neon -builtin ` and hitting *TAB* will complete on builtins.
 
-Documentation
--------------
+## Documentation
 
 There are four sources of documentation:
 
@@ -69,8 +65,7 @@ There are four sources of documentation:
 - [The reference guide](doc/reference.md).
 - [Slides in French](http://sweetohm.net/slides/slides-neon)
 
-Build
------
+## Build
 
 This project implements Go *1.11* modules, thus you must use Go version *1.11* of above to build *NeON*. To build the project without *NeON* already installed, follow these steps:
 
@@ -79,12 +74,11 @@ This project implements Go *1.11* modules, thus you must use Go version *1.11* o
 - Build the binary with command
   `go install -ldflags -X  github.com/c4s4/neon/build.NeonVersion==VERSION`
 
-This will product the *neon* binary for your platform and OS in the *bin* directory of your *GOPATH*.
+This will produce the *neon* binary for your OS and architecture in the *bin* directory of your *GOPATH*.
 
-If neon is already installed, simply type `neon bin`, this will generate neon binary in *bin* directory of your *GOPATH*.
+If neon is already installed, simply type `neon install`, this will generate neon binary in *bin* directory of your *GOPATH*.
 
-Contributors
-------------
+## Contributors
 
 Active contributors are:
 
