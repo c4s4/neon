@@ -86,7 +86,7 @@ targets:
 
   release:
     doc: Perform release
-    depends: [clean, libs, check, test, refs, archive, deploy]
+    depends: [clean, libs, check, release-check, test, refs, archive, deploy]
     steps:
     - super:
 
