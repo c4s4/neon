@@ -94,7 +94,7 @@ This introduction to YAML should be enough for you to write valid build files. I
 A build file is a YAML map. First level fields are the following:
 
 - **doc** is the documentation of the build file. This is a string.
-- **default** is for default target, which will run if none is passed on command line. This might be a string or a list of strings. If no default targets are defined, you must pass a target on command line.
+- **default** is for default target, which will run if none is passed on command line. This might be a string or a list of strings. If no default targets are defined, you must pass a target on command line, unless the build file defines only one target.
 - **extends** is the list of extended build files. See inheritance section for more details. This is a string or a list of strings.
 - **repository** is the default location for parent build files. Defaults to directory *.neon* in the home directory of the user.
 - **context** is a list of scripts loaded on startup. This is a string or a list of strings. This is useful to define your own builtin functions.

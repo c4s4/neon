@@ -311,7 +311,14 @@ func (build *Build) Run(context *Context, targets []string) error {
 	if len(targets) == 0 {
 		targets = build.GetDefault()
 		if len(targets) == 0 {
-			return fmt.Errorf("no default target")
+			allTargets := build.GetTargets()
+			if len(allTargets) == 1 {
+				for key := range allTargets {
+					targets = []string{key}
+				}
+			} else {
+				return fmt.Errorf("no default target")
+			}
 		}
 	}
 	for _, target := range targets {
