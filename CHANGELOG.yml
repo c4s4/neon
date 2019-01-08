@@ -1,8 +1,8 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 1.0.0-rc-20
-  date:    2018-12-19
-  summary: Release candidate
+- version: 1.0.0
+  date:    2019-01-09
+  summary: The one release
   added:
   - "Added option on shell task to print running command."
   - "Added task neon (to run another build file), singleton (to ensure a block
