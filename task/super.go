@@ -1,7 +1,6 @@
 package task
 
 import (
-	"fmt"
 	"github.com/c4s4/neon/build"
 	"reflect"
 )
@@ -32,12 +31,9 @@ type superArgs struct{}
 
 func super(context *build.Context, args interface{}) error {
 	target := context.Stack.Last()
-	ok, err := target.Build.RunParentTarget(context, target.Name)
+	err := target.Build.RunParentTarget(context, target.Name)
 	if err != nil {
 		return err
-	}
-	if !ok {
-		return fmt.Errorf("no target '%s' found in parent build files", target.Name)
 	}
 	return nil
 }

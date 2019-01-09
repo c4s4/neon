@@ -56,7 +56,7 @@ func NewBuild(file, base, repo string, template bool) (*Build, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := setDirectories(build, base); err != nil {
+	if err := SetDirectories(build, base); err != nil {
 		return nil, err
 	}
 	if err := object.CheckFields(Fields); err != nil {
@@ -134,13 +134,51 @@ func parseBuildFile(file string) (util.Object, *Build, error) {
 	return object, build, nil
 }
 
-func setDirectories(build *Build, base string) error {
+// SetDirectories sets build and base directories:
+// - build: the build directory.
+// - base: the base directory.
+// Return: an error if something went wrong.
+func SetDirectories(build *Build, base string) error {
 	build.Dir = base
 	here, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("getting build file directory: %v", err)
 	}
 	build.Here = here
+	return nil
+}
+
+// SetDir sets the build directory, propagating to parents
+// - dir: build directory as a string
+func (build *Build) SetDir(dir string) {
+	build.Dir = dir
+	for _, parent := range build.Parents {
+		parent.SetDir(dir)
+	}
+}
+
+// SetRoot sets the root build, propagating to parents
+// - build: root build
+func (build *Build) SetRoot(root *Build) {
+	build.Root = root
+	for _, parent := range build.Parents {
+		parent.SetRoot(root)
+	}
+}
+
+// SetCommandLineProperties defines properties passed on command line in the
+// context. These properties overwrite those define in the build file.
+// - props: properties as a YAML map
+// Return: error if something went wrong
+func (build *Build) SetCommandLineProperties(props string) error {
+	var object util.Object
+	err := yaml.Unmarshal([]byte(props), &object)
+	if err != nil {
+		return fmt.Errorf("parsing command line properties: properties must be a map with string keys")
+	}
+	for name, value := range object {
+		build.Properties[name] = value
+	}
 	return nil
 }
 
@@ -210,59 +248,6 @@ func (build *Build) GetTargets() map[string]*Target {
 	return targets
 }
 
-// GetTargetByName return target with given name. If not defined in build,
-// return target inherited from parent
-// - name: the target name as a string
-// Return: found target
-func (build *Build) GetTargetByName(name string) *Target {
-	target, found := build.Targets[name]
-	if found {
-		return target
-	}
-	for i := len(build.Parents) - 1; i >= 0; i-- {
-		parent := build.Parents[i]
-		target = parent.GetTargetByName(name)
-		if target != nil {
-			return target
-		}
-	}
-	return nil
-}
-
-// SetDir sets the build directory, propagating to parents
-// - dir: build directory as a string
-func (build *Build) SetDir(dir string) {
-	build.Dir = dir
-	for _, parent := range build.Parents {
-		parent.SetDir(dir)
-	}
-}
-
-// SetRoot sets the root build, propagating to parents
-// - build: root build
-func (build *Build) SetRoot(root *Build) {
-	build.Root = root
-	for _, parent := range build.Parents {
-		parent.SetRoot(root)
-	}
-}
-
-// SetCommandLineProperties defines properties passed on command line in the
-// context. These properties overwrite those define in the build file.
-// - props: properties as a YAML map
-// Return: error if something went wrong
-func (build *Build) SetCommandLineProperties(props string) error {
-	var object util.Object
-	err := yaml.Unmarshal([]byte(props), &object)
-	if err != nil {
-		return fmt.Errorf("parsing command line properties: properties must be a map with string keys")
-	}
-	for name, value := range object {
-		build.Properties[name] = value
-	}
-	return nil
-}
-
 // GetDefault returns default targets. If none is defined in build, return
 // those from parent build files.
 // Return: default targets a slice of strings
@@ -289,6 +274,41 @@ func (build *Build) GetScripts() []string {
 	}
 	scripts = append(scripts, build.Scripts...)
 	return scripts
+}
+
+// GetTarget return target with given name. If not defined in build,
+// return target inherited from parent
+// - name: the target name as a string
+// Return: found target
+func (build *Build) GetTarget(name string) *Target {
+	target, found := build.Targets[name]
+	if found {
+		return target
+	}
+	for i := len(build.Parents) - 1; i >= 0; i-- {
+		parent := build.Parents[i]
+		target = parent.GetTarget(name)
+		if target != nil {
+			return target
+		}
+	}
+	return nil
+}
+
+// GetParentTarget return parent target with given name.
+// - name: the name of the target to run
+// Return:
+// - target: found parent target, nil if none was found
+// - error: if something went wrong
+func (build *Build) GetParentTarget(name string) (*Target, error) {
+	for i := len(build.Parents) - 1; i >= 0; i-- {
+		parent := build.Parents[i]
+		target := parent.GetTarget(name)
+		if target != nil {
+			return target, nil
+		}
+	}
+	return nil, fmt.Errorf("target '%s' not found in parent build files", name)
 }
 
 // Run runs given targets in a build context. If no target is given, runs
@@ -336,7 +356,7 @@ func (build *Build) Run(context *Context, targets []string) error {
 // - name: name of the target to run as a string
 // Return: an error if something went wrong
 func (build *Build) RunTarget(context *Context, name string) error {
-	target := build.GetTargetByName(name)
+	target := build.GetTarget(name)
 	if target == nil {
 		return fmt.Errorf("target '%s' not found", name)
 	}
@@ -353,23 +373,20 @@ func (build *Build) RunTarget(context *Context, name string) error {
 // Return:
 // - boolean: that tells if parent target was found
 // - error: if something went wrong
-func (build *Build) RunParentTarget(context *Context, name string) (bool, error) {
-	for i := len(build.Parents) - 1; i >= 0; i-- {
-		parent := build.Parents[i]
-		target := parent.GetTargetByName(name)
-		if target != nil {
-			err := context.Stack.Push(target)
-			if err != nil {
-				return false, err
-			}
-			err = target.Steps.Run(context)
-			if err != nil {
-				return true, fmt.Errorf("running target '%s': %v", name, err)
-			}
-			return true, nil
-		}
+func (build *Build) RunParentTarget(context *Context, name string) error {
+	target, err := build.GetParentTarget(name)
+	if err != nil {
+		return err
 	}
-	return false, nil
+	err = context.Stack.Push(target)
+	if err != nil {
+		return err
+	}
+	err = target.Steps.Run(context)
+	if err != nil {
+		return fmt.Errorf("running target '%s': %v", name, err)
+	}
+	return nil
 }
 
 // GetShell return shell for current os.
