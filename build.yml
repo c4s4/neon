@@ -79,8 +79,12 @@ targets:
     doc: Deploy installation script and binaries
     depends: binaries
     steps:
+    - mkdir: =BUILD_DIR
     - print: 'Deploying neon binaries...'
     - $: ['scp', 'bash/install', =WEB_HOME]
+    - write: '={BUILD_DIR}/version'
+      text:  =VERSION
+    - $: ['scp', '={BUILD_DIR}/version', =WEB_HOME]
     - 'binaries = join(find(".", BUILD_DIR+"/bin/*"), " ")'
     - $: 'scp ={binaries} ={WEB_HOME}'
 
