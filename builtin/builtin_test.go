@@ -16,7 +16,7 @@ import (
 
 const (
 	TestDir  = "../../../test/builtin"
-	BuildDir = "../../../build"
+	BuildDir = "../.build"
 )
 
 // Assert make an assertion for testing purpose, failing test if different:

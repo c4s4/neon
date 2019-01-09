@@ -2,14 +2,21 @@ package builtin
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 )
 
 func TestFollowLink(t *testing.T) {
 	testDir := BuildDir + "/builtins/followlink"
 	os.MkdirAll(testDir, 0755)
-	src := testDir + "/spam.txt"
-	dst := testDir + "/eggs.txt"
+	src, err := filepath.Abs(testDir + "/spam.txt")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	dst, err := filepath.Abs(testDir + "/eggs.txt")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 	Touch(src)
 	os.Symlink(src, dst)
 	path := followLink(dst)

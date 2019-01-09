@@ -1,9 +1,6 @@
-User Manual
-===========
+# User Manual
 
-This document is a detailed documentation on NeON. For a quick overview, see
-[Quick Start](quickstart.md). If you are looking for a documentation on tasks
-and builtins, see [Reference](reference.md) documentation.
+This document is a detailed documentation on NeON. For a quick overview, see [Quick Start](quickstart.md). If you are looking for a documentation on tasks and builtins, see [Reference](reference.md) documentation.
 
 **Table of Contents**
 
@@ -27,19 +24,16 @@ and builtins, see [Reference](reference.md) documentation.
 - [Project templates](#project-templates)
   - [Creating templates](#creating-templates)
 
-Build file format
------------------
+## Build file format
 
-NeON build files are in YAML format. YAML (for *Yet Another Markup Language*)
-is a lightweight markup language so that you can write structured text in a
-natural syntax, with no strange tags or other syntaxic form of torture. For
-instance, to describe a list, you would write:
+NeON build files are in YAML format. YAML (for *Yet Another Markup Language*) is a lightweight markup language so that you can write structured text in a natural syntax, with no strange tags or other syntaxic form of torture. For instance, to describe a list, you would write:
 
 ```yaml
 - Bilbo
 - Frodo
 - Gandalf
 ```
+
 To write a dictionary, you would type:
 
 ```yaml
@@ -84,77 +78,46 @@ strings:
   - '2015-10-21'
 ```
 
-So, numbers are numbers, dates are ISO formatted and you can force anything to
-be a string surrounding it with quotes (simple or double).
+So, numbers are numbers, dates are ISO formatted and you can force anything to be a string surrounding it with quotes (simple or double).
 
 Things to know to avoid troubles writing YAML:
 
 - You **cannot indent with tabulations**, this is a syntax error!
-- Strings with colons must be surrounded with quotes or they are considered
-  maps. Thus you would write string *"see: this is cool"* with quotes if you
-  don't want it to be a map.
+- Strings with colons must be surrounded with quotes or they are considered maps. Thus you would write string *"see: this is cool"* with quotes if you don't want it to be a map.
 
-This introduction to YAML should be enough for you to write valid build files.
-If you want more information about YAML, please visit
-[YAML website](http://yaml.org).
+This introduction to YAML should be enough for you to write valid build files. If you want more information about YAML, please visit [YAML website](http://yaml.org).
 
 [Back to top](#user-manual)
 
-Build file structure
---------------------
+## Build file structure
 
 A build file is a YAML map. First level fields are the following:
 
 - **doc** is the documentation of the build file. This is a string.
-- **default** is for default target, which will run if none is passed on
-  command line. This might be a string or a list of strings. If no default
-  targets are defined, you must pass a target on command line.
-- **extends** is the list of extended build files. See inheritance section for
-  more details. This is a string or a list of strings.
-- **repository** is the default location for parent build files. Defaults to
-  directory *.neon* in the home directory of the user.
-- **context** is a list of scripts loaded on startup. This is a string or a
-  list of strings. This is useful to define your own builtin functions.
-- **singleton** is a port that is opened on startup to ensure that only a
-  single instance of the build is running. This is an integer. This should be
-  between *1024* and *65535* (or between *1* and *65535* if the build is
-  running as root).
-- **shell** defines the command to execute to run a shell task. This command is
-  defined as a list (such as `["sh", "-c"]` or `["cmd", "/c"]` for instance).
-  The command to run in the shell will be added as the last argument.
-  If you define a single command, this will run for all operating systems. You
-  may instead define the shell as a map of command per operating system. For
-  instance:
+- **default** is for default target, which will run if none is passed on command line. This might be a string or a list of strings. If no default targets are defined, you must pass a target on command line, unless the build file defines only one target.
+- **extends** is the list of extended build files. See inheritance section for more details. This is a string or a list of strings.
+- **repository** is the default location for parent build files. Defaults to directory *.neon* in the home directory of the user.
+- **context** is a list of scripts loaded on startup. This is a string or a list of strings. This is useful to define your own builtin functions.
+- **singleton** is a port that is opened on startup to ensure that only a single instance of the build is running. This is an integer. This should be between *1024* and *65535* (or between *1* and *65535* if the build is running as root).
+- **shell** defines the command to execute to run a shell task. This command is defined as a list (such as `["sh", "-c"]` or `["cmd", "/c"]` for instance). The command to run in the shell will be added as the last argument. If you define a single command, this will run for all operating systems. You may instead define the shell as a map of command per operating system. For instance:
 	```yaml
 	shell:
 	  windows: ['cmd', '/c']
 	  default: ['sh', '-c']
 	```
-  This will define a shell for windows and for other environments. Thus, if
-  you deine a single command (say `['sh', '-c']`), this is equivalent to:
+  This will define a shell for windows and for other environments. Thus, if you deine a single command (say `['sh', '-c']`), this is equivalent to:
 	```yaml
 	shell:
 	  default: ['sh', '-c']
 	```
-  Note that commands defined as lists will not run with these shells, thus
-  options won't be evaluated and `${USER}` will stay as is.
-- **version** is an expression that checks required NeON version to run the
-  build file. For instance, if your build file requires NeON version *0.12*
-  or greater and a version under *0.15.0*, you would write :
-  `version: 'greaterorequal("0.12") && lower("0.15")'`. Have a look at builtins
-  *greater*, *greaterorequal*, *lower* and *lowerorequal*.
-- **properties** is a map of properties of the build file. See section
-  *Properties* for more information about build properties.
-- **configuration** is a list of YAML files to load as build properties.
-  These YAML files must be maps with string keys. This might be a string or a
-  list of strings.
-- **environment** is a map that defines environment for all executed commands.
-  Environment variables set to empty strings will be unset.
-- **targets** is a map for targets of the build files. This is a map with
-  string keys.
+  Note that commands defined as lists will not run with these shells, thus options won't be evaluated and `${USER}` will stay as is.
+- **version** is an expression that checks required NeON version to run the build file. For instance, if your build file requires NeON version *0.12* or greater and a version under *0.15.0*, you would write : `version: 'greaterorequal("0.12") && lower("0.15")'`. Have a look at builtins *greater*, *greaterorequal*, *lower* and *lowerorequal*.
+- **properties** is a map of properties of the build file. See section *Properties* for more information about build properties.
+- **configuration** is a list of YAML files to load as build properties. These YAML files must be maps with string keys. This might be a string or a list of strings.
+- **environment** is a map that defines environment for all executed commands. Environment variables set to empty strings will be unset.
+- **targets** is a map for targets of the build files. This is a map with string keys.
 
-Most build files will define documentation, default target, properties and
-targets. Thus a simple build file might look like following:
+Most build files will define documentation, default target, properties and targets. Thus a simple build file might look like following:
 
 ```yaml
 doc: This is a sample build file
@@ -191,11 +154,9 @@ targets:
 
 [Back to top](#user-manual)
 
-Build properties
-----------------
+## Build properties
 
-Build file properties are some sort of build variables. The properties section
-is a map with string keys. For instance:
+Build file properties are some sort of build variables. The properties section is a map with string keys. For instance:
 
 ```yaml
 properties:
@@ -219,42 +180,31 @@ properties:
   ARCHIVE:   '={BUILD_DIR}/={NAME}.zip'
 ```
 
-The *ARCHIVE* property uses values of *BUILD_DIR* and *NAME*. Note that the
-order of properties is not important as maps are not ordered.
+The *ARCHIVE* property uses values of *BUILD_DIR* and *NAME*. Note that the order of properties is not important as maps are not ordered.
 
 To avoid errors, you should follow these conventions:
 
 - Uppercase properties are constants, defined in properties field.
-- Lowercase properties are local variables. Note that they are defined in the
-  whole build file, but you should always define their value in current target.
-- Properties starting with underscores (such as *_error*) are internal
-  variables, defined by NeON. They should not be modified unless you know what
-  you are doing.
+- Lowercase properties are local variables. Note that they are defined in the whole build file, but you should always define their value in current target.
+- Properties starting with underscores (such as *_error*) are internal variables, defined by NeON. They should not be modified unless you know what you are doing.
 
-These properties are defined in the virtual machine that runs scripts. This
-scripting language is [Anko](http://github.com/mattn/anko), which is a kind of
-scripted Go.
+These properties are defined in the virtual machine that runs scripts. This scripting language is [Anko](http://github.com/mattn/anko), which is a kind of scripted Go.
 
 ### Referencing build properties
 
-You can reference these properties in a string with the expression
-`={PROP_NAME}`. This might be done in the expression of other properties but
-also in task fields. For instance:
+You can reference these properties in a string with the expression `={PROP_NAME}`. This might be done in the expression of other properties but also in task fields. For instance:
 
 ```yaml
 - print: 'Hello ={USER}!'
 ```
 
-You can also get directly the value of a property with the expression
-`=PROP_NAME` (without curly braces). Thus you might write:
+You can also get directly the value of a property with the expression `=PROP_NAME` (without curly braces). Thus you might write:
 
 ```yaml
 - print: =USER
 ```
 
-In this case, if property *USER* is a string, this will not be so different
-from preceding example. But this is quite different if the property is not a
-string.
+In this case, if property *USER* is a string, this will not be so different from preceding example. But this is quite different if the property is not a string.
 
 For instance, let's see this build file:
 
@@ -272,11 +222,9 @@ targets:
         - print: =file
 ```
 
-In this case expression `=FILES` returns a list that we iterate in *test*
-target.
+In this case expression `=FILES` returns a list that we iterate in *test* target.
 
-You can also define and use build properties in scripts. for instance, you
-might write:
+You can also define and use build properties in scripts. for instance, you might write:
 
 ```yaml
 properties:
@@ -289,20 +237,13 @@ targets:
     - 'file = joinpath(BUILD_DIR, "test.txt")'
 ```
 
-This would define a build property named *file* that will be a string with
-value *"build/test.txt"*.
+This would define a build property named *file* that will be a string with value *"build/test.txt"*.
 
-Note that to use property *BUILD_DIR*, you write `BUILD_DIR` and not
-`={BUILD_DIR}` or `=BUILD_DIR`. The expression `={BUILD_DIR}` is used to insert
-a property value in a string and `=BUILD_DIR` to get the property value in a
-task field.
+Note that to use property *BUILD_DIR*, you write `BUILD_DIR` and not `={BUILD_DIR}` or `=BUILD_DIR`. The expression `={BUILD_DIR}` is used to insert a property value in a string and `=BUILD_DIR` to get the property value in a task field.
 
-Note that some tasks define internal properties. For instance, task *try*
-will store raised error in internal build property *_error*.
+Note that some tasks define internal properties. For instance, task *try* will store raised error in internal build property *_error*.
 
-All YAML types might be used to define build properties. Thus, you can define
-string, integers, floats, but also lists and maps. You may iterate on values
-of a property in the build file.
+All YAML types might be used to define build properties. Thus, you can define string, integers, floats, but also lists and maps. You may iterate on values of a property in the build file.
 
 ### Predefined build properties
 
@@ -345,8 +286,7 @@ OK
 
 ### Build properties on command line
 
-You can pass build properties on command line with `-props` option and a YAML
-map to set properties. For instance, calling this build file:
+You can pass build properties on command line with `-props` option and a YAML map to set properties. For instance, calling this build file:
 
 ```yaml
 default: test
@@ -374,8 +314,7 @@ OK
 
 Thus:
 
-- Property *FOO* was set to *foo* in build file but was overwritten on command
-line with value *FOO*.
+- Property *FOO* was set to *foo* in build file but was overwritten on command line with value *FOO*.
 - Property *BAR* was not defined in build file but was set on command line.
 
 ### Configuration
@@ -385,8 +324,7 @@ Sometimes, you don't want to write properties in a build file:
 - Some vary depending on the developer's environment.
 - Some are confidential and should not be made public in a build file.
 
-You should write these properties in a configuration file that will be loaded
-by the build file on startup and overwrite properties of the build file.
+You should write these properties in a configuration file that will be loaded by the build file on startup and overwrite properties of the build file.
 
 Let's say you have following build file:
 
@@ -414,26 +352,19 @@ TOOL_HOME: '/opt/misc/mytool'
 PASSWORD:  'fazelirflnazrfl'
 ```
 
-You should probably exclude *configuration.yml* from your version management
-system. Thus, using Git, you would add following line in your *.gitignore*
-file:
+You should probably exclude *configuration.yml* from your version management system. Thus, using Git, you would add following line in your *.gitignore* file:
 
 ```
 /configuration.yml
 ```
 
-You should also probably document properties that must be defined in a separate
-configuration file. This is a good idea to provide a commented template
-configuration file in the project.
+You should also probably document properties that must be defined in a separate configuration file. This is a good idea to provide a commented template configuration file in the project.
 
 ### Properties hierarchy
 
-You can define properties in the build file, in a configuration file and on
-command line. The hierarchy for properties is the following:
+You can define properties in the build file, in a configuration file and on command line. The hierarchy for properties is the following:
 
-- Properties defined in configuration overwrite those defined in build file
-  and previous configuration files (in the order of the list of the
-  *configuration* field).
+- Properties defined in configuration overwrite those defined in build file and previous configuration files (in the order of the list of the *configuration* field).
 - Properties defined on command line overwrite all other properties.
 
 Thus, with following build file:
@@ -479,11 +410,9 @@ OK
 
 [Back to top](#user-manual)
 
-Build targets
--------------
+## Build targets
 
-Build targets might be compared to functions. They are called on command line.
-If you call NeON with `neon clean`, you will run target *clean*.
+Build targets might be compared to functions. They are called on command line. If you call NeON with `neon clean`, you will run target *clean*.
 
 This target might look like:
 
@@ -511,12 +440,9 @@ Tasks might be one of the following:
 
 ### NeON task
 
-They are tasks defined in NeON engine. This is a way to write platform
-independent build files. These tasks are maps with string keys.
+They are tasks defined in NeON engine. This is a way to write platform independent build files. These tasks are maps with string keys.
 
-There are tasks to manage files (copy, delete, move and so on), archives
-(create ZIP or TAR files), directories (create, change to) or links. For
-instance, to delete all *.so* files in *build* directory, you would write:
+There are tasks to manage files (copy, delete, move and so on), archives (create ZIP or TAR files), directories (create, change to) or links. For instance, to delete all *.so* files in *build* directory, you would write:
 
 ```yaml
 targets:
@@ -528,8 +454,7 @@ targets:
       dir:    'build'
 ```
 
-There are also logical tasks to perform tests and iterate on values. For
-instance, to iterate on a list of files, you could write:
+There are also logical tasks to perform tests and iterate on values. For instance, to iterate on a list of files, you could write:
 
 ```yaml
 targets:
@@ -556,9 +481,7 @@ targets:
       - $: ['md2pdf', '-o', 'build/file.pdf', 'file.md']
 ```
 
-There are also tasks to manage errors. For instance to run a command and catch
-any error (that is when the command returns a value different from *0*) to
-write an error message, you could write:
+There are also tasks to manage errors. For instance to run a command and catch any error (that is when the command returns a value different from *0*) to write an error message, you could write:
 
 ```yaml
 targets:
@@ -572,8 +495,7 @@ targets:
       - throw: 'There was an error running command'
 ```
 
-To list all available NeON tasks, type command `neon -tasks`. To get help on a
-given command *foo*, type `neon -task foo`:
+To list all available NeON tasks, type command `neon -tasks`. To get help on a given command *foo*, type `neon -task foo`:
 
 ```
 $ neon -task time
@@ -596,29 +518,18 @@ Examples:
 
 Tags in parenthesis in the description of tasks arguments may be the following:
 
-- *string*, *strings*, *integer*, *float* and *boolean* are the types of the
-  argument. *strings* is a list of strings.
-- *optional* indicates that the field may be omitted (with or without default
-  value).
-- *file* is for arguments that are files. They will be expanded with user home
-  if they start with *~/*.
-- *expression* means that they are an Anko expression and that they will be
-  evaluated in the context of the build, even if they don't start with *=*
-  (which is the sign that denotes expressions).
-- *wrap* tells that single strings will be wrapped into a list of strings. For
-  instance, *mkdir* take a list of strings as argument, but as being tagged as
-  *wrap*, it can accept a single string that will be wrapped into a list if
-  necessary.
-- *steps* is a special type as this is a list of steps. For instance, *then*
-  argument of task *if* is the list of steps to perform and is tagged *steps*.
+- *string*, *strings*, *integer*, *float* and *boolean* are the types of the argument. *strings* is a list of strings.
+- *optional* indicates that the field may be omitted (with or without default value).
+- *file* is for arguments that are files. They will be expanded with user home if they start with *~/*.
+- *expression* means that they are an Anko expression and that they will be evaluated in the context of the build, even if they don't start with *=* (which is the sign that denotes expressions).
+- *wrap* tells that single strings will be wrapped into a list of strings. For instance, *mkdir* take a list of strings as argument, but as being tagged as *wrap*, it can accept a single string that will be wrapped into a list if necessary.
+- *steps* is a special type as this is a list of steps. For instance, *then* argument of task *if* is the list of steps to perform and is tagged *steps*.
 
-You can get information on available tasks
-[on this reference page](reference.md).
+You can get information on available tasks [on this reference page](reference.md).
 
 ### File tasks
 
-Many NeON tasks manage files and have common fields. For instance, *copy* task
-as follows:
+Many NeON tasks manage files and have common fields. For instance, *copy* task as follows:
 
 ```yaml
 - copy:  ['**/*.txt', '**/*.md']
@@ -627,41 +538,27 @@ as follows:
   flat:  true
 ```
 
-The **task field**, *copy* in this case, defines globs for files to select.
-These globs are like these used on command line:
+The **task field**, *copy* in this case, defines globs for files to select. These globs are like these used on command line:
 
-- **\*** to select any number of characters. Thus *\*.txt* will select all
-files with *txt* extension.
-- **?** to select a character. Thus *?.txt* would select *1.txt* but not
-  *12.txt*.
-- **\*\*** to select any number of directories. Thus *\*\*/\*.txt* would select
-  *foo.txt*, *foo/bar.txt* and any file with *txt* extension in a subdirectory.
+- **\*** to select any number of characters. Thus *\*.txt* will select all files with *txt* extension.
+- **?** to select a character. Thus *?.txt* would select *1.txt* but not *12.txt*.
+- **\*\*** to select any number of directories. Thus *\*\*/\*.txt* would select *foo.txt*, *foo/bar.txt* and any file with *txt* extension in a subdirectory.
 
-For more information on these globs, see 
-[zglob documentation](http://github.com/mattn/go-zglob).
+For more information on these globs, see [zglob documentation](http://github.com/mattn/go-zglob).
 
-The **dir** field is the root directory for globs. Note that selected files are
-relative to this directory. If *dir* field is not set, it defaults to current
-working directory.
+The **dir** field is the root directory for globs. Note that selected files are relative to this directory. If *dir* field is not set, it defaults to current working directory.
 
-Field **exclude** is a list of globs of files to exclude from selection. This
-is optional.
+Field **exclude** is a list of globs of files to exclude from selection. This is optional.
 
-Fields **todir** or **tofile** are destination. One and only one of these fields
-might be set, and *tofile* can be set only if globs have selected only one file.
+Fields **todir** or **tofile** are destination. One and only one of these fields might be set, and *tofile* can be set only if globs have selected only one file.
 
-Field **flat** tells if copy will be flat, that is at the root of destination
-directory. This is a boolean, thus you should not set it with a string such as
-*"false"*, but with a true boolean, such as *false*. This defauts to *true*.
+Field **flat** tells if copy will be flat, that is at the root of destination directory. This is a boolean, thus you should not set it with a string such as *"false"*, but with a true boolean, such as *false*. This defauts to *true*.
 
 [Back to top](#user-manual)
 
 ### Shell task
 
-A shell task runs a script. This script will run with *sh* on Unix and
-*cmd.exe* on Windows by default. You can define which shell to use with a
-*shell* field at the root of the build file (see section
-[Build file structure](build-file-structure) for more information).
+A shell task runs a script. This script will run with *sh* on Unix and *cmd.exe* on Windows by default. You can define which shell to use with a *shell* field at the root of the build file (see section [Build file structure](build-file-structure) for more information).
 
 This script might be a simple command such as *ls*:
 
@@ -688,9 +585,7 @@ targets:
          git push --set-upstream origin ={new}
 ```
 
-Nevertheless, you might prefer not to rely on shell to run a command. This is
-the case on Windows where command interpreter doesn't manage well arguments
-with spaces. To do so, you should write commands as lists:
+Nevertheless, you might prefer not to rely on shell to run a command. This is the case on Windows where command interpreter doesn't manage well arguments with spaces. To do so, you should write commands as lists:
 
 ```yaml
 targets:
@@ -700,19 +595,15 @@ targets:
     - $: ['java', '-jar', 'my.jar', 'Hello World!']
 ```
 
-This way, you will write portable build files that will run seamlessly on Unix
-boxes or Windows machines.
+This way, you will write portable build files that will run seamlessly on Unix boxes or Windows machines.
 
-A shell task will fail if the command returns a value different from *0*. You
-might manage errors with *try/catch/finally* task.
+A shell task will fail if the command returns a value different from *0*. You might manage errors with *try/catch/finally* task.
 
 [Back to top](#user-manual)
 
 ### Script task
 
-A script task is a piece of code that will run in the NeON scripting engine.
-This is also a way to write platform independent code. But this is a way to
-write complex scripts that would be complicated to write with system commands.
+A script task is a piece of code that will run in the NeON scripting engine. This is also a way to write platform independent code. But this is a way to write complex scripts that would be complicated to write with system commands.
 
 A script task is a simple string. For instance:
 
@@ -724,15 +615,9 @@ targets:
     - 'file = joinpath(BUILD_DIR, "test.txt")'
 ```
 
-Your scripts might use builtin functions, defined by Anko scripting engine (such
-as *toString()*) or by NeON. To list NeON builtins, you can type command 
-`neon -builtins`. To get help on given builtin, type `neon -builtin split`.
-You can get information on available builtin functions
-[on this reference page](reference.md).
+Your scripts might use builtin functions, defined by Anko scripting engine (such as *toString()*) or by NeON. To list NeON builtins, you can type command `neon -builtins`. To get help on given builtin, type `neon -builtin split`. You can get information on available builtin functions [on this reference page](reference.md).
 
-You can define your own functions in scripts that you load in the build file
-with *context* field. For instance, to define your own *double* function to use
-it in you build files, you could define *context* as following:
+You can define your own functions in scripts that you load in the build file with *context* field. For instance, to define your own *double* function to use it in you build files, you could define *context* as following:
 
 ```yaml
 context: 'myscript.ank'
@@ -756,17 +641,13 @@ targets:
     - 'd = double(21)'
 ```
 
-A this will call the *double()* function you defined in your context. This is a
-way to write your build utility functions in a separate file and thus keep a
-clean build file.
+A this will call the *double()* function you defined in your context. This is a way to write your build utility functions in a separate file and thus keep a clean build file.
 
-To get more information about 
-[Anko scripting language clic here](http://github.com/mattn/anko).
+To get more information about [Anko scripting language clic here](http://github.com/mattn/anko).
 
 [Back to top](#user-manual)
 
-Command line options
---------------------
+## Command line options
 
 To get help on command line options, you can type:
 
@@ -813,64 +694,27 @@ Usage of neon:
     	Print neon version
 ```
 
-In most cases, you will call NeON passing build targets to invoke. Thus to call
-target foo, you would type `neon foo`. You can call more than one target on
-command line, with `neon foo bar`. Note that second target will be called even
-if it already ran calling *foo*.
+In most cases, you will call NeON passing build targets to invoke. Thus to call target foo, you would type `neon foo`. You can call more than one target on command line, with `neon foo bar`. Note that second target will be called even if it already ran calling *foo*.
 
-Called build file will default to *build.yml* in current directory. If this
-file is not found in current directory, it will be searched recursively in
-parent directories. You can force build file name with the `-file` option. Thus
-to run build file *foo.yml*, you would type `neon -file foo.yml`. Execution
-times are always written on console when greater than *10 s*. You can force to
-print build execution time with `-time` option. 
+Called build file will default to *build.yml* in current directory. If this file is not found in current directory, it will be searched recursively in parent directories. You can force build file name with the `-file` option. Thus to run build file *foo.yml*, you would type `neon -file foo.yml`. Execution times are always written on console when greater than *10 s*. You can force to print build execution time with `-time` option. 
 
-You can get information on build file with `-info` option. This will print the
-build documentation (written in *doc* field at the root of the build file),
-default target(s), repository, extended build files, properties (with their own
-help) and targets (with their help). Using this option is a good way to have an
-idea of what can perform a build file. You can get targets list with `-targets`
-option.
+You can get information on build file with `-info` option. This will print the build documentation (written in *doc* field at the root of the build file), default target(s), repository, extended build files, properties (with their own help) and targets (with their help). Using this option is a good way to have an idea of what can perform a build file. You can get targets list with `-targets` option.
 
-You can define properties on command line with `-props` options and a YAML map
-with properties. For instance, to define property *foo* with value *bar*, you
-would invoke NeON with command line `neon -props '{foo: bar}'`.
+You can define properties on command line with `-props` options and a YAML map with properties. For instance, to define property *foo* with value *bar*, you would invoke NeON with command line `neon -props '{foo: bar}'`.
 
-You can set the path to your repository (where live parent build files and
-templates) with `-repo` option. This defaults to *~/.neon* but you can set it
-anywhere with this option. This option affects builds, but also where are
-installed plugin with `-install` option and where they are searched with
-`-templates` and `-parent` options.
+You can set the path to your repository (where live parent build files and templates) with `-repo` option. This defaults to *~/.neon* but you can set it anywhere with this option. This option affects builds, but also where are installed plugin with `-install` option and where they are searched with `-templates` and `-parent` options.
 
-The `-install` option will install given plugin in repository. Thus typing
-`neon -install foo/bar` will try to clone propject *bar* of user *foo* on
-Github into your repository. You can list parent build files in your 
-repository with `-parents` option and templates with `-templates`. You can
-run a template with `-template` option, thus to run template
-*foo/bar/spam.tpl*, you would type `neon -template foo/bar/spam.tpl`. This
-template may also be invoked with the shortcut `neon -template spam`, provided
-there is only one template named *spam.tpl* in your repository.
+The `-install` option will install given plugin in repository. Thus typing `neon -install foo/bar` will try to clone propject *bar* of user *foo* on Github into your repository. You can list parent build files in your  repository with `-parents` option and templates with `-templates`. You can run a template with `-template` option, thus to run template *foo/bar/spam.tpl*, you would type `neon -template foo/bar/spam.tpl`. This template may also be invoked with the shortcut `neon -template spam`, provided there is only one template named *spam.tpl* in your repository.
 
-To list all available builtins, you have option `-builtins`. To get help on a
-given builtin, you would type `neon -builtin foo`. To list all available tasks,
-you have option `-tasks` and to get help on a given task, you would type
-`neon -task foo`. Option `-refs` will output on console help for all builtins
-and tasks in Markdown format (this is the way reference documentation is
-generated).
+To list all available builtins, you have option `-builtins`. To get help on a given builtin, you would type `neon -builtin foo`. To list all available tasks, you have option `-tasks` and to get help on a given task, you would type `neon -task foo`. Option `-refs` will output on console help for all builtins and tasks in Markdown format (this is the way reference documentation is generated).
 
-By default, build output is colored on Unix systems for dark terminals (that is
-white letters on black background). You can disable colorization with `-grey`
-option. You can choose a theme with `-theme name` option. To list all available
-themes, you should use option `-themes`. You can define your own theme in
-configuration file (see below).
+By default, build output is colored on Unix systems for dark terminals (that is white letters on black background). You can disable colorization with `-grey` option. You can choose a theme with `-theme name` option. To list all available themes, you should use option `-themes`. You can define your own theme in configuration file (see below).
 
 Option `-version` will print NeON version.
 
-Configuration file
-------------------
+## Configuration file
 
-You can define options to use each time you run NeON with a configuration file
-*~/.neon/settings.yml*. This file looks like:
+You can define options to use each time you run NeON with a configuration file *~/.neon/settings.yml*. This file looks like:
 
 ```yaml
 # NeON Configuration File
@@ -895,19 +739,13 @@ links:
   ~/doc: ~/.neon/c4s4/build/projects.yml
 ```
 
-This example shows default values. You may omit fields in your configuration
-file, they will have their default value. You can also omit your configuration
-file altogether.
+This example shows default values. You may omit fields in your configuration file, they will have their default value. You can also omit your configuration file altogether.
 
-You can define your own theme with `color` field. It has three fields: *title*,
-*ok* and *error*, to define colors for titles, OK and ERROR messages. For each
-of these entries, you list color attributes as defined bellow:
+You can define your own theme with `color` field. It has three fields: *title*, *ok* and *error*, to define colors for titles, OK and ERROR messages. For each of these entries, you list color attributes as defined bellow:
 
 ### Attributes
 
-They affect printed text. Reset resets all settings and is not useful (as 
-settings are reset anyway before and after each printed text). Note that
-blink is not supported by all terminals.
+They affect printed text. Reset resets all settings and is not useful (as settings are reset anyway before and after each printed text). Note that blink is not supported by all terminals.
 
 - Reset
 - Bold
@@ -965,8 +803,7 @@ They define color for text background.
 Build inheritance
 -----------------
 
-A build file can extend another parent build file with the *extends* field.
-For instance, with this parent build file called *buildir.yml*:
+A build file can extend another parent build file with the *extends* field. For instance, with this parent build file called *buildir.yml*:
 
 ```yaml
 doc: Parent build file to manage build directory
@@ -997,11 +834,9 @@ targets:
     - $: 'compile sources'
 ```
 
-The main build file that extends *buildir.yml* will inherit its properties and
-targets.
+The main build file that extends *buildir.yml* will inherit its properties and targets.
 
-Note that a build file can redefine inherited properties. For instance, you may
-decide to set *BUILD_DIR* to *target* with following build file:
+Note that a build file can redefine inherited properties. For instance, you may decide to set *BUILD_DIR* to *target* with following build file:
 
 ```yaml
 doc: Build file
@@ -1020,8 +855,7 @@ targets:
 
 This will redefine the build directory as expected.
 
-You may also redefine targets. For instance, let's say you want to warn before
-deleting build directory. You would write:
+You may also redefine targets. For instance, let's say you want to warn before deleting build directory. You would write:
 
 ```yaml
 doc: Build file
@@ -1038,10 +872,8 @@ targets:
 
 The path to extended build files is important:
 
-- If this path is **absolute** or starts with **./** (that is in current
-  directory), this works as you would expect.
-- If this path is relative without starting with *./*, this build file is in
-  the NeON repository. See bellow for more explanations.
+- If this path is **absolute** or starts with **./** (that is in current directory), this works as you would expect.
+- If this path is relative without starting with *./*, this build file is in the NeON repository. See bellow for more explanations.
 
 The *super* task will run steps of parent target.
 
@@ -1072,24 +904,27 @@ extends:
 - c4s4/build/golang.yml
 ```
 
-If there is only **one** parent build file named *golang.yml* in your NeON
-repository. If this is not the case, build will stop on error with a message
-that indicates the number of parent build files with this name in your
+If there is only **one** parent build file named *golang.yml* in your NeON repository. If this is not the case, build will stop on error with a message that indicates the number of parent build files with this name in your
 repository.
 
-Note that if you use short names, this remove information that tells the user
-how to install corresponding plugin. If you extend parent build file
-*foo/bar/spam.yml*, this tells the user that she can install corresponding
-plugin typing `neon -install foo/bar`.
+Note that if you use short names, this remove information that tells the user how to install corresponding plugin. If you extend parent build file *foo/bar/spam.yml*, this tells the user that she can install corresponding plugin typing `neon -install foo/bar`.
+
+Multiple inheritance is possible as follows:
+
+```yaml
+extends:
+- first
+- second
+- third
+```
+
+Each parent build file overwrites preceding ones, so that properties and targets defined in parent build file *first* would be overwritten with those defined in *second*. Those defined in *second* would be overwritten by those in *third*, and so on. Current build file overwrites properties defined in all parent build files. Furthermore, properties or targets defined in a parent build file of *third* would overwrite those in preceding build files.
 
 [Back to top](#user-manual)
 
-Neon repository
----------------
+## Neon repository
 
-NeON repository is the place where live installed parent build files. By
-default, NeON repository is in *~/.neon* directory. This may be changed with
-*repository* field in the build file.
+NeON repository is the place where live installed parent build files. By default, NeON repository is in *~/.neon* directory. This may be changed with *repository* field in the build file.
 
 When you extend a build file with following statement:
 
@@ -1097,27 +932,21 @@ When you extend a build file with following statement:
 extends: foo/bar/spam.yml
 ```
 
-NeON will look in directory *foo/bar* of the NeON repository for file
-*spam.yml*. You might install manually your parent build files in your NeON
-repository, but you can install them automagically with NeON *install* command:
+NeON will look in directory *foo/bar* of the NeON repository for file *spam.yml*. You might install manually your parent build files in your NeON repository, but you can install them automagically with NeON *install* command:
 
 ```bash
 $ neon -install foo/bar
 ```
 
-This will clone Git repository *bar* of user *foo* on *Github*. Thus this will
-run command:
+This will clone Git repository *bar* of user *foo* on *Github*. Thus this will run command:
 
 ```bash
 $ git clone git://github.com/foo/bar.git <neon-repo>/foo/bar
 ```
 
-Thus, if your parent build files are public, you should put them on *Github* so
-that they can be easily shared in your team. I personally share my parent build
-files in repository <http://github.com/c4s4/build>.
+Thus, if your parent build files are public, you should put them on *Github* so that they can be easily shared in your team. I personally share my parent build files in repository <http://github.com/c4s4/build>.
 
-By default this will clone *master* branch. You can change this running
-following command in created Git repository:
+By default this will clone *master* branch. You can change this running following command in created Git repository:
 
 ```bash
 $ git checkout develop
@@ -1129,20 +958,16 @@ This will change branch to *develop*. You might get a particular version with:
 $ git checkout 1.2.3
 ```
 
-In your parent project repository, simply put you parent build files at the root.
-You might also put them in any subdirectory. If you put a build file *spam.yml*
-in subdirectory *eggs*, you would extend it with:
+In your parent project repository, simply put you parent build files at the root. You might also put them in any subdirectory. If you put a build file *spam.yml* in subdirectory *eggs*, you would extend it with:
 
 ```yaml
 extends:
 - foo/bar/eggs/spam.yml
 ```
 
-Project templates
------------------
+## Project templates
 
-NeON can generate template projects, with the *-template* option. For instance,
-to generate template Golang project, you would:
+NeON can generate template projects, with the *-template* option. For instance, to generate template Golang project, you would:
 
 - Install *c4s4/build* plugin, typing `neon -install c4s4/build`.
 - Run Golang template with command `neon -template c4s4/build/golang.tpl`.
@@ -1169,8 +994,7 @@ $ ls test
 build.yml  CHANGELOG.yml  LICENSE.txt  README.md  test.go  test_test.go
 ```
 
-To have an idea of targets in newly created project, go in generated directory
-and type:
+To have an idea of targets in newly created project, go in generated directory and type:
 
 ```
 $ neon -info
@@ -1207,8 +1031,7 @@ c4s4/build/slides.tpl
 
 ### Creating templates
 
-To create your own templates, you can have a look at following Github project;
-<http://github.com/c4s4/build> which contains example *Golang* template
+To create your own templates, you can have a look at following Github project; <http://github.com/c4s4/build> which contains example *Golang* template
 project.
 
 The template is made of a build file, *golang.tpl*:
@@ -1243,19 +1066,12 @@ targets:
     - print: "Project generated in '={name}' directory"
 ```
 
-This is a NeON build file that generates project in current working directory.
-Note that this is done with *_HERE* property that is current directory, while
-*_BASE* is the directory of the build file, that lives in the NeON repository.
+This is a NeON build file that generates project in current working directory. Note that this is done with *_HERE* property that is current directory, while *_BASE* is the directory of the build file, that lives in the NeON repository.
 
-This build file prompts the user for the project name and then copies project
-files, in the *golang* directory, to the project directory. Then it renames
-files and performs some replacements.
+This build file prompts the user for the project name and then copies project files, in the *golang* directory, to the project directory. Then it renames files and performs some replacements.
 
-Template build files are named with *tpl* extension so that they are identified
-as templates, but otherwise they are plain old build files.
+Template build files are named with *tpl* extension so that they are identified as templates, but otherwise they are plain old build files.
 
-Note that can also invoke templates with a shot name. Thus you can invoke
-template *foo/bar/spam.tpl* with `neon -template spam`, provided that there is
-only one template named *spam.tpl* in your repository.
+Note that can also invoke templates with a shot name. Thus you can invoke template *foo/bar/spam.tpl* with `neon -template spam`, provided that there is only one template named *spam.tpl* in your repository.
 
 *Enjoy!*

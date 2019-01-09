@@ -2,12 +2,13 @@
 
 doc:     Build file for NeON
 default: [clean, fmt, check, test]
-extends: [golang, git, changelog]
+extends: [golang, changelog]
 
 properties:
   NAME:      'neon'
   BUILD_DIR: '.build'
   REFERENCE: 'doc/reference.md'
+  WEB_HOME:  'casa@sweetohm.net:/home/web/neon'
   ARC_FILES:
   - files: ['CHANGELOG.yml', 'LICENSE.txt', 'README.md', 'bash/*']
   - {files: 'bin/*', dir: =BUILD_DIR}
@@ -74,8 +75,18 @@ targets:
     steps:
     - super:
 
+  deploy:
+    doc: Deploy installation script and binaries
+    depends: binaries
+    steps:
+    - print: 'Deploying neon binaries...'
+    - $: ['scp', 'bash/install', =WEB_HOME]
+    - 'binaries = join(find(".", BUILD_DIR+"/bin/*"), " ")'
+    - $: 'scp ={binaries} ={WEB_HOME}'
+
   release:
-    depends: [clean, libs, check, test, refs, archive]
+    doc: Perform release
+    depends: [clean, libs, check, release-check, test, refs, archive, deploy]
     steps:
     - super:
 

@@ -1,8 +1,8 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
-- version: 1.0.0-rc-20
-  date:    2018-12-19
-  summary: Release candidate
+- version: 1.0.0
+  date:    2019-01-09
+  summary: The one release
   added:
   - "Added option on shell task to print running command."
   - "Added task neon (to run another build file), singleton (to ensure a block
@@ -12,6 +12,8 @@
   - "Added module support on project (thus must build with Go >= 1.11)."
   - "Added builtins match (to test if given string matches a regular expression),
      yamlencode and yamldecode."
+  - "Added installation script for Unix platforms (which determines OS and ARCH,
+     downloads appropriate binary and installs it on host machine)."
   fixed:
   - "Fixed issue #2: crash on heterogenous list types."
   - "Fixed issue #3: map access (fixed in Anko)."
