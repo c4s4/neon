@@ -242,6 +242,22 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
 	return files, nil
 }
 
+// FindInPath search given executable in PATH:
+// - executable: executable to search.
+// Return: list of directories containing executable
+func FindInPath(executable string) []string {
+	path := os.Getenv("PATH")
+	dirs := strings.Split(path, string(os.PathListSeparator))
+	var paths []string
+	for _, dir := range dirs {
+		file := filepath.Join(dir, executable)
+		if FileIsExecutable(file) {
+			paths = append(paths, file)
+		}
+	}
+	return paths
+}
+
 func joinPath(dir string, paths []string) []string {
 	var joined []string
 	for _, path := range paths {

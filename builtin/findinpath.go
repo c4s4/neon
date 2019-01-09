@@ -3,9 +3,6 @@ package builtin
 import (
 	"github.com/c4s4/neon/build"
 	"github.com/c4s4/neon/util"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 func init() {
@@ -31,14 +28,5 @@ Examples:
 }
 
 func findInPath(executable string) []string {
-	path := os.Getenv("PATH")
-	dirs := strings.Split(path, string(os.PathListSeparator))
-	var paths []string
-	for _, dir := range dirs {
-		file := filepath.Join(dir, executable)
-		if util.FileIsExecutable(file) {
-			paths = append(paths, file)
-		}
-	}
-	return paths
+	return util.FindInPath(executable)
 }
