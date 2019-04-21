@@ -21,11 +21,11 @@ const (
 )
 
 // Update updates Neon and repository:
-// - repo: the repository path.
+// - repository: the repository path.
 // Return: error if something went wrong
-func Update(repo string) error {
+func Update(repository string) error {
 	printNewRelease()
-	updateRepository(repo)
+	updateRepository(repository)
 	return nil
 }
 
@@ -71,27 +71,28 @@ func updateRepository(repository string) error {
 			// get branch name
 			cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
 			cmd.Dir = path
-			branch, err := cmd.CombinedOutput()
+			bytes, err := cmd.CombinedOutput()
 			if err != nil {
 				return fmt.Errorf("getting branch for plugin: %v", err)
 			}
+			branch := strings.TrimSpace(string(bytes))
 			// get hash for local and remote
 			cmd = exec.Command("git", "rev-parse", "HEAD")
 			cmd.Dir = path
-			hashLocal, err := cmd.CombinedOutput()
+			bytes, err = cmd.CombinedOutput()
 			if err != nil {
 				return fmt.Errorf("getting hash for local: %v", err)
 			}
+			hashLocal := strings.TrimSpace(string(bytes))
 			cmd = exec.Command("git", "rev-parse", string(branch))
 			cmd.Dir = path
-			hashRemote, err := cmd.CombinedOutput()
+			bytes, err = cmd.CombinedOutput()
 			if err != nil {
 				return fmt.Errorf("getting hash for remote: %v", err)
 			}
-			println("local:", string(hashLocal))
-			println("remote:", string(hashRemote))
-			if output == nil {
-				fmt.Printf("- %s: OK", plugin)
+			hashRemote := strings.TrimSpace(string(bytes))
+			if hashRemote == hashLocal {
+				fmt.Printf("- %s: OK\n", plugin)
 			} else {
 				reader := bufio.NewReader(os.Stdin)
 				fmt.Printf("- %s: Update [Y/n]? ", plugin)
@@ -109,8 +110,6 @@ func updateRepository(repository string) error {
 					}
 				}
 			}
-			// FIXME
-			println(path)
 		}
 	} else {
 		fmt.Println("No plugin found in repository")
