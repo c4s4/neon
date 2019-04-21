@@ -1,5 +1,11 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 1.1.0
+  date:    2019-04-22
+  summary: Added update option
+  added:
+  - "Added option '-update' on command line to update Neon and repository."
+
 - version: 1.0.0
   date:    2019-01-09
   summary: The one release
