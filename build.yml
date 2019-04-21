@@ -2,7 +2,7 @@
 
 doc:     Build file for NeON
 default: [clean, fmt, check, test]
-extends: [golang, changelog]
+extends: [golang, git, changelog]
 
 properties:
   NAME:      'neon'
