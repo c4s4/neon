@@ -68,11 +68,20 @@ func updateRepository(repository string) error {
 		fmt.Println("Plugins:")
 		for _, plugin := range plugins {
 			path := path.Join(repository, plugin)
-			// get branch name
-			cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+			// fetch repository
+			cmd := exec.Command("git", "fetch")
 			cmd.Dir = path
 			bytes, err := cmd.CombinedOutput()
 			if err != nil {
+				println(string(bytes))
+				return fmt.Errorf("fetching repository: %v", err)
+			}
+			// get branch name
+			cmd = exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+			cmd.Dir = path
+			bytes, err = cmd.CombinedOutput()
+			if err != nil {
+				println(string(bytes))
 				return fmt.Errorf("getting branch for plugin: %v", err)
 			}
 			branch := strings.TrimSpace(string(bytes))
@@ -81,13 +90,16 @@ func updateRepository(repository string) error {
 			cmd.Dir = path
 			bytes, err = cmd.CombinedOutput()
 			if err != nil {
+				println(string(bytes))
 				return fmt.Errorf("getting hash for local: %v", err)
 			}
 			hashLocal := strings.TrimSpace(string(bytes))
-			cmd = exec.Command("git", "rev-parse", string(branch))
+			origin := "origin/" + branch
+			cmd = exec.Command("git", "rev-parse", origin)
 			cmd.Dir = path
 			bytes, err = cmd.CombinedOutput()
 			if err != nil {
+				println(string(bytes))
 				return fmt.Errorf("getting hash for remote: %v", err)
 			}
 			hashRemote := strings.TrimSpace(string(bytes))
@@ -100,12 +112,13 @@ func updateRepository(repository string) error {
 				if err != nil {
 					return fmt.Errorf("reading user input: %v", err)
 				}
-				response := string(input)
-				if response == "" || strings.ToLower(response) == "y" {
+				response := strings.ToLower(strings.TrimSpace(string(input)))
+				if response == "" || response == "y" {
 					cmd = exec.Command("git", "pull")
 					cmd.Dir = path
-					err := cmd.Run()
+					bytes, err = cmd.CombinedOutput()
 					if err != nil {
+						println(string(bytes))
 						return fmt.Errorf("updating plugin: %v", err)
 					}
 				}
