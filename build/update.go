@@ -104,10 +104,10 @@ func updateRepository(repository string) error {
 			}
 			hashRemote := strings.TrimSpace(string(bytes))
 			if hashRemote == hashLocal {
-				fmt.Printf("- %s: OK\n", plugin)
+				fmt.Printf("- %s [%s]: OK\n", plugin, branch)
 			} else {
 				reader := bufio.NewReader(os.Stdin)
-				fmt.Printf("- %s: Update [Y/n]? ", plugin)
+				fmt.Printf("- %s [%s]: Update [Y/n]? ", plugin, branch)
 				input, err := reader.ReadString('\n')
 				if err != nil {
 					return fmt.Errorf("reading user input: %v", err)
