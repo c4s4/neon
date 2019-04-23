@@ -1,5 +1,12 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 1.3.0
+  date:    2019-04-24
+  summary: Added length() and termwidth()
+  added:
+  - "Added length() buitin function to get string length."
+  - "Added termwidth() builtin function to get terminal width."
+
 - version: 1.2.0
   date:    2019-04-23
   summary: Added color option to print

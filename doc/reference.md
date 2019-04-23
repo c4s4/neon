@@ -1556,6 +1556,24 @@ Examples:
     split("foo bar", " ")
     # returns: ["foo"," "bar"]
 
+termwidth
+---------
+
+Return terminal width.
+
+Arguments:
+
+- None
+
+Returns:
+
+- Terminal width in characters.
+
+Examples:
+
+	# get terminal width
+	width = termwidth()
+
 throw
 -----
 
