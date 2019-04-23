@@ -471,11 +471,17 @@ Print a message on the console.
 Arguments:
 
 - print: text to print (string).
+- color: text color (string).
+
+Possible colors are black, red, green, yellow, blue, magenta, cyan and white.
 
 Examples:
 
     # say hello
     - print: 'Hello World!'
+    # say hello in blue
+    - print: 'Hello World!'
+      color: blue
 
 prompt
 ------
