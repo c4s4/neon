@@ -471,11 +471,17 @@ Print a message on the console.
 Arguments:
 
 - print: text to print (string).
+- color: text color (string).
+
+Possible colors are black, red, green, yellow, blue, magenta, cyan and white.
 
 Examples:
 
     # say hello
     - print: 'Hello World!'
+    # say hello in blue
+    - print: 'Hello World!'
+      color: blue
 
 prompt
 ------
@@ -1549,6 +1555,24 @@ Examples:
     # split "foo bar" with space
     split("foo bar", " ")
     # returns: ["foo"," "bar"]
+
+termwidth
+---------
+
+Return terminal width.
+
+Arguments:
+
+- None
+
+Returns:
+
+- Terminal width in characters.
+
+Examples:
+
+	# get terminal width
+	width = termwidth()
 
 throw
 -----
