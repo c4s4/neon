@@ -27,5 +27,5 @@ Examples:
 }
 
 func termwidth() int {
-	return  util.TerminalWidth()
+	return util.TerminalWidth()
 }
