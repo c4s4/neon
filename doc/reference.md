@@ -1,6 +1,7 @@
 # Tasks Reference
 
 ## $
+
 Execute a command and return output and value.
 
 Arguments:
@@ -40,6 +41,7 @@ Notes:
   $USER won't be expanded for instance.
 
 ## assert
+
 Make an assertion and fail if assertion is false.
 
 Arguments:
@@ -52,6 +54,7 @@ Examples:
     - assert: 'foo == "bar"'
 
 ## call
+
 Call a build target.
 
 Arguments:
@@ -64,6 +67,7 @@ Examples:
     - call: 'foo'
 
 ## cat
+
 Print the content of a given file on the console.
 
 Arguments:
@@ -76,6 +80,7 @@ Examples:
     - cat: "LICENSE"
 
 ## changelog
+
 Load changelog information from file.
 
 Arguments:
@@ -94,6 +99,7 @@ Examples:
     - changelog: "test.yml"
 
 ## chdir
+
 Change current working directory.
 
 Arguments:
@@ -110,6 +116,7 @@ Notes:
 - Working directory is set to the build file directory before each target.
 
 ## chmod
+
 Change mode of files.
 
 Arguments:
@@ -138,6 +145,7 @@ Notes:
   result.
 
 ## classpath
+
 Build a Java classpath.
 
 Arguments:
@@ -184,6 +192,7 @@ Notes:
   dependency will be included for classpath with these scopes.
 
 ## copy
+
 Copy file(s).
 
 Arguments:
@@ -217,6 +226,7 @@ Notes:
 - One and only one of parameters 'tofile' and 'todir' might be set.
 
 ## delete
+
 Delete files or directories (recursively).
 
 Arguments:
@@ -238,6 +248,7 @@ Notes:
 - Handle with care: if globs select directories, they are deleted recursively!
 
 ## for
+
 For loop.
 
 Arguments:
@@ -261,6 +272,7 @@ Examples:
       - print: '={i}'
 
 ## if
+
 If condition.
 
 Arguments:
@@ -279,6 +291,7 @@ Examples:
       - print: "world"
 
 ## java
+
 Run Java virtual machine.
 
 Arguments:
@@ -295,6 +308,7 @@ Examples:
       args:  ['foo', 'bar']
 
 ## javac
+
 Compile Java source files.
 
 Arguments:
@@ -318,6 +332,7 @@ Examples:
       cp:     =classpath
 
 ## link
+
 Create a symbolic link.
 
 Arguments:
@@ -332,6 +347,7 @@ Examples:
       to:   'bar''
 
 ## mkdir
+
 Make a directory.
 
 Arguments:
@@ -344,6 +360,7 @@ Examples:
     - mkdir: 'build'
 
 ## move
+
 Move file(s).
 
 Arguments:
@@ -377,6 +394,7 @@ Notes:
 - One and only one of parameters 'tofile' and 'todir' might be set.
 
 ## neon
+
 Run a NeON build.
 
 Arguments:
@@ -391,6 +409,7 @@ Examples:
       targets: 'foo'
 
 ## pass
+
 Does nothing.
 
 Arguments:
@@ -407,6 +426,7 @@ Notes:
 - This implementation is super optimized for speed.
 
 ## path
+
 Build a path from files and put it in a variable.
 
 Arguments:
@@ -423,6 +443,7 @@ Examples:
       to:   'classpath'
 
 ## print
+
 Print a message on the console.
 
 Arguments:
@@ -441,6 +462,7 @@ Examples:
       color: blue
 
 ## prompt
+
 Prompt the user for the value of a given property matching a pattern.
 
 Arguments:
@@ -465,6 +487,7 @@ Examples:
       error:   'Age must be a positive integer'
 
 ## read
+
 Read given file as text and put its content in a variable.
 
 Arguments:
@@ -479,6 +502,7 @@ Examples:
       to:   'license'
 
 ## replace
+
 Replace text matching patterns in files.
 
 Arguments:
@@ -495,6 +519,7 @@ Examples:
       with:    {'foo': 'bar'}
 
 ## request
+
 Perform an HTTP request.
 
 Arguments:
@@ -522,6 +547,7 @@ Notes:
 - Response headers are stored in variable _headers.
 
 ## singleton
+
 Ensure that only one instance of a block of steps is running.
 
 Arguments:
@@ -539,6 +565,7 @@ Examples:
 	  - sleep: 10.0
 
 ## sleep
+
 Sleep given number of seconds.
 		
 Arguments:
@@ -553,6 +580,7 @@ Examples:
     - sleep: 3.0
 
 ## super
+
 Call target with same name in parent build file.
 
 Arguments:
@@ -569,6 +597,7 @@ Notes:
 - This will raise en error if parent build files have no target with same name.
 
 ## tar
+
 Create a tar archive.
 
 Arguments:
@@ -591,6 +620,7 @@ Notes:
   'foo.tgz') the tar archive is also gzip compressed.
 
 ## threads
+
 Run steps in threads.
 
 Arguments:
@@ -630,6 +660,7 @@ Don't change current directory in threads as it would affect other threads as
 well.
 
 ## throw
+
 Throws an error.
 
 Arguments:
@@ -649,6 +680,7 @@ Notes:
   as the cause of the build failure.
 
 ## time
+
 Record duration to run a block of steps.
 
 Arguments:
@@ -666,6 +698,7 @@ Examples:
     - print: 'duration: ={duration}s'
 
 ## touch
+
 Touch a file (create it or change its time).
 
 Arguments:
@@ -683,6 +716,7 @@ Notes:
 - If the file doesn't exist, it creates an empty file.
 
 ## try
+
 Try/catch/finally construct.
 
 Arguments:
@@ -713,6 +747,7 @@ Notes:
 - The error message for the failure is stored in '_error' variable as text.
 
 ## untar
+
 Expand a tar file in a directory.
 
 Arguments:
@@ -732,6 +767,7 @@ Notes:
   the tar archive is uncompressed with gzip.
 
 ## unzip
+
 Expand a zip file in a directory.
 
 Arguments:
@@ -746,6 +782,7 @@ Examples:
       todir: 'build'
 
 ## while
+
 While loop.
 
 Arguments:
@@ -761,6 +798,7 @@ Examples:
       - script: 'println(i++)'
 
 ## write
+
 Write text into given file.
 
 Arguments:
@@ -777,6 +815,7 @@ Examples:
       text:  'Hello World!'
 
 ## zip
+
 Create a Zip archive.
 
 Arguments:
