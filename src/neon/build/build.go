@@ -2,8 +2,8 @@ package build
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/util"
 	"gopkg.in/yaml.v2"
+	"neon/util"
 	"net"
 	"os"
 	"path/filepath"

@@ -2,7 +2,7 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/build"
+	"neon/build"
 	"os"
 	"reflect"
 )
@@ -21,7 +21,7 @@ Arguments:
 Examples:
 
     # go to build directory
-    - chdir: "build"
+    - chdir: "neon/build"
 
 Notes:
 

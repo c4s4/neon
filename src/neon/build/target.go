@@ -2,7 +2,7 @@ package build
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/util"
+	"neon/util"
 	"os"
 )
 

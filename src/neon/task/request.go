@@ -3,8 +3,8 @@ package task
 import (
 	"bytes"
 	"fmt"
-	"github.com/c4s4/neon/build"
 	"io/ioutil"
+	"neon/build"
 	"net/http"
 	"reflect"
 )

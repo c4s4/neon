@@ -2,8 +2,8 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/build"
-	util "github.com/c4s4/neon/util"
+	"neon/build"
+	util "neon/util"
 	"os"
 	"path/filepath"
 	"reflect"

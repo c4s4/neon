@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/c4s4/neon/util"
+	"neon/util"
 )
 
 // Info generates information about build on console.

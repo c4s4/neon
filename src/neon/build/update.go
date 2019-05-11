@@ -11,7 +11,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/c4s4/neon/util"
+	"neon/util"
 )
 
 const (

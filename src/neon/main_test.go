@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/c4s4/neon/build"
 	"io/ioutil"
+	"neon/build"
 	"os"
 	"reflect"
 	"strings"

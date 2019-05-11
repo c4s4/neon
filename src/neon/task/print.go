@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/c4s4/neon/build"
 	"github.com/fatih/color"
+	"neon/build"
 )
 
 func init() {

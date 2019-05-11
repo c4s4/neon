@@ -1,7 +1,7 @@
 package task
 
 import (
-	"github.com/c4s4/neon/build"
+	"neon/build"
 	"reflect"
 )
 

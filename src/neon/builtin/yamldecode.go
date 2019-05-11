@@ -1,8 +1,8 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/build"
 	"gopkg.in/yaml.v2"
+	"neon/build"
 )
 
 func init() {

@@ -3,8 +3,8 @@ package task
 import (
 	z "archive/zip"
 	"fmt"
-	"github.com/c4s4/neon/build"
 	"io"
+	"neon/build"
 	"os"
 	"path/filepath"
 	"reflect"

@@ -2,8 +2,8 @@ package build
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/util"
 	"github.com/fatih/color"
+	"neon/util"
 	"strings"
 	"unicode/utf8"
 )

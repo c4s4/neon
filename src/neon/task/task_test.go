@@ -1,9 +1,9 @@
 package task
 
 import (
-	_build "github.com/c4s4/neon/build"
-	_ "github.com/c4s4/neon/builtin"
-	"github.com/c4s4/neon/util"
+	_build "neon/build"
+	_ "neon/builtin"
+	"neon/util"
 	"os"
 	_path "path"
 	"path/filepath"
@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	TestDir = "../test/task"
+	TestDir = "../../../test/task"
 )
 
 // TestIntegration runs all test build files (in test directory).
