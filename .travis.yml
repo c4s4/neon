@@ -3,7 +3,7 @@ go:
 - 1.12
 env:
 - TRAVIS=true
-- GOPATH=$GOPATH:`pwd`
+- GOPATH=$GOPATH:${TRAVIS_BUILD_DIR}
 script:
 - go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 after_success:
