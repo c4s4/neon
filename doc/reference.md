@@ -1,5 +1,4 @@
-Tasks Reference
-===============
+# Tasks Reference
 
 $
 -
@@ -872,8 +871,7 @@ Examples:
     - zip:    'build/**/*'
       tofile: 'build.zip'
 
-Builtins Reference
-==================
+# Builtins Reference
 
 absolute
 --------
@@ -1313,6 +1311,24 @@ Examples:
     # get keys of a map
     keys({"foo": 1, "bar": 2})
     # returns: ["foo", "bar"]
+
+length
+------
+
+Return length of given string.
+
+Arguments:
+
+- The string to get length for.
+
+Returns:
+
+- Length of the given string.
+
+Examples:
+
+    # get length of the string
+    l = length("Hello World!")
 
 list
 ----
