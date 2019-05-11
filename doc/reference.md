@@ -109,7 +109,7 @@ Arguments:
 Examples:
 
     # go to build directory
-    - chdir: "build"
+    - chdir: "neon/build"
 
 Notes:
 
@@ -1036,7 +1036,7 @@ Examples:
     # filter text files removing those in build directory
     filter(find(".", "**/*.txt"), "build/**/*")
     # returns: files with extension "txt" in current directory and
-    # subdirectories, except those in "build" directory
+    # subdirectories, except those in "neon/build" directory
 
 Notes:
 
