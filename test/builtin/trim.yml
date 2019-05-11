@@ -2,7 +2,7 @@ doc: Built file to test builds
 default: builtin_trim
 
 properties:
-  BUILD_DIR: "../../.build"
+  BUILD_DIR: "../../build"
 
 targets:
 

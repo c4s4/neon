@@ -2,7 +2,7 @@ doc: Built file to test tasks
 default: task_neon
 
 properties:
-  BUILD_DIR: '../../.build'
+  BUILD_DIR: '../../build'
 
 targets:
 

@@ -2,7 +2,7 @@ doc: Built file to changelog task
 default: task_changelog
 
 properties:
-  BUILD_DIR: '../../.build'
+  BUILD_DIR: '../../build'
 
 targets:
 
