@@ -110,6 +110,16 @@ func IsSlice(object interface{}) bool {
 	return reflect.ValueOf(object).Kind() == reflect.Slice
 }
 
+// ListContains tells if a list contains given string
+func ListContains(list []string, name string) bool {
+	for _, item := range list {
+		if item == name {
+			return true
+		}
+	}
+	return false
+}
+
 // MaxLineLength returns the maximum length of given lines:
 // - lines: lines to examine
 // Return: maximum length of lines as an integer

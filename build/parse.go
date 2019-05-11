@@ -202,6 +202,21 @@ func ParseConfiguration(object util.Object, build *Build) error {
 	return nil
 }
 
+// ParseExpose parses list of targets to expose on the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
+func ParseExpose(object util.Object, build *Build) error {
+	if object.HasField("expose") {
+		expose, err := object.GetListStringsOrString("expose")
+		if err != nil {
+			return fmt.Errorf("getting expose list: %v", err)
+		}
+		build.Expose = expose
+	}
+	return nil
+}
+
 // ParseEnvironment parses environment field of the build:
 // - object: the object to parse
 // - build: build that is being constructed

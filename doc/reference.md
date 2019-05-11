@@ -1,8 +1,6 @@
-Tasks Reference
-===============
+# Tasks Reference
 
-$
--
+## $
 
 Execute a command and return output and value.
 
@@ -42,8 +40,7 @@ Notes:
 - Argument of a command defined as a list won't be expanded by shell. Thus
   $USER won't be expanded for instance.
 
-assert
-------
+## assert
 
 Make an assertion and fail if assertion is false.
 
@@ -56,8 +53,7 @@ Examples:
     # assert that foo == "bar", and fail otherwise
     - assert: 'foo == "bar"'
 
-call
-----
+## call
 
 Call a build target.
 
@@ -70,8 +66,7 @@ Examples:
     # call target 'foo'
     - call: 'foo'
 
-cat
----
+## cat
 
 Print the content of a given file on the console.
 
@@ -84,8 +79,7 @@ Examples:
     # print content of LICENSE file on the console
     - cat: "LICENSE"
 
-changelog
----------
+## changelog
 
 Load changelog information from file.
 
@@ -104,8 +98,7 @@ Examples:
     # load changelog information in file 'test.yml':
     - changelog: "test.yml"
 
-chdir
------
+## chdir
 
 Change current working directory.
 
@@ -122,8 +115,7 @@ Notes:
 
 - Working directory is set to the build file directory before each target.
 
-chmod
------
+## chmod
 
 Change mode of files.
 
@@ -152,8 +144,7 @@ Notes:
   starting '0', this is decimal integer and you won't probably have expected
   result.
 
-classpath
----------
+## classpath
 
 Build a Java classpath.
 
@@ -200,8 +191,7 @@ Notes:
 - Scopes are optional. If not set, dependency will always be included. If set,
   dependency will be included for classpath with these scopes.
 
-copy
-----
+## copy
 
 Copy file(s).
 
@@ -235,8 +225,7 @@ Notes:
 - Parameter 'tofile' is valid if only one file was selected by globs.
 - One and only one of parameters 'tofile' and 'todir' might be set.
 
-delete
-------
+## delete
 
 Delete files or directories (recursively).
 
@@ -258,8 +247,7 @@ Notes:
 
 - Handle with care: if globs select directories, they are deleted recursively!
 
-for
----
+## for
 
 For loop.
 
@@ -283,8 +271,7 @@ Examples:
       do:
       - print: '={i}'
 
-if
---
+## if
 
 If condition.
 
@@ -303,8 +290,7 @@ Examples:
       else:
       - print: "world"
 
-java
-----
+## java
 
 Run Java virtual machine.
 
@@ -321,8 +307,7 @@ Examples:
       cp:    'build/classes'
       args:  ['foo', 'bar']
 
-javac
------
+## javac
 
 Compile Java source files.
 
@@ -346,8 +331,7 @@ Examples:
       dest:   'build/classes'
       cp:     =classpath
 
-link
-----
+## link
 
 Create a symbolic link.
 
@@ -362,8 +346,7 @@ Examples:
     - link: 'foo''
       to:   'bar''
 
-mkdir
------
+## mkdir
 
 Make a directory.
 
@@ -376,8 +359,7 @@ Examples:
     # create a directory 'build'
     - mkdir: 'build'
 
-move
-----
+## move
 
 Move file(s).
 
@@ -411,8 +393,7 @@ Notes:
 - Parameter 'tofile' is valid if only one file was selected by globs.
 - One and only one of parameters 'tofile' and 'todir' might be set.
 
-neon
-----
+## neon
 
 Run a NeON build.
 
@@ -427,8 +408,7 @@ Examples:
     - neon:    'bar/build.yml'
       targets: 'foo'
 
-pass
-----
+## pass
 
 Does nothing.
 
@@ -445,8 +425,7 @@ Notes:
 
 - This implementation is super optimized for speed.
 
-path
-----
+## path
 
 Build a path from files and put it in a variable.
 
@@ -463,8 +442,7 @@ Examples:
     - path: 'lib/*.jar'
       to:   'classpath'
 
-print
------
+## print
 
 Print a message on the console.
 
@@ -483,8 +461,7 @@ Examples:
     - print: 'Hello World!'
       color: blue
 
-prompt
-------
+## prompt
 
 Prompt the user for the value of a given property matching a pattern.
 
@@ -509,8 +486,7 @@ Examples:
       pattern: '^\d+$'
       error:   'Age must be a positive integer'
 
-read
-----
+## read
 
 Read given file as text and put its content in a variable.
 
@@ -525,8 +501,7 @@ Examples:
     - read: 'LICENSE'
       to:   'license'
 
-replace
--------
+## replace
 
 Replace text matching patterns in files.
 
@@ -543,8 +518,7 @@ Examples:
     - replace: 'test.txt'
       with:    {'foo': 'bar'}
 
-request
--------
+## request
 
 Perform an HTTP request.
 
@@ -572,8 +546,7 @@ Notes:
 - Response body is stored in variable _body.
 - Response headers are stored in variable _headers.
 
-singleton
----------
+## singleton
 
 Ensure that only one instance of a block of steps is running.
 
@@ -591,8 +564,7 @@ Examples:
 	  steps:
 	  - sleep: 10.0
 
-sleep
------
+## sleep
 
 Sleep given number of seconds.
 		
@@ -607,8 +579,7 @@ Examples:
     # sleep for 3 seconds (3.0 as a float)
     - sleep: 3.0
 
-super
------
+## super
 
 Call target with same name in parent build file.
 
@@ -625,8 +596,7 @@ Notes:
 
 - This will raise en error if parent build files have no target with same name.
 
-tar
----
+## tar
 
 Create a tar archive.
 
@@ -649,8 +619,7 @@ Notes:
 - If archive filename ends with gz (with names such as 'foo.tar.gz' or
   'foo.tgz') the tar archive is also gzip compressed.
 
-threads
--------
+## threads
 
 Run steps in threads.
 
@@ -690,8 +659,7 @@ resulting _output property.
 Don't change current directory in threads as it would affect other threads as
 well.
 
-throw
------
+## throw
 
 Throws an error.
 
@@ -711,8 +679,7 @@ Notes:
 - If the error was not catch, the error message will be printed on the console
   as the cause of the build failure.
 
-time
-----
+## time
 
 Record duration to run a block of steps.
 
@@ -730,8 +697,7 @@ Examples:
       to: duration
     - print: 'duration: ={duration}s'
 
-touch
------
+## touch
 
 Touch a file (create it or change its time).
 
@@ -749,8 +715,7 @@ Notes:
 - If the file already exists it changes it modification time.
 - If the file doesn't exist, it creates an empty file.
 
-try
----
+## try
 
 Try/catch/finally construct.
 
@@ -781,8 +746,7 @@ Notes:
 
 - The error message for the failure is stored in '_error' variable as text.
 
-untar
------
+## untar
 
 Expand a tar file in a directory.
 
@@ -802,8 +766,7 @@ Notes:
 - If archive filename ends with .gz (with a name such as foo.tar.gz or foo.tgz)
   the tar archive is uncompressed with gzip.
 
-unzip
------
+## unzip
 
 Expand a zip file in a directory.
 
@@ -818,8 +781,7 @@ Examples:
     - unzip: 'foo.zip'
       todir: 'build'
 
-while
------
+## while
 
 While loop.
 
@@ -835,8 +797,7 @@ Examples:
       do:
       - script: 'println(i++)'
 
-write
------
+## write
 
 Write text into given file.
 
@@ -853,8 +814,7 @@ Examples:
     - write: 'greetings.txt'
       text:  'Hello World!'
 
-zip
----
+## zip
 
 Create a Zip archive.
 
@@ -872,11 +832,9 @@ Examples:
     - zip:    'build/**/*'
       tofile: 'build.zip'
 
-Builtins Reference
-==================
+# Builtins Reference
 
-absolute
---------
+## absolute
 
 Return absolute value of a given path.
 
@@ -894,8 +852,7 @@ Examples:
     path = absolute("foo/../bar/spam.txt")
     # returns: "/home/user/build/bar/spam.txt"
 
-appendpath
-----------
+## appendpath
 
 Append root directory to paths.
 
@@ -915,8 +872,7 @@ Examples:
 	# returns: ["foo/spam", "foo/eggs"] on Linux and
 	# ["foo\spam", "foo\eggs"] on Windows
 
-changelog
----------
+## changelog
 
 Return changelog information from file.
 
@@ -935,8 +891,7 @@ Examples:
     # get version of last release:
     - 'VERSION = changelog("")[0].Version'
 
-contains
---------
+## contains
 
 Contains strings.
 
@@ -955,8 +910,7 @@ Examples:
     contains(["foo", "bar"], "bar")
     # returns: true
 
-directory
----------
+## directory
 
 Return directory of a given path.
 
@@ -974,8 +928,7 @@ Examples:
     dir = directory("/foo/bar/spam.txt")
     # returns: "/foo/bar"
 
-env
----
+## env
 
 Get environment variable.
 
@@ -993,8 +946,7 @@ Examples:
     env("PATH")
     # returns: value of the environment variable PATH
 
-escapeurl
----------
+## escapeurl
 
 Escape given URL.
 
@@ -1012,8 +964,7 @@ Examples:
     escapeurl("/foo bar")
     # returns: "/foo%20bar"
 
-exists
-------
+## exists
 
 Tells if a given path exists.
 
@@ -1031,8 +982,7 @@ Examples:
     exists("/foo/bar")
     # returns: true if file "/foo/bar" exists
 
-expand
-------
+## expand
 
 Expand file name replacing ~/ with home directory.
 
@@ -1050,8 +1000,7 @@ Examples:
     profile = expand("~/.profile")
     # returns: "/home/casa/.profile" on my machine
 
-filename
---------
+## filename
 
 Return filename of a given path.
 
@@ -1069,8 +1018,7 @@ Examples:
     filename("/foo/bar/spam.txt")
     # returns: "spam.txt"
 
-filter
-------
+## filter
 
 Filter a list of files with excludes.
 
@@ -1094,8 +1042,7 @@ Notes:
 
 - Works great with find() builtin.
 
-find
-----
+## find
 
 Find files.
 
@@ -1121,8 +1068,7 @@ Notes:
 
 - Files may be filtered with filter() builtin.
 
-findinpath
-----------
+## findinpath
 
 Find executables in PATH.
 
@@ -1140,8 +1086,7 @@ Examples:
     findinpath("python")
     # returns: ["/opt/python/current/bin/python", /usr/bin/python"]
 
-followlink
-----------
+## followlink
 
 Follow symbolic link.
 
@@ -1159,8 +1104,7 @@ Examples:
     followlink("foo")
     # returns: 'bar'
 
-greater
--------
+## greater
 
 Check that NeON version is greater that given version.
 
@@ -1178,8 +1122,7 @@ Examples:
     greater("0.12.0")
     # return true if version is greater than 0.12.0, false otherwise
 
-greaterorequal
---------------
+## greaterorequal
 
 Check that NeON version is greater or equal that given version.
 
@@ -1197,8 +1140,7 @@ Examples:
     greaterorequal("0.12.0")
     # return true if version is greater or equal than 0.12.0, false otherwise
 
-haskey
-------
+## haskey
 
 Tells if a map contains given key.
 
@@ -1217,8 +1159,7 @@ Examples:
     haskey(map, "key")
     # returns: true or false
 
-join
-----
+## join
 
 Join strings.
 
@@ -1237,8 +1178,7 @@ Examples:
     join(["foo", "bar"], " ")
     # returns: "foo bar"
 
-joinpath
---------
+## joinpath
 
 Join file paths.
 
@@ -1257,8 +1197,7 @@ Examples:
     # returns: "foo/bar/spam.txt" on a Linux box and "foo\bar\spam.txt" on
     # Windows
 
-jsondecode
-----------
+## jsondecode
 
 Decode given string in Json format.
 
@@ -1276,8 +1215,7 @@ Examples:
     jsondecode("['foo', 'bar']")
     # returns string slice: ["foo", "bar"]
 
-jsonencode
-----------
+## jsonencode
 
 Encode given variable in Json format.
 
@@ -1295,8 +1233,7 @@ Examples:
     jsonencode(["foo", "bar"])
     # returns: "['foo', 'bar']"
 
-keys
-----
+## keys
 
 Return keys of gien map.
 
@@ -1314,8 +1251,24 @@ Examples:
     keys({"foo": 1, "bar": 2})
     # returns: ["foo", "bar"]
 
-list
-----
+## length
+
+Return length of given string.
+
+Arguments:
+
+- The string to get length for.
+
+Returns:
+
+- Length of the given string.
+
+Examples:
+
+    # get length of the string
+    l = length("Hello World!")
+
+## list
 
 Return a list:
 - If the object is already a list, return the object.
@@ -1335,8 +1288,7 @@ Examples:
     list(foo)
 	# return foo if already a list or [foo] otherwise
 
-lower
------
+## lower
 
 Check that NeON version is lower that given version.
 
@@ -1354,8 +1306,7 @@ Examples:
     greater("0.12.0")
     # return true if version is lower than 0.12.0, false otherwise
 
-lowercase
----------
+## lowercase
 
 Put a string in lower case.
 
@@ -1373,8 +1324,7 @@ Examples:
     lowercase("FooBAR")
     # returns: "foobar"
 
-lowerorequal
-------------
+## lowerorequal
 
 Check that NeON version is lower or equal that given version.
 
@@ -1392,8 +1342,7 @@ Examples:
     lowerorequal("0.12.0")
     # return true if version is lower or equal than 0.12.0, false otherwise
 
-match
------
+## match
 
 Tell if given string matches a regular expression.
 
@@ -1412,8 +1361,7 @@ Examples:
     match("n..n", "neon")
     # return true
 
-newer
------
+## newer
 
 Tells if source is newer than result file (if any).
 
@@ -1434,8 +1382,7 @@ Examples:
     	compile("source.md")
     }
 
-now
----
+## now
 
 Return current date and time in ISO format.
 
@@ -1456,8 +1403,7 @@ Examples:
     now()[0:10]
     # returns: "2006-01-02"
 
-ospath
-------
+## ospath
 
 Convert path to running OS.
 
@@ -1475,8 +1421,7 @@ Examples:
     path = ospath("foo/bar")
     # will return foo/bar on Unix and foo\bar on Windows
 
-read
-----
+## read
 
 Read given file and return its content as a string.
 
@@ -1494,8 +1439,7 @@ Examples:
     read("VERSION")
     # returns: the contents of "VERSION" file
 
-replace
--------
+## replace
 
 Replace string with another.
 
@@ -1515,8 +1459,7 @@ Examples:
     replace("spam foo eggs", "foo", "bar")
     # returns: "spam bar eggs"
 
-run
----
+## run
 
 Run given command and return output.
 
@@ -1536,8 +1479,7 @@ Examples:
     run("zip", "-r", "bar.zip", "foo")
     # returns: the trimed output of the command
 
-split
------
+## split
 
 Split strings.
 
@@ -1556,8 +1498,7 @@ Examples:
     split("foo bar", " ")
     # returns: ["foo"," "bar"]
 
-termwidth
----------
+## termwidth
 
 Return terminal width.
 
@@ -1574,8 +1515,7 @@ Examples:
 	# get terminal width
 	width = termwidth()
 
-throw
------
+## throw
 
 Throw an error that will cause script failure.
 
@@ -1593,8 +1533,7 @@ Examples:
     throw("Some tests failed")
     # returns: nothing, the script is interrupted on error
 
-trim
-----
+## trim
 
 Trim spaces from given string.
 
@@ -1612,8 +1551,7 @@ Examples:
     trim("\tfoo bar\n  ")
     # returns: "foo bar"
 
-unescapeurl
------------
+## unescapeurl
 
 Unescape given URL.
 
@@ -1631,8 +1569,7 @@ Examples:
     escapeurl("foo%20bar")
     # returns: "foo bar"
 
-unixpath
---------
+## unixpath
 
 Convert a path to Unix format.
 
@@ -1650,8 +1587,7 @@ Examples:
     uppercase("c:\foo\bar")
     # returns: "/c/foo/bar"
 
-uppercase
----------
+## uppercase
 
 Put a string in upper case.
 
@@ -1669,8 +1605,7 @@ Examples:
     uppercase("FooBAR")
     # returns: "FOOBAR"
 
-windowspath
------------
+## windowspath
 
 Convert a path to Windows format.
 
@@ -1688,8 +1623,7 @@ Examples:
     uppercase("/c/foo/bar")
     # returns: "c:\foo\bar"
 
-winexe
-------
+## winexe
 
 Add '.exe' or '.bat' extensions depending on platform:
 - command will stay command on Unix and will become command.exe on Windows.
@@ -1713,8 +1647,7 @@ Examples:
     run(winexe("script.sh"))
     # will run script.sh on unix and script.bat on windows
 
-yamldecode
-----------
+## yamldecode
 
 Decode given string in YAML format.
 
@@ -1732,8 +1665,7 @@ Examples:
     yamldecode("['foo', 'bar']")
     # returns string slice: ["foo", "bar"]
 
-yamlencode
-----------
+## yamlencode
 
 Encode given variable in YAML format.
 

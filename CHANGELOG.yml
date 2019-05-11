@@ -1,5 +1,12 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 1.3.1
+  date:    2019-05-11
+  summary: Added expose field
+  added:
+  - "Added field expose to list properties and targets to print in information
+     page. If not defined, all properties and targets are printed."
+
 - version: 1.3.0
   date:    2019-04-24
   summary: Added length() and termwidth()

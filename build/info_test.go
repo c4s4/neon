@@ -306,19 +306,15 @@ func TestInfoReference(t *testing.T) {
 		Help: `Task documentation.`,
 	})
 	actual := InfoReference()
-	expected := `Tasks Reference
-===============
+	expected := `# Tasks Reference
 
-task
-----
+## task
 
 Task documentation.
 
-Builtins Reference
-==================
+# Builtins Reference
 
-builtin
--------
+## builtin
 
 Builtin documentation.`
 	if actual != expected {

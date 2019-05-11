@@ -2,11 +2,12 @@ package build
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/util"
 	"path"
 	"sort"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/c4s4/neon/util"
 )
 
 // Info generates information about build on console.
@@ -107,14 +108,16 @@ func (build *Build) infoContext() string {
 
 func (build *Build) infoProperties(context *Context) (string, error) {
 	info := ""
-	length := util.MaxLineLength(build.Properties.Fields())
-	if len(build.Properties) > 0 {
-		info += "properties:\n"
-		names := make([]string, 0, len(build.Properties))
-		for name := range build.Properties {
+	var names []string
+	for name := range build.Properties {
+		if build.Expose == nil || util.ListContains(build.Expose, name) {
 			names = append(names, name)
 		}
-		sort.Strings(names)
+	}
+	sort.Strings(names)
+	length := util.MaxLineLength(names)
+	if len(names) > 0 {
+		info += "properties:\n"
 		for _, name := range names {
 			value, err := context.GetProperty(name)
 			if err != nil {
@@ -153,7 +156,8 @@ func (build *Build) infoTargets() string {
 	targets := build.GetTargets()
 	names := make([]string, 0)
 	for name := range targets {
-		if !strings.HasPrefix(name, "_") {
+		if !strings.HasPrefix(name, "_") &&
+			(build.Expose == nil || util.ListContains(build.Expose, name)) {
 			names = append(names, name)
 		}
 	}
@@ -290,28 +294,24 @@ func InfoParents(repository string) string {
 // InfoReference generates markdown reference for tasks and builtins on console.
 // Return: reference as a string
 func InfoReference() string {
-	info := "Tasks Reference\n"
-	info += "===============\n\n"
+	info := "# Tasks Reference\n\n"
 	var tasks []string
 	for name := range TaskMap {
 		tasks = append(tasks, name)
 	}
 	sort.Strings(tasks)
 	for _, task := range tasks {
-		info += task + "\n"
-		info += strings.Repeat("-", len(task)) + "\n\n"
+		info += "## " + task + "\n\n"
 		info += TaskMap[task].Help + "\n\n"
 	}
-	info += "Builtins Reference\n"
-	info += "==================\n\n"
+	info += "# Builtins Reference\n\n"
 	var builtins []string
 	for name := range BuiltinMap {
 		builtins = append(builtins, name)
 	}
 	sort.Strings(builtins)
 	for _, builtin := range builtins {
-		info += builtin + "\n"
-		info += strings.Repeat("-", len(builtin)) + "\n\n"
+		info += "## " + builtin + "\n\n"
 		info += BuiltinMap[builtin].Help + "\n\n"
 	}
 	return strings.TrimSpace(info)
