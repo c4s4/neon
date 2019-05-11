@@ -70,6 +70,18 @@ func TestIsSlice(t *testing.T) {
 	}
 }
 
+func TestListContains(t *testing.T) {
+	if !ListContains([]string{"foo", "bar"}, "foo") {
+		t.Errorf("ListContains test failure")
+	}
+	if ListContains([]string{"foo", "bar"}, "spam") {
+		t.Errorf("ListContains test failure")
+	}
+	if ListContains(nil, "foo") {
+		t.Errorf("ListContains test failure")
+	}
+}
+
 func TestMaxLineLength(t *testing.T) {
 	lines := []string{"12345", "1234567890"}
 	if MaxLineLength(lines) != 10 {

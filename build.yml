@@ -3,6 +3,7 @@
 doc:     Build file for NeON
 default: [clean, fmt, check, test]
 extends: [golang, git, changelog]
+expose:  [clean, fmt, check, test, install, release, NAME, BUILD_DIR, WEB_HOME]
 
 properties:
   NAME:      'neon'
@@ -13,6 +14,9 @@ properties:
   - files: ['CHANGELOG.yml', 'LICENSE.txt', 'README.md', 'bash/*']
   - {files: 'bin/*', dir: =BUILD_DIR}
   - {files: 'doc/*.pdf', dir: =BUILD_DIR}
+
+environment:
+  GOPATH: '${GOPATH}:={_BASE}'
 
 targets:
 
