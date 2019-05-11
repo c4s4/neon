@@ -1,9 +1,9 @@
 language: go
 go:
 - 1.12
-env:
-- TRAVIS=true
-- GOPATH=$GOPATH:${TRAVIS_BUILD_DIR}
+install:
+- export TRAVIS=true
+- export GOPATH=${GOPATH}:${TRAVIS_BUILD_DIR}
 script:
 - go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 after_success:
