@@ -1,6 +1,7 @@
 language: go
 go:
 - master
+go_import_path: "${GOPATH}:${TRAVIS_BUILD_DIR}"
 install:
 - export TRAVIS=true
 script:
