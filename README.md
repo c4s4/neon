@@ -17,13 +17,13 @@ NeON is the build tool the way I dreamed it.
 Unix users may download and install latest NeON release with command:
 
 ```bash
-$ sh -c "$(curl http://sweetohm.net/neon/install)"
+$ sh -c "$(curl http://sweetohm.net/dist/neon/install)"
 ```
 
 If *curl* is not installed on you system, you might run:
 
 ```bash
-$ sh -c "$(wget -O - http://sweetohm.net/neon/install)"
+$ sh -c "$(wget -O - http://sweetohm.net/dist/neon/install)"
 ```
 
 **Note:** Some directories are protected, even as *root*, on **MacOSX** (since *El Capitan* release), thus you can't install NeON in */usr/bin* for instance.
