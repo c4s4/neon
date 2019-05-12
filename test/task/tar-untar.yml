@@ -2,7 +2,7 @@ doc: Built file to test tasks tar and untar
 default: task_tar_untar
 
 properties:
-  BUILD_DIR: '../../.build'
+  BUILD_DIR: '../../build'
 
 targets:
 

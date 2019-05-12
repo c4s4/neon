@@ -3,17 +3,23 @@
 doc:     Build file for NeON
 default: [clean, fmt, check, test]
 extends: [golang, git, changelog]
-expose:  [clean, fmt, check, test, install, release, NAME, BUILD_DIR, WEB_HOME]
+expose:  [test, install, release, NAME, BUILD_DIR, WEB_HOME]
 
 properties:
   NAME:      'neon'
-  BUILD_DIR: '.build'
+  BIN_DIR:   '={env("GOPATH")}/bin'
   REFERENCE: 'doc/reference.md'
-  WEB_HOME:  'casa@sweetohm.net:/home/web/neon'
+  WEB_HOME:  'casa@sweetohm.net:/home/web/dist/neon'
   ARC_FILES:
   - files: ['CHANGELOG.yml', 'LICENSE.txt', 'README.md', 'bash/*']
   - {files: 'bin/*', dir: =BUILD_DIR}
   - {files: 'doc/*.pdf', dir: =BUILD_DIR}
+  LIBRARIES:
+  - github.com/c4s4/changelog
+  - github.com/fatih/color
+  - github.com/mattn/anko
+  - github.com/mattn/go-zglob
+  - gopkg.in/yaml.v2
 
 environment:
   GOPATH: '${GOPATH}:={_BASE}'
@@ -26,29 +32,20 @@ targets:
     steps:
     - super:
 
-  bin:
+  install:
     doc: Build neon binary
     depends: version
     steps:
     - print: "Building neon binary"
-    - mkdir: =BUILD_DIR
-    - delete: '={BUILD_DIR}/neon'
-    - $: ['go', 'build', '-ldflags', '-X github.com/c4s4/neon/build.NeonVersion=={VERSION}',
-          '-o', '={BUILD_DIR}/neon']
-
-  install:
-    doc: Build and install neon binary
-    depends: version
-    steps:
-    - print: "Building and installing neon binary"
     - delete: '={env("GOPATH")}/bin/neon'
-    - $: ['go', 'install', '-ldflags', '-X github.com/c4s4/neon/build.NeonVersion=={VERSION}']
+    - $: ['go', 'build', '-ldflags', '-X neon/build.NeonVersion=={VERSION}',
+          '-o', '={BIN_DIR}/neon', =NAME]
 
   refs:
     doc: Generate reference documentation
-    depends: bin
+    depends: install
     steps:
-    - $:  ['neon', '-refs']
+    - $:  ['={BIN_DIR}/neon', '-refs']
       1>: ={REFERENCE}
       1x: true
     - try:
@@ -70,8 +67,8 @@ targets:
     depends: version
     steps:
     - mkdir: '={BUILD_DIR}/bin/'
-    - $: ['gox', '-ldflags', '-X github.com/c4s4/neon/build.NeonVersion=={VERSION}',
-          '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}']
+    - $: ['gox', '-ldflags', '-X neon/build.NeonVersion=={VERSION}',
+          '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', =NAME]
 
   archive:
     doc: Generate distribution archive
@@ -116,7 +113,7 @@ targets:
     steps:
     - delete: =BUILD_DIR
     - mkdir:  =BUILD_DIR
-    - $: ['gox', '-ldflags', '-X github.com/c4s4/neon/build.NeonVersion=={VERSION}',
+    - $: ['gox', '-ldflags', '-X neon/build.NeonVersion=={VERSION}',
           '-output=/home/casa/dsk/Todo/shared/neon',
           '-os', 'Windows', '-arch', '386']
     - copy:    ['build.yml', 'test/**/*.yml']

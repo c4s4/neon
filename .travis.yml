@@ -1,8 +1,14 @@
 language: go
 go:
-- 1.11
-env:
-- TRAVIS=true
+- master
+install:
+- export GOPATH=$GOPATH:$TRAVIS_BUILD_DIR
+- export TRAVIS=true
+- go get github.com/c4s4/changelog
+- go get github.com/fatih/color
+- go get github.com/mattn/anko
+- go get github.com/mattn/go-zglob
+- go get gopkg.in/yaml.v2
 script:
 - go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 after_success:
