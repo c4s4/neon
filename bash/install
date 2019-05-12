@@ -2,11 +2,11 @@
 # 
 # Installation script for Unix platforms. To run installation, type :
 # 
-# $ sh -c "$(curl http://sweetohm.net/neon/install)"
+# $ sh -c "$(curl http://sweetohm.net/dist/neon/install)"
 # 
 # or (if you don't have curl installed):
 # 
-# $ sh -c "$(wget -O - http://sweetohm.net/neon/install)"
+# $ sh -c "$(wget -O - http://sweetohm.net/dist/neon/install)"
 
 set -e
 
@@ -57,7 +57,7 @@ else
 fi
 
 # download binary in /tmp/neon and make it executable
-${command} /tmp/neon http://sweetohm.net/neon/${binary}
+${command} /tmp/neon http://sweetohm.net/dist/neon/${binary}
 chmod +x /tmp/neon
 
 # prompt for installation directory
