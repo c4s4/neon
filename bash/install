@@ -2,11 +2,11 @@
 # 
 # Installation script for Unix platforms. To run installation, type :
 # 
-# $ sh -c "$(curl http://sweetohm.net/dist/neon/install)"
+# $ sh -c "$(curl http://sweetohm.net/dist/${NAME}/install)"
 # 
 # or (if you don't have curl installed):
 # 
-# $ sh -c "$(wget -O - http://sweetohm.net/dist/neon/install)"
+# $ sh -c "$(wget -O - http://sweetohm.net/dist/${NAME}/install)"
 
 set -e
 
