@@ -3,7 +3,7 @@
 doc:     Build file for NeON
 default: [clean, fmt, check, test]
 extends: [golang, git, changelog]
-#expose:  [test, install, release, NAME, BUILD_DIR, WEB_HOME]
+expose:  [test, install, release, NAME, BUILD_DIR, WEB_HOME]
 
 properties:
   NAME:      'neon'
