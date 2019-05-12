@@ -10,6 +10,8 @@
 
 set -e
 
+NAME="neon"
+
 # get OS and ARCH and build binary name
 os=`uname | tr '[:upper:]' '[:lower:]'`
 arch=`uname -m`
@@ -25,7 +27,7 @@ fi
 echo "os: ${os}"
 echo "arch: ${arch}"
 
-binary="neon-${os}-${arch}"
+binary="${NAME}-${os}-${arch}"
 
 # set default installation directory
 if [ -d "/opt/local/bin" ]
@@ -56,9 +58,9 @@ else
     exit 1
 fi
 
-# download binary in /tmp/neon and make it executable
-${command} /tmp/neon http://sweetohm.net/dist/neon/${binary}
-chmod +x /tmp/neon
+# download binary in /tmp/${NAME} and make it executable
+${command} /tmp/${NAME} http://sweetohm.net/dist/${NAME}/${binary}
+chmod +x /tmp/${NAME}
 
 # prompt for installation directory
 read -p "Installation directory [${DEFAULT_DIR}]? " directory
@@ -70,10 +72,10 @@ fi
 # copy binary to installation directory
 if [ -w "${directory}" ]
 then
-    mv /tmp/neon ${directory}
+    mv /tmp/${NAME} ${directory}
 else
-    sudo mv /tmp/neon ${directory}
-    sudo chown root: ${directory}/neon
+    sudo mv /tmp/${NAME} ${directory}
+    sudo chown root: ${directory}/${NAME}
 fi
 
-echo "neon installed in '${directory}' directory"
+echo "${NAME} installed in '${directory}' directory"
