@@ -2,7 +2,7 @@ language: go
 go:
 - master
 env:
-- TRAVIS=true GOPATH=${GOPATH}:${TRAVIS_BUILD_DIR}
+- GOPATH=${GOPATH}:${TRAVIS_BUILD_DIR} TRAVIS=true
 install:
 - go get github.com/c4s4/changelog
 - go get github.com/fatih/color
