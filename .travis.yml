@@ -1,8 +1,9 @@
 language: go
 go:
 - master
+go_import_path: "${GOPATH}:${TRAVIS_BUILD_DIR}"
 env:
-- GOPATH=${GOPATH}:${TRAVIS_BUILD_DIR} TRAVIS=true
+- TRAVIS=true
 install:
 - go get github.com/c4s4/changelog
 - go get github.com/fatih/color
