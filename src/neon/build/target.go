@@ -27,8 +27,7 @@ func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 		Build: build,
 		Name:  name,
 	}
-	err := object.CheckFields([]string{"doc", "depends", "steps"})
-	if err != nil {
+	if err := object.CheckFields([]string{"doc", "depends", "steps"}); err != nil {
 		return nil, err
 	}
 	if err := ParseTargetDoc(object, target); err != nil {
@@ -102,30 +101,25 @@ func ParseTargetSteps(object util.Object, target *Target) error {
 func (target *Target) Run(context *Context) error {
 	for _, name := range target.Depends {
 		if !context.Stack.Contains(name) {
-			err := target.Build.Root.RunTarget(context, name)
-			if err != nil {
+			if err := target.Build.Root.RunTarget(context, name); err != nil {
 				return err
 			}
 		}
 	}
-	err := context.Stack.Push(target)
-	if err != nil {
+	if err := context.Stack.Push(target); err != nil {
 		return err
 	}
 	Title(target.Name)
 	if target.Build.Template {
-		err = os.Chdir(target.Build.Here)
-		if err != nil {
+		if err := os.Chdir(target.Build.Here); err != nil {
 			return fmt.Errorf("changing to current directory '%s'", target.Build.Dir)
 		}
 	} else {
-		err = os.Chdir(target.Build.Dir)
-		if err != nil {
+		if err := os.Chdir(target.Build.Dir); err != nil {
 			return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
 		}
 	}
-	err = target.Steps.Run(context)
-	if err != nil {
+	if err := target.Steps.Run(context); err != nil {
 		return err
 	}
 	return nil
