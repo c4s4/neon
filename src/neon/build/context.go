@@ -79,12 +79,10 @@ func (context *Context) NewThreadContext(thread int, input interface{}, output i
 // Init initializes context with build
 // Return: an error if something went wrong
 func (context *Context) Init() error {
-	err := context.InitScripts()
-	if err != nil {
+	if err := context.InitScripts(); err != nil {
 		return fmt.Errorf("loading scripts: %v", err)
 	}
-	err = context.InitProperties()
-	if err != nil {
+	if err := context.InitProperties(); err != nil {
 		return fmt.Errorf("evaluating properties: %v", err)
 	}
 	return nil
