@@ -22,8 +22,8 @@ Arguments:
 Examples:
 
     # print a warning
-		- notify: Warning
-		  text: This is a warning!`,
+    - notify: Warning
+      text: This is a warning!`,
 	})
 }
 
