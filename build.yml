@@ -7,6 +7,7 @@ expose:  [test, install, release, NAME, WEB_HOME]
 
 properties:
   NAME:      'neon'
+  PACKAGE:   =NAME
   BIN_DIR:   '={env("GOPATH")}/bin'
   REFERENCE: 'doc/reference.md'
   WEB_HOME:  'casa@sweetohm.net:/home/web/dist/neon'
