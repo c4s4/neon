@@ -21,6 +21,7 @@ properties:
   - github.com/mattn/anko
   - github.com/mattn/go-zglob
   - gopkg.in/yaml.v2
+  - github.com/gen2brain/beeep
 
 environment:
   GOPATH: '${GOPATH}:={_BASE}'
