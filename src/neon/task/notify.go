@@ -1,3 +1,5 @@
+// +build !freebsd,!netbsd
+
 package task
 
 import (
@@ -23,7 +25,12 @@ Examples:
 
     # print a warning
     - notify: Warning
-      text: This is a warning!`,
+      text: This is a warning!
+
+Note:
+
+This task is not available on FreeBSD and NetBSD because package used for
+desktop notifications doesn't build on these OS.`,
 	})
 }
 
