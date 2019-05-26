@@ -1,5 +1,12 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 1.3.3
+  date:    2019-05-26
+  summary: Added task and option
+  added:
+  - "Added -tree option to print inheritance tree of the build file"
+  - "Added notify task to raise a desktop notification"
+
 - version: 1.3.2
   date:    2019-05-11
   summary: Code reorganization

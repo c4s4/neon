@@ -92,8 +92,8 @@ func LoadConfiguration(file string) (*Configuration, error) {
 }
 
 // ParseCommandLine parses command line and returns parsed options
-func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string, bool,
-	string, string, bool, bool, string, bool, bool, string, bool, []string) {
+func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string,
+	bool, bool, string, string, bool, bool, string, bool, bool, string, bool, []string) {
 	file := flag.String("file", DefaultBuildFile, "Build file to run")
 	info := flag.Bool("info", false, "Print build information")
 	version := flag.Bool("version", false, "Print neon version")
@@ -104,6 +104,7 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 	targs := flag.Bool("targets", false, "Print targets list")
 	builtins := flag.Bool("builtins", false, "Print builtins list")
 	builtin := flag.String("builtin", "", "Print help on given builtin")
+	tree := flag.Bool("tree", false, "Print inheritance tree")
 	refs := flag.Bool("refs", false, "Print tasks and builtins reference")
 	install := flag.String("install", "", "Install given plugin")
 	repo := flag.String("repo", "", "Neon plugin repository for installation")
@@ -117,8 +118,8 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 	flag.Parse()
 	targets := flag.Args()
 	return *file, *info, *version, *props, *timeit, *tasks, *task, *targs, *builtins,
-		*builtin, *refs, *install, *repo, *update, *grey, *template, *templates, *parents,
-		*theme, *themes, targets
+		*builtin, *tree, *refs, *install, *repo, *update, *grey, *template, *templates,
+		*parents, *theme, *themes, targets
 }
 
 // FindBuildFile finds build file and returns its path
@@ -163,10 +164,10 @@ func main() {
 	// load configuration file
 	configuration, err := LoadConfiguration(DefaultConfiguration)
 	if err != nil {
-		PrintError(fmt.Errorf("loading configuration file '%s': %v", DefaultConfiguration, err), 6)
+		PrintError(fmt.Errorf("loading configuration file '%s': %v", DefaultConfiguration, err))
 	}
 	// parse command line
-	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, refs, install, repo,
+	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, tree, refs, install, repo,
 		update, grey, template, templates, parents, theme, themes, targets := ParseCommandLine()
 	// options that do not require we load build file
 	if repo == "" {
@@ -187,50 +188,53 @@ func main() {
 		return
 	} else if install != "" {
 		err := _build.InstallPlugin(install, repo)
-		PrintError(err, 6)
+		PrintError(err)
 		return
 	} else if theme != "" {
 		err := _build.ApplyThemeByName(theme)
-		PrintError(err, 8)
+		PrintError(err)
 	} else if update {
 		err := _build.Update(repo)
-		PrintError(err, 9)
+		PrintError(err)
 		return
 	}
 	// options that do require we load build file
 	if template != "" {
 		file, err = _build.TemplatePath(template, repo)
-		PrintError(err, 1)
+		PrintError(err)
 	}
 	path, base, err := FindBuildFile(file, repo, configuration)
-	PrintError(err, 1)
+	PrintError(err)
 	_build.Info("Build %s", path)
 	build, err := _build.NewBuild(path, base, repo, template != "")
-	PrintError(err, 2)
+	PrintError(err)
 	err = build.SetCommandLineProperties(props)
-	PrintError(err, 3)
+	PrintError(err)
 	if targs {
 		_build.Message(build.FormatTargets())
 		return
 	} else if info {
 		context := _build.NewContext(build)
 		err = context.Init()
-		PrintError(err, 4)
+		PrintError(err)
 		text, err := build.Info(context)
-		PrintError(err, 4)
+		PrintError(err)
 		_build.Message(text)
+		return
+	} else if tree {
+		build.Tree()
 		return
 	} else {
 		os.Chdir(build.Dir)
 		context := _build.NewContext(build)
 		err = context.Init()
-		PrintError(err, 5)
+		PrintError(err)
 		err = build.Run(context, targets)
 		duration := time.Now().Sub(start)
 		if configuration.Time || duration.Seconds() > 10 {
 			_build.Info("Build duration: %s", duration.String())
 		}
-		PrintError(err, 5)
+		PrintError(err)
 		_build.PrintOk()
 		return
 	}
@@ -267,10 +271,9 @@ func printInfo(tasks, builtins, templates, parents, themes, refs bool, task, bui
 
 // PrintError prints an error and exits if any
 // - error: the error to check
-// - code: the exit code if error is not nil
-func PrintError(err error, code int) {
+func PrintError(err error, args ...string) {
 	if err != nil {
 		_build.PrintError(err.Error())
-		os.Exit(code)
+		os.Exit(1)
 	}
 }

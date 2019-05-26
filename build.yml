@@ -2,11 +2,12 @@
 
 doc:     Build file for NeON
 default: [clean, fmt, check, test]
-extends: [golang, git, changelog]
-expose:  [test, install, release, NAME, BUILD_DIR, WEB_HOME]
+extends: [golang, changelog]
+expose:  [test, install, release, NAME, WEB_HOME]
 
 properties:
   NAME:      'neon'
+  PACKAGE:   =NAME
   BIN_DIR:   '={env("GOPATH")}/bin'
   REFERENCE: 'doc/reference.md'
   ARC_FILES:
@@ -19,6 +20,7 @@ properties:
   - github.com/mattn/anko
   - github.com/mattn/go-zglob
   - gopkg.in/yaml.v2
+  - github.com/gen2brain/beeep
 
 environment:
   GOPATH: '${GOPATH}:={_BASE}'
