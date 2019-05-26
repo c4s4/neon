@@ -18,11 +18,11 @@ func (build *Build) SubTree(margin string, next bool) {
 	name := name(build.File)
 	fmt.Print(margin)
 	if next {
-		margin += "│  "
-		fmt.Println("├─ " + name)
+		margin += "│ "
+		fmt.Println("├─" + name)
 	} else {
-		margin += "   "
-		fmt.Println("└─ " + name)
+		margin += "  "
+		fmt.Println("└─" + name)
 	}
 	for index, parent := range build.Parents {
 		parent.SubTree(margin, index < len(build.Parents)-1)
