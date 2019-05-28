@@ -212,7 +212,6 @@ func main() {
 	PrintError(err)
 	if targs {
 		_build.Message(build.FormatTargets())
-		return
 	} else if info {
 		context := _build.NewContext(build)
 		err = context.Init()
@@ -220,10 +219,8 @@ func main() {
 		text, err := build.Info(context)
 		PrintError(err)
 		_build.Message(text)
-		return
 	} else if tree {
 		build.Tree()
-		return
 	} else {
 		os.Chdir(build.Dir)
 		context := _build.NewContext(build)
@@ -236,7 +233,6 @@ func main() {
 		}
 		PrintError(err)
 		_build.PrintOk()
-		return
 	}
 }
 
