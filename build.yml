@@ -4,14 +4,22 @@ doc:     Build file for NeON
 default: [clean, fmt, check, test]
 extends: [golang, changelog]
 expose:  [test, install, release, NAME, WEB_HOME]
+configuration: .build.yml
+# Build configuration:
+# -- 8< -----------------------------------------------------------------------
+# GITHUB_TOKEN: 'github_token'
+# -- 8< -----------------------------------------------------------------------
 
 properties:
-  NAME:      'neon'
-  PACKAGE:   =NAME
-  BIN_DIR:   '={env("GOPATH")}/bin'
-  REFERENCE: 'doc/reference.md'
-  WEB_HOME:  'casa@sweetohm.net:/home/web/dist/neon'
-  TEST_OPTS: ['-cover']
+  NAME:        'neon'
+  PACKAGE:     =NAME
+  BIN_DIR:     '={env("GOPATH")}/bin'
+  REFERENCE:   'doc/reference.md'
+  WEB_HOME:    'casa@sweetohm.net:/home/web/dist/neon'
+  TEST_OPTS:   ['-cover']
+  GITHUB_USER: 'c4s4'
+  GITHUB_REPO: 'neon'
+  GITHUB_ARC:  =ARCHIVE
   ARC_FILES:
   - files: ['CHANGELOG.yml', 'LICENSE.txt', 'README.md', 'bash/*']
   - {files: 'bin/*', dir: =BUILD_DIR}
@@ -92,9 +100,19 @@ targets:
     - 'binaries = join(find(".", BUILD_DIR+"/bin/*"), " ")'
     - $: 'scp ={binaries} ={WEB_HOME}'
 
+  github-release:
+    doc: Perform release on Github
+    steps:
+    - prompt: 'Release title'
+      to:     GITHUB_TITLE
+    - $:  ['changelog', 'release', 'desc', 'markdown']
+      1=: GITHUB_DESC
+      1x: true
+    - super:
+
   release:
     doc: Perform release
-    depends: [clean, libs, check, test, refs, archive, deploy]
+    depends: [clean, libs, check, test, refs, archive, deploy, github-release]
     steps:
     - super:
 
