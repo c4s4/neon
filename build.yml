@@ -19,7 +19,6 @@ properties:
   TEST_OPTS:   ['-cover']
   GITHUB_USER: 'c4s4'
   GITHUB_REPO: 'neon'
-  GITHUB_ARC:  '={BUILD_DIR}/={NAME}-={VERSION}.={ARC_TYPE}'
   ARC_FILES:
   - files: ['CHANGELOG.yml', 'LICENSE.txt', 'README.md', 'bash/*']
   - {files: 'bin/*', dir: =BUILD_DIR}
@@ -108,6 +107,7 @@ targets:
     - $:  ['changelog', 'release', 'desc', 'markdown']
       1=: GITHUB_DESC
       1x: true
+    - 'GITHUB_ARC = joinpath(BUILD_DIR, NAME+"-"+VERSION+"."+ARC_TYPE)'
     - super:
 
   release:
