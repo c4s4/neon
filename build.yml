@@ -11,6 +11,7 @@ properties:
   BIN_DIR:   '={env("GOPATH")}/bin'
   REFERENCE: 'doc/reference.md'
   WEB_HOME:  'casa@sweetohm.net:/home/web/dist/neon'
+  TEST_OPTS: ['-cover']
   ARC_FILES:
   - files: ['CHANGELOG.yml', 'LICENSE.txt', 'README.md', 'bash/*']
   - {files: 'bin/*', dir: =BUILD_DIR}
