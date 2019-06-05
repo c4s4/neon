@@ -3,7 +3,7 @@
 doc:     Build file for NeON
 default: [clean, fmt, check, test]
 extends: [golang, changelog]
-expose:  [test, install, release, NAME, WEB_HOME]
+#expose:  [test, install, release, NAME, WEB_HOME]
 configuration: .build.yml
 # Build configuration:
 # -- 8< -----------------------------------------------------------------------
@@ -19,7 +19,7 @@ properties:
   TEST_OPTS:   ['-cover']
   GITHUB_USER: 'c4s4'
   GITHUB_REPO: 'neon'
-  GITHUB_ARC:  =ARCHIVE
+  GITHUB_ARC:  '={BUILD_DIR}/={NAME}-={VERSION}.={ARC_TYPE}'
   ARC_FILES:
   - files: ['CHANGELOG.yml', 'LICENSE.txt', 'README.md', 'bash/*']
   - {files: 'bin/*', dir: =BUILD_DIR}
