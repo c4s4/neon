@@ -2,7 +2,7 @@
 
 doc:     Build file for NeON
 default: [clean, fmt, check, test]
-extends: [golang, changelog]
+extends: [golang, changelog, github]
 #expose:  [test, install, release, NAME, WEB_HOME]
 configuration: .build.yml
 # Build configuration:
@@ -102,11 +102,10 @@ targets:
   github-release:
     doc: Perform release on Github
     steps:
-    - prompt: 'Release title'
-      to:     GITHUB_TITLE
     - $:  ['changelog', 'release', 'desc', 'markdown']
       1=: GITHUB_DESC
       1x: true
+    - 'GITHUB_TITLE = changelog("")[0].Summary'
     - 'GITHUB_ARC = joinpath(BUILD_DIR, NAME+"-"+VERSION+"."+ARC_TYPE)'
     - super:
 
