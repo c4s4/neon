@@ -124,9 +124,5 @@ func (target *Target) Run(context *Context) error {
 			return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
 		}
 	}
-	err = target.Steps.Run(context)
-	if err != nil {
-		return err
-	}
-	return nil
+	return target.Steps.Run(context)
 }
