@@ -1500,6 +1500,24 @@ Examples:
     run("zip", "-r", "bar.zip", "foo")
     # returns: the trimed output of the command
 
+## sortversions
+
+Sort a list of versions.
+
+Arguments:
+
+- The list of versions to sort.
+
+Returns:
+
+- nothing but slice of versions is sorted
+
+Examples:
+
+    # sort version ["1.10", "1.1", "1.2"]
+    sortversions(["1.10", "1.1", "1.2"])
+    # returns nothing but slice of versions is sorted
+
 ## split
 
 Split strings.
