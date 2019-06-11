@@ -1,5 +1,11 @@
 # Semantic Change Log (http://github.com/c4s4/changelog)
 
+- version: 1.3.5
+  date:    2019-06-11
+  summary: Added sortversions builtin
+  added:
+  - "New sortversions builtin to sort a list of versions"
+
 - version: 1.3.4
   date:    2019-06-05
   summary: Added Github release
