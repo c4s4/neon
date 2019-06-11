@@ -30,6 +30,7 @@ properties:
   - github.com/mattn/go-zglob
   - gopkg.in/yaml.v2
   - github.com/gen2brain/beeep
+  - github.com/mcuadros/go-version
 
 environment:
   GOPATH: '${GOPATH}:={_BASE}'
