@@ -33,7 +33,8 @@ properties:
   - github.com/mcuadros/go-version
 
 environment:
-  GOPATH: '${GOPATH}:={_BASE}'
+  GOPATH:       '${GOPATH}:={_BASE}'
+  GITHUB_TOKEN: =GITHUB_TOKEN
 
 targets:
 
