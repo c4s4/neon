@@ -2,7 +2,7 @@
 
 doc:     Build file for NeON
 default: [clean, fmt, check, test]
-extends: [golang, github, changelog]
+extends: [golang, git-master, github]
 #expose:  [test, install, release, NAME, WEB_HOME]
 configuration: .build.yml
 # Build configuration:
