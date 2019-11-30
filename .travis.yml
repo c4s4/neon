@@ -10,6 +10,7 @@ install:
 - go get github.com/mattn/go-zglob
 - go get gopkg.in/yaml.v2
 - go get github.com/gen2brain/beeep
+- go get github.com/mcuadros/go-version
 script:
 - go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 after_success:
