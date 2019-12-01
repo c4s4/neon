@@ -2,23 +2,20 @@
 
 doc:     Build file for NeON
 default: [clean, fmt, check, test]
-extends: [_golang, _git-master, _github]
-#expose:  [test, install, release, NAME, WEB_HOME]
-configuration: .build.yml
-# Build configuration:
-# -- 8< -----------------------------------------------------------------------
-# GITHUB_TOKEN: 'github_token'
-# -- 8< -----------------------------------------------------------------------
+extends: [_golang, _git_master, _github]
+expose:  [clean, fmt, check, test, install, release, NAME, WEB_HOME]
+configuration: '~/.neon/github.yml'
+# GITHUB_TOKEN: 'abcdefghijklmnopqrstuvwxyz0123456789'
 
 properties:
-  NAME:        'neon'
-  PACKAGE:     =NAME
-  BIN_DIR:     '={env("GOPATH")}/bin'
-  REFERENCE:   'doc/reference.md'
-  WEB_HOME:    'casa@sweetohm.net:/home/web/dist/neon'
-  TEST_OPTS:   ['-cover']
-  GITHUB_USER: 'c4s4'
-  GITHUB_REPO: 'neon'
+  PACKAGE:      =NAME
+  VERSION_PATH: 'neon/build.NeonVersion'
+  BIN_DIR:      '={env("GOPATH")}/bin'
+  REFERENCE:    'doc/reference.md'
+  WEB_HOME:     'casa@sweetohm.net:/home/web/dist/neon'
+  TEST_OPTS:    ['-cover']
+  GITHUB_USER:  'c4s4'
+  GITHUB_REPO:  'neon'
   ARC_FILES:
   - files: ['CHANGELOG.yml', 'LICENSE.txt', 'README.md', 'bash/*']
   - {files: 'bin/*', dir: =BUILD_DIR}
@@ -73,14 +70,6 @@ targets:
     - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/quickstart.pdf', 'doc/quickstart.md']
     - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/usermanual.pdf', 'doc/usermanual.md']
     - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/reference.pdf', 'doc/reference.md']
-
-  binaries:
-    doc: Generate binaries for all platforms
-    depends: version
-    steps:
-    - mkdir: '={BUILD_DIR}/bin/'
-    - $: ['gox', '-ldflags', '-X neon/build.NeonVersion=={VERSION}',
-          '-output=={BUILD_DIR}/bin/{{.Dir}}-{{.OS}}-{{.Arch}}', =NAME]
 
   archive:
     doc: Generate distribution archive
