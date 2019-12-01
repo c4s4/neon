@@ -252,6 +252,7 @@ There are pre-defined build properties:
 
 - **_BASE** is the main build file directory.
 - **_HERE** is the current directory when build starts.
+- **_REPO** is the path to the repository directory.
 - **_OS** is the name of the operating system, such as *linux*.
 - **_ARCH**  is the hardware architecture, such as *amd64*.
 - **_NCPU** is the number of cores in the processor.
@@ -267,6 +268,7 @@ targets:
     steps:
     - print: 'BASE: ={_BASE}'
     - print: 'HERE: ={_HERE}'
+    - print: 'REPO: ={_REPO}'
     - print: 'OS:   ={_OS}'
     - print: 'ARCH: ={_ARCH}'
     - print: 'NCPU: ={_NCPU}'
@@ -697,7 +699,7 @@ Usage of neon:
 
 In most cases, you will call NeON passing build targets to invoke. Thus to call target foo, you would type `neon foo`. You can call more than one target on command line, with `neon foo bar`. Note that second target will be called even if it already ran calling *foo*.
 
-Called build file will default to *build.yml* in current directory. If this file is not found in current directory, it will be searched recursively in parent directories. You can force build file name with the `-file` option. Thus to run build file *foo.yml*, you would type `neon -file foo.yml`. Execution times are always written on console when greater than *10 s*. You can force to print build execution time with `-time` option. 
+Called build file will default to *build.yml* in current directory. If this file is not found in current directory, it will be searched recursively in parent directories. You can force build file name with the `-file` option. Thus to run build file *foo.yml*, you would type `neon -file foo.yml`. Execution times are always written on console when greater than *10 s*. You can force to print build execution time with `-time` option.
 
 You can get information on build file with `-info` option. This will print the build documentation (written in *doc* field at the root of the build file), default target(s), repository, extended build files, properties (with their own help) and targets (with their help). Using this option is a good way to have an idea of what can perform a build file. You can get targets list with `-targets` option.
 
@@ -1005,19 +1007,19 @@ extends:
 - c4s4/build/golang.yml
 
 properties:
-  BUILD_DIR: "build" 
-  LIBRARIES: ["github.com/mitchellh/gox"] 
-  VERSION:   "1.0.0" 
-  ARCHIVE:   "build/test-1.0.0.tar.gz" 
-  NAME:      "test" 
+  BUILD_DIR: "build"
+  LIBRARIES: ["github.com/mitchellh/gox"]
+  VERSION:   "1.0.0"
+  ARCHIVE:   "build/test-1.0.0.tar.gz"
+  NAME:      "test"
 
 targets:
-  archive: Build distribution archive 
-  bin:     Make binary 
-  clean:   Clean build directory 
-  fmt:     Format Go code 
-  libs:    Install libraries 
-  run:     Run Go tool 
+  archive: Build distribution archive
+  bin:     Make binary
+  clean:   Clean build directory
+  fmt:     Format Go code
+  libs:    Install libraries
+  run:     Run Go tool
   test:    Run Go tests
 ```
 

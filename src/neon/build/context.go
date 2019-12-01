@@ -21,6 +21,7 @@ const (
 	propertyNcpu   = "_NCPU"
 	propertyBase   = "_BASE"
 	propertyHere   = "_HERE"
+	propertyRepo   = "_REPO"
 	propertyThread = "_thread"
 	propertyInput  = "_input"
 	environmentSep = "="
@@ -117,6 +118,7 @@ func (context *Context) InitProperties() error {
 	context.SetProperty(propertyNcpu, runtime.NumCPU())
 	context.SetProperty(propertyBase, context.Build.Dir)
 	context.SetProperty(propertyHere, context.Build.Here)
+	context.SetProperty(propertyRepo, context.Build.Repository)
 	todo := context.Build.Properties.Fields()
 	var crash error
 	for len(todo) > 0 {
