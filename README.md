@@ -17,13 +17,13 @@ NeON is the build tool the way I dreamed it.
 Unix users may download and install latest NeON release with command:
 
 ```bash
-$ sh -c "$(curl http://sweetohm.net/dist/neon/install)"
+sh -c "$(curl http://sweetohm.net/dist/neon/install)"
 ```
 
 If *curl* is not installed on you system, you might run:
 
 ```bash
-$ sh -c "$(wget -O - http://sweetohm.net/dist/neon/install)"
+sh -c "$(wget -O - http://sweetohm.net/dist/neon/install)"
 ```
 
 **Note:** Some directories are protected, even as *root*, on **MacOSX** (since *El Capitan* release), thus you can't install NeON in */usr/bin* for instance.
@@ -33,7 +33,7 @@ $ sh -c "$(wget -O - http://sweetohm.net/dist/neon/install)"
 Go developers can install latest release with following command:
 
 ```bash
-$ go get -u github.com/c4s4/neon
+go get -u github.com/c4s4/neon
 ```
 
 Note that *NeON* built this way won't display version number with `neon -version` command and that you must build with Go *1.10* or newer.
