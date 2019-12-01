@@ -35,10 +35,6 @@ func call(context *build.Context, args interface{}) error {
 		if err != nil {
 			return err
 		}
-		err = context.Stack.Pop()
-		if err != nil {
-			return err
-		}
 	}
 	return nil
 }
