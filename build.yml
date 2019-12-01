@@ -1,23 +1,19 @@
 # Neon Build File (http://github.com/c4s4/neon)
 
 doc:     Build file for NeON
-default: [clean, fmt, check, test]
-extends: [_golang, _git_master, _github]
-expose:  [clean, fmt, check, test, install, release, NAME, WEB_HOME]
+extends: golang
+default: [clean, fmt, check, test, bugs]
+expose:  [clean, fmt, check, test, bugs, install, release]
 configuration: '~/.neon/github.yml'
 # GITHUB_TOKEN: 'abcdefghijklmnopqrstuvwxyz0123456789'
 
 properties:
   PACKAGE:      =NAME
-  VERSION_PATH: 'neon/build.NeonVersion'
-  BIN_DIR:      '={env("GOPATH")}/bin'
-  REFERENCE:    'doc/reference.md'
-  WEB_HOME:     'casa@sweetohm.net:/home/web/dist/neon'
   TEST_OPTS:    ['-cover']
-  GITHUB_USER:  'c4s4'
-  GITHUB_REPO:  'neon'
+  VERSION_PATH: 'neon/build.NeonVersion'
+  REFERENCE:    'doc/reference.md'
   ARC_FILES:
-  - files: ['CHANGELOG.yml', 'LICENSE.txt', 'README.md', 'bash/*']
+  - files: ['LICENSE.txt', 'README.md', 'bash_completion_neon']
   - {files: 'bin/*', dir: =BUILD_DIR}
   - {files: 'doc/*.pdf', dir: =BUILD_DIR}
   LIBRARIES:
@@ -28,44 +24,35 @@ properties:
   - gopkg.in/yaml.v2
   - github.com/gen2brain/beeep
   - github.com/mcuadros/go-version
+  # windows dependencies
+  - github.com/tadvi/systray
+  - gopkg.in/toast.v1
 
 environment:
-  GOPATH:       '${GOPATH}:={_BASE}'
-  GITHUB_TOKEN: =GITHUB_TOKEN
+  GOPATH: '${GOPATH}:={_BASE}'
 
 targets:
 
-  test:
-    doc: Run unit tests
-    depends: clean
-    steps:
-    - super:
-
-  install:
-    doc: Build neon binary
-    depends: version
-    steps:
-    - print: "Building neon binary"
-    - delete: '={env("GOPATH")}/bin/neon'
-    - $: ['go', 'build', '-ldflags', '-X neon/build.NeonVersion=={VERSION}',
-          '-o', '={BIN_DIR}/neon', =NAME]
-
   refs:
     doc: Generate reference documentation
-    depends: install
+    depends: [version-test, bin]
     steps:
-    - $:  ['={BIN_DIR}/neon', '-refs']
+    - print: 'Generating reference documentation'
+    - $:  ['={BUILD_DIR}/={NAME}', '-refs']
       1>: ={REFERENCE}
       1x: true
     - try:
       - $: ['git', 'diff', '--quiet', '--exit-code', =REFERENCE]
+      - print: 'Reference documentation is up to date'
       catch:
+      - print: 'Updating reference documentation'
       - $: ['git', 'add', =REFERENCE]
       - $: ['git', 'commit', '-m', 'Updated reference', =REFERENCE]
 
   doc:
     doc: Build documentations
     steps:
+    - print: 'Generating PDF documentation in ={BUILD_DIR}/doc'
     - mkdir: '={BUILD_DIR}/doc'
     - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/quickstart.pdf', 'doc/quickstart.md']
     - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/usermanual.pdf', 'doc/usermanual.md']
@@ -77,38 +64,15 @@ targets:
     steps:
     - super:
 
-  deploy:
-    doc: Deploy installation script and binaries
-    depends: binaries
-    steps:
-    - mkdir: =BUILD_DIR
-    - print: 'Deploying neon binaries...'
-    - $: ['scp', 'bash/install', =WEB_HOME]
-    - write: '={BUILD_DIR}/version'
-      text:  =VERSION
-    - $: ['scp', '={BUILD_DIR}/version', =WEB_HOME]
-    - 'binaries = join(find(".", BUILD_DIR+"/bin/*"), " ")'
-    - $: 'scp ={binaries} ={WEB_HOME}'
-
-  github-release:
-    doc: Perform release on Github
-    steps:
-    - $:  ['changelog', 'release', 'desc', 'markdown']
-      1=: GITHUB_DESC
-      1x: true
-    - 'GITHUB_TITLE = changelog("")[0].Summary'
-    - 'GITHUB_ARC = joinpath(BUILD_DIR, NAME+"-"+VERSION+"."+ARC_TYPE)'
-    - super:
-
   release:
     doc: Perform release
-    depends: [clean, libs, check, test, refs, archive, deploy, github-release]
+    depends: [clean, last-tags, version, release-title, check, test, refs, change-list]
     steps:
     - super:
 
   bugs:
     doc: Run bug build files
-    depends: bin
+    depends: [version-test, bin]
     steps:
     - for: file
       in:  'find(joinpath("test", "bugs"), "*.yml")'
@@ -117,24 +81,3 @@ targets:
       - print: "Running build file '={path}'"
       - try:
         - $: ['bin/neon', '-file', =path]
-
-  win-exe:
-    doc: Generate binary and copy files to test on Windows
-    depends: version
-    steps:
-    - delete: =BUILD_DIR
-    - mkdir:  =BUILD_DIR
-    - $: ['gox', '-ldflags', '-X neon/build.NeonVersion=={VERSION}',
-          '-output=/home/casa/dsk/Todo/shared/neon',
-          '-os', 'Windows', '-arch', '386']
-    - copy:    ['build.yml', 'test/**/*.yml']
-      exclude: 'test/bugs/**/*'
-      todir:   '~/dsk/Todo/shared/'
-
-  win-test:
-    doc: Run integration tests on Windows
-    steps:
-    - for: file
-      in:  'filter(find(".", "test/**/*.yml"), "test/bugs/*.yml")'
-      do:
-      - $: ['./neon.exe', '-file', =file]
