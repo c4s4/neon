@@ -119,7 +119,5 @@ func (target *Target) Run(context *Context) error {
 			return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
 		}
 	}
-	err := target.Steps.Run(context)
-	_ = context.Stack.Pop()
-	return err
+	return target.Steps.Run(context)
 }
