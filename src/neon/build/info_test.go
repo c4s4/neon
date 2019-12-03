@@ -8,6 +8,8 @@ import (
 
 func TestInfo(t *testing.T) {
 	build := &Build{
+		File:       "build.yml",
+		Dir:        "/home/casa/doc/neon",
 		Doc:        "Test documentation",
 		Default:    []string{"default"},
 		Repository: "repository",
@@ -39,7 +41,8 @@ func TestInfo(t *testing.T) {
 		t.Errorf("Failure: %v", err)
 	}
 	//build.Properties = build.GetProperties()
-	expected := `doc: Test documentation
+	expected := `build: /home/casa/doc/neon/build.yml
+doc: Test documentation
 default: [default]
 repository: repository
 singleton: 12345
