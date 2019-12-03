@@ -205,7 +205,6 @@ func main() {
 	}
 	path, base, err := FindBuildFile(file, repo, configuration)
 	PrintError(err)
-	_build.Info("Build %s", path)
 	build, err := _build.NewBuild(path, base, repo, template != "")
 	PrintError(err)
 	err = build.SetCommandLineProperties(props)

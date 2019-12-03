@@ -3,6 +3,7 @@ package build
 import (
 	"fmt"
 	"path"
+	"path/filepath"
 	"sort"
 	"strings"
 	"unicode/utf8"
@@ -15,6 +16,7 @@ import (
 // Return: build info as a string and an error if something went wrong
 func (build *Build) Info(context *Context) (string, error) {
 	info := ""
+	info += build.infoPath()
 	info += build.infoDoc()
 	info += build.infoDefault()
 	info += build.infoRepository()
@@ -39,6 +41,10 @@ func (build *Build) Info(context *Context) (string, error) {
 		info += targets
 	}
 	return strings.TrimSpace(info), nil
+}
+
+func (build *Build) infoPath() string {
+	return "build: " + filepath.Join(build.Dir, build.File) + "\n"
 }
 
 func (build *Build) infoDoc() string {
