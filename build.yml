@@ -33,6 +33,18 @@ environment:
 
 targets:
 
+  bugs:
+    doc: Run bug build files
+    depends: [version-test, bin]
+    steps:
+    - for: file
+      in:  'find(joinpath("test", "bugs"), "*.yml")'
+      do:
+      - 'path = joinpath("test", "bugs", file)'
+      - print: "Running build file '={path}'"
+      - try:
+        - $: ['bin/neon', '-file', =path]
+
   refs:
     doc: Generate reference documentation
     depends: [version-test, bin]
@@ -69,15 +81,3 @@ targets:
     depends: [clean, last-tags, version, release-title, check, test, refs, change-list]
     steps:
     - super:
-
-  bugs:
-    doc: Run bug build files
-    depends: [version-test, bin]
-    steps:
-    - for: file
-      in:  'find(joinpath("test", "bugs"), "*.yml")'
-      do:
-      - 'path = joinpath("test", "bugs", file)'
-      - print: "Running build file '={path}'"
-      - try:
-        - $: ['bin/neon', '-file', =path]

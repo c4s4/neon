@@ -1,26 +1,36 @@
 #!/usr/bin/env bash
-# 
+#
 # Bash completion script for Neon.
-# 
-# To enable bash completion for neon, copy this file in directory 
+#
+# To enable bash completion for neon, copy this file in directory
 # /etc/bash_completion.d/. Next time you open a terminal, neon completion
 # should work:
-# 
+#
 # Completion on targets :
-# 
-#   $ neon t[TAB]
-#   tag test
-# 
+#
+#   $ neon f[TAB]
+#   foo
+#
 # Completion on tasks :
-# 
-#   $ neon -task c[TAB]
-#   chdir copy
-# 
+#
+#   $ neon -task f[TAB]
+#   for
+#
 # Completion on builtins :
-# 
+#
 #   $ neon -builtin f[TAB]
-#   find
-# 
+#   filename filter find findinpath followlink
+#
+# Completion on templates :
+#
+#   $ neon -template f[TAB]
+#   flask
+#
+# Completion on themes :
+#
+#   $ neon -theme f
+#   fire
+#
 
 _neon()
 {
@@ -38,6 +48,16 @@ _neon()
         -builtin)
             builtins="`neon -builtins`"
             COMPREPLY=( $(compgen -W "${builtins}" -- $cur ) )
+            return 0
+            ;;
+        -template)
+            templates="`neon -templates`"
+            COMPREPLY=( $(compgen -W "${templates}" -- $cur ) )
+            return 0
+            ;;
+        -theme)
+            themes="`neon -themes`"
+            COMPREPLY=( $(compgen -W "${themes}" -- $cur ) )
             return 0
             ;;
     esac
