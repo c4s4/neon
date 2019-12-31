@@ -32,7 +32,7 @@ targets:
 
   refs:
     doc: Generate reference documentation
-    depends: [version-test, bin]
+    depends: [version-test, build]
     steps:
     - print: 'Generating reference documentation'
     - $:  ['={BUILD_DIR}/={NAME}', '-refs']
