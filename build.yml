@@ -8,7 +8,6 @@ configuration: '~/.neon/github.yml'
 # GITHUB_TOKEN: 'abcdefghijklmnopqrstuvwxyz0123456789'
 
 properties:
-  PACKAGE:      =NAME
   TEST_OPTS:    ['-cover']
   VERSION_PATH: 'neon/build.NeonVersion'
   REFERENCE:    'doc/reference.md'
@@ -16,26 +15,12 @@ properties:
   - files: ['LICENSE.txt', 'README.md', 'bash_completion_neon']
   - {files: 'bin/*', dir: =BUILD_DIR}
   - {files: 'doc/*.pdf', dir: =BUILD_DIR}
-  LIBRARIES:
-  - github.com/c4s4/changelog
-  - github.com/fatih/color
-  - github.com/mattn/anko
-  - github.com/mattn/go-zglob
-  - gopkg.in/yaml.v2
-  - github.com/gen2brain/beeep
-  - github.com/mcuadros/go-version
-  # windows dependencies
-  - github.com/tadvi/systray
-  - gopkg.in/toast.v1
-
-environment:
-  GOPATH: '${GOPATH}:={_BASE}'
 
 targets:
 
   bugs:
     doc: Run bug build files
-    depends: [version-test, bin]
+    depends: [version-test, build]
     steps:
     - for: file
       in:  'find(joinpath("test", "bugs"), "*.yml")'

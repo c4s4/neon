@@ -109,7 +109,7 @@ Arguments:
 Examples:
 
     # go to build directory
-    - chdir: "neon/build"
+    - chdir: "github.com/c4s4/neon/neon/build"
 
 Notes:
 
@@ -588,7 +588,7 @@ Examples:
 ## sleep
 
 Sleep given number of seconds.
-		
+
 Arguments:
 
 - sleep: duration to sleep in seconds (float).
@@ -1057,7 +1057,7 @@ Examples:
     # filter text files removing those in build directory
     filter(find(".", "**/*.txt"), "build/**/*")
     # returns: files with extension "txt" in current directory and
-    # subdirectories, except those in "neon/build" directory
+    # subdirectories, except those in "github.com/c4s4/neon/neon/build" directory
 
 Notes:
 
