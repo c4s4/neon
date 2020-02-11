@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	TestDir = "../../../test/task"
+	TestDir = "../../test/task"
 )
 
 // TestIntegration runs all test build files (in test directory).
