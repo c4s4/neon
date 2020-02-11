@@ -247,6 +247,19 @@ Notes:
 
 - Handle with care: if globs select directories, they are deleted recursively!
 
+## dotenv
+
+Load given dotenv file in environment.
+
+Arguments:
+
+- dotenv: name of dotenv file to load.
+
+Examples:
+
+    # load ".env" file in environment
+    - dotenv: '.env'
+
 ## for
 
 For loop.
@@ -1499,6 +1512,20 @@ Examples:
     # zip files of foo directory in bar.zip file
     run("zip", "-r", "bar.zip", "foo")
     # returns: the trimed output of the command
+
+## setenv
+
+Set environment variable.
+
+Arguments:
+
+- The variable name.
+- The variable value.
+
+Examples:
+
+    # set foo to value bar
+    setenv("foo", "bar")
 
 ## sortversions
 
