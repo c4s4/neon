@@ -30,7 +30,7 @@ Examples:
 }
 
 type dotenvArgs struct {
-	Dotenv string
+	Dotenv string `neon:"file"`
 }
 
 func dotenv(context *build.Context, args interface{}) error {
