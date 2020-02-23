@@ -1,0 +1,18 @@
+doc: Built file to test builtin toint
+default: builtin_toint
+
+properties:
+  BUILD_DIR: "../../build"
+
+targets:
+
+  builtin_toint:
+    doc: Test the toint builtin function
+    steps:
+    - |
+      i = toint(len[1, 2, 3])
+      if i != 3 {
+        throw("Toint test failure")
+      } else {
+        println("Toint test success")
+      }
