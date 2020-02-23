@@ -8,7 +8,7 @@ import (
 )
 
 // NeonVersion is passed while compiling
-var NeonVersion string = "UNKNOWN"
+var NeonVersion = "UNKNOWN"
 
 // Version encapsulates a software version such as x.y.z
 type Version struct {
