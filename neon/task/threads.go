@@ -1,9 +1,16 @@
 package task
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"reflect"
 	"sync"
+
+	"github.com/c4s4/neon/neon/build"
+)
+
+const (
+	propertyThread = "_thread"
+	propertyInput  = "_input"
+	propertyOutput = "_output"
 )
 
 func init() {
@@ -92,7 +99,7 @@ func threads(context *build.Context, args interface{}) error {
 			stop = true
 		}
 	}
-	context.SetProperty("_output", out)
+	context.SetProperty(propertyOutput, out)
 	select {
 	case e, ok := <-error:
 		if ok {
@@ -115,13 +122,15 @@ func runThread(steps build.Steps, ctx *build.Context, index int, input chan inte
 		select {
 		case arg, ok := <-input:
 			if ok {
-				threadContext := ctx.NewThreadContext(index, arg, output)
+				threadContext := ctx.Copy()
+				threadContext.SetProperty(propertyThread, index)
+				threadContext.SetProperty(propertyInput, arg)
+				threadContext.DelProperty(propertyOutput)
 				if verbose {
 					threadContext.Message("Thread %d iteration with input '%v'", index, arg)
 				}
-				threadContext.DelProperty("_output")
 				err := steps.Run(threadContext)
-				out, _ := threadContext.GetProperty("_output")
+				out, _ := threadContext.GetProperty(propertyOutput)
 				if err != nil {
 					errors <- err
 					return

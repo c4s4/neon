@@ -22,8 +22,6 @@ const (
 	propertyBase   = "_BASE"
 	propertyHere   = "_HERE"
 	propertyRepo   = "_REPO"
-	propertyThread = "_thread"
-	propertyInput  = "_input"
 	environmentSep = "="
 	environmentVar = "$"
 )
@@ -61,19 +59,14 @@ func NewContext(build *Build) *Context {
 	return context
 }
 
-// NewThreadContext builds a context for a thread by copying the build context
-// - thread: the number of the thread, starting with 0
-// - input: the thread input
-// - output: the thread output
-// Return: a pointer to the context
-func (context *Context) NewThreadContext(thread int, input interface{}, output interface{}) *Context {
+// Copy performs a deep copy of the Context
+// Return: a pointer to the context copy
+func (context *Context) Copy() *Context {
 	another := &Context{
 		VM:    context.VM.DeepCopy(),
 		Build: context.Build,
 		Stack: context.Stack.Copy(),
 	}
-	another.SetProperty(propertyThread, thread)
-	another.SetProperty(propertyInput, input)
 	return another
 }
 
