@@ -1599,6 +1599,24 @@ Examples:
     throw("Some tests failed")
     # returns: nothing, the script is interrupted on error
 
+## toint
+
+Converts int64 value to int.
+
+Arguments:
+
+- The int64 value to convert.
+
+Returns:
+
+- Value converted to int.
+
+Examples:
+
+    # convert len([1, 2, 3]) to int
+    toint(len([1, 2, 3]))
+    # returns: 3
+
 ## trim
 
 Trim spaces from given string.
