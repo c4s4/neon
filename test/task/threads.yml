@@ -23,3 +23,7 @@ targets:
       }
       sort.Ints(ints)
     - assert: 'toString(ints) == "[0 1 4 9 16 25 36 49 64 81]"'
+    # test with int64 as number of threads
+    - threads: =len([1, 2, 3])
+      steps:
+      - print: 'Threads #={_thread}'

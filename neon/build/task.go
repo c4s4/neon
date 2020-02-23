@@ -302,6 +302,14 @@ func evaluateExpression(field reflect.StructField, val interface{}, context *Con
 	expected := field.Type
 	actual := reflect.TypeOf(val)
 	if actual != expected {
+		// we automatically cast int64 to int
+		if expected.Kind() == reflect.Int && actual.Kind() == reflect.Int64 {
+			return int(val.(int64)), nil
+		}
+		// we automatically cast int to int64
+		if expected.Kind() == reflect.Int64 && actual.Kind() == reflect.Int {
+			return int64(val.(int)), nil
+		}
 		if val == nil ||
 			// we accept if expected is slice of interfaces and actual is slice
 			!(expected.Kind() == reflect.Slice && actual.Kind() == reflect.Slice) &&
