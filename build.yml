@@ -9,7 +9,7 @@ configuration: '~/.neon/github.yml'
 
 properties:
   TEST_OPTS:    ['-cover']
-  VERSION_PATH: 'neon/build.NeonVersion'
+  VERSION_PATH: 'github.com/c4s4/neon/neon/build.NeonVersion'
   REFERENCE:    'doc/reference.md'
   ARC_FILES:
   - files: ['LICENSE.txt', 'README.md', 'bash_completion_neon']
