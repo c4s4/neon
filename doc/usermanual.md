@@ -435,6 +435,7 @@ A target might define following fields:
 
 - **doc** this is the target documentation.
 - **depends** to list targets to run before running this one.
+- **unless** to skip target if given condition is met (without running targets that depend on this one).
 - **steps** is the list of tasks to run the target.
 
 Tasks might be one of the following:
@@ -479,9 +480,21 @@ targets:
   pdf:
     doc: Generate PDF file
     steps:
-    - if: 'older("file.md", "build/file.pdf")'
+    - if: 'newer("file.md", "build/file.pdf")'
       then:
       - $: ['md2pdf', '-o', 'build/file.pdf', 'file.md']
+```
+
+Alternatively, you can use the *unless* clause on a target:
+
+```yaml
+targets:
+
+  pdf:
+    doc: Generate PDF file
+    unless: newer("build/file.pdf", "file.md")
+    steps:
+    - $: ['md2pdf', '-o', 'build/file.pdf', 'file.md']
 ```
 
 There are also tasks to manage errors. For instance to run a command and catch any error (that is when the command returns a value different from *0*) to write an error message, you could write:

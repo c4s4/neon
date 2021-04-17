@@ -28,7 +28,7 @@ func ToString(object interface{}) (string, error) {
 }
 
 // ToSliceString return interface as a slice of strings:
-// - object: the slice of strings as an interface
+// - object: the slice of strings or string as an interface
 // Return:
 // - converted slice of strings
 // - an error if something went wrong
@@ -45,7 +45,12 @@ func ToSliceString(object interface{}) ([]string, error) {
 		}
 		return result, nil
 	}
-	return nil, fmt.Errorf("must be a slice of strings")
+	if slice.Kind() == reflect.String {
+		slice := make([]string, 1)
+		slice[0] = object.(string)
+		return slice, nil
+	}
+	return nil, fmt.Errorf("must be a slice of strings or a string")
 }
 
 // ToMapStringString return interface as a map with string keys and values:

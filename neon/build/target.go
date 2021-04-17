@@ -2,8 +2,10 @@ package build
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/util"
 	"os"
+	"reflect"
+
+	"github.com/c4s4/neon/neon/util"
 )
 
 // Target is a structure for a target
@@ -12,6 +14,7 @@ type Target struct {
 	Name    string
 	Doc     string
 	Depends []string
+	Unless  string
 	Steps   Steps
 }
 
@@ -27,13 +30,16 @@ func NewTarget(build *Build, name string, object util.Object) (*Target, error) {
 		Build: build,
 		Name:  name,
 	}
-	if err := object.CheckFields([]string{"doc", "depends", "steps"}); err != nil {
+	if err := object.CheckFields([]string{"doc", "depends", "unless", "steps"}); err != nil {
 		return nil, err
 	}
 	if err := ParseTargetDoc(object, target); err != nil {
 		return nil, err
 	}
 	if err := ParseTargetDepends(object, target); err != nil {
+		return nil, err
+	}
+	if err := ParseTargetUnless(object, target); err != nil {
 		return nil, err
 	}
 	if err := ParseTargetSteps(object, target); err != nil {
@@ -72,6 +78,21 @@ func ParseTargetDepends(object util.Object, target *Target) error {
 	return nil
 }
 
+// ParseTargetUnless parses unless clause of the target:
+// - object: body of the target as an interface
+// - target: the target to document
+// Return: an error if something went wrong
+func ParseTargetUnless(object util.Object, target *Target) error {
+	if object.HasField("unless") {
+		unless, err := object.GetString("unless")
+		if err != nil {
+			return fmt.Errorf("unless field in target '%s' must be a string", target.Name)
+		}
+		target.Unless = unless
+	}
+	return nil
+}
+
 // ParseTargetSteps parses steps of a target:
 // - object: the target body as an interface
 // - target: the target being parsed
@@ -99,6 +120,23 @@ func ParseTargetSteps(object util.Object, target *Target) error {
 // - context: the context of the build
 // Return: an error if something went wrong
 func (target *Target) Run(context *Context) error {
+	// if unless expression returns true, we skip this target
+	if target.Unless != "" {
+		object, err := context.EvaluateExpression(target.Unless)
+		if err != nil {
+			return fmt.Errorf("evaluating unless clause of target %s: %v", target.Name, err)
+		}
+		value := reflect.ValueOf(object)
+		if value.Kind() != reflect.Bool {
+			return fmt.Errorf("unless clause expression must return a boolean")
+		}
+		unless := object.(bool)
+		if unless {
+			Title(target.Name)
+			Message("Skipping target, unless clause was matched")
+			return nil
+		}
+	}
 	for _, name := range target.Depends {
 		if !context.Stack.Contains(name) {
 			if err := target.Build.Root.RunTarget(context, name); err != nil {

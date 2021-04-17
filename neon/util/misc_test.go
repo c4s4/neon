@@ -28,6 +28,12 @@ func TestToSliceString(t *testing.T) {
 	if err != nil || !reflect.DeepEqual(actual, expected) {
 		t.Errorf("ToSliceString test failure")
 	}
+	expected = []string{"foo"}
+	object = "foo"
+	actual, err = ToSliceString(object)
+	if err != nil || !reflect.DeepEqual(actual, expected) {
+		t.Errorf("ToSliceString test failure")
+	}
 }
 
 func TestToMapStringString(t *testing.T) {
