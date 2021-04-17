@@ -12,7 +12,7 @@ func TestNewer(t *testing.T) {
 	old := testDir + "/old"
 	new := testDir + "/new"
 	Touch(old)
-	time.Sleep(1 * time.Millisecond)
+	time.Sleep(10 * time.Millisecond)
 	Touch(new)
 	if !newer(new, old) {
 		t.Errorf("Newer error")
@@ -31,7 +31,7 @@ func TestNewerMulti(t *testing.T) {
 	new2 := testDir + "/new2"
 	Touch(old1)
 	Touch(old2)
-	time.Sleep(1 * time.Millisecond)
+	time.Sleep(10 * time.Millisecond)
 	Touch(new1)
 	Touch(new2)
 	if !newer([]string{new1, new2}, []string{old1, old2}) {
