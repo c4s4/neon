@@ -1,6 +1,6 @@
 language: go
 go:
-- 1.13
+- 1.16
 script:
 - TRAVIS=true go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 after_success:
