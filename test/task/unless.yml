@@ -1,0 +1,26 @@
+doc: Built file to test unless
+default: [target_unless_pass, target_unless_check, target_unless_skip]
+
+properties:
+  PASSED: false
+
+targets:
+
+  target_unless_pass:
+    doc: Test target passing with unless
+    unless: 'false'
+    steps:
+    - 'PASSED = true'
+
+  target_unless_check:
+    doc: Test target passing with unless
+    steps:
+    - if: '!PASSED'
+      then:
+      - throw: 'Target unless test failed'
+
+  target_unless_skip:
+    doc: Test target skipped with unless
+    unless: 'true'
+    steps:
+    - throw: 'Target unless test failed'
