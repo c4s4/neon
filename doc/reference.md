@@ -1397,23 +1397,27 @@ Examples:
 
 ## newer
 
-Tells if source is newer than result file (if any).
+Tells if source files are newer than result ones (if any).
 
 Arguments:
 
-- source: source file that must exist.
-- result: result file (may not exist).
+- sources: source file(s) that must exist.
+- results: result file(s) (may not exist).
 
 Returns:
 
-- A boolean that tells if source is newer than result. If result file doesn't
-  exists, this returns true.
+- A boolean that tells if source files are newer than result ones. If result
+  files don't exist, this returns true.
 
 Examples:
 
     # generate PDF if source Markdown changed
     if newer("source.md", "result.pdf") {
     	compile("source.md")
+    }
+	# generate binary if source files are newer than generated binary
+    if newer(find(".", "**/*.go"), "bin/binary") {
+    	generateBinary()
     }
 
 ## now
