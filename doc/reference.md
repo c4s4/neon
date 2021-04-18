@@ -1397,17 +1397,18 @@ Examples:
 
 ## newer
 
-Tells if source files are newer than result ones (if any).
+Tells if source files are newer than result ones.
 
 Arguments:
 
-- sources: source file(s) that must exist.
+- sources: source file(s) (may not exist).
 - results: result file(s) (may not exist).
 
 Returns:
 
-- A boolean that tells if source files are newer than result ones. If result
-  files don't exist, this returns true.
+- A boolean that tells if source files are newer than result ones.
+  If source files don't exist, returns false.
+  If result files don't exist, returns true.
 
 Examples:
 
