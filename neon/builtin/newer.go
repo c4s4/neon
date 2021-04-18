@@ -12,17 +12,18 @@ func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "newer",
 		Func: newer,
-		Help: `Tells if source files are newer than result ones (if any).
+		Help: `Tells if source files are newer than result ones.
 
 Arguments:
 
-- sources: source file(s) that must exist.
+- sources: source file(s) (may not exist).
 - results: result file(s) (may not exist).
 
 Returns:
 
-- A boolean that tells if source files are newer than result ones. If result
-  files don't exist, this returns true.
+- A boolean that tells if source files are newer than result ones.
+  If source files don't exist, returns false.
+  If result files don't exist, returns true.
 
 Examples:
 
@@ -38,6 +39,12 @@ Examples:
 }
 
 func newer(sources, results interface{}) bool {
+	if sources == nil {
+		return false
+	}
+	if results == nil {
+		return true
+	}
 	sourceFiles, err := util.ToSliceString(sources)
 	if err != nil {
 		panic("source must be a string or list of strings")
@@ -50,23 +57,29 @@ func newer(sources, results interface{}) bool {
 	for _, source := range sourceFiles {
 		info, err := os.Stat(source)
 		if err != nil {
-			panic("could no get info about source file")
+			continue
 		}
 		t := info.ModTime()
 		if sourceTime.IsZero() || t.After(sourceTime) {
 			sourceTime = t
 		}
 	}
+	if sourceTime.IsZero() {
+		return false
+	}
 	var resultTime time.Time
 	for _, result := range resultFiles {
 		info, err := os.Stat(result)
 		if err != nil {
-			panic("could no get info about result file")
+			continue
 		}
 		t := info.ModTime()
 		if resultTime.IsZero() || t.Before(resultTime) {
 			resultTime = t
 		}
+	}
+	if resultTime.IsZero() {
+		return true
 	}
 	return sourceTime.After(resultTime)
 }

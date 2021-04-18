@@ -40,4 +40,22 @@ func TestNewerMulti(t *testing.T) {
 	if newer([]string{old1, old2}, []string{new1, new2}) {
 		t.Errorf("Newer error")
 	}
+	if newer([]string{}, []string{new1, new2}) {
+		t.Errorf("Newer error")
+	}
+	if newer(nil, []string{new1, new2}) {
+		t.Errorf("Newer error")
+	}
+	if !newer([]string{old1, old2}, []string{}) {
+		t.Errorf("Newer error")
+	}
+	if !newer([]string{old1, old2}, nil) {
+		t.Errorf("Newer error")
+	}
+	if newer([]string{"foo"}, []string{new1, new2}) {
+		t.Errorf("Newer error")
+	}
+	if !newer([]string{old1, old2}, []string{"foo"}) {
+		t.Errorf("Newer error")
+	}
 }
