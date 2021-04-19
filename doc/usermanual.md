@@ -1,6 +1,6 @@
 # User Manual
 
-This document is a detailed documentation on NeON. For a quick overview, see [Quick Start](quickstart.md). If you are looking for a documentation on tasks and builtins, see [Reference](reference.md) documentation.
+This document is a detailed documentation on NeON. For a quick overview, see [Quick Start](quickstart.md). If you are looking for a documentation on tasks and builtins, see [Tasks Reference](tasks.md) and [Builtins Reference](builtins.md) documentation.
 
 **Table of Contents**
 
@@ -541,7 +541,7 @@ Tags in parenthesis in the description of tasks arguments may be the following:
 - *wrap* tells that single strings will be wrapped into a list of strings. For instance, *mkdir* take a list of strings as argument, but as being tagged as *wrap*, it can accept a single string that will be wrapped into a list if necessary.
 - *steps* is a special type as this is a list of steps. For instance, *then* argument of task *if* is the list of steps to perform and is tagged *steps*.
 
-You can get information on available tasks [on this reference page](reference.md).
+You can get information on available tasks [on this reference page](tasks.md).
 
 ### File tasks
 
@@ -631,7 +631,7 @@ targets:
     - 'file = joinpath(BUILD_DIR, "test.txt")'
 ```
 
-Your scripts might use builtin functions, defined by Anko scripting engine (such as *toString()*) or by NeON. To list NeON builtins, you can type command `neon -builtins`. To get help on given builtin, type `neon -builtin split`. You can get information on available builtin functions [on this reference page](reference.md).
+Your scripts might use builtin functions, defined by Anko scripting engine (such as *toString()*) or by NeON. To list NeON builtins, you can type command `neon -builtins`. To get help on given builtin, type `neon -builtin split`. You can get information on available builtin functions [on this reference page](builtins.md).
 
 You can define your own functions in scripts that you load in the build file with *context* field. For instance, to define your own *double* function to use it in you build files, you could define *context* as following:
 
@@ -686,8 +686,10 @@ Usage of neon:
     	List available parent build files in repository
   -props string
     	Build properties
-  -refs
-    	Print tasks and builtins reference
+  -tasks-ref
+    	Print tasks reference
+  -builtins-ref
+    	Print builtins reference
   -repo string
     	Neon plugin repository for installation (default "~/.neon")
   -targets
@@ -722,7 +724,7 @@ You can set the path to your repository (where live parent build files and templ
 
 The `-install` option will install given plugin in repository. Thus typing `neon -install foo/bar` will try to clone propject *bar* of user *foo* on Github into your repository. You can list parent build files in your  repository with `-parents` option and templates with `-templates`. You can run a template with `-template` option, thus to run template *foo/bar/spam.tpl*, you would type `neon -template foo/bar/spam.tpl`. This template may also be invoked with the shortcut `neon -template spam`, provided there is only one template named *spam.tpl* in your repository.
 
-To list all available builtins, you have option `-builtins`. To get help on a given builtin, you would type `neon -builtin foo`. To list all available tasks, you have option `-tasks` and to get help on a given task, you would type `neon -task foo`. Option `-refs` will output on console help for all builtins and tasks in Markdown format (this is the way reference documentation is generated).
+To list all available builtins, you have option `-builtins`. To get help on a given builtin, you would type `neon -builtin foo`. To list all available tasks, you have option `-tasks` and to get help on a given task, you would type `neon -task foo`. Options `-tasks-ref` and `-builtins-ref` will print on console help on tasks and builtins in Markdown format (this is the way reference documentations are generated).
 
 By default, build output is colored on Unix systems for dark terminals (that is white letters on black background). You can disable colorization with `-grey` option. You can choose a theme with `-theme name` option. To list all available themes, you should use option `-themes`. You can define your own theme in configuration file (see below).
 

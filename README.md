@@ -60,9 +60,10 @@ This will enable following completions:
 
 There are four sources of documentation:
 
-- [The quick start guide](doc/quickstart.md).
+- [The quick start guide](doc/quickstart.md)
 - [The user manual](doc/usermanual.md)
-- [The reference guide](doc/reference.md).
+- [The tasks reference](doc/tasks.md)
+- [The builtins reference](doc/builtins.md)
 - [Slides in French](http://sweetohm.net/slides/slides-neon)
 
 ## Build

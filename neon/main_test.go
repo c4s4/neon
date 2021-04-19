@@ -84,10 +84,10 @@ foo: bars`
 func TestParseCommandLine(t *testing.T) {
 	os.Args = []string{"cmd", "-file", "file", "-info", "-version", "-props", "{foo: bar, spam: eggs}",
 		"-time", "-tasks", "-task", "task", "-targets", "-builtins", "-builtin", "builtin", "-tree",
-		"-refs", "-install", "install", "-repo", "repo", "-update", "-grey", "-template", "template",
-		"-templates", "-themes", "-theme", "test", "-parents", "target1", "target2"}
-	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, tree, refs, install,
-		repo, update, grey, template, templates, parents, theme, themes, targets := ParseCommandLine()
+		"-tasks-ref", "-builtins-ref", "-install", "install", "-repo", "repo", "-update", "-grey",
+		"-template", "template", "-templates", "-themes", "-theme", "test", "-parents", "target1", "target2"}
+	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, tree, tasksRef, builtinsRef,
+		install, repo, update, grey, template, templates, parents, theme, themes, targets := ParseCommandLine()
 	Assert(file, "file", t)
 	Assert(info, true, t)
 	Assert(version, true, t)
@@ -99,7 +99,8 @@ func TestParseCommandLine(t *testing.T) {
 	Assert(builtins, true, t)
 	Assert(builtin, "builtin", t)
 	Assert(tree, true, t)
-	Assert(refs, true, t)
+	Assert(tasksRef, true, t)
+	Assert(builtinsRef, true, t)
 	Assert(install, "install", t)
 	Assert(repo, "repo", t)
 	Assert(update, true, t)

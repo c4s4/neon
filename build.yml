@@ -10,7 +10,8 @@ configuration: '~/.neon/github.yml'
 properties:
   TEST_OPTS:    ['-cover']
   VERSION_PATH: 'github.com/c4s4/neon/neon/build.NeonVersion'
-  REFERENCE:    'doc/reference.md'
+  TASKS_REF:    'doc/tasks.md'
+  BUILTINS_REF: 'doc/builtins.md'
   ARC_FILES:
   - files: ['LICENSE.txt', 'README.md', 'bash_completion_neon']
   - {files: 'bin/*', dir: =BUILD_DIR}
@@ -34,17 +35,28 @@ targets:
     doc: Generate reference documentation
     depends: [version-test, build]
     steps:
-    - print: 'Generating reference documentation'
-    - $:  ['={BUILD_DIR}/={NAME}', '-refs']
-      1>: ={REFERENCE}
+    - print: 'Generating tasks reference documentation'
+    - $:  ['={BUILD_DIR}/={NAME}', '-tasks-ref']
+      1>: ={TASKS_REF}
       1x: true
     - try:
-      - $: ['git', 'diff', '--quiet', '--exit-code', =REFERENCE]
-      - print: 'Reference documentation is up to date'
+      - $: ['git', 'diff', '--quiet', '--exit-code', =TASKS_REF]
+      - print: 'Tasks reference documentation is up to date'
       catch:
-      - print: 'Updating reference documentation'
-      - $: ['git', 'add', =REFERENCE]
-      - $: ['git', 'commit', '-m', 'Updated reference', =REFERENCE]
+      - print: 'Updating tasks reference documentation'
+      - $: ['git', 'add', =TASKS_REF]
+      - $: ['git', 'commit', '-m', 'Updated tasks reference', =TASKS_REF]
+    - print: 'Generating builtins reference documentation'
+    - $:  ['={BUILD_DIR}/={NAME}', '-builtins-ref']
+      1>: ={BUILTINS_REF}
+      1x: true
+    - try:
+      - $: ['git', 'diff', '--quiet', '--exit-code', =BUILTINS_REF]
+      - print: 'Builtins reference documentation is up to date'
+      catch:
+      - print: 'Updating builtins reference documentation'
+      - $: ['git', 'add', =BUILTINS_REF]
+      - $: ['git', 'commit', '-m', 'Updated builtins reference', =BUILTINS_REF]
 
   doc:
     doc: Build documentations
@@ -53,7 +65,8 @@ targets:
     - mkdir: '={BUILD_DIR}/doc'
     - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/quickstart.pdf', 'doc/quickstart.md']
     - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/usermanual.pdf', 'doc/usermanual.md']
-    - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/reference.pdf', 'doc/reference.md']
+    - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/tasks.pdf', 'doc/tasks.md']
+    - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/builtins.pdf', 'doc/builtins.md']
 
   archive:
     doc: Generate distribution archive

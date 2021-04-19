@@ -93,7 +93,7 @@ func LoadConfiguration(file string) (*Configuration, error) {
 
 // ParseCommandLine parses command line and returns parsed options
 func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, bool, string,
-	bool, bool, string, string, bool, bool, string, bool, bool, string, bool, []string) {
+	bool, bool, bool, string, string, bool, bool, string, bool, bool, string, bool, []string) {
 	file := flag.String("file", DefaultBuildFile, "Build file to run")
 	info := flag.Bool("info", false, "Print build information")
 	version := flag.Bool("version", false, "Print neon version")
@@ -105,7 +105,8 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 	builtins := flag.Bool("builtins", false, "Print builtins list")
 	builtin := flag.String("builtin", "", "Print help on given builtin")
 	tree := flag.Bool("tree", false, "Print inheritance tree")
-	refs := flag.Bool("refs", false, "Print tasks and builtins reference")
+	tasksRef := flag.Bool("tasks-ref", false, "Print tasks reference")
+	builtinsRef := flag.Bool("builtins-ref", false, "Print builtins reference")
 	install := flag.String("install", "", "Install given plugin")
 	repo := flag.String("repo", "", "Neon plugin repository for installation")
 	update := flag.Bool("update", false, "Update neon and repository")
@@ -118,8 +119,8 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool, b
 	flag.Parse()
 	targets := flag.Args()
 	return *file, *info, *version, *props, *timeit, *tasks, *task, *targs, *builtins,
-		*builtin, *tree, *refs, *install, *repo, *update, *grey, *template, *templates,
-		*parents, *theme, *themes, targets
+		*builtin, *tree, *tasksRef, *builtinsRef, *install, *repo, *update, *grey,
+		*template, *templates, *parents, *theme, *themes, targets
 }
 
 // FindBuildFile finds build file and returns its path
@@ -167,8 +168,8 @@ func main() {
 		PrintError(fmt.Errorf("loading configuration file '%s': %v", DefaultConfiguration, err))
 	}
 	// parse command line
-	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, tree, refs, install, repo,
-		update, grey, template, templates, parents, theme, themes, targets := ParseCommandLine()
+	file, info, version, props, timeit, tasks, task, targs, builtins, builtin, tree, tasksRef, builtinsRef,
+		install, repo, update, grey, template, templates, parents, theme, themes, targets := ParseCommandLine()
 	// options that do not require we load build file
 	if repo == "" {
 		if configuration.Repo != "" {
@@ -180,7 +181,7 @@ func main() {
 	}
 	_build.Grey = grey
 	configuration.Time = timeit
-	if printInfo(tasks, builtins, templates, parents, themes, refs, task, builtin, repo) {
+	if printInfo(tasks, builtins, templates, parents, themes, tasksRef, builtinsRef, task, builtin, repo) {
 		return
 	}
 	if version {
@@ -235,7 +236,7 @@ func main() {
 	}
 }
 
-func printInfo(tasks, builtins, templates, parents, themes, refs bool, task, builtin, repo string) bool {
+func printInfo(tasks, builtins, templates, parents, themes, tasksRef, builtinsRef bool, task, builtin, repo string) bool {
 	if tasks {
 		_build.Message(_build.InfoTasks())
 		return true
@@ -257,8 +258,11 @@ func printInfo(tasks, builtins, templates, parents, themes, refs bool, task, bui
 	} else if themes {
 		_build.Message(_build.InfoThemes())
 		return true
-	} else if refs {
-		_build.Message(_build.InfoReference())
+	} else if tasksRef {
+		_build.Message(_build.InfoTasksReference())
+		return true
+	} else if builtinsRef {
+		_build.Message(_build.InfoBuiltinsReference())
 		return true
 	}
 	return false

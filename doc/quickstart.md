@@ -272,7 +272,7 @@ targets:
 
 In addition to Anko builtin functions, Neon adds handy builtins to perform common build tasks. For instance, function `exists(file)` tells if given file exists.
 
-To list all Neon buitins, type `neon -builtins` and to get help on a given function, type `neon -builtin exists` for instance.
+To list all Neon builtins, type `neon -builtins` and to get help on a given function, type `neon -builtin exists` for instance.
 
 ## Parent build files
 
@@ -354,6 +354,6 @@ To get help about neon itself, you can:
 
 ## Go further
 
-Neon as much more to offer, see [User Manual](usermanual.md) for in-depth documentation and [Reference](reference.md) for information about all tasks and builtins functions.
+Neon as much more to offer, see [User Manual](usermanual.md) for in-depth documentation, [Tasks Reference](tasks.md) and [Builtins Reference](builtins.md) for information about tasks and builtins functions.
 
 *Enjoy!*

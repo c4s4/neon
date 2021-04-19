@@ -297,9 +297,9 @@ func InfoParents(repository string) string {
 	return strings.TrimSpace(info)
 }
 
-// InfoReference generates markdown reference for tasks and builtins on console.
+// InfoTasksReference generates markdown reference for tasks on console.
 // Return: reference as a string
-func InfoReference() string {
+func InfoTasksReference() string {
 	info := "# Tasks Reference\n\n"
 	var tasks []string
 	for name := range TaskMap {
@@ -310,7 +310,13 @@ func InfoReference() string {
 		info += "## " + task + "\n\n"
 		info += TaskMap[task].Help + "\n\n"
 	}
-	info += "# Builtins Reference\n\n"
+	return strings.TrimSpace(info)
+}
+
+// InfoBuiltinsReference generates markdown reference for builtins on console.
+// Return: reference as a string
+func InfoBuiltinsReference() string {
+	info := "# Builtins Reference\n\n"
 	var builtins []string
 	for name := range BuiltinMap {
 		builtins = append(builtins, name)

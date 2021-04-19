@@ -291,13 +291,7 @@ func testFunc(context *Context, args interface{}) error {
 	return nil
 }
 
-func TestInfoReference(t *testing.T) {
-	BuiltinMap = make(map[string]BuiltinDesc)
-	AddBuiltin(BuiltinDesc{
-		Name: "builtin",
-		Func: TestInfoReference,
-		Help: `Builtin documentation.`,
-	})
+func TestInfoTasksReference(t *testing.T) {
 	type testArgs struct {
 		Test string
 	}
@@ -308,14 +302,26 @@ func TestInfoReference(t *testing.T) {
 		Args: reflect.TypeOf(testArgs{}),
 		Help: `Task documentation.`,
 	})
-	actual := InfoReference()
+	actual := InfoTasksReference()
 	expected := `# Tasks Reference
 
 ## task
 
-Task documentation.
+Task documentation.`
+	if actual != expected {
+		t.Errorf("Bad reference: %s", actual)
+	}
+}
 
-# Builtins Reference
+func TestInfoReference(t *testing.T) {
+	BuiltinMap = make(map[string]BuiltinDesc)
+	AddBuiltin(BuiltinDesc{
+		Name: "builtin",
+		Func: TestInfoReference,
+		Help: `Builtin documentation.`,
+	})
+	actual := InfoBuiltinsReference()
+	expected := `# Builtins Reference
 
 ## builtin
 
