@@ -1,5 +1,7 @@
 # Tasks Reference
 
+[$](#$) - [assert](#assert) - [call](#call) - [cat](#cat) - [changelog](#changelog) - [chdir](#chdir) - [chmod](#chmod) - [classpath](#classpath) - [copy](#copy) - [delete](#delete) - [dotenv](#dotenv) - [for](#for) - [if](#if) - [java](#java) - [javac](#javac) - [link](#link) - [mkdir](#mkdir) - [move](#move) - [neon](#neon) - [notify](#notify) - [pass](#pass) - [path](#path) - [print](#print) - [prompt](#prompt) - [read](#read) - [replace](#replace) - [request](#request) - [singleton](#singleton) - [sleep](#sleep) - [super](#super) - [tar](#tar) - [threads](#threads) - [throw](#throw) - [time](#time) - [touch](#touch) - [try](#try) - [untar](#untar) - [unzip](#unzip) - [while](#while) - [write](#write) - [zip](#zip)
+
 ## $
 
 Execute a command and return output and value.
