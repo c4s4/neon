@@ -305,6 +305,8 @@ func TestInfoTasksReference(t *testing.T) {
 	actual := InfoTasksReference()
 	expected := `# Tasks Reference
 
+[task](#task)
+
 ## task
 
 Task documentation.`
@@ -322,6 +324,8 @@ func TestInfoReference(t *testing.T) {
 	})
 	actual := InfoBuiltinsReference()
 	expected := `# Builtins Reference
+
+[builtin](#builtin)
 
 ## builtin
 
