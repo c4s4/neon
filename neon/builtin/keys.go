@@ -8,7 +8,7 @@ func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "keys",
 		Func: keys,
-		Help: `Return keys of gien map.
+		Help: `Return keys of given map.
 
 Arguments:
 
