@@ -403,7 +403,7 @@ Examples:
 
 ## keys
 
-Return keys of gien map.
+Return keys of given map.
 
 Arguments:
 
