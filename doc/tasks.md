@@ -11,21 +11,22 @@ Arguments:
 - $: command to run (string or list of strings).
 - +: options to pass on command line after command (strings, optional).
 - n=: write command output into named property. Values for n are: 1 for stdout,
-  2 for stderr and 3 for stdout and stderr.
+  2 for stderr and 3 for stdout and stderr (string, optional).
 - n>: write command output in named file. Values for n are: 1 for stdout,
-  2 for stderr and 3 for stdout and stderr.
+  2 for stderr and 3 for stdout and stderr (string, optional).
 - n>>: append command output to named file. Values for n are: 1 for stdout,
-  2 for stderr and 3 for stdout and stderr.
+  2 for stderr and 3 for stdout and stderr (string, optional).
 - nx: disable command output. Values for n are: 1 for stdout, 2 for stderr and
-  3 for stdout and stderr.
-- <: send given text to standard input of the process.
-- :: print command on terminal before running it.
+  3 for stdout and stderr (boolean, optional).
+- <: send given text to standard input of the process (string, optional).
+- :: print command on terminal before running it (boolean, optional).
 
 Examples:
 
-    # execute ls command and get result in 'files' variable
+    # execute ls command, put result in 'files' variable and disable output
     - $:  'ls -al'
       1=: 'files'
+	  1x: true
     # execute command as a list of strings and output on console
     - $: ['ls', '-al']
     # run pylint on all python files except those in venv
