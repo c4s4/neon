@@ -58,4 +58,10 @@ func TestNewerMulti(t *testing.T) {
 	if !newer([]string{old1, old2}, []string{"foo"}) {
 		t.Errorf("Newer error")
 	}
+	if newer([]string{new1}, []string{old1, old2, new2}) {
+		t.Errorf("Newer error")
+	}
+	if newer([]string{old1, new1, new2}, []string{old2}) {
+		t.Errorf("Newer error")
+	}
 }

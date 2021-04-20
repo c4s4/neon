@@ -60,7 +60,7 @@ func newer(sources, results interface{}) bool {
 			continue
 		}
 		t := info.ModTime()
-		if sourceTime.IsZero() || t.After(sourceTime) {
+		if sourceTime.IsZero() || t.Before(sourceTime) {
 			sourceTime = t
 		}
 	}
@@ -74,7 +74,7 @@ func newer(sources, results interface{}) bool {
 			continue
 		}
 		t := info.ModTime()
-		if resultTime.IsZero() || t.Before(resultTime) {
+		if resultTime.IsZero() || t.After(resultTime) {
 			resultTime = t
 		}
 	}
