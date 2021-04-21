@@ -312,16 +312,16 @@ Run Java virtual machine.
 
 Arguments:
 
-- javac: main Java class name (string).
+- java: main Java class name (string).
 - cp: classpath to run main class (string).
 - args: command line arguments (strings, optional, wrap).
 
 Examples:
 
     # run class foo.Bar with arguments foo and bar
-    - javac: 'foo.Bar'
-      cp:    'build/classes'
-      args:  ['foo', 'bar']
+    - java: 'foo.Bar'
+      cp:   'build/classes'
+      args: ['foo', 'bar']
 
 ## javac
 
