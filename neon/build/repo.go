@@ -107,7 +107,7 @@ func InstallPlugin(plugin, repository string) error {
 		Message("Plugin '%s' already installed in '%s'", plugin, pluginPath)
 		return nil
 	}
-	gitRepository := "git://" + PluginSite + "/" + plugin + ".git"
+	gitRepository := "git@" + PluginSite + ":" + plugin + ".git"
 	command := exec.Command("git", "clone", gitRepository, pluginPath)
 	Message("Running command '%s'...", strings.Join(command.Args, " "))
 	output, err := command.CombinedOutput()
