@@ -277,7 +277,7 @@ targets:
 Will output on my machine:
 
 ```
-$ n
+$ neon
 ----------------------------------------------------------------------- test --
 BASE: /home/casa/dsk
 HERE: /home/casa/dsk
