@@ -1,10 +1,5 @@
-#!/usr/bin/env bash
-#
+# /etc/bash_completion.d/neon
 # Bash completion script for Neon.
-#
-# To enable bash completion for neon, copy this file in directory
-# /etc/bash_completion.d/. Next time you open a terminal, neon completion
-# should work:
 #
 # Completion on targets :
 #
