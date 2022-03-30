@@ -76,6 +76,6 @@ targets:
 
   release:
     doc: Perform release
-    depends: [clean, last-tags, version, release-title, check, test, refs, change-list]
+    depends: [clean, last-tags, version, check, test, refs]
     steps:
     - super:
