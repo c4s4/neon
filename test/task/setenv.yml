@@ -1,0 +1,20 @@
+doc: Built file to test tasks
+default: task_setenv
+
+properties:
+  BUILD_DIR: '../../build'
+
+targets:
+
+  task_setenv:
+    doc: Test task setenv
+    steps:
+    - setenv: 'TEST'
+      value:  'FOO'
+    - |
+      os = import("os")
+      if os.Getenv("TEST") != "FOO" {
+        throw("Setenv test failure")
+      } else {
+        println("Setenv test success")
+      }
