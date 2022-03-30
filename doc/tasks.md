@@ -1,6 +1,6 @@
 # Tasks Reference
 
-[$](#$) - [assert](#assert) - [call](#call) - [cat](#cat) - [changelog](#changelog) - [chdir](#chdir) - [chmod](#chmod) - [classpath](#classpath) - [copy](#copy) - [delete](#delete) - [dotenv](#dotenv) - [for](#for) - [if](#if) - [java](#java) - [javac](#javac) - [link](#link) - [mkdir](#mkdir) - [move](#move) - [neon](#neon) - [notify](#notify) - [pass](#pass) - [path](#path) - [print](#print) - [prompt](#prompt) - [read](#read) - [replace](#replace) - [request](#request) - [singleton](#singleton) - [sleep](#sleep) - [super](#super) - [tar](#tar) - [threads](#threads) - [throw](#throw) - [time](#time) - [touch](#touch) - [try](#try) - [untar](#untar) - [unzip](#unzip) - [while](#while) - [write](#write) - [zip](#zip)
+[$](#$) - [assert](#assert) - [call](#call) - [cat](#cat) - [changelog](#changelog) - [chdir](#chdir) - [chmod](#chmod) - [classpath](#classpath) - [copy](#copy) - [delete](#delete) - [dotenv](#dotenv) - [for](#for) - [if](#if) - [java](#java) - [javac](#javac) - [link](#link) - [mkdir](#mkdir) - [move](#move) - [neon](#neon) - [notify](#notify) - [pass](#pass) - [path](#path) - [print](#print) - [prompt](#prompt) - [read](#read) - [replace](#replace) - [request](#request) - [setenv](#setenv) - [singleton](#singleton) - [sleep](#sleep) - [super](#super) - [tar](#tar) - [threads](#threads) - [throw](#throw) - [time](#time) - [touch](#touch) - [try](#try) - [untar](#untar) - [unzip](#unzip) - [while](#while) - [write](#write) - [zip](#zip)
 
 ## $
 
@@ -582,6 +582,21 @@ Notes:
 - Response status code is stored in variable _status.
 - Response body is stored in variable _body.
 - Response headers are stored in variable _headers.
+
+## setenv
+
+Set environment variable with given value.
+
+Arguments:
+
+- setenv: environment variable name (string).
+- value: value of this environment variable (string).
+
+Examples:
+
+    # set environment variable VERSION to value "1.2.3"
+    - setenv: 'VERSION'
+      value:  '1.2.3'
 
 ## singleton
 
