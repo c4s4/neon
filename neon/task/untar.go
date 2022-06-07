@@ -61,10 +61,10 @@ func untarFile(file, dir string) error {
 	var tarReader *t.Reader
 	if strings.HasSuffix(file, ".gz") || strings.HasSuffix(file, ".tgz") {
 		gzipReader, err := gzip.NewReader(reader)
-		defer gzipReader.Close()
 		if err != nil {
 			return fmt.Errorf("unzipping tar file: %v", err)
 		}
+		defer gzipReader.Close()
 		tarReader = t.NewReader(gzipReader)
 	} else {
 		tarReader = t.NewReader(reader)

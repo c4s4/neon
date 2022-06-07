@@ -27,6 +27,6 @@ func AddBuiltin(desc BuiltinDesc) {
 // - vm: the VM to load builtins into
 func LoadBuiltins(vm *vm.Env) {
 	for name, descriptor := range BuiltinMap {
-		vm.Define(name, descriptor.Func)
+		_ = vm.Define(name, descriptor.Func)
 	}
 }

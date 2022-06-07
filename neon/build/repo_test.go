@@ -19,8 +19,12 @@ func TestPluginPath(t *testing.T) {
 
 func TestFindParents(t *testing.T) {
 	repo := "/tmp/neon"
-	WriteFile(repo+"/foo/bar", "parent1.yml", "")
-	WriteFile(repo+"/foo/bar", "parent2.yml", "")
+	if _, err := WriteFile(repo+"/foo/bar", "parent1.yml", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
+	if _, err := WriteFile(repo+"/foo/bar", "parent2.yml", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
 	defer os.RemoveAll(repo)
 	parents, err := FindParents(repo)
 	if err != nil {
@@ -33,8 +37,12 @@ func TestFindParents(t *testing.T) {
 
 func TestFindParent(t *testing.T) {
 	repo := "/tmp/neon"
-	WriteFile(repo+"/foo/bar", "parent1.yml", "")
-	WriteFile(repo+"/foo/bar", "parent2.yml", "")
+	if _, err := WriteFile(repo+"/foo/bar", "parent1.yml", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
+	if _, err := WriteFile(repo+"/foo/bar", "parent2.yml", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
 	defer os.RemoveAll(repo)
 	parents, err := FindParent("parent1", repo)
 	if err != nil {
@@ -47,8 +55,12 @@ func TestFindParent(t *testing.T) {
 
 func TestParentPath(t *testing.T) {
 	repo := "/tmp/neon"
-	WriteFile(repo+"/foo/bar", "parent1.yml", "")
-	WriteFile(repo+"/foo/bar", "parent2.yml", "")
+	if _, err := WriteFile(repo+"/foo/bar", "parent1.yml", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
+	if _, err := WriteFile(repo+"/foo/bar", "parent2.yml", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
 	defer os.RemoveAll(repo)
 	build := &Build{Repository: repo}
 	path, err := build.ParentPath("parent1")
@@ -62,7 +74,9 @@ func TestParentPath(t *testing.T) {
 
 func TestInstallPlugin(t *testing.T) {
 	repo := "/tmp/neon"
-	os.MkdirAll(repo, util.DirFileMode)
+	if err := os.MkdirAll(repo, util.DirFileMode); err != nil {
+		t.Fatalf("making directory: %v", err)
+	}
 	defer os.RemoveAll(repo)
 	err := InstallPlugin("c4s4/build", repo)
 	if err != nil {
@@ -76,8 +90,12 @@ func TestInstallPlugin(t *testing.T) {
 
 func TestFindTemplates(t *testing.T) {
 	repo := "/tmp/neon"
-	WriteFile(repo+"/foo/bar", "template1.tpl", "")
-	WriteFile(repo+"/foo/bar", "template2.tpl", "")
+	if _, err := WriteFile(repo+"/foo/bar", "template1.tpl", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
+	if _, err := WriteFile(repo+"/foo/bar", "template2.tpl", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
 	defer os.RemoveAll(repo)
 	templates, err := FindTemplates(repo)
 	if err != nil {
@@ -90,8 +108,12 @@ func TestFindTemplates(t *testing.T) {
 
 func TestFindTemplate(t *testing.T) {
 	repo := "/tmp/neon"
-	WriteFile(repo+"/foo/bar", "template1.tpl", "")
-	WriteFile(repo+"/foo/bar", "template2.tpl", "")
+	if _, err := WriteFile(repo+"/foo/bar", "template1.tpl", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
+	if _, err := WriteFile(repo+"/foo/bar", "template2.tpl", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
 	defer os.RemoveAll(repo)
 	templates, err := FindTemplate("template1", repo)
 	if err != nil {
@@ -104,8 +126,12 @@ func TestFindTemplate(t *testing.T) {
 
 func TestTemplatePath(t *testing.T) {
 	repo := "/tmp/neon"
-	WriteFile(repo+"/foo/bar", "template1.tpl", "")
-	WriteFile(repo+"/foo/bar", "template2.tpl", "")
+	if _, err := WriteFile(repo+"/foo/bar", "template1.tpl", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
+	if _, err := WriteFile(repo+"/foo/bar", "template2.tpl", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
 	defer os.RemoveAll(repo)
 	path, err := TemplatePath("template1", repo)
 	if err != nil {

@@ -150,7 +150,7 @@ func (context *Context) InitProperties() error {
 // - name: the name of the property
 // - value: the value of the property
 func (context *Context) SetProperty(name string, value interface{}) {
-	context.VM.Define(name, value)
+	_ = context.VM.Define(name, value)
 }
 
 // GetProperty returns value of given property

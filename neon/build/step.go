@@ -88,7 +88,7 @@ func NewTaskStep(args TaskArgs) (Step, error) {
 	for field := range args {
 		fields = append(fields, field.(string))
 	}
-	fields = sort.StringSlice(fields)
+	sort.Strings(fields)
 	return nil, fmt.Errorf("unknown task '%s'", strings.Join(fields, "/"))
 }
 

@@ -41,7 +41,7 @@ func time(context *build.Context, args interface{}) error {
 	if err != nil {
 		return err
 	}
-	duration := t.Now().Sub(start).Seconds()
+	duration := t.Since(start).Seconds()
 	if params.To != "" {
 		context.SetProperty(params.To, duration)
 	} else {

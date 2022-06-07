@@ -222,12 +222,13 @@ func main() {
 	} else if tree {
 		build.Tree()
 	} else {
-		os.Chdir(build.Dir)
+		err = os.Chdir(build.Dir)
+		PrintError(err)
 		context := _build.NewContext(build)
 		err = context.Init()
 		PrintError(err)
 		err = build.Run(context, targets)
-		duration := time.Now().Sub(start)
+		duration := time.Since(start)
 		if configuration.Time || duration.Seconds() > 10 {
 			_build.Info("Build duration: %s", duration.String())
 		}

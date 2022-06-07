@@ -10,13 +10,17 @@ import (
 )
 
 // WriteFile writes a file in given directory.
-func WriteFile(dir, file, content string) string {
+func WriteFile(dir, file, content string) (string, error) {
 	if !util.DirExists(dir) {
-		os.MkdirAll(dir, util.DirFileMode)
+		if err := os.MkdirAll(dir, util.DirFileMode); err != nil {
+			return "", err
+		}
 	}
 	path := filepath.Join(dir, file)
-	ioutil.WriteFile(path, []byte(content), util.FileMode)
-	return path
+	if err := ioutil.WriteFile(path, []byte(content), util.FileMode); err != nil {
+		return "", err
+	}
+	return path, nil
 }
 
 // Assert make an assertion for testing purpose, failing test if different:

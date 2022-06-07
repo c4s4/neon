@@ -39,19 +39,18 @@ func TestStackPop(t *testing.T) {
 	stack := NewStack()
 	foo := &Target{Name: "foo"}
 	bar := &Target{Name: "bar"}
-	stack.Push(foo)
-	stack.Push(bar)
-	stack.Push(foo)
+	if err := stack.Push(foo); err != nil {
+		t.Fatalf("pushing: %v", err)
+	}
+	if err := stack.Push(bar); err != nil {
+		t.Fatalf("pushing: %v", err)
+	}
 	err := stack.Pop()
 	if err != nil {
 		t.Errorf("Error poping")
 	}
-	if stack.Last().Name != "bar" {
+	if stack.Last().Name != "foo" {
 		t.Errorf("Error Last: %v", stack.Last())
-	}
-	err = stack.Pop()
-	if err != nil {
-		t.Errorf("Error poping")
 	}
 	err = stack.Pop()
 	if err != nil {

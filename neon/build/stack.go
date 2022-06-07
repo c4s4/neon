@@ -80,8 +80,6 @@ func (stack *Stack) String() string {
 // Return: pointer to a copy of the stack
 func (stack *Stack) Copy() *Stack {
 	another := make([]*Target, len(stack.Targets))
-	for i := 0; i < len(stack.Targets); i++ {
-		another[i] = stack.Targets[i]
-	}
+	copy(another, stack.Targets)
 	return &Stack{another}
 }

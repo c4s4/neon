@@ -20,7 +20,9 @@ targets:
         doc: Test target
         steps:
         - test: 'This is a test'`
-	WriteFile("/tmp", "build.yml", buildFile)
+	if _, err := WriteFile("/tmp", "build.yml", buildFile); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
 	defer os.Remove("/tmp/build.yml")
 	// define test task
 	TaskMap = make(map[string]TaskDesc)

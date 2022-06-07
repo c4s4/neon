@@ -25,8 +25,7 @@ const (
 // Return: error if something went wrong
 func Update(repository string) error {
 	printNewRelease()
-	updateRepository(repository)
-	return nil
+	return updateRepository(repository)
 }
 
 func printNewRelease() {

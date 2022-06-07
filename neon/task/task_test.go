@@ -24,7 +24,11 @@ func TestIntegration(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error getting current directory: %v", err)
 	}
-	defer os.Chdir(dir)
+	defer func() {
+		if err := os.Chdir(dir); err != nil {
+			t.Fatalf("changing directory: %v", err)
+		}
+	}()
 	for _, build := range builds {
 		file, _ := filepath.Abs(_path.Join(TestDir, build))
 		err := RunBuildFile(file, dir)
@@ -36,12 +40,16 @@ func TestIntegration(t *testing.T) {
 
 // RunBuildFile runs given build file
 func RunBuildFile(file, dir string) error {
-	defer os.Chdir(dir)
+	defer func() {
+		_ = os.Chdir(dir)
+	}()
 	build, err := _build.NewBuild(file, filepath.Dir(file), "", false)
 	if err != nil {
 		return err
 	}
-	os.Chdir(build.Dir)
+	if err := os.Chdir(build.Dir); err != nil {
+		return err
+	}
 	context := _build.NewContext(build)
 	err = context.Init()
 	if err != nil {

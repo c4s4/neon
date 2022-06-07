@@ -127,7 +127,9 @@ func classpath(context *build.Context, args interface{}) error {
 
 func getDependencies(dependencies, scopes, repositories []string, context *build.Context) ([]string, error) {
 	if !util.DirExists(LocalRepository) {
-		os.MkdirAll(LocalRepository, util.DirFileMode)
+		if err := os.MkdirAll(LocalRepository, util.DirFileMode); err != nil {
+			return nil, err
+		}
 	}
 	var deps []string
 	for _, dependency := range dependencies {
@@ -174,7 +176,9 @@ func downloadDependency(dependency dependency, repositories []string, context *b
 	path := dependency.Path(LocalRepository)
 	dir := filepath.Dir(path)
 	if !util.DirExists(dir) {
-		os.MkdirAll(dir, util.DirFileMode)
+		if err := os.MkdirAll(dir, util.DirFileMode); err != nil {
+			return err
+		}
 	}
 	if repositories == nil {
 		repositories = []string{DefaultRepository}
@@ -244,7 +248,9 @@ func selected(classpath, dependency []string) bool {
 
 func copyJarsToDir(jars []string, dir string) error {
 	if !util.DirExists(dir) {
-		os.MkdirAll(dir, util.DirFileMode)
+		if err := os.MkdirAll(dir, util.DirFileMode); err != nil {
+			return err
+		}
 	}
 	for _, jar := range jars {
 		dest := p.Join(dir, p.Base(jar))

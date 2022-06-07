@@ -68,7 +68,9 @@ func TestEvaluateStringWithProperties(t *testing.T) {
 		Properties: properties,
 	}
 	context := NewContext(build)
-	context.InitProperties()
+	if err := context.InitProperties(); err != nil {
+		t.Fatalf("init properties: %v", err)
+	}
 	if actual, err := context.EvaluateString(`foo`); err != nil || actual != `foo` {
 		t.Errorf("TestEvaluateStringWithProperties failure")
 	}
@@ -97,7 +99,9 @@ func TestEvaluateSliceWithProperties(t *testing.T) {
 		Properties: properties,
 	}
 	context := NewContext(build)
-	context.InitProperties()
+	if err := context.InitProperties(); err != nil {
+		t.Fatalf("init properties: %v", err)
+	}
 	actual, err := context.EvaluateObject([]string{`={FOO} BAR`, `FOO ={BAR}`})
 	if err != nil {
 		t.Fail()
@@ -128,7 +132,9 @@ func TestEvaluateMapWithProperties(t *testing.T) {
 		Properties: properties,
 	}
 	context := NewContext(build)
-	context.InitProperties()
+	if err := context.InitProperties(); err != nil {
+		t.Fatalf("init properties: %v", err)
+	}
 	actual, err := context.EvaluateObject(map[string]string{"={FOO}": "BAR", "FOO": "={BAR}"})
 	if err != nil {
 		t.Fail()

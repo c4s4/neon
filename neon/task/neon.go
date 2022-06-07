@@ -49,8 +49,12 @@ func neon(context *build.Context, args interface{}) error {
 	if err != nil {
 		return fmt.Errorf("getting current directory: %v", err)
 	}
-	defer os.Chdir(dir)
-	os.Chdir(newBuild.Dir)
+	defer func() {
+		_ = os.Chdir(dir)
+	}()
+	if err := os.Chdir(newBuild.Dir); err != nil {
+		return err
+	}
 	newContext := build.NewContext(newBuild)
 	err = newContext.Init()
 	if err != nil {

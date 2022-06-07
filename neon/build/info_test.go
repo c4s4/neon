@@ -145,7 +145,9 @@ func TestInfoProperties(t *testing.T) {
 		},
 	}
 	context := NewContext(build)
-	context.Init()
+	if err := context.Init(); err != nil {
+		t.Fatalf("init context: %v", err)
+	}
 	properties, err := build.infoProperties(context)
 	if err != nil {
 		t.Errorf("getting properties: %v", err)
@@ -266,8 +268,12 @@ func TestInfoThemes(t *testing.T) {
 
 func TestInfoTemplates(t *testing.T) {
 	repo := "/tmp/neon"
-	WriteFile(repo+"/foo/bar", "template1.tpl", "")
-	WriteFile(repo+"/foo/bar", "template2.tpl", "")
+	if _, err := WriteFile(repo+"/foo/bar", "template1.tpl", ""); err != nil {
+		t.Fatalf("writing file: %v", err)
+	}
+	if _, err := WriteFile(repo+"/foo/bar", "template2.tpl", ""); err != nil {
+		t.Fatalf("writing file: %v", err)
+	}
 	defer os.RemoveAll(repo)
 	parents := InfoTemplates(repo)
 	if parents != "foo/bar/template1.tpl\nfoo/bar/template2.tpl" {
@@ -277,8 +283,12 @@ func TestInfoTemplates(t *testing.T) {
 
 func TestInfoParents(t *testing.T) {
 	repo := "/tmp/neon"
-	WriteFile(repo+"/foo/bar", "parent1.yml", "")
-	WriteFile(repo+"/foo/bar", "parent2.yml", "")
+	if _, err := WriteFile(repo+"/foo/bar", "parent1.yml", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
+	if _, err := WriteFile(repo+"/foo/bar", "parent2.yml", ""); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
 	defer os.RemoveAll(repo)
 	parents := InfoParents(repo)
 	if parents != "foo/bar/parent1.yml\nfoo/bar/parent2.yml" {

@@ -52,7 +52,10 @@ func TestFileIsExecutable(t *testing.T) {
 	if FileIsExecutable(tempFile) {
 		t.Errorf("File should not be executable")
 	}
-	os.Chmod(tempFile, 0744)
+	err := os.Chmod(tempFile, 0744)
+	if err != nil {
+		t.Errorf("failed chmod: %v", err)
+	}
 	if !FileIsExecutable(tempFile) {
 		t.Errorf("File should be executable")
 	}

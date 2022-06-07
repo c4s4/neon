@@ -12,7 +12,9 @@ func TestParseSingleton(t *testing.T) {
 		"singleton": 12345,
 	}
 	build := &Build{}
-	ParseSingleton(object, build)
+	if err := ParseSingleton(object, build); err != nil {
+		t.Fatalf("parsing singleton: %v", err)
+	}
 	if build.Singleton != "12345" {
 		t.Errorf("Bad build doc: %s", build.infoDoc())
 	}
@@ -24,7 +26,9 @@ func TestParseShell(t *testing.T) {
 		"shell": []string{"sh", "-c"},
 	}
 	build := &Build{}
-	ParseShell(object, build)
+	if err := ParseShell(object, build); err != nil {
+		t.Fatalf("parse shell: %v", err)
+	}
 	expected := map[string][]string{
 		"default": {"sh", "-c"},
 	}
@@ -39,7 +43,9 @@ func TestParseShell(t *testing.T) {
 		},
 	}
 	build = &Build{}
-	ParseShell(object, build)
+	if err := ParseShell(object, build); err != nil {
+		t.Fatalf("parse shell: %v", err)
+	}
 	expected = map[string][]string{
 		"foo": {"spam"},
 		"bar": {"eggs"},
@@ -50,7 +56,9 @@ func TestParseShell(t *testing.T) {
 	// default shell
 	object = map[string]interface{}{}
 	build = &Build{}
-	ParseShell(object, build)
+	if err := ParseShell(object, build); err != nil {
+		t.Fatalf("parse shell: %v", err)
+	}
 	expected = map[string][]string{
 		"default": {"sh", "-c"},
 		"windows": {"cmd", "/c"},
@@ -65,7 +73,9 @@ func TestParseDefault(t *testing.T) {
 		"default": "test",
 	}
 	build := &Build{}
-	ParseDefault(object, build)
+	if err := ParseDefault(object, build); err != nil {
+		t.Fatalf("parse default: %v", err)
+	}
 	if !reflect.DeepEqual(build.Default, []string{"test"}) {
 		t.Errorf("Bad build default: %v", build.Default)
 	}
@@ -76,7 +86,9 @@ func TestParseDoc(t *testing.T) {
 		"doc": "test",
 	}
 	build := &Build{}
-	ParseDoc(object, build)
+	if err := ParseDoc(object, build); err != nil {
+		t.Fatalf("parse doc: %v", err)
+	}
 	if build.Doc != "test" {
 		t.Errorf("Bad build doc: %v", build.Doc)
 	}
@@ -88,7 +100,9 @@ func TestParseRepository(t *testing.T) {
 		"repository": "repo",
 	}
 	build := &Build{}
-	ParseRepository(object, build, "")
+	if err := ParseRepository(object, build, ""); err != nil {
+		t.Fatalf("parse repository: %v", err)
+	}
 	if build.Repository != "repo" {
 		t.Errorf("Bad build repo: %v", build.Repository)
 	}
@@ -97,14 +111,18 @@ func TestParseRepository(t *testing.T) {
 		"repository": "repo",
 	}
 	build = &Build{}
-	ParseRepository(object, build, "commandline")
+	if err := ParseRepository(object, build, "commandline"); err != nil {
+		t.Fatalf("parse repository: %v", err)
+	}
 	if build.Repository != "commandline" {
 		t.Errorf("Bad build repo: %v", build.Repository)
 	}
 	// default repo
 	object = map[string]interface{}{}
 	build = &Build{}
-	ParseRepository(object, build, "")
+	if err := ParseRepository(object, build, ""); err != nil {
+		t.Fatalf("parse repository: %v", err)
+	}
 	if build.Repository != util.ExpandUserHome(DefaultRepository) {
 		t.Errorf("Bad build repo: %v", build.Repository)
 	}
@@ -115,7 +133,9 @@ func TestParseContext(t *testing.T) {
 		"context": []string{"foo", "bar"},
 	}
 	build := &Build{}
-	ParseContext(object, build)
+	if err := ParseContext(object, build); err != nil {
+		t.Fatalf("parse context: %v", err)
+	}
 	expected := []string{"foo", "bar"}
 	if !reflect.DeepEqual(build.Scripts, expected) {
 		t.Errorf("Bad build context: %v", build.Scripts)
@@ -127,7 +147,9 @@ func TestParseExtends(t *testing.T) {
 		"extends": []string{"foo", "bar"},
 	}
 	build := &Build{}
-	ParseExtends(object, build)
+	if err := ParseExtends(object, build); err != nil {
+		t.Fatalf("parse extends: %v", err)
+	}
 	expected := []string{"foo", "bar"}
 	if !reflect.DeepEqual(build.Extends, expected) {
 		t.Errorf("Bad build extends: %v", build.Extends)
@@ -142,7 +164,9 @@ func TestParseProperties(t *testing.T) {
 		},
 	}
 	build := &Build{}
-	ParseProperties(object, build)
+	if err := ParseProperties(object, build); err != nil {
+		t.Fatalf("parse properties: %v", err)
+	}
 	expected := util.Object{
 		"foo": "spam",
 		"bar": "eggs",
@@ -153,7 +177,9 @@ func TestParseProperties(t *testing.T) {
 }
 
 func TestParseConfiguration(t *testing.T) {
-	WriteFile("/tmp", "config.yml", "foo: spam\nbar: eggs")
+	if _, err := WriteFile("/tmp", "config.yml", "foo: spam\nbar: eggs"); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
 	defer os.RemoveAll("/tmp/config.yml")
 	object := map[string]interface{}{
 		"configuration": []string{"/tmp/config.yml"},
@@ -161,7 +187,9 @@ func TestParseConfiguration(t *testing.T) {
 	build := &Build{
 		Properties: util.Object{},
 	}
-	ParseConfiguration(object, build)
+	if err := ParseConfiguration(object, build); err != nil {
+		t.Fatalf("parse configuration: %v", err)
+	}
 	expected := util.Object{
 		"foo": "spam",
 		"bar": "eggs",
@@ -182,7 +210,9 @@ func TestParseEnvironment(t *testing.T) {
 		},
 	}
 	build := &Build{}
-	ParseEnvironment(object, build)
+	if err := ParseEnvironment(object, build); err != nil {
+		t.Fatalf("parse environment: %v", err)
+	}
 	expected := map[string]string{
 		"FOO": "SPAM",
 		"BAR": "EGGS",
@@ -199,7 +229,9 @@ func TestParseTargets(t *testing.T) {
 		},
 	}
 	build := &Build{}
-	ParseTargets(object, build)
+	if err := ParseTargets(object, build); err != nil {
+		t.Fatalf("parse targets: %v", err)
+	}
 	if _, ok := build.Targets["test"]; !ok {
 		t.Errorf("Bad build targets: missing test")
 	}
@@ -210,7 +242,9 @@ func TestParseVersion(t *testing.T) {
 		"version": `greaterorequal("0.12")`,
 	}
 	build := &Build{}
-	ParseVersion(object, build)
+	if err := ParseVersion(object, build); err != nil {
+		t.Fatalf("parse version: %v", err)
+	}
 	if build.Version != `greaterorequal("0.12")` {
 		t.Errorf("Bad build version: %v", build.Version)
 	}

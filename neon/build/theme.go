@@ -140,7 +140,7 @@ var Attributes = map[string]color.Attribute{
 
 // apply default theme
 func init() {
-	ApplyThemeByName(defaultTheme)
+	_ = ApplyThemeByName(defaultTheme)
 }
 
 // ApplyThemeByName applies named theme

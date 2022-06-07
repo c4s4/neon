@@ -168,10 +168,7 @@ func CheckType(field reflect.StructField, value interface{}) bool {
 	valueType := reflect.TypeOf(value)
 	// if field is optional and argument nil, it's OK
 	if value == nil {
-		if FieldIs(field, FieldOptional) {
-			return true
-		}
-		return false
+		return FieldIs(field, FieldOptional)
 	}
 	// if argument is an expression it's OK whatever the type
 	if valueType.Kind() == reflect.String &&
