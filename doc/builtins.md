@@ -1,6 +1,6 @@
 # Builtins Reference
 
-[absolute](#absolute) - [appendpath](#appendpath) - [changelog](#changelog) - [contains](#contains) - [directory](#directory) - [env](#env) - [escapeurl](#escapeurl) - [exists](#exists) - [expand](#expand) - [filename](#filename) - [filter](#filter) - [find](#find) - [findinpath](#findinpath) - [followlink](#followlink) - [greater](#greater) - [greaterorequal](#greaterorequal) - [haskey](#haskey) - [join](#join) - [joinpath](#joinpath) - [jsondecode](#jsondecode) - [jsonencode](#jsonencode) - [keys](#keys) - [length](#length) - [list](#list) - [lower](#lower) - [lowercase](#lowercase) - [lowerorequal](#lowerorequal) - [match](#match) - [newer](#newer) - [now](#now) - [ospath](#ospath) - [read](#read) - [replace](#replace) - [run](#run) - [setenv](#setenv) - [sortversions](#sortversions) - [split](#split) - [termwidth](#termwidth) - [throw](#throw) - [toint](#toint) - [trim](#trim) - [unescapeurl](#unescapeurl) - [unixpath](#unixpath) - [uppercase](#uppercase) - [windowspath](#windowspath) - [winexe](#winexe) - [yamldecode](#yamldecode) - [yamlencode](#yamlencode)
+[absolute](#absolute) - [appendpath](#appendpath) - [changelog](#changelog) - [contains](#contains) - [directory](#directory) - [env](#env) - [escapeurl](#escapeurl) - [exists](#exists) - [expand](#expand) - [filename](#filename) - [filter](#filter) - [find](#find) - [findinpath](#findinpath) - [followlink](#followlink) - [greater](#greater) - [greaterorequal](#greaterorequal) - [haskey](#haskey) - [join](#join) - [joinpath](#joinpath) - [jsondecode](#jsondecode) - [jsonencode](#jsonencode) - [keys](#keys) - [length](#length) - [list](#list) - [lower](#lower) - [lowercase](#lowercase) - [lowerorequal](#lowerorequal) - [match](#match) - [newer](#newer) - [now](#now) - [ospath](#ospath) - [read](#read) - [replace](#replace) - [run](#run) - [setenv](#setenv) - [sortversions](#sortversions) - [split](#split) - [termwidth](#termwidth) - [throw](#throw) - [toint](#toint) - [trim](#trim) - [unescapeurl](#unescapeurl) - [unixpath](#unixpath) - [uppercase](#uppercase) - [uuid](#uuid) - [windowspath](#windowspath) - [winexe](#winexe) - [yamldecode](#yamldecode) - [yamlencode](#yamlencode)
 
 ## absolute
 
@@ -827,6 +827,20 @@ Examples:
     # set string in upper case
     uppercase("FooBAR")
     # returns: "FOOBAR"
+
+## uuid
+
+Generate a random (version 4) UUID.
+
+Returns:
+
+- Generated UUID as a string.
+
+Examples:
+
+    # generate an UUID
+    uuid()
+    # returns: "9063eafd-40b9-48d9-bf90-ce44e9207821"
 
 ## windowspath
 
