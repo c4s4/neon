@@ -3,10 +3,12 @@ package task
 import (
 	"bytes"
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"os"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 const (
@@ -73,7 +75,7 @@ func request(context *build.Context, args interface{}) error {
 	}
 	body := []byte(params.Body)
 	if params.File != "" {
-		body, err = ioutil.ReadFile(params.File)
+		body, err = os.ReadFile(params.File)
 		if err != nil {
 			return err
 		}
@@ -96,7 +98,7 @@ func request(context *build.Context, args interface{}) error {
 	defer response.Body.Close()
 	context.SetProperty("_status", response.StatusCode)
 	context.SetProperty("_headers", response.Header)
-	responseBody, err := ioutil.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		return fmt.Errorf("reading response body: %v", err)
 	}

@@ -6,7 +6,6 @@ import (
 	"github.com/mattn/anko/packages"
 	"github.com/mattn/anko/parser"
 	"github.com/mattn/anko/vm"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"regexp"
@@ -91,7 +90,7 @@ func (context *Context) InitScripts() error {
 		if err != nil {
 			return fmt.Errorf("getting script path '%s': %v", script, err)
 		}
-		source, err := ioutil.ReadFile(path)
+		source, err := os.ReadFile(path)
 		if err != nil {
 			return fmt.Errorf("reading script '%s': %v", script, err)
 		}

@@ -2,9 +2,10 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
-	"io/ioutil"
+	"os"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -34,7 +35,7 @@ type readArgs struct {
 
 func read(context *build.Context, args interface{}) error {
 	params := args.(readArgs)
-	content, err := ioutil.ReadFile(params.Read)
+	content, err := os.ReadFile(params.Read)
 	if err != nil {
 		return fmt.Errorf("reading content of file '%s': %v", params.Read, err)
 	}

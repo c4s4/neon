@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/c4s4/neon/neon/build"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"strings"
@@ -21,7 +20,7 @@ colors:
   error: [FgHiRed, Bold]
 links:
 foo: bars`
-	if err := ioutil.WriteFile(file, []byte(source), 0644); err != nil {
+	if err := os.WriteFile(file, []byte(source), 0644); err != nil {
 		t.Errorf("Error writing configuration file")
 	}
 	defer os.Remove(file)
@@ -46,7 +45,7 @@ foo: bars`
 func TestParseConfigurationError(t *testing.T) {
 	file := "/tmp/neon.yml"
 	source := "- foo\nbar:"
-	if err := ioutil.WriteFile(file, []byte(source), 0644); err != nil {
+	if err := os.WriteFile(file, []byte(source), 0644); err != nil {
 		t.Errorf("Error writing configuration file")
 	}
 	defer os.Remove(file)
@@ -68,7 +67,7 @@ colors:
   error: [FgHiRed, Bold]
 links:
 foo: bars`
-	if err := ioutil.WriteFile(file, []byte(source), 0644); err != nil {
+	if err := os.WriteFile(file, []byte(source), 0644); err != nil {
 		t.Errorf("Error writing configuration file")
 	}
 	defer os.Remove(file)

@@ -2,16 +2,16 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
-	"github.com/c4s4/neon/neon/util"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	p "path"
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/c4s4/neon/neon/build"
+	"github.com/c4s4/neon/neon/util"
 
 	"gopkg.in/yaml.v2"
 )
@@ -144,7 +144,7 @@ func getDependencies(dependencies, scopes, repositories []string, context *build
 
 func getDependency(file string, scopes, repositories []string, context *build.Context) ([]string, error) {
 	var dependencies dependencies
-	source, err := ioutil.ReadFile(file)
+	source, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}

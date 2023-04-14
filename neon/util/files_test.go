@@ -1,7 +1,6 @@
 package util
 
 import (
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path"
@@ -208,7 +207,7 @@ func TestMakeRelative(t *testing.T) {
 // Utility functions
 
 func makeTempFile(dir string, t *testing.T) string {
-	tempFile, err := ioutil.TempFile(dir, "files_test.tmp")
+	tempFile, err := os.CreateTemp(dir, "files_test.tmp")
 	if err != nil {
 		t.Fail()
 	}
@@ -217,7 +216,7 @@ func makeTempFile(dir string, t *testing.T) string {
 
 func writeTempFile(dir string, t *testing.T) string {
 	tempFile := makeTempFile(dir, t)
-	err := ioutil.WriteFile(tempFile, []byte("test"), FileMode)
+	err := os.WriteFile(tempFile, []byte("test"), FileMode)
 	if err != nil {
 		t.Fail()
 	}

@@ -3,7 +3,6 @@ package util
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -28,7 +27,7 @@ const (
 // - an error if something went wrong
 func ReadFile(file string) ([]byte, error) {
 	path := ExpandUserHome(file)
-	bytes, err := ioutil.ReadFile(path)
+	bytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("reading file '%s': %v", file, err)
 	}

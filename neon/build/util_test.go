@@ -1,12 +1,12 @@
 package build
 
 import (
-	"github.com/c4s4/neon/neon/util"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/c4s4/neon/neon/util"
 )
 
 // WriteFile writes a file in given directory.
@@ -17,7 +17,7 @@ func WriteFile(dir, file, content string) (string, error) {
 		}
 	}
 	path := filepath.Join(dir, file)
-	if err := ioutil.WriteFile(path, []byte(content), util.FileMode); err != nil {
+	if err := os.WriteFile(path, []byte(content), util.FileMode); err != nil {
 		return "", err
 	}
 	return path, nil
