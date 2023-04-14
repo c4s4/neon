@@ -6,6 +6,7 @@ require (
 	github.com/c4s4/changelog v1.7.0
 	github.com/fatih/color v1.15.0
 	github.com/gen2brain/beeep v0.0.0-20230307103607-6e717729cb4f
+	github.com/google/uuid v1.3.0
 	github.com/mattn/anko v0.1.2
 	github.com/mattn/go-zglob v0.0.4
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2
