@@ -1,6 +1,6 @@
 # Tasks Reference
 
-[$](#$) - [assert](#assert) - [call](#call) - [cat](#cat) - [changelog](#changelog) - [chdir](#chdir) - [chmod](#chmod) - [classpath](#classpath) - [copy](#copy) - [delete](#delete) - [dotenv](#dotenv) - [for](#for) - [if](#if) - [java](#java) - [javac](#javac) - [link](#link) - [mkdir](#mkdir) - [move](#move) - [neon](#neon) - [notify](#notify) - [pass](#pass) - [path](#path) - [print](#print) - [prompt](#prompt) - [read](#read) - [replace](#replace) - [request](#request) - [setenv](#setenv) - [singleton](#singleton) - [sleep](#sleep) - [super](#super) - [tar](#tar) - [threads](#threads) - [throw](#throw) - [time](#time) - [touch](#touch) - [try](#try) - [untar](#untar) - [unzip](#unzip) - [while](#while) - [write](#write) - [zip](#zip)
+[$](#$) - [assert](#assert) - [call](#call) - [cat](#cat) - [changelog](#changelog) - [chdir](#chdir) - [chmod](#chmod) - [classpath](#classpath) - [copy](#copy) - [delete](#delete) - [dotenv](#dotenv) - [for](#for) - [if](#if) - [java](#java) - [javac](#javac) - [link](#link) - [mkdir](#mkdir) - [move](#move) - [neon](#neon) - [notify](#notify) - [pass](#pass) - [path](#path) - [print](#print) - [prompt](#prompt) - [read](#read) - [replace](#replace) - [request](#request) - [setenv](#setenv) - [singleton](#singleton) - [sleep](#sleep) - [start](#start) - [super](#super) - [tar](#tar) - [threads](#threads) - [throw](#throw) - [time](#time) - [touch](#touch) - [try](#try) - [untar](#untar) - [unzip](#unzip) - [while](#while) - [write](#write) - [zip](#zip)
 
 ## $
 
@@ -630,6 +630,26 @@ Examples:
     - sleep: 1.5
     # sleep for 3 seconds (3.0 as a float)
     - sleep: 3.0
+
+## start
+
+Start a command in background and put its PID in a variable.
+
+Arguments:
+
+- start: command to run (string).
+- pid: name of the variable to put PID into.
+
+Examples:
+
+    # start a command in background and put its PID in 'pid' variable
+    - start: 'ls -al'
+	  pid:  pid
+
+Notes:
+
+- Commands run in the shell defined by shell field at the root of the build file
+  (or 'sh -c' on Unix and 'cmd /c' on Windows by default).
 
 ## super
 
