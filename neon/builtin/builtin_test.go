@@ -2,16 +2,18 @@ package builtin
 
 import (
 	"fmt"
-	_build "github.com/c4s4/neon/neon/build"
-	_ "github.com/c4s4/neon/neon/task"
-	"github.com/c4s4/neon/neon/util"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"testing"
 	"time"
+
+	_build "github.com/c4s4/neon/neon/build"
+	_ "github.com/c4s4/neon/neon/task"
+	"github.com/c4s4/neon/neon/util"
 )
 
 const (
@@ -26,6 +28,20 @@ const (
 func Assert(actual, expected interface{}, t *testing.T) {
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("actual (\"%s\") != expected (\"%s\")", actual, expected)
+	}
+}
+
+// Assert make an assertion for testing purpose, failing test if different:
+// - actual: actual value
+// - expected: regexp for expected value
+// - t: test
+func AssertRegexp(actual, expected string, t *testing.T) {
+	match, err := regexp.MatchString(expected, actual)
+	if err != nil {
+		t.Errorf("error matching regexp: %v", err)
+	}
+	if !match {
+		t.Errorf("actual (\"%s\") !~ expected (\"%s\")", actual, expected)
 	}
 }
 
