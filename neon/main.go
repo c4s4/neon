@@ -7,7 +7,6 @@ import (
 	_ "github.com/c4s4/neon/neon/builtin"
 	_ "github.com/c4s4/neon/neon/task"
 	"github.com/c4s4/neon/neon/util"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
@@ -45,7 +44,7 @@ func ParseConfiguration(file string) (*Configuration, error) {
 	var configuration Configuration
 	file = util.ExpandUserHome(file)
 	if util.FileExists(file) {
-		source, err := ioutil.ReadFile(file)
+		source, err := os.ReadFile(file)
 		if err != nil {
 			return nil, err
 		}

@@ -2,12 +2,12 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
-	"github.com/c4s4/neon/neon/util"
-	"io/ioutil"
 	"os"
 	"reflect"
 	t "time"
+
+	"github.com/c4s4/neon/neon/build"
+	"github.com/c4s4/neon/neon/util"
 )
 
 func init() {
@@ -48,7 +48,7 @@ func touch(context *build.Context, args interface{}) error {
 				return fmt.Errorf("changing times of file '%s': %v", file, err)
 			}
 		} else {
-			err := ioutil.WriteFile(file, []byte{}, FileMode)
+			err := os.WriteFile(file, []byte{}, FileMode)
 			if err != nil {
 				return fmt.Errorf("creating file '%s': %v", file, err)
 			}

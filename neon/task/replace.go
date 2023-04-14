@@ -2,12 +2,13 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
-	"github.com/c4s4/neon/neon/util"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/c4s4/neon/neon/build"
+	"github.com/c4s4/neon/neon/util"
 )
 
 func init() {
@@ -57,7 +58,7 @@ func replace(context *build.Context, args interface{}) error {
 		if params.Dir != "" {
 			file = filepath.Join(params.Dir, file)
 		}
-		bytes, err := ioutil.ReadFile(file)
+		bytes, err := os.ReadFile(file)
 		if err != nil {
 			return fmt.Errorf("reading file '%s': %v", file, err)
 		}
@@ -65,7 +66,7 @@ func replace(context *build.Context, args interface{}) error {
 		for old, new := range with {
 			text = strings.Replace(text, old, new, -1)
 		}
-		err = ioutil.WriteFile(file, []byte(text), FileMode)
+		err = os.WriteFile(file, []byte(text), FileMode)
 		if err != nil {
 			return fmt.Errorf("writing file '%s': %v", file, err)
 		}

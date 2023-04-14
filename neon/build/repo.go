@@ -93,9 +93,10 @@ func (build *Build) ParentPath(name string) (string, error) {
 }
 
 // InstallPlugin installs given plugin in repository:
-// - plugin: the plugin name such as c4s4/build. First part us Github user name
-//   and second is repository name for the plugin.
-// - repository: plugin repository, defaults to ~/.neon.
+//   - plugin: the plugin name such as c4s4/build. First part us Github user name
+//     and second is repository name for the plugin.
+//   - repository: plugin repository, defaults to ~/.neon.
+//
 // Return: an error if something went wrong downloading plugin.
 func InstallPlugin(plugin, repository string) error {
 	re := regexp.MustCompile(`^` + RegexpPlugin + `$`)
