@@ -59,7 +59,7 @@ Notes:
 
 type shellArgs struct {
 	Shell []string `neon:"name=$,wrap"`
-	Args  []string `neon:"name=+,expression,optional"`
+	Args  []string `neon:"name=+,expression,wrap,optional"`
 	Del1  bool     `neon:"name=1x,bool,optional"`
 	Del2  bool     `neon:"name=2x,bool,optional"`
 	Del3  bool     `neon:"name=3x,bool,optional"`
