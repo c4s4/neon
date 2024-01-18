@@ -8,6 +8,7 @@ configuration: '~/.neon/github.yml'
 # GITHUB_TOKEN: 'abcdefghijklmnopqrstuvwxyz0123456789'
 
 properties:
+  NAME:         'neon'
   TEST_OPTS:    ['-cover']
   VERSION_PATH: 'github.com/c4s4/neon/neon/build.NeonVersion'
   TASKS_REF:    'doc/tasks.md'
