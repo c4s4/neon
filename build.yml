@@ -8,6 +8,7 @@ configuration: '~/.neon/github.yml'
 # GITHUB_TOKEN: 'abcdefghijklmnopqrstuvwxyz0123456789'
 
 properties:
+  NAME:         'neon'
   TEST_OPTS:    ['-cover']
   VERSION_PATH: 'github.com/c4s4/neon/neon/build.NeonVersion'
   TASKS_REF:    'doc/tasks.md'
@@ -76,6 +77,16 @@ targets:
 
   release:
     doc: Perform release
-    depends: [clean, last-tags, version, check, test, refs]
+    depends: [version, clean, test, bugs, refs, archive, deploy]
     steps:
-    - super:
+    - if: '_OS == "linux"'
+      then:
+      - copy: '={NAME}-={VERSION}.tar.gz'
+        dir: =BUILD_DIR
+        todir: '~/dsk/'
+      else:
+      - copy: '={NAME}-={VERSION}.tar.gz'
+        dir: =BUILD_DIR
+        todir: '~/Desktop/'
+    - $: [git, tag, =VERSION]
+    - $: [git, push, --tags]

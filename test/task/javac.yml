@@ -1,1 +1,28 @@
-java.yml
+doc: Built file to test tasks
+default: task_java
+
+properties:
+  BUILD_DIR: '../../../.build'
+  JAVA_SRC: 'package test;
+public class Main {
+  public static void main(String[] args) throws Exception {
+    System.out.println("Java test success");
+  }
+}'
+
+targets:
+
+  task_java:
+    doc: Test java task
+    steps:
+    - if: '_OS != "windows"'
+      then:
+      - mkdir: '={BUILD_DIR}/java/test'
+      - write: '={BUILD_DIR}/java/test/Main.java'
+        text:  =JAVA_SRC
+      - mkdir: '={BUILD_DIR}/java/classes'
+      - javac:  '**/*.java'
+        source: '={BUILD_DIR}/java'
+        dest:   '={BUILD_DIR}/java/classes'
+      - java: 'test.Main'
+        cp:   '={BUILD_DIR}/java/classes'
