@@ -1,6 +1,6 @@
 # Builtins Reference
 
-[absolute](#absolute) - [appendpath](#appendpath) - [changelog](#changelog) - [contains](#contains) - [directory](#directory) - [env](#env) - [escapeurl](#escapeurl) - [exists](#exists) - [expand](#expand) - [filename](#filename) - [filter](#filter) - [find](#find) - [findinpath](#findinpath) - [followlink](#followlink) - [greater](#greater) - [greaterorequal](#greaterorequal) - [haskey](#haskey) - [join](#join) - [joinpath](#joinpath) - [jsondecode](#jsondecode) - [jsonencode](#jsonencode) - [keys](#keys) - [length](#length) - [list](#list) - [lower](#lower) - [lowercase](#lowercase) - [lowerorequal](#lowerorequal) - [match](#match) - [newer](#newer) - [now](#now) - [ospath](#ospath) - [read](#read) - [replace](#replace) - [run](#run) - [setenv](#setenv) - [sortversions](#sortversions) - [split](#split) - [termwidth](#termwidth) - [throw](#throw) - [toint](#toint) - [trim](#trim) - [unescapeurl](#unescapeurl) - [unixpath](#unixpath) - [uppercase](#uppercase) - [uuid](#uuid) - [windowspath](#windowspath) - [winexe](#winexe) - [yamldecode](#yamldecode) - [yamlencode](#yamlencode)
+[absolute](#absolute) - [appendpath](#appendpath) - [changelog](#changelog) - [contains](#contains) - [directory](#directory) - [env](#env) - [escapeurl](#escapeurl) - [exists](#exists) - [expand](#expand) - [filename](#filename) - [filter](#filter) - [find](#find) - [findinpath](#findinpath) - [followlink](#followlink) - [greater](#greater) - [greaterorequal](#greaterorequal) - [haskey](#haskey) - [join](#join) - [joinpath](#joinpath) - [jsondecode](#jsondecode) - [jsonencode](#jsonencode) - [keys](#keys) - [length](#length) - [list](#list) - [lower](#lower) - [lowercase](#lowercase) - [lowerorequal](#lowerorequal) - [match](#match) - [md5](#md5) - [newer](#newer) - [now](#now) - [ospath](#ospath) - [read](#read) - [replace](#replace) - [run](#run) - [setenv](#setenv) - [sortversions](#sortversions) - [split](#split) - [termwidth](#termwidth) - [throw](#throw) - [title](#title) - [toint](#toint) - [trim](#trim) - [unescapeurl](#unescapeurl) - [unixpath](#unixpath) - [uppercase](#uppercase) - [uuid](#uuid) - [windowspath](#windowspath) - [winexe](#winexe) - [yamldecode](#yamldecode) - [yamlencode](#yamlencode)
 
 ## absolute
 
@@ -529,6 +529,24 @@ Examples:
     match("n..n", "neon")
     # return true
 
+## md5
+
+Return MD5 sum of given file.
+
+Arguments:
+
+- The file name to get MD5 sum for.
+
+Returns:
+
+- The MD5 sum of given file.
+
+Examples:
+
+    # get MD5 sum of file README
+    md5("README")
+    # returns: MD5 sum of file "README"
+
 ## newer
 
 Tells if source files are newer than result ones.
@@ -737,6 +755,25 @@ Examples:
     # stop the script with an error message
     throw("Some tests failed")
     # returns: nothing, the script is interrupted on error
+
+## title
+
+Return a title string.
+
+Arguments:
+
+- The title text as a string.
+- The title character as a string.
+
+Returns:
+
+- Title text surrounded by title separators with terminal width.
+
+Examples:
+
+    # get title "Hello World!"
+    title("Hello World!", "#")
+    # returns: "## Hello World! #############################################"
 
 ## toint
 
