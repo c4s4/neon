@@ -23,17 +23,17 @@ Examples:
     # execute a command and continue even if it fails
     - try:
       - 'command-that-doesnt-exist'
-	- print: 'Continue even if command fails'
-	# execute a command and print a message if it fails
-	- try:
-	  - 'command-that-doesnt-exist'
-	  catch:
-	  - print: 'There was an error!'
-	# execute a command a print message in all cases
-	- try:
-	  - 'command-that-doesnt-exist'
-	  finally:
-	  - print: 'Print whatever happens'
+    - print: 'Continue even if command fails'
+    # execute a command and print a message if it fails
+    - try:
+      - 'command-that-doesnt-exist'
+      catch:
+      - print: 'There was an error!'
+    # execute a command a print message in all cases
+    - try:
+      - 'command-that-doesnt-exist'
+      finally:
+      - print: 'Print whatever happens'
 
 Notes:
 
