@@ -2,13 +2,14 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
-	"github.com/c4s4/neon/neon/util"
 	"io"
 	"os"
 	"os/exec"
 	"reflect"
 	"strings"
+
+	"github.com/c4s4/neon/neon/build"
+	"github.com/c4s4/neon/neon/util"
 )
 
 func init() {
@@ -136,13 +137,27 @@ func shell(context *build.Context, args interface{}) error {
 		stderr = append(stderr, builder)
 		property = params.Var2 + params.Var3
 	}
-	// write in standart input
+	// write in standard input
 	if params.In != "" {
 		stdin = strings.NewReader(params.In)
 	}
-	// put writers in a multi writer
-	multiStdout := io.MultiWriter(stdout...)
-	multiStderr := io.MultiWriter(stderr...)
+	// wrap writers in a multi writer if necessary
+	var multiStdout io.Writer
+	if len(stdout) > 1 {
+		multiStdout = io.MultiWriter(stdout...)
+	} else if len(stdout) == 1 {
+		multiStdout = stdout[0]
+	} else {
+		multiStdout = io.Discard
+	}
+	var multiStderr io.Writer
+	if len(stderr) > 0 {
+		multiStderr = io.MultiWriter(stderr...)
+	} else if len(stderr) == 1 {
+		multiStderr = stderr[0]
+	} else {
+		multiStderr = io.Discard
+	}
 	err := run(params.Shell, params.Args, multiStdout, multiStderr, stdin, context, params.Verb)
 	if property != "" {
 		context.SetProperty(property, strings.TrimSpace(builder.String()))
