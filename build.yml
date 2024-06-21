@@ -2,8 +2,8 @@
 
 doc:     Build file for NeON
 extends: [golang]
-default: [clean, fmt, check, test, bugs]
-expose:  [clean, fmt, check, test, bugs, install, release]
+default: [clean, fmt, lint, test, bugs]
+expose:  [clean, fmt, lint, test, bugs, install, release]
 configuration: '~/.neon/github.yml'
 # GITHUB_TOKEN: 'abcdefghijklmnopqrstuvwxyz0123456789'
 
