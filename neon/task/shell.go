@@ -141,7 +141,7 @@ func shell(context *build.Context, args interface{}) error {
 	if params.In != "" {
 		stdin = strings.NewReader(params.In)
 	}
-	// put writers in a multi writer
+	// wrap writers in a multi writer if necessary
 	var multiStdout io.Writer
 	if len(stdout) > 1 {
 		multiStdout = io.MultiWriter(stdout...)
