@@ -137,15 +137,13 @@ func (target *Target) Run(context *Context) error {
 			return nil
 		}
 	}
-	for _, name := range target.Depends {
-		if !context.Stack.Contains(name) {
-			if err := target.Build.Root.RunTarget(context, name); err != nil {
-				return err
-			}
-		}
-	}
 	if err := context.Stack.Push(target); err != nil {
 		return err
+	}
+	for _, name := range target.Depends {
+		if err := target.Build.Root.RunTarget(context, name); err != nil {
+			return err
+		}
 	}
 	Title(target.Name)
 	if target.Build.Template {
@@ -157,5 +155,9 @@ func (target *Target) Run(context *Context) error {
 			return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
 		}
 	}
-	return target.Steps.Run(context)
+	run_err := target.Steps.Run(context)
+	if err := context.Stack.Pop(); err != nil {
+		return err
+	}
+	return run_err
 }

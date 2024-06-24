@@ -390,6 +390,9 @@ func (build *Build) RunParentTarget(context *Context, name string) error {
 	if err != nil {
 		return fmt.Errorf("running target '%s': %v", name, err)
 	}
+	if err := context.Stack.Pop(); err != nil {
+		return err
+	}
 	return nil
 }
 
