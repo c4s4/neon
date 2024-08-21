@@ -19,7 +19,7 @@ Arguments:
 
 Returns:
 
-- Files as a list of strings.
+- Files as a sorted list of strings.
 
 Examples:
 

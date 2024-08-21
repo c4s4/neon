@@ -1,7 +1,7 @@
 # Neon Build File (http://github.com/c4s4/neon)
 
 doc:     Build file for NeON
-extends: [golang]
+extends: [c4s4/build/golang.yml]
 default: [clean, fmt, lint, test, bugs]
 expose:  [clean, fmt, lint, test, bugs, install, release]
 configuration: '~/.neon/github.yml'
