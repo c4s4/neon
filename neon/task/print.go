@@ -19,6 +19,7 @@ Arguments:
 
 - print: text to print (string).
 - color: text color (string).
+- noreturn: if set to true, do not print a newline at the end (bool, optional).
 
 Possible colors are black, red, green, yellow, blue, magenta, cyan and white.
 
@@ -35,6 +36,7 @@ Examples:
 type printArgs struct {
 	Print string
 	Color string `neon:"optional"`
+	NoReturn bool `neon:"optional"`
 }
 
 // Colors is the color mapping
@@ -57,9 +59,14 @@ func print(context *build.Context, args interface{}) error {
 			return fmt.Errorf("color %s not found", params.Color)
 		}
 		fmt.Fprint(color.Output, color.New(colorPrint).SprintFunc()(params.Print))
-		fmt.Println()
+		if !params.NoReturn {
+			fmt.Println()
+		}
 	} else {
-		context.Message(params.Print)
+		fmt.Print(params.Print)
+		if !params.NoReturn {
+			fmt.Println()
+		}
 	}
 	return nil
 }
