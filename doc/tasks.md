@@ -487,6 +487,7 @@ Arguments:
 
 - print: text to print (string).
 - color: text color (string).
+- noreturn: if set to true, do not print a newline at the end (bool, optional).
 
 Possible colors are black, red, green, yellow, blue, magenta, cyan and white.
 
@@ -623,13 +624,15 @@ Sleep given number of seconds.
 Arguments:
 
 - sleep: duration to sleep in seconds (float).
+- mute: if set to true, do not print a message (bool, optional).
 
 Examples:
 
     # sleep for 1.5 seconds
     - sleep: 1.5
-    # sleep for 3 seconds (3.0 as a float)
+    # sleep for 3 seconds without message
     - sleep: 3.0
+      mute: true
 
 ## start
 
