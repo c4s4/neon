@@ -16,23 +16,28 @@ func init() {
 Arguments:
 
 - sleep: duration to sleep in seconds (float).
+- mute: if set to true, do not print a message (bool, optional).
 
 Examples:
 
     # sleep for 1.5 seconds
     - sleep: 1.5
-    # sleep for 3 seconds (3.0 as a float)
-    - sleep: 3.0`,
+    # sleep for 3 seconds without message
+    - sleep: 3.0
+      mute: true`,
 	})
 }
 
 type sleepArgs struct {
 	Sleep float64
+	Mute bool `neon:"optional"`
 }
 
 func sleep(context *build.Context, args interface{}) error {
 	params := args.(sleepArgs)
-	context.Message("Sleeping for %g seconds...", params.Sleep)
+	if !params.Mute {
+		context.Message("Sleeping for %g seconds...", params.Sleep)
+	}
 	t.Sleep(t.Duration(params.Sleep) * t.Second)
 	return nil
 }
