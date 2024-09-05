@@ -1,6 +1,6 @@
 # Builtins Reference
 
-[absolute](#absolute) - [appendpath](#appendpath) - [changelog](#changelog) - [color](#color) - [contains](#contains) - [directory](#directory) - [env](#env) - [escapeurl](#escapeurl) - [exists](#exists) - [expand](#expand) - [filename](#filename) - [filter](#filter) - [find](#find) - [findinpath](#findinpath) - [followlink](#followlink) - [greater](#greater) - [greaterorequal](#greaterorequal) - [haskey](#haskey) - [join](#join) - [joinpath](#joinpath) - [jsondecode](#jsondecode) - [jsonencode](#jsonencode) - [keys](#keys) - [length](#length) - [list](#list) - [lower](#lower) - [lowercase](#lowercase) - [lowerorequal](#lowerorequal) - [match](#match) - [md5](#md5) - [newer](#newer) - [now](#now) - [ospath](#ospath) - [read](#read) - [replace](#replace) - [run](#run) - [setenv](#setenv) - [sortversions](#sortversions) - [split](#split) - [termwidth](#termwidth) - [throw](#throw) - [title](#title) - [toint](#toint) - [trim](#trim) - [unescapeurl](#unescapeurl) - [unixpath](#unixpath) - [uppercase](#uppercase) - [uuid](#uuid) - [windowspath](#windowspath) - [winexe](#winexe) - [yamldecode](#yamldecode) - [yamlencode](#yamlencode)
+[absolute](#absolute) - [appendpath](#appendpath) - [changelog](#changelog) - [color](#color) - [contains](#contains) - [directory](#directory) - [env](#env) - [escapeurl](#escapeurl) - [exists](#exists) - [expand](#expand) - [filename](#filename) - [filter](#filter) - [find](#find) - [findinpath](#findinpath) - [followlink](#followlink) - [greater](#greater) - [greaterorequal](#greaterorequal) - [haskey](#haskey) - [join](#join) - [joinpath](#joinpath) - [jsondecode](#jsondecode) - [jsonencode](#jsonencode) - [keys](#keys) - [length](#length) - [list](#list) - [lower](#lower) - [lowercase](#lowercase) - [lowerorequal](#lowerorequal) - [match](#match) - [md5](#md5) - [newer](#newer) - [now](#now) - [ospath](#ospath) - [read](#read) - [replace](#replace) - [run](#run) - [setenv](#setenv) - [sortversions](#sortversions) - [split](#split) - [termlink](#termlink) - [termwidth](#termwidth) - [throw](#throw) - [title](#title) - [toint](#toint) - [trim](#trim) - [unescapeurl](#unescapeurl) - [unixpath](#unixpath) - [uppercase](#uppercase) - [uuid](#uuid) - [windowspath](#windowspath) - [winexe](#winexe) - [yamldecode](#yamldecode) - [yamlencode](#yamlencode)
 
 ## absolute
 
@@ -746,6 +746,23 @@ Examples:
     # split "foo bar" with space
     split("foo bar", " ")
     # returns: ["foo"," "bar"]
+
+## termlink
+
+Make given string a link when printed in a terminal.
+
+Arguments:
+
+- The URL to link to.
+- The text to print on terminal.
+
+Note: if text is empty, the URL is used as text.
+
+Examples:
+
+    # make link for string "Example" to "https://example.com"
+    termlink("https://example.com", "Example")
+    # returns: string "Example" with escape codes for terminal link to "https://example.com"
 
 ## termwidth
 
