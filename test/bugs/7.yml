@@ -9,6 +9,7 @@ targets:
     - call: infinite-1
     - call: infinite-2
     - call: infinite-3
+    - call: infinite-4
 
   infinite-1:
     steps:
@@ -38,3 +39,10 @@ targets:
       - neon: 'infinite-3.tst'
       catch:
       - throw: 'Test infinite 3 failed with error: ={_error}'
+
+  infinite-4:
+    steps:
+    - try:
+      - neon: 'infinite-4.tst'
+      catch:
+      - throw: 'Test infinite 4 failed with error: ={_error}'
