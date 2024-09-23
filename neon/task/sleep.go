@@ -30,7 +30,7 @@ Examples:
 
 type sleepArgs struct {
 	Sleep float64
-	Mute bool `neon:"optional"`
+	Mute  bool `neon:"optional"`
 }
 
 func sleep(context *build.Context, args interface{}) error {
