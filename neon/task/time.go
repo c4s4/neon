@@ -45,7 +45,7 @@ func time(context *build.Context, args interface{}) error {
 	if params.To != "" {
 		context.SetProperty(params.To, duration)
 	} else {
-		context.Message("Duration: %gs", duration)
+		context.MessageArgs("Duration: %gs", duration)
 	}
 	return nil
 }

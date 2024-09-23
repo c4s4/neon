@@ -39,7 +39,7 @@ type touchArgs struct {
 
 func touch(context *build.Context, args interface{}) error {
 	params := args.(touchArgs)
-	context.Message("Touching %d file(s)", len(params.Touch))
+	context.MessageArgs("Touching %d file(s)", len(params.Touch))
 	for _, file := range params.Touch {
 		if util.FileExists(file) {
 			time := t.Now()

@@ -1,7 +1,7 @@
 package task
 
 import (
-	"fmt"
+	"errors"
 	"github.com/c4s4/neon/neon/build"
 	"reflect"
 )
@@ -37,5 +37,5 @@ type throwArgs struct {
 
 func throw(context *build.Context, args interface{}) error {
 	params := args.(throwArgs)
-	return fmt.Errorf(params.Throw)
+	return errors.New(params.Throw)
 }
