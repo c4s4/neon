@@ -3,13 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"path/filepath"
+	"time"
+
 	_build "github.com/c4s4/neon/neon/build"
 	_ "github.com/c4s4/neon/neon/builtin"
 	_ "github.com/c4s4/neon/neon/task"
 	"github.com/c4s4/neon/neon/util"
-	"os"
-	"path/filepath"
-	"time"
 
 	"gopkg.in/yaml.v2"
 )
@@ -65,7 +66,7 @@ func LoadConfiguration(file string) (*Configuration, error) {
 		return nil, err
 	}
 	// apply grey
-	_build.Grey = configuration.Grey
+	_build.Gray = configuration.Grey
 	// apply theme
 	if configuration.Theme != "" {
 		err := _build.ApplyThemeByName(configuration.Theme)
@@ -178,7 +179,7 @@ func main() {
 		}
 		repo = util.ExpandUserHome(repo)
 	}
-	_build.Grey = grey
+	_build.Gray = grey
 	configuration.Time = timeit
 	if printInfo(tasks, builtins, templates, parents, themes, tasksRef, builtinsRef, task, builtin, repo) {
 		return

@@ -34,13 +34,13 @@ func TestInfoNotGrey(t *testing.T) {
 }
 
 func TestInfoGrey(t *testing.T) {
-	Grey = true
+	Gray = true
 	stdout := os.Stdout
 	read, write, _ := os.Pipe()
 	os.Stdout = write
 	Info("This is a test!")
 	os.Stdout = stdout
-	Grey = false
+	Gray = false
 	write.Close()
 	out, _ := io.ReadAll(read)
 	if string(out) != "This is a test!\n" {

@@ -158,8 +158,5 @@ func (target *Target) Run(context *Context) error {
 		}
 	}
 	run_err := target.Steps.Run(context)
-	if err := context.Stack.Pop(); err != nil {
-		return err
-	}
 	return run_err
 }

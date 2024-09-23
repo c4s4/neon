@@ -2,16 +2,17 @@ package build
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/util"
-	"github.com/fatih/color"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/c4s4/neon/neon/util"
+	"github.com/fatih/color"
 )
 
 type colorizer func(a ...interface{}) string
 
-// Grey is a flag that tells if we print on console without color
-var Grey = false
+// Gray is a flag that tells if we print on console without color
+var Gray = false
 
 // Color definitions
 var colorTitle colorizer
@@ -34,7 +35,7 @@ func MessageArgs(text string, args ...interface{}) {
 // Info prints an information message on console:
 // - text: text to print (that might embed fields to print, such as "%s")
 func Info(text string) {
-	if Grey {
+	if Gray {
 		printGray(text)
 	} else {
 		printColor(colorTitle(text))
@@ -45,7 +46,7 @@ func Info(text string) {
 // - text: text to print (that might embed fields to print, such as "%s")
 // - args: arguments for the text to print
 func InfoArgs(text string, args ...interface{}) {
-	if Grey {
+	if Gray {
 		printGrayArgs(text, args...)
 	} else {
 		printColorArgs(colorTitle(text), args...)
@@ -60,7 +61,7 @@ func Title(text string) {
 		length = 2
 	}
 	message := fmt.Sprintf("%s %s --", strings.Repeat("-", length), text)
-	if Grey {
+	if Gray {
 		printGray(message)
 	} else {
 		printColor(colorTitle(message))
@@ -69,7 +70,7 @@ func Title(text string) {
 
 // PrintOk prints a green OK on the console
 func PrintOk() {
-	if Grey {
+	if Gray {
 		printGray("OK")
 	} else {
 		printColor(colorOk("OK"))
@@ -80,7 +81,7 @@ func PrintOk() {
 // text
 // - text: the explanatory text to print
 func PrintError(text string) {
-	if Grey {
+	if Gray {
 		printGrayArgs("ERROR %s", text)
 	} else {
 		printColorArgs("%s %s", colorError("ERROR"), text)
