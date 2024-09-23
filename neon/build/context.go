@@ -374,9 +374,15 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 
 // Message print a message on the console
 // - text: the text to print on console
+func (context *Context) Message(text string) {
+	Message(text)
+}
+
+// Message print a message on the console
+// - text: the text to print on console
 // - args: a slice of string arguments (as for fmt.Printf())
-func (context *Context) Message(text string, args ...interface{}) {
-	Message(text, args...)
+func (context *Context) MessageArgs(text string, args ...interface{}) {
+	MessageArgs(text, args...)
 }
 
 // FormatScriptError adds line and column numbers on parser or vm errors.

@@ -34,7 +34,7 @@ type linkArgs struct {
 
 func link(context *build.Context, args interface{}) error {
 	params := args.(linkArgs)
-	context.Message("Linking file '%s' to '%s'", params.Link, params.To)
+	context.MessageArgs("Linking file '%s' to '%s'", params.Link, params.To)
 	err := os.Symlink(params.Link, params.To)
 	if err != nil {
 		return fmt.Errorf("linking files: %v", err)

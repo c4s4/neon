@@ -229,7 +229,7 @@ func main() {
 		err = build.Run(context, targets)
 		duration := time.Since(start)
 		if configuration.Time || duration.Seconds() > 10 {
-			_build.Info("Build duration: %s", duration.String())
+			_build.InfoArgs("Build duration: %s", duration.String())
 		}
 		PrintError(err)
 		_build.PrintOk()

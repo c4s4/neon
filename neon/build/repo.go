@@ -105,12 +105,12 @@ func InstallPlugin(plugin, repository string) error {
 	}
 	pluginPath := filepath.Join(repository, plugin)
 	if util.DirExists(pluginPath) {
-		Message("Plugin '%s' already installed in '%s'", plugin, pluginPath)
+		MessageArgs("Plugin '%s' already installed in '%s'", plugin, pluginPath)
 		return nil
 	}
 	gitRepository := "https://" + PluginSite + "/" + plugin + ".git"
 	command := exec.Command("git", "clone", gitRepository, pluginPath)
-	Message("Running command '%s'...", strings.Join(command.Args, " "))
+	MessageArgs("Running command '%s'...", strings.Join(command.Args, " "))
 	output, err := command.CombinedOutput()
 	if err != nil {
 		re = regexp.MustCompile("\n\n")
@@ -119,7 +119,7 @@ func InstallPlugin(plugin, repository string) error {
 		Message(message)
 		return fmt.Errorf("installing plugin '%s'", plugin)
 	}
-	Message("Plugin '%s' installed in '%s'", plugin, pluginPath)
+	MessageArgs("Plugin '%s' installed in '%s'", plugin, pluginPath)
 	return nil
 }
 

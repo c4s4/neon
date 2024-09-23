@@ -172,7 +172,7 @@ func getDependency(file string, scopes, repositories []string, context *build.Co
 }
 
 func downloadDependency(dependency dependency, repositories []string, context *build.Context) error {
-	context.Message("Downloading dependency '%s'", dependency.String())
+	context.MessageArgs("Downloading dependency '%s'", dependency.String())
 	path := dependency.Path(LocalRepository)
 	dir := filepath.Dir(path)
 	if !util.DirExists(dir) {

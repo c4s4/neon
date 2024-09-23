@@ -35,7 +35,7 @@ type dotenvArgs struct {
 
 func dotenv(context *build.Context, args interface{}) error {
 	params := args.(dotenvArgs)
-	context.Message("Loading environment in dotenv file %s", params.Dotenv)
+	context.MessageArgs("Loading environment in dotenv file %s", params.Dotenv)
 	err := LoadEnv(params.Dotenv)
 	if err != nil {
 		return fmt.Errorf("loading dotenv file: %v", err)

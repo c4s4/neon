@@ -78,7 +78,7 @@ func threads(context *build.Context, args interface{}) error {
 	var wg sync.WaitGroup
 	wg.Add(params.Threads)
 	if params.Verbose {
-		context.Message("Starting %d threads", params.Threads)
+		context.MessageArgs("Starting %d threads", params.Threads)
 	}
 	output := make(chan interface{}, len(input))
 	for i := 0; i < params.Threads; i++ {
@@ -114,8 +114,8 @@ func threads(context *build.Context, args interface{}) error {
 func runThread(steps build.Steps, ctx *build.Context, index int, input chan interface{}, output chan interface{},
 	wg *sync.WaitGroup, errors chan error, verbose bool) {
 	if verbose {
-		ctx.Message("Thread %d started", index)
-		defer ctx.Message("Thread %d done", index)
+		ctx.MessageArgs("Thread %d started", index)
+		defer ctx.MessageArgs("Thread %d done", index)
 	}
 	defer wg.Done()
 	for {
@@ -127,7 +127,7 @@ func runThread(steps build.Steps, ctx *build.Context, index int, input chan inte
 				threadContext.SetProperty(propertyInput, arg)
 				_ = threadContext.DelProperty(propertyOutput)
 				if verbose {
-					threadContext.Message("Thread %d iteration with input '%v'", index, arg)
+					threadContext.MessageArgs("Thread %d iteration with input '%v'", index, arg)
 				}
 				err := steps.Run(threadContext)
 				out, _ := threadContext.GetProperty(propertyOutput)
@@ -138,7 +138,7 @@ func runThread(steps build.Steps, ctx *build.Context, index int, input chan inte
 				if out != nil {
 					output <- out
 					if verbose {
-						threadContext.Message("Thread %d output '%v'", index, out)
+						threadContext.MessageArgs("Thread %d output '%v'", index, out)
 					}
 				}
 			} else {

@@ -34,7 +34,7 @@ func mkdir(context *build.Context, args interface{}) error {
 	params := args.(mkdirArgs)
 	for _, dir := range params.Mkdir {
 		if !util.DirExists(dir) {
-			context.Message("Making directory '%s'", dir)
+			context.MessageArgs("Making directory '%s'", dir)
 			err := os.MkdirAll(dir, DirFileMode)
 			if err != nil {
 				return fmt.Errorf("making directory '%s': %s", dir, err)
