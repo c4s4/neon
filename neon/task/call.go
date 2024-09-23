@@ -30,11 +30,13 @@ type callArgs struct {
 func call(context *build.Context, args interface{}) error {
 	params := args.(callArgs)
 	for _, target := range params.Call {
+		stack := context.Stack.Copy()
 		context.MessageArgs("Calling target '%s'", target)
 		err := context.Build.RunTarget(context, target)
 		if err != nil {
 			return err
 		}
+		context.Stack = stack
 	}
 	return nil
 }
