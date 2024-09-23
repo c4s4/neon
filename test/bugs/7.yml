@@ -14,31 +14,27 @@ targets:
     steps:
     - try:
       - neon: 'infinite-1.tst'
-      - throw: 'Test infinite 1 failed'
       catch:
-      - if: >
-          _error != "running build 'infinite-1.tst': running target 'test1': running target 'test2': running target 'test1': infinite loop: test1 -> test2 -> test1"
-        then:
-        - throw: "Bad error message: ={_error}"
+      - throw: 'Test infinite 1 failed'
 
   infinite-2:
     steps:
+    - 'fail = false'
     - try:
       - neon: 'infinite-2.tst'
-      - throw: 'Test infinite 2 failed'
+      - 'fail = true'
       catch:
       - if: >
           _error != "running build 'infinite-2.tst': running target 'test1': in step 2: running target 'test2': in step 2: running target 'test1': infinite loop: test1 -> test2 -> test1"
         then:
         - throw: "Bad error message: ={_error}"
+    - if: fail
+      then:
+      - throw: 'Test infinite 2 failed'
 
   infinite-3:
     steps:
     - try:
       - neon: 'infinite-3.tst'
-      - throw: 'Test infinite 3 failed'
       catch:
-      - if: >
-          _error != "running build 'infinite-3.tst': running target 'test1': running target 'test2': in step 2: running target 'test1': infinite loop: test1 -> test2 -> test1"
-        then:
-        - throw: "Bad error message: ={_error}"
+      - throw: 'Test infinite 3 failed with error: ={_error}'

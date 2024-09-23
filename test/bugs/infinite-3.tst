@@ -1,3 +1,5 @@
+# This build file should fail: test2 -> test1
+
 default: test1
 
 targets:

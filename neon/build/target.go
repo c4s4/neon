@@ -141,8 +141,10 @@ func (target *Target) Run(context *Context) error {
 		return err
 	}
 	for _, name := range target.Depends {
-		if err := target.Build.Root.RunTarget(context, name); err != nil {
-			return err
+		if !context.Stack.Contains(name) {
+			if err := target.Build.Root.RunTarget(context, name); err != nil {
+				return err
+			}
 		}
 	}
 	Title(target.Name)
