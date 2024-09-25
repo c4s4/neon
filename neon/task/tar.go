@@ -57,7 +57,7 @@ func tar(context *build.Context, args interface{}) error {
 		return fmt.Errorf("getting source files for tar task: %v", err)
 	}
 	if len(files) > 0 {
-		context.Message("Tarring %d file(s) into '%s'", len(files), params.Tofile)
+		context.MessageArgs("Tarring %d file(s) into '%s'", len(files), params.Tofile)
 		err = writeTar(params.Dir, files, params.Prefix, params.Tofile)
 		if err != nil {
 			return fmt.Errorf("tarring files: %v", err)

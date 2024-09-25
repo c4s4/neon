@@ -1,14 +1,16 @@
-# Bug 5: when calling super after a call, super target is wrong
-
-default: bug-5
+default: bug
+properties:
+  BUG: 5
 
 targets:
 
-  test:
+  bug:
     steps:
-    - pass:
-
-  bug-5:
-    steps:
-    - call: test
-    - super:
+    - 'fail = false'
+    - try:
+      - neon: '={BUG}.tst'
+      catch:
+      - 'fail = true'
+    - if: '!fail'
+      then:
+      - throw: "Should have failed"

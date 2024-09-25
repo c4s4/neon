@@ -54,7 +54,7 @@ func replace(context *build.Context, args interface{}) error {
 		return nil
 	}
 	for _, file := range files {
-		context.Message("Replacing text in file '%s'", file)
+		context.MessageArgs("Replacing text in file '%s'", file)
 		if params.Dir != "" {
 			file = filepath.Join(params.Dir, file)
 		}

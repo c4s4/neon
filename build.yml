@@ -25,12 +25,10 @@ targets:
     depends: [version-test, build]
     steps:
     - for: file
-      in:  'find(joinpath("test", "bugs"), "*.yml")'
+      in:  'find(".", "test/bugs/*.yml")'
       do:
-      - 'path = joinpath("test", "bugs", file)'
-      - print: "Running build file '={path}'"
-      - try:
-        - $: ['bin/neon', '-file', =path]
+      - print: "Running build file '={file}'"
+      - $: ['neon', '-file', =file]
 
   refs:
     doc: Generate reference documentation

@@ -2,16 +2,17 @@ package build
 
 import (
 	"fmt"
-	"github.com/mattn/anko/core"
-	"github.com/mattn/anko/packages"
-	"github.com/mattn/anko/parser"
-	"github.com/mattn/anko/vm"
 	"os"
 	"reflect"
 	"regexp"
 	"runtime"
 	"sort"
 	"strings"
+
+	"github.com/mattn/anko/core"
+	"github.com/mattn/anko/packages"
+	"github.com/mattn/anko/parser"
+	"github.com/mattn/anko/vm"
 )
 
 const (
@@ -38,9 +39,10 @@ var (
 // - Index: tracks steps index while running build
 // - Stack: tracks targets calls
 type Context struct {
-	VM    *vm.Env
-	Build *Build
-	Stack *Stack
+	VM      *vm.Env
+	Build   *Build
+	Stack   *Stack
+	History *History
 }
 
 // NewContext make a new build context
@@ -51,9 +53,10 @@ func NewContext(build *Build) *Context {
 	packages.DefineImport(v)
 	LoadBuiltins(v)
 	context := &Context{
-		VM:    v,
-		Build: build,
-		Stack: NewStack(),
+		VM:      v,
+		Build:   build,
+		Stack:   NewStack(),
+		History: NewHistory(),
 	}
 	return context
 }
@@ -62,9 +65,10 @@ func NewContext(build *Build) *Context {
 // Return: a pointer to the context copy
 func (context *Context) Copy() *Context {
 	another := &Context{
-		VM:    context.VM.DeepCopy(),
-		Build: context.Build,
-		Stack: context.Stack.Copy(),
+		VM:      context.VM.DeepCopy(),
+		Build:   context.Build,
+		Stack:   context.Stack.Copy(),
+		History: context.History.Copy(),
 	}
 	return another
 }
@@ -374,9 +378,15 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 
 // Message print a message on the console
 // - text: the text to print on console
+func (context *Context) Message(text string) {
+	Message(text)
+}
+
+// Message print a message on the console
+// - text: the text to print on console
 // - args: a slice of string arguments (as for fmt.Printf())
-func (context *Context) Message(text string, args ...interface{}) {
-	Message(text, args...)
+func (context *Context) MessageArgs(text string, args ...interface{}) {
+	MessageArgs(text, args...)
 }
 
 // FormatScriptError adds line and column numbers on parser or vm errors.

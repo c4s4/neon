@@ -35,7 +35,7 @@ type chdirArgs struct {
 
 func chdir(context *build.Context, args interface{}) error {
 	params := args.(chdirArgs)
-	context.Message("Changing working directory to '%s'", params.Chdir)
+	context.MessageArgs("Changing working directory to '%s'", params.Chdir)
 	err := os.Chdir(params.Chdir)
 	if err != nil {
 		return fmt.Errorf("changing working directory to '%s': %s", params.Chdir, err)

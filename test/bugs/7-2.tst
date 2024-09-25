@@ -1,3 +1,5 @@
+# This build file should fail: test1 -> test2 -> test1 (infinite loop)
+
 default: test1
 
 targets:

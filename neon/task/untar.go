@@ -44,7 +44,7 @@ type untarArgs struct {
 
 func untar(context *build.Context, args interface{}) error {
 	params := args.(untarArgs)
-	context.Message("Untarring archive '%s' to directory '%s'...", params.Untar, params.Todir)
+	context.MessageArgs("Untarring archive '%s' to directory '%s'...", params.Untar, params.Todir)
 	err := untarFile(params.Untar, params.Todir)
 	if err != nil {
 		return fmt.Errorf("expanding archive: %v", err)

@@ -2,16 +2,17 @@ package build
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/util"
-	"github.com/fatih/color"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/c4s4/neon/neon/util"
+	"github.com/fatih/color"
 )
 
 type colorizer func(a ...interface{}) string
 
-// Grey is a flag that tells if we print on console without color
-var Grey = false
+// Gray is a flag that tells if we print on console without color
+var Gray = false
 
 // Color definitions
 var colorTitle colorizer
@@ -20,19 +21,35 @@ var colorError colorizer
 
 // Message prints a message on console:
 // - text: text to print (that might embed fields to print, such as "%s")
+func Message(text string) {
+	printGray(text)
+}
+
+// MessageArgs prints a message on console:
+// - text: text to print (that might embed fields to print, such as "%s")
 // - args: arguments for the text to print
-func Message(text string, args ...interface{}) {
-	printGrey(text, args...)
+func MessageArgs(text string, args ...interface{}) {
+	printGrayArgs(text, args...)
 }
 
 // Info prints an information message on console:
 // - text: text to print (that might embed fields to print, such as "%s")
-// - args: arguments for the text to print
-func Info(text string, args ...interface{}) {
-	if Grey {
-		printGrey(text, args...)
+func Info(text string) {
+	if Gray {
+		printGray(text)
 	} else {
-		printColor(colorTitle(text), args...)
+		printColor(colorTitle(text))
+	}
+}
+
+// InfoArgs prints an information message on console:
+// - text: text to print (that might embed fields to print, such as "%s")
+// - args: arguments for the text to print
+func InfoArgs(text string, args ...interface{}) {
+	if Gray {
+		printGrayArgs(text, args...)
+	} else {
+		printColorArgs(colorTitle(text), args...)
 	}
 }
 
@@ -44,8 +61,8 @@ func Title(text string) {
 		length = 2
 	}
 	message := fmt.Sprintf("%s %s --", strings.Repeat("-", length), text)
-	if Grey {
-		printGrey(message)
+	if Gray {
+		printGray(message)
 	} else {
 		printColor(colorTitle(message))
 	}
@@ -53,8 +70,8 @@ func Title(text string) {
 
 // PrintOk prints a green OK on the console
 func PrintOk() {
-	if Grey {
-		printGrey("OK")
+	if Gray {
+		printGray("OK")
 	} else {
 		printColor(colorOk("OK"))
 	}
@@ -64,33 +81,37 @@ func PrintOk() {
 // text
 // - text: the explanatory text to print
 func PrintError(text string) {
-	if Grey {
-		printGrey("ERROR %s", text)
+	if Gray {
+		printGrayArgs("ERROR %s", text)
 	} else {
-		printColor("%s %s", colorError("ERROR"), text)
+		printColorArgs("%s %s", colorError("ERROR"), text)
 	}
+}
+
+// PrintColor prints a string in given color
+// - text: the text to print
+func printColor(text string) {
+	fmt.Println(text)
 }
 
 // PrintColor prints a string with arguments in given color
 // - text: the text to print
 // - args: the arguments for the text to print
-func printColor(text string, args ...interface{}) {
-	if len(args) > 0 {
-		fmt.Fprintf(color.Output, text, args...)
-		fmt.Println()
-	} else {
-		fmt.Println(text)
-	}
+func printColorArgs(text string, args ...interface{}) {
+	fmt.Fprintf(color.Output, text, args...)
+	fmt.Println()
 }
 
-// PrintGrey prints a string with arguments in grey
+// PrintGrey prints a string in gray
+// - text: the text to print
+func printGray(text string) {
+	fmt.Println(text)
+}
+
+// PrintGreyArgs prints a string with arguments in gray
 // - text: the text to print
 // - args: the arguments for the text to print
-func printGrey(text string, fields ...interface{}) {
-	if len(fields) > 0 {
-		fmt.Printf(text, fields...)
-		fmt.Println()
-	} else {
-		fmt.Println(text)
-	}
+func printGrayArgs(text string, fields ...interface{}) {
+	fmt.Printf(text, fields...)
+	fmt.Println()
 }

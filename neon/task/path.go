@@ -47,7 +47,7 @@ func path(context *build.Context, args interface{}) error {
 	if len(files) < 1 {
 		return nil
 	}
-	context.Message("Building path with %d file(s)", len(files))
+	context.MessageArgs("Building path with %d file(s)", len(files))
 	path := strings.Join(files, string(filepath.ListSeparator))
 	context.SetProperty(params.To, path)
 	return nil

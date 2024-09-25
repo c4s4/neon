@@ -72,7 +72,7 @@ func copy(context *build.Context, args interface{}) error {
 	if len(sources) < 1 {
 		return nil
 	}
-	context.Message("Copying %d file(s)", len(sources))
+	context.MessageArgs("Copying %d file(s)", len(sources))
 	if params.Tofile != "" {
 		file := filepath.Join(params.Dir, sources[0])
 		err = util.CopyFile(file, params.Tofile)

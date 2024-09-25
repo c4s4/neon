@@ -199,7 +199,7 @@ func run(command []string, args []string, stdout, stderr io.Writer, stdin io.Rea
 
 func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, verbose bool) error {
 	if verbose {
-		context.Message("Running command: %s", strings.Join(cmd, " "))
+		context.MessageArgs("Running command: %s", strings.Join(cmd, " "))
 	}
 	environment, err := context.EvaluateEnvironment()
 	if err != nil {
@@ -242,7 +242,7 @@ func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *b
 
 func runString(cmd string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, verbose bool) error {
 	if verbose {
-		context.Message("Running command: %s", cmd)
+		context.MessageArgs("Running command: %s", cmd)
 	}
 	shell, err := context.Build.GetShell()
 	if err != nil {

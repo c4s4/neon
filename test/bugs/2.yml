@@ -1,11 +1,16 @@
-# Bug 2: error checking task args for mixed lists.
-# Type is checked on the first element of the list only.
-# Fixed on 2018-03-29.
-
-default: bug-2
+default: bug
+properties:
+  BUG: 2
 
 targets:
 
-  bug-2:
+  bug:
     steps:
-    - $: ['ls', 1]
+    - 'fail = false'
+    - try:
+      - neon: '={BUG}.tst'
+      catch:
+      - 'fail = true'
+    - if: '!fail'
+      then:
+      - throw: "Should have failed"

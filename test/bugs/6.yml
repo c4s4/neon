@@ -1,12 +1,14 @@
 # Bug 6: doesn't load parent context
+# This build should succeed and print "bug 6"
 
-default: bug-6
-extends: ./6.parent.yml
+default: bug
+extends: ./6.tst
 
 targets:
 
-  bug-6:
+  bug:
     steps:
     - if: '!defined("DEFINED")'
       then:
       - throw: 'Test failed'
+    - super:

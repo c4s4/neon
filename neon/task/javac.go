@@ -64,7 +64,7 @@ func javac(context *build.Context, args interface{}) error {
 		return fmt.Errorf("evaluating classpath: %v", err)
 	}
 	// run javac command
-	context.Message("Compiling %d Java source file(s)", len(sources))
+	context.MessageArgs("Compiling %d Java source file(s)", len(sources))
 	opt := []string{"-d", params.Dest}
 	if cp != "" {
 		opt = append(opt, []string{"-cp", cp}...)

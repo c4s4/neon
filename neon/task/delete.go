@@ -51,7 +51,7 @@ func delete(context *build.Context, args interface{}) error {
 	if len(files) < 1 {
 		return nil
 	}
-	context.Message("Deleting %d file(s) or directory(ies)", len(files))
+	context.MessageArgs("Deleting %d file(s) or directory(ies)", len(files))
 	for _, file := range files {
 		path := filepath.Join(params.Dir, file)
 		if util.DirExists(path) {

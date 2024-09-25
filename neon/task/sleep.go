@@ -30,13 +30,13 @@ Examples:
 
 type sleepArgs struct {
 	Sleep float64
-	Mute bool `neon:"optional"`
+	Mute  bool `neon:"optional"`
 }
 
 func sleep(context *build.Context, args interface{}) error {
 	params := args.(sleepArgs)
 	if !params.Mute {
-		context.Message("Sleeping for %g seconds...", params.Sleep)
+		context.MessageArgs("Sleeping for %g seconds...", params.Sleep)
 	}
 	t.Sleep(t.Duration(params.Sleep) * t.Second)
 	return nil

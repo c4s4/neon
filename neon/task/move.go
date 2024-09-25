@@ -73,7 +73,7 @@ func move(context *build.Context, args interface{}) error {
 	if len(sources) < 1 {
 		return nil
 	}
-	context.Message("Moving %d file(s)", len(sources))
+	context.MessageArgs("Moving %d file(s)", len(sources))
 	if params.Tofile != "" {
 		file := filepath.Join(params.Dir, sources[0])
 		if file != params.Tofile {

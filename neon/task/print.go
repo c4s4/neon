@@ -34,9 +34,9 @@ Examples:
 }
 
 type printArgs struct {
-	Print string
-	Color string `neon:"optional"`
-	NoReturn bool `neon:"optional"`
+	Print    string
+	Color    string `neon:"optional"`
+	NoReturn bool   `neon:"optional"`
 }
 
 // Colors is the color mapping

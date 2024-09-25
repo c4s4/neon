@@ -85,7 +85,7 @@ func prompt(context *build.Context, args interface{}) error {
 			if params.Error != "" {
 				context.Message(params.Error)
 			} else {
-				context.Message("value '%s' doesn't match pattern '%s'", value, params.Pattern)
+				context.MessageArgs("value '%s' doesn't match pattern '%s'", value, params.Pattern)
 			}
 		} else {
 			done = true

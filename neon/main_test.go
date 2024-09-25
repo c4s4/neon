@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func TestParseConfiguration(t *testing.T) {
@@ -75,7 +76,7 @@ foo: bars`
 	if err != nil {
 		t.Errorf("Error parsing configuration")
 	}
-	if build.Grey != true {
+	if build.Gray != true {
 		t.Errorf("Error parsing configuration")
 	}
 }

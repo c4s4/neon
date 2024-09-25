@@ -1,13 +1,14 @@
-default: test1
+# This build file should succeed and print: test1 test1
+
+default: test2
 
 targets:
 
   test1:
-    depends: [test2]
     steps:
     - print: "test1"
 
   test2:
+    depends: test1
     steps:
-    - print: "test2"
     - call: test1

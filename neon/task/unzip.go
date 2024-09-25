@@ -37,7 +37,7 @@ type unzipArgs struct {
 
 func unzip(context *build.Context, args interface{}) error {
 	params := args.(unzipArgs)
-	context.Message("Unzipping archive '%s' to directory '%s'...", params.Unzip, params.Todir)
+	context.MessageArgs("Unzipping archive '%s' to directory '%s'...", params.Unzip, params.Todir)
 	err := unzipFile(params.Unzip, params.Todir)
 	if err != nil {
 		return fmt.Errorf("expanding archive: %v", err)

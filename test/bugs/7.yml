@@ -1,44 +1,29 @@
-# Bug 7: bad infinite loop management
-
-default: infinite
+default: bug
+properties:
+  SUCCESS:
+    1: true
+    2: false
+    3: false
+    4: false
+    5: true
+    6: true
 
 targets:
 
-  infinite:
+  bug:
     steps:
-    - call: infinite-1
-    - call: infinite-2
-    - call: infinite-3
-
-  infinite-1:
-    steps:
-    - try:
-      - neon: 'infinite-1.tst'
-      - throw: 'Test infinite 1 failed'
-      catch:
-      - if: >
-          _error != "running build 'infinite-1.tst': running target 'test1': running target 'test2': running target 'test1': infinite loop: test1 -> test2 -> test1"
+    - for: bug
+      in: 'keys(SUCCESS)'
+      do:
+      - if: 'SUCCESS[bug]'
         then:
-        - throw: "Bad error message: ={_error}"
-
-  infinite-2:
-    steps:
-    - try:
-      - neon: 'infinite-2.tst'
-      - throw: 'Test infinite 2 failed'
-      catch:
-      - if: >
-          _error != "running build 'infinite-2.tst': running target 'test1': in step 2: running target 'test2': in step 2: running target 'test1': infinite loop: test1 -> test2 -> test1"
-        then:
-        - throw: "Bad error message: ={_error}"
-
-  infinite-3:
-    steps:
-    - try:
-      - neon: 'infinite-3.tst'
-      - throw: 'Test infinite 3 failed'
-      catch:
-      - if: >
-          _error != "running build 'infinite-3.tst': running target 'test1': running target 'test2': in step 2: running target 'test1': infinite loop: test1 -> test2 -> test1"
-        then:
-        - throw: "Bad error message: ={_error}"
+        - neon: '7-={bug}.tst'
+        else:
+        - 'fail = false'
+        - try:
+          - neon: '7-={bug}.tst'
+          catch:
+          - 'fail = true'
+        - if: '!fail'
+          then:
+          - throw: "Should have failed"

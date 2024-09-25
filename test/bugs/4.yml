@@ -1,10 +1,16 @@
-# Bug 4: Bad error message when parent target not found calling super
-# Fixed on 2018-05-24
-
-default: bug-4
+default: bug
+properties:
+  BUG: 4
 
 targets:
 
-  bug-4:
+  bug:
     steps:
-    - super:
+    - 'fail = false'
+    - try:
+      - neon: '={BUG}.tst'
+      catch:
+      - 'fail = true'
+    - if: '!fail'
+      then:
+      - throw: "Should have failed"

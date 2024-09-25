@@ -59,7 +59,7 @@ func chmod(context *build.Context, args interface{}) error {
 	if len(files) < 1 {
 		return nil
 	}
-	context.Message("Changing %d file(s) mode to %#o", len(files), params.Mode)
+	context.MessageArgs("Changing %d file(s) mode to %#o", len(files), params.Mode)
 	for _, file := range files {
 		if params.Dir != "" {
 			file = filepath.Join(params.Dir, file)
