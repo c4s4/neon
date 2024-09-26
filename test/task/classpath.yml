@@ -2,7 +2,7 @@ doc: Built file to test tasks
 default: task_classpath
 
 properties:
-  BUILD_DIR: '../../build'
+  BUILD_DIR: '../../build/tst'
   REPO:      'http://sweetohm.net/repo'
 
 targets:
@@ -23,7 +23,7 @@ targets:
       todir:        '={BUILD_DIR}/classpath/jars'
     - 'strings = import("strings")'
     - 'classpath = strings.Replace(classpath, ";", ":", -1)'
-    - if: 'classpath != "../../build/classpath:../../build/classpath/bar.jar:../../build/classpath/foo.jar"'
+    - if: 'classpath != BUILD_DIR+"/classpath:"+BUILD_DIR+"/classpath/bar.jar:"+BUILD_DIR+"/classpath/foo.jar"'
       then:
       - throw: 'Classpath test failure: ={classpath}'
     - 'jars = find(BUILD_DIR+"/classpath/jars", "*.jar")'
@@ -32,7 +32,7 @@ targets:
       - throw: 'Jar files: ={toString(jars)}'
     # classpath with dependencies file
     - write: '={BUILD_DIR}/classpath/dependencies.yml'
-      text: |    
+      text: |
             - group:    junit
               artifact: junit
               version:  4.12

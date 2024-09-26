@@ -2,7 +2,7 @@ doc: Built file to test builtin directory
 default: builtin_directory
 
 properties:
-  BUILD_DIR: "../../build"
+  BUILD_DIR: '../../build/tst'
 
 targets:
 
