@@ -14,15 +14,14 @@ properties:
   TASKS_REF:    'doc/tasks.md'
   BUILTINS_REF: 'doc/builtins.md'
   ARC_FILES:
-  - files: ['LICENSE.txt', 'README.md', 'bash_completion_neon']
-  - {files: 'bin/*', dir: =BUILD_DIR}
-  - {files: 'doc/*.pdf', dir: =BUILD_DIR}
+    =_BASE: ['README*', 'LICENSE*', 'bash_completion_neon']
+    '={BUILD_DIR}': ['doc/*.pdf']
 
 targets:
 
   bugs:
-    doc: Run bug build files
-    depends: [version-test, build]
+    doc: "Run bug build files"
+    depends: [build]
     steps:
     - for: file
       in:  'find(".", "test/bugs/*.yml")'
@@ -31,10 +30,10 @@ targets:
       - $: ['neon', '-file', =file]
 
   refs:
-    doc: Generate reference documentation
-    depends: [version-test, build]
+    doc: "Generate reference documentation"
+    depends: [build]
     steps:
-    - print: 'Generating tasks reference documentation'
+    - print: "Generating tasks reference documentation"
     - $:  ['={BUILD_DIR}/={NAME}', '-tasks-ref']
       1>: ={TASKS_REF}
       1x: true
@@ -42,25 +41,25 @@ targets:
       - $: ['git', 'diff', '--quiet', '--exit-code', =TASKS_REF]
       - print: 'Tasks reference documentation is up to date'
       catch:
-      - print: 'Updating tasks reference documentation'
+      - print: "Updating tasks reference documentation"
       - $: ['git', 'add', =TASKS_REF]
       - $: ['git', 'commit', '-m', 'Updated tasks reference', =TASKS_REF]
-    - print: 'Generating builtins reference documentation'
+    - print: "Generating builtins reference documentation"
     - $:  ['={BUILD_DIR}/={NAME}', '-builtins-ref']
       1>: ={BUILTINS_REF}
       1x: true
     - try:
       - $: ['git', 'diff', '--quiet', '--exit-code', =BUILTINS_REF]
-      - print: 'Builtins reference documentation is up to date'
+      - print: "Builtins reference documentation is up to date"
       catch:
-      - print: 'Updating builtins reference documentation'
+      - print: "Updating builtins reference documentation"
       - $: ['git', 'add', =BUILTINS_REF]
       - $: ['git', 'commit', '-m', 'Updated builtins reference', =BUILTINS_REF]
 
   doc:
-    doc: Build documentations
+    doc: "Build documentations"
     steps:
-    - print: 'Generating PDF documentation in ={BUILD_DIR}/doc'
+    - print: "Generating PDF documentation in ={BUILD_DIR}/doc"
     - mkdir: '={BUILD_DIR}/doc'
     - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/quickstart.pdf', 'doc/quickstart.md']
     - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/usermanual.pdf', 'doc/usermanual.md']
@@ -68,23 +67,13 @@ targets:
     - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/builtins.pdf', 'doc/builtins.md']
 
   archive:
-    doc: Generate distribution archive
-    depends: [doc, binaries]
+    doc: "Generate distribution archive"
+    depends: [binaries, doc]
     steps:
     - super:
 
   release:
-    doc: Perform release
-    depends: [version, clean, test, bugs, refs, archive, deploy]
+    doc: "Perform a release"
+    depends: [version, clean, lint, test, bugs, refs, archive, deploy]
     steps:
-    - if: '_OS == "linux"'
-      then:
-      - copy: '={NAME}-={VERSION}.tar.gz'
-        dir: =BUILD_DIR
-        todir: '~/dsk/'
-      else:
-      - copy: '={NAME}-={VERSION}.tar.gz'
-        dir: =BUILD_DIR
-        todir: '~/Desktop/'
-    - $: [git, tag, =VERSION]
-    - $: [git, push, --tags]
+    - super:
