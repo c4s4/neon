@@ -87,7 +87,8 @@ func (build *Build) ParentPath(name string) (string, error) {
 		return "", fmt.Errorf("parent '%s' was not found", name)
 	}
 	if len(parents) > 1 {
-		return "", fmt.Errorf("there are %d parents matching name '%s'", len(parents), name)
+		list := strings.Join(parents, ", ")
+		return "", fmt.Errorf("there are %d parents matching name '%s': %s", len(parents), name, list)
 	}
 	return util.ExpandUserHome(filepath.Join(build.Repository, parents[0])), nil
 }
@@ -179,7 +180,8 @@ func TemplatePath(name, repository string) (string, error) {
 		return "", fmt.Errorf("template '%s' was not found", name)
 	}
 	if len(templates) > 1 {
-		return "", fmt.Errorf("there are %d templates matching name '%s'", len(templates), name)
+		list := strings.Join(templates, ", ")
+		return "", fmt.Errorf("there are %d templates matching name '%s': %s", len(templates), name, list)
 	}
 	return filepath.Join(repository, templates[0]), nil
 }
