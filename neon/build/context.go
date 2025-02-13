@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/c4s4/neon/neon/util"
 	"github.com/mattn/anko/core"
 	"github.com/mattn/anko/packages"
 	"github.com/mattn/anko/parser"
@@ -404,7 +405,8 @@ func (context *Context) EvaluateEnvironment() (map[string]string, error) {
 // - a map of environment variables
 func LoadDotEnv(filename string) (map[string]string, error) {
 	environment := make(map[string]string)
-	file, err := os.Open(filepath.Clean(filename))
+	filename = filepath.Clean(util.ExpandUserHome(filename))
+	file, err := os.Open(filename)
 	if err != nil {
 		return nil, fmt.Errorf("opening dotenv file '%s': %w", filename, err)
 	}
