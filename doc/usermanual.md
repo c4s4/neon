@@ -106,7 +106,7 @@ A build file is a YAML map. First level fields are the following:
 	  windows: ['cmd', '/c']
 	  default: ['sh', '-c']
 	```
-  This will define a shell for windows and for other environments. Thus, if you deine a single command (say `['sh', '-c']`), this is equivalent to:
+  This will define a shell for windows and for other environments. Thus, if you define a single command (say `['sh', '-c']`), this is equivalent to:
 	```yaml
 	shell:
 	  default: ['sh', '-c']
@@ -115,7 +115,8 @@ A build file is a YAML map. First level fields are the following:
 - **version** is an expression that checks required NeON version to run the build file. For instance, if your build file requires NeON version *0.12* or greater and a version under *0.15.0*, you would write : `version: 'greaterorequal("0.12") && lower("0.15")'`. Have a look at builtins *greater*, *greaterorequal*, *lower* and *lowerorequal*.
 - **properties** is a map of properties of the build file. See section *Properties* for more information about build properties.
 - **configuration** is a list of YAML files to load as build properties. These YAML files must be maps with string keys. This might be a string or a list of strings.
-- **environment** is a map that defines environment for all executed commands. Environment variables set to empty strings will be unset.
+- **environment** is a map that defines environment for the build file. Environment variables set to empty strings will be unset.
+- **dotenv** is a list of files to load as environment variables. These files must be in dotenv format. This might be a string or a list of strings.
 - **targets** is a map for targets of the build files. This is a map with string keys.
 
 Most build files will define documentation, default target, properties and targets. Thus a simple build file might look like following:

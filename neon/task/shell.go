@@ -229,7 +229,6 @@ func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *b
 		return fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
-	command.Env = environment
 	command.Stdin = stdin
 	command.Stdout = stdout
 	command.Stderr = stderr
@@ -257,10 +256,6 @@ func runString(cmd string, stdout, stderr io.Writer, stdin io.Reader, context *b
 		return fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
-	command.Env, err = context.EvaluateEnvironment()
-	if err != nil {
-		return fmt.Errorf("building environment: %v", err)
-	}
 	command.Stdin = stdin
 	command.Stdout = stdout
 	command.Stderr = stderr

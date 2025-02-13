@@ -46,10 +46,6 @@ func java(context *build.Context, args interface{}) error {
 		return fmt.Errorf("getting current working directory: %v", err)
 	}
 	command.Dir = dir
-	command.Env, err = context.EvaluateEnvironment()
-	if err != nil {
-		return fmt.Errorf("building environment: %v", err)
-	}
 	command.Stdin = os.Stdin
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr

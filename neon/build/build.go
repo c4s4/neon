@@ -20,7 +20,7 @@ const (
 
 // Fields is the list of possible root fields for a build file
 var Fields = []string{"doc", "default", "extends", "repository", "context", "singleton",
-	"shell", "properties", "configuration", "expose", "environment", "targets", "version"}
+	"shell", "properties", "configuration", "expose", "environment", "dotenv", "targets", "version"}
 
 // Build structure
 type Build struct {
@@ -38,6 +38,7 @@ type Build struct {
 	Expose      []string
 	Properties  util.Object
 	Environment map[string]string
+	DotEnv      []string
 	Targets     map[string]*Target
 	Parents     []*Build
 	Root        *Build
@@ -115,6 +116,9 @@ func ParseFields(object util.Object, build *Build, repo string) error {
 		return err
 	}
 	if err := ParseEnvironment(object, build); err != nil {
+		return err
+	}
+	if err := ParseDotEnv(object, build); err != nil {
 		return err
 	}
 	if err := ParseTargets(object, build); err != nil {
