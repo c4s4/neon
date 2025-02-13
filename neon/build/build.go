@@ -73,6 +73,7 @@ func NewBuild(file, base, repo string, template bool) (*Build, error) {
 	}
 	build.Properties = build.GetProperties()
 	build.Environment = build.GetEnvironment()
+	build.DotEnv = build.GetDotEnv()
 	build.SetDir(build.Dir)
 	build.SetRoot(build)
 	build.Template = template
@@ -238,6 +239,18 @@ func (build *Build) GetEnvironment() map[string]string {
 		environment[name] = value
 	}
 	return environment
+}
+
+// GetDotEnv returns the list of dotenv files to load in environment, including
+// those inherited from parents
+// Return: list of dotenv files as a slice of strings
+func (build *Build) GetDotEnv() []string {
+	var dotenv []string
+	for _, parent := range build.Parents {
+		dotenv = append(dotenv, parent.GetDotEnv()...)
+	}
+	dotenv = append(dotenv, build.DotEnv...)
+	return dotenv
 }
 
 // GetTargets returns build targets, including those inherited from parents
