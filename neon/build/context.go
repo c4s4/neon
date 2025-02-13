@@ -334,15 +334,15 @@ func (context *Context) EvaluateEnvironment() (map[string]string, error) {
 		value := line[index+1:]
 		environment[name] = value
 	}
-    for _, filename := range context.Build.DotEnv {
-        env, err := LoadDotEnv(filename)
-        if err != nil {
-            return nil, err
-        }
-        for name, value := range env {
-            environment[name] = value
-        }
-    }
+	for _, filename := range context.Build.DotEnv {
+		env, err := LoadDotEnv(filename)
+		if err != nil {
+			return nil, err
+		}
+		for name, value := range env {
+			environment[name] = value
+		}
+	}
 	var variables []string
 	for name := range context.Build.Environment {
 		variables = append(variables, name)
@@ -403,7 +403,7 @@ func (context *Context) EvaluateEnvironment() (map[string]string, error) {
 // Return:
 // - a map of environment variables
 func LoadDotEnv(filename string) (map[string]string, error) {
-    environment := make(map[string]string)
+	environment := make(map[string]string)
 	file, err := os.Open(filepath.Clean(filename))
 	if err != nil {
 		return nil, fmt.Errorf("opening dotenv file '%s': %w", filename, err)
@@ -425,7 +425,7 @@ func LoadDotEnv(filename string) (map[string]string, error) {
 		}
 		name := strings.TrimSpace(line[:index])
 		value := strings.TrimSpace(line[index+1:])
-        environment[name] = value
+		environment[name] = value
 	}
 	return environment, nil
 }
