@@ -189,12 +189,9 @@ func TestEvaluateEnvironmentSimple(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error getting environment: %v", err)
 	}
-	for _, line := range env {
-		if line == "FOO=BAR" {
-			return
-		}
+	if env["FOO"] != "BAR" {
+		t.Fatalf("Environment not set correctly: FOO=%s", env["FOO"])
 	}
-	t.Error("Env FOO=BAR not found")
 }
 
 func TestEvaluateEnvironmentComplex(t *testing.T) {

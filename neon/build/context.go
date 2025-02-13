@@ -1,14 +1,18 @@
 package build
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"runtime"
 	"sort"
 	"strings"
 
+	"github.com/c4s4/neon/neon/util"
 	"github.com/mattn/anko/core"
 	"github.com/mattn/anko/packages"
 	"github.com/mattn/anko/parser"
@@ -82,6 +86,9 @@ func (context *Context) Init() error {
 	if err := context.InitProperties(); err != nil {
 		return fmt.Errorf("evaluating properties: %v", err)
 	}
+	if err := context.InitEnvironment(); err != nil {
+		return fmt.Errorf("evaluating environment: %v", err)
+	}
 	return nil
 }
 
@@ -145,6 +152,19 @@ func (context *Context) InitProperties() error {
 			}
 		}
 		todo = next
+	}
+	return nil
+}
+
+// InitEnvironment sets environment variables
+// Return: an error if something went wrong
+func (context *Context) InitEnvironment() error {
+	environment, err := context.EvaluateEnvironment()
+	if err != nil {
+		return fmt.Errorf("evaluating environment: %w", err)
+	}
+	for name, value := range environment {
+		os.Setenv(name, value)
 	}
 	return nil
 }
@@ -305,9 +325,9 @@ func (context *Context) EvaluateObject(object interface{}) (interface{}, error) 
 
 // EvaluateEnvironment evaluates environment variables in the context
 // Return:
-// - evaluated environment as a slice of strings
+// - evaluated environment as a map of strings
 // - an error if something went wrong
-func (context *Context) EvaluateEnvironment() ([]string, error) {
+func (context *Context) EvaluateEnvironment() (map[string]string, error) {
 	environment := make(map[string]string)
 	for _, line := range os.Environ() {
 		index := strings.Index(line, environmentSep)
@@ -315,8 +335,15 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 		value := line[index+1:]
 		environment[name] = value
 	}
-	environment[propertyBase] = context.Build.Dir
-	environment[propertyHere] = context.Build.Here
+	for _, filename := range context.Build.DotEnv {
+		env, err := LoadDotEnv(filename)
+		if err != nil {
+			return nil, err
+		}
+		for name, value := range env {
+			environment[name] = value
+		}
+	}
 	var variables []string
 	for name := range context.Build.Environment {
 		variables = append(variables, name)
@@ -363,17 +390,46 @@ func (context *Context) EvaluateEnvironment() ([]string, error) {
 				return prefix + str
 			})
 		}
-		environment[name] = replaced
-	}
-	var lines []string
-	for name, value := range environment {
-		// unset variables with empty string value
-		if value != "" {
-			line := name + environmentSep + value
-			lines = append(lines, line)
+		if replaced != "" {
+			environment[name] = replaced
 		}
 	}
-	return lines, nil
+	environment[propertyBase] = context.Build.Dir
+	environment[propertyHere] = context.Build.Here
+	return environment, nil
+}
+
+// LoadDotEnv loads .env file
+// - filename: the name of the file to load
+// Return:
+// - a map of environment variables
+func LoadDotEnv(filename string) (map[string]string, error) {
+	environment := make(map[string]string)
+	filename = filepath.Clean(util.ExpandUserHome(filename))
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, fmt.Errorf("opening dotenv file '%s': %w", filename, err)
+	}
+	defer file.Close()
+	reader := bufio.NewReader(file)
+	for {
+		bytes, _, err := reader.ReadLine()
+		if err == io.EOF {
+			break
+		}
+		line := strings.TrimSpace(string(bytes))
+		if len(line) == 0 || line[0] == '#' {
+			continue
+		}
+		index := strings.Index(line, "=")
+		if index < 0 {
+			return nil, fmt.Errorf("bad environment line in dotenv file %s: '%s'", filename, line)
+		}
+		name := strings.TrimSpace(line[:index])
+		value := strings.TrimSpace(line[index+1:])
+		environment[name] = value
+	}
+	return environment, nil
 }
 
 // Message print a message on the console

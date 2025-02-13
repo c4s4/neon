@@ -237,6 +237,21 @@ func ParseEnvironment(object util.Object, build *Build) error {
 	return nil
 }
 
+// ParseDotEnv parses list of .env files to load on the build:
+// - object: the object to parse
+// - build: build that is being constructed
+// Return: an error if something went wrong
+func ParseDotEnv(object util.Object, build *Build) error {
+	if object.HasField("dotenv") {
+		dotenv, err := object.GetListStringsOrString("dotenv")
+		if err != nil {
+			return fmt.Errorf("getting dotenv files list: %v", err)
+		}
+		build.DotEnv = dotenv
+	}
+	return nil
+}
+
 // ParseTargets parses targets field of the build:
 // - object: the object to parse
 // - build: build that is being constructed

@@ -1,7 +1,6 @@
 package task
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"reflect"
@@ -44,12 +43,6 @@ func start(context *build.Context, args interface{}) error {
 	cmd := exec.Command(params.Start)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	var err error
-	cmd.Env, err = context.EvaluateEnvironment()
-	if err != nil {
-		return fmt.Errorf("building environment: %v", err)
-	}
-	cmd.Environ()
 	if err := cmd.Start(); err != nil {
 		return err
 	}
