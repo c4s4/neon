@@ -116,7 +116,7 @@ A build file is a YAML map. First level fields are the following:
 - **properties** is a map of properties of the build file. See section *Properties* for more information about build properties.
 - **configuration** is a list of YAML files to load as build properties. These YAML files must be maps with string keys. This might be a string or a list of strings.
 - **environment** is a map that defines environment for the build file. Environment variables set to empty strings will be unset.
-- **dotenv** is a list of files to load as environment variables. These files must be in dotenv format. This might be a string or a list of strings.
+- **dotenv** is a list of files to load as environment variables. These files must be in dotenv format. This might be a string or a list of strings. Last files in the list will overwrite previous ones.
 - **targets** is a map for targets of the build files. This is a map with string keys.
 
 Most build files will define documentation, default target, properties and targets. Thus a simple build file might look like following:
