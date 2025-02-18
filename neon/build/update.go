@@ -118,19 +118,19 @@ func updateRepository(repository string, batch bool) error {
 						perform = true
 					}
 				} else {
-                    fmt.Printf("- %s [%s]: NOK\n", plugin, branch)
-                }
+					fmt.Printf("- %s [%s]: NOK\n", plugin, branch)
+				}
 				if perform {
-                    fmt.Printf("  Updating %s [%s]... ", plugin, branch)
+					fmt.Printf("  Updating %s [%s]... ", plugin, branch)
 					cmd = exec.Command("git", "pull")
 					cmd.Dir = path
 					bytes, err = cmd.CombinedOutput()
 					if err != nil {
-                        message := strings.Replace(string(bytes), "\n", "", -1)
-                        fmt.Printf("ERROR: %s", message)
+						message := strings.Replace(string(bytes), "\n", "", -1)
+						fmt.Printf("ERROR: %s", message)
 						return fmt.Errorf("updating plugin: %v", err)
 					}
-                    fmt.Println("OK")
+					fmt.Println("OK")
 				}
 			}
 		}
