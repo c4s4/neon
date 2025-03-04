@@ -32,6 +32,10 @@ type callArgs struct {
 
 func call(context *build.Context, args interface{}) error {
 	params := args.(callArgs)
+	dir, err := os.Getwd()
+    if err != nil {
+        return fmt.Errorf("getting current directory: %v", err)
+    }
 	for _, target := range params.Call {
 		stack := context.Stack.Copy()
 		context.MessageArgs("Calling target '%s'", target)
@@ -40,7 +44,7 @@ func call(context *build.Context, args interface{}) error {
 			return err
 		}
 		context.Stack = stack
-		if err := os.Chdir(context.Build.Dir); err != nil {
+		if err := os.Chdir(dir); err != nil {
 			return fmt.Errorf("changing to build directory: %v", err)
 		}
 	}
