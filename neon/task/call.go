@@ -1,8 +1,11 @@
 package task
 
 import (
-	"github.com/c4s4/neon/neon/build"
+	"fmt"
+	"os"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -37,6 +40,9 @@ func call(context *build.Context, args interface{}) error {
 			return err
 		}
 		context.Stack = stack
+		if err := os.Chdir(context.Build.Dir); err != nil {
+			return fmt.Errorf("changing to build directory: %v", err)
+		}
 	}
 	return nil
 }
