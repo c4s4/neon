@@ -20,6 +20,7 @@ Arguments:
   3 for stdout and stderr (boolean, optional).
 - <: send given text to standard input of the process (string, optional).
 - :: print command on terminal before running it (boolean, optional).
+- env: environment variables to set running command (map of strings, optional).
 
 Examples:
 
@@ -31,7 +32,11 @@ Examples:
     - $: ['ls', '-al']
     # run pylint on all python files except those in venv
     - $: 'pylint'
-      +: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
+      +: '=filter(find(".", "**/*.py"), "venv/**/*.py")
+	# run echo command passing environment variable
+	- $: 'echo "Hello $NAME!"'
+	  env:
+	    NAME: 'John'
 
 Notes:
 
