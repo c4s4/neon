@@ -1,5 +1,9 @@
 # NeON
 
+## 2025-03-13: 1.13.0
+
+- Added `jsonindent()` builtin
+
 ## 2025-03-06: 1.12.0
 
 - Added `env` field to `shell` task to set environment
