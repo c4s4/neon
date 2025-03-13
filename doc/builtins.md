@@ -1,6 +1,6 @@
 # Builtins Reference
 
-[absolute](#absolute) - [appendpath](#appendpath) - [changelog](#changelog) - [color](#color) - [contains](#contains) - [directory](#directory) - [env](#env) - [escapeurl](#escapeurl) - [exists](#exists) - [expand](#expand) - [filename](#filename) - [filter](#filter) - [find](#find) - [findinpath](#findinpath) - [followlink](#followlink) - [greater](#greater) - [greaterorequal](#greaterorequal) - [haskey](#haskey) - [join](#join) - [joinpath](#joinpath) - [jsondecode](#jsondecode) - [jsonencode](#jsonencode) - [keys](#keys) - [length](#length) - [list](#list) - [lower](#lower) - [lowercase](#lowercase) - [lowerorequal](#lowerorequal) - [match](#match) - [md5](#md5) - [newer](#newer) - [now](#now) - [ospath](#ospath) - [read](#read) - [replace](#replace) - [run](#run) - [setenv](#setenv) - [sortversions](#sortversions) - [split](#split) - [termlink](#termlink) - [termwidth](#termwidth) - [throw](#throw) - [title](#title) - [toint](#toint) - [trim](#trim) - [unescapeurl](#unescapeurl) - [unixpath](#unixpath) - [uppercase](#uppercase) - [uuid](#uuid) - [windowspath](#windowspath) - [winexe](#winexe) - [yamldecode](#yamldecode) - [yamlencode](#yamlencode)
+[absolute](#absolute) - [appendpath](#appendpath) - [changelog](#changelog) - [color](#color) - [contains](#contains) - [directory](#directory) - [env](#env) - [escapeurl](#escapeurl) - [exists](#exists) - [expand](#expand) - [filename](#filename) - [filter](#filter) - [find](#find) - [findinpath](#findinpath) - [followlink](#followlink) - [greater](#greater) - [greaterorequal](#greaterorequal) - [haskey](#haskey) - [join](#join) - [joinpath](#joinpath) - [jsondecode](#jsondecode) - [jsonencode](#jsonencode) - [jsonindent](#jsonindent) - [keys](#keys) - [length](#length) - [list](#list) - [lower](#lower) - [lowercase](#lowercase) - [lowerorequal](#lowerorequal) - [match](#match) - [md5](#md5) - [newer](#newer) - [now](#now) - [ospath](#ospath) - [read](#read) - [replace](#replace) - [run](#run) - [setenv](#setenv) - [sortversions](#sortversions) - [split](#split) - [termlink](#termlink) - [termwidth](#termwidth) - [throw](#throw) - [title](#title) - [toint](#toint) - [trim](#trim) - [unescapeurl](#unescapeurl) - [unixpath](#unixpath) - [uppercase](#uppercase) - [uuid](#uuid) - [windowspath](#windowspath) - [winexe](#winexe) - [yamldecode](#yamldecode) - [yamlencode](#yamlencode)
 
 ## absolute
 
@@ -426,6 +426,28 @@ Examples:
     # encode given list
     jsonencode(["foo", "bar"])
     # returns: "['foo', 'bar']"
+
+## jsonindent
+
+Indent given string in Json format.
+
+Arguments:
+
+- The string in Json format to indent.
+
+Returns:
+
+- Indented JSON string.
+
+Examples:
+
+    # indent given list
+    jsonindent("['foo', 'bar']")
+    # returns string:
+    # [
+    #   "foo",
+    #   "bar"
+    # ]
 
 ## keys
 
