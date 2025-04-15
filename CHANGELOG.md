@@ -1,5 +1,9 @@
 # NeON
 
+## 2025-04-14:
+
+- Fixed code warnings
+
 ## 2025-03-13: 1.13.0
 
 - Added `jsonindent()` builtin
