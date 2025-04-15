@@ -100,7 +100,9 @@ func shell(context *build.Context, args interface{}) error {
 		if err != nil {
 			return err
 		}
-		defer file.Close()
+		defer func() {
+			_ = file.Close()
+		}()
 		stdout = append(stdout, file)
 	}
 	// redirect stderr in a file
@@ -110,7 +112,9 @@ func shell(context *build.Context, args interface{}) error {
 		if err != nil {
 			return err
 		}
-		defer file.Close()
+		defer func() {
+			_ = file.Close()
+		}()
 		stderr = append(stderr, file)
 	}
 	// append stdout to a file
@@ -120,7 +124,9 @@ func shell(context *build.Context, args interface{}) error {
 		if err != nil {
 			return err
 		}
-		defer file.Close()
+		defer func() {
+			_ = file.Close()
+		}()
 		stdout = append(stdout, file)
 	}
 	// append stderr to a file
@@ -130,7 +136,9 @@ func shell(context *build.Context, args interface{}) error {
 		if err != nil {
 			return err
 		}
-		defer file.Close()
+		defer func() {
+			_ = file.Close()
+		}()
 		stderr = append(stderr, file)
 	}
 	// write stdout in a property
@@ -227,8 +235,12 @@ func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *b
 	}
 	if path != "" {
 		oldPath := os.Getenv("PATH")
-		defer os.Setenv("PATH", oldPath)
-		os.Setenv("PATH", path)
+		defer func() {
+			_ = os.Setenv("PATH", oldPath)
+		}()
+		if err := os.Setenv("PATH", path); err != nil {
+			return fmt.Errorf("setting PATH: %v", err)
+		}
 	}
 	executable := cmd[0]
 	executablePath, err := exec.LookPath(executable)

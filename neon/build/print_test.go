@@ -13,7 +13,7 @@ func TestMessage(t *testing.T) {
 	os.Stdout = write
 	Message("This is a test!")
 	os.Stdout = stdout
-	write.Close()
+	_ = write.Close()
 	out, _ := io.ReadAll(read)
 	if string(out) != "This is a test!\n" {
 		t.Errorf("Message failure")
@@ -26,7 +26,7 @@ func TestInfoNotGrey(t *testing.T) {
 	os.Stdout = write
 	Info("This is a test!")
 	os.Stdout = stdout
-	write.Close()
+	_ = write.Close()
 	out, _ := io.ReadAll(read)
 	if string(out) != "This is a test!\n" {
 		t.Errorf("Message failure: '%s'", string(out))
@@ -41,7 +41,7 @@ func TestInfoGrey(t *testing.T) {
 	Info("This is a test!")
 	os.Stdout = stdout
 	Gray = false
-	write.Close()
+	_ = write.Close()
 	out, _ := io.ReadAll(read)
 	if string(out) != "This is a test!\n" {
 		t.Errorf("Message failure: '%s'", string(out))
@@ -54,7 +54,7 @@ func TestTitle(t *testing.T) {
 	os.Stdout = write
 	Title("Test")
 	os.Stdout = stdout
-	write.Close()
+	_ = write.Close()
 	out, _ := io.ReadAll(read)
 	if matched, _ := regexp.Match(`-+ Test -+`, out); !matched {
 		t.Errorf("Title failure: '%s'", string(out))
@@ -67,7 +67,7 @@ func TestPrintOk(t *testing.T) {
 	os.Stdout = write
 	PrintOk()
 	os.Stdout = stdout
-	write.Close()
+	_ = write.Close()
 	out, _ := io.ReadAll(read)
 	if string(out) != "OK\n" {
 		t.Errorf("PrintOk failure")

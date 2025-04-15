@@ -11,7 +11,9 @@ import (
 
 func TestReadFile(t *testing.T) {
 	tempFile := writeTempFile("", t)
-	defer os.Remove(tempFile)
+	defer func() {
+		_ = os.Remove(tempFile)
+	}()
 	text, err := ReadFile(tempFile)
 	if err != nil {
 		t.Fail()
@@ -27,7 +29,9 @@ func TestReadFile(t *testing.T) {
 
 func TestFileExists(t *testing.T) {
 	tempFile := writeTempFile("", t)
-	defer os.Remove(tempFile)
+	defer func() {
+		_ = os.Remove(tempFile)
+	}()
 	if !FileExists(tempFile) {
 		t.Fail()
 	}
@@ -47,7 +51,9 @@ func TestDirExists(t *testing.T) {
 
 func TestFileIsExecutable(t *testing.T) {
 	tempFile := writeTempFile("", t)
-	defer os.Remove(tempFile)
+	defer func() {
+		_ = os.Remove(tempFile)
+	}()
 	if FileIsExecutable(tempFile) {
 		t.Errorf("File should not be executable")
 	}
@@ -62,9 +68,13 @@ func TestFileIsExecutable(t *testing.T) {
 
 func TestCopyFile(t *testing.T) {
 	srcFile := writeTempFile("", t)
-	defer os.Remove(srcFile)
+	defer func() {
+		_ = os.Remove(srcFile)
+	}()
 	dstFile := path.Join(os.TempDir(), "test.tmp")
-	defer os.Remove(dstFile)
+	defer func() {
+		_ = os.Remove(dstFile)
+	}()
 	err := CopyFile(srcFile, dstFile)
 	if err != nil {
 		t.Fail()
@@ -89,10 +99,14 @@ func TestCopyFilesToDir(t *testing.T) {
 	}
 	tmpFile1 := makeTempFile(srcDir, t)
 	println(tmpFile1)
-	defer os.Remove(tmpFile1)
+	defer func() {
+		_ = os.Remove(tmpFile1)
+	}()
 	tmpFile2 := makeTempFile(srcDir, t)
 	println(tmpFile2)
-	defer os.Remove(tmpFile2)
+	defer func() {
+		_ = os.Remove(tmpFile2)
+	}()
 	err := CopyFilesToDir(srcDir, []string{path.Base(tmpFile1), path.Base(tmpFile2)}, dstDir, false)
 	if err != nil {
 		t.Fail()
@@ -105,8 +119,8 @@ func TestCopyFilesToDir(t *testing.T) {
 	if !FileExists(newFile2) {
 		t.Fail()
 	}
-	os.RemoveAll(srcDir)
-	os.RemoveAll(dstDir)
+	_ = os.RemoveAll(srcDir)
+	_ = os.RemoveAll(dstDir)
 }
 
 func TestMoveFilesToDir(t *testing.T) {
@@ -138,8 +152,8 @@ func TestMoveFilesToDir(t *testing.T) {
 	if FileExists(tmpFile2) {
 		t.Fail()
 	}
-	os.RemoveAll(srcDir)
-	os.RemoveAll(dstDir)
+	_ = os.RemoveAll(srcDir)
+	_ = os.RemoveAll(dstDir)
 }
 
 func TestExpandUserHome(t *testing.T) {

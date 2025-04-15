@@ -8,12 +8,12 @@ import (
 
 func TestNewer(t *testing.T) {
 	testDir := BuildDir + "/builtins/newer"
-	os.MkdirAll(testDir, 0755)
+	_ = os.MkdirAll(testDir, 0755)
 	old := testDir + "/old"
 	new := testDir + "/new"
-	Touch(old)
+	_ = Touch(old)
 	time.Sleep(10 * time.Millisecond)
-	Touch(new)
+	_ = Touch(new)
 	if !newer(new, old) {
 		t.Errorf("Newer error")
 	}
@@ -24,16 +24,16 @@ func TestNewer(t *testing.T) {
 
 func TestNewerMulti(t *testing.T) {
 	testDir := BuildDir + "/builtins/newer"
-	os.MkdirAll(testDir, 0755)
+	_ = os.MkdirAll(testDir, 0755)
 	old1 := testDir + "/old1"
 	old2 := testDir + "/old2"
 	new1 := testDir + "/new1"
 	new2 := testDir + "/new2"
-	Touch(old1)
-	Touch(old2)
+	_ = Touch(old1)
+	_ = Touch(old2)
 	time.Sleep(10 * time.Millisecond)
-	Touch(new1)
-	Touch(new2)
+	_ = Touch(new1)
+	_ = Touch(new2)
 	if !newer([]string{new1, new2}, []string{old1, old2}) {
 		t.Errorf("Newer error")
 	}

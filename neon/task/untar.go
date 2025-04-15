@@ -57,14 +57,18 @@ func untarFile(file, dir string) error {
 	if err != nil {
 		return fmt.Errorf("opening source tar file %s: %v", file, err)
 	}
-	defer reader.Close()
+	defer func() {
+		_ = reader.Close()
+	}()
 	var tarReader *t.Reader
 	if strings.HasSuffix(file, ".gz") || strings.HasSuffix(file, ".tgz") {
 		gzipReader, err := gzip.NewReader(reader)
 		if err != nil {
 			return fmt.Errorf("unzipping tar file: %v", err)
 		}
-		defer gzipReader.Close()
+		defer func() {
+			_ = gzipReader.Close()
+		}()
 		tarReader = t.NewReader(gzipReader)
 	} else {
 		tarReader = t.NewReader(reader)
@@ -94,7 +98,9 @@ func untarFile(file, dir string) error {
 			if _, err := io.Copy(dest, tarReader); err != nil {
 				return fmt.Errorf("copying to destination file %s: %v", target, err)
 			}
-			dest.Close()
+			if err := dest.Close(); err != nil {
+				return fmt.Errorf("closing destination file %s: %v", target, err)
+			}
 		}
 	}
 }

@@ -36,7 +36,9 @@ func printNewRelease() {
 	if response.StatusCode != 200 {
 		return
 	}
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return
@@ -126,7 +128,7 @@ func updateRepository(repository string, batch bool) error {
 					cmd.Dir = path
 					bytes, err = cmd.CombinedOutput()
 					if err != nil {
-						message := strings.Replace(string(bytes), "\n", "", -1)
+						message := strings.ReplaceAll(string(bytes), "\n", "")
 						fmt.Printf("ERROR: %s", message)
 						return fmt.Errorf("updating plugin: %v", err)
 					}

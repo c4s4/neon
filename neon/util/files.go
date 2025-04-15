@@ -81,12 +81,16 @@ func CopyFile(source, dest string) error {
 	if err != nil {
 		return fmt.Errorf("getting mode of source file '%s': %v", source, err)
 	}
-	defer from.Close()
+	defer func() {
+		_ = from.Close()
+	}()
 	to, err := os.Create(dest)
 	if err != nil {
 		return fmt.Errorf("creating desctination file '%s': %v", dest, err)
 	}
-	defer to.Close()
+	defer func() {
+		_ = to.Close()
+	}()
 	_, err = io.Copy(to, from)
 	if err != nil {
 		return fmt.Errorf("copying file: %v", err)
@@ -195,7 +199,7 @@ func ExpandUserHome(path string) string {
 // Return: converted path
 func PathToUnix(path string) string {
 	// replace path separator \ with /
-	path = strings.Replace(path, "\\", "/", -1)
+	path = strings.ReplaceAll(path, "\\", "/")
 	// replace c: with /c
 	r := regexp.MustCompile("^[A-Za-z]:.*$")
 	if r.MatchString(path) {
@@ -209,7 +213,7 @@ func PathToUnix(path string) string {
 // Return: converted path
 func PathToWindows(path string) string {
 	// replace path separator / with \
-	path = strings.Replace(path, "/", "\\", -1)
+	path = strings.ReplaceAll(path, "/", "\\")
 	// replace /c/ with c:/
 	r := regexp.MustCompile(`^\\[A-Za-z]\\.*$`)
 	if r.MatchString(path) {

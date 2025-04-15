@@ -2,7 +2,6 @@ package builtin
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -55,7 +54,9 @@ func TestIntegration(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error getting current directory: %v", err)
 	}
-	defer os.Chdir(dir)
+	defer func() {
+		_ = os.Chdir(dir)
+	}()
 	for _, build := range builds {
 		file, _ := filepath.Abs(path.Join(TestDir, build))
 		err := RunBuildFile(file, dir)
@@ -67,12 +68,16 @@ func TestIntegration(t *testing.T) {
 
 // RunBuildFile runs given build file
 func RunBuildFile(file, dir string) error {
-	defer os.Chdir(dir)
+	defer func() {
+		_ = os.Chdir(dir)
+	}()
 	build, err := _build.NewBuild(file, filepath.Dir(file), "", false)
 	if err != nil {
 		return err
 	}
-	os.Chdir(build.Dir)
+	if err := os.Chdir(build.Dir); err != nil {
+		return fmt.Errorf("changing directory to '%s': %v", build.Dir, err)
+	}
 	context := _build.NewContext(build)
 	err = context.Init()
 	if err != nil {
@@ -96,7 +101,7 @@ func Touch(file string) error {
 			return fmt.Errorf("changing times of file '%s': %v", file, err)
 		}
 	} else {
-		err := ioutil.WriteFile(file, []byte{}, 0755)
+		err := os.WriteFile(file, []byte{}, 0755)
 		if err != nil {
 			return fmt.Errorf("creating file '%s': %v", file, err)
 		}

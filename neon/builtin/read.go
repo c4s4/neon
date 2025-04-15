@@ -1,9 +1,10 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
-	"io/ioutil"
+	"os"
 	"strings"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -29,7 +30,7 @@ Examples:
 }
 
 func read(file string) string {
-	content, err := ioutil.ReadFile(file)
+	content, err := os.ReadFile(file)
 	if err != nil {
 		panic(err.Error())
 	}

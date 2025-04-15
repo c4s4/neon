@@ -47,7 +47,9 @@ func write(context *build.Context, args interface{}) error {
 	if err != nil {
 		return fmt.Errorf("opening file '%s': %v", params.Write, err)
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 	_, err = file.WriteString(params.Text)
 	if err != nil {
 		return fmt.Errorf("writing content to file '%s': %v", params.Write, err)

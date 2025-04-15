@@ -95,7 +95,9 @@ func request(context *build.Context, args interface{}) error {
 	if err != nil {
 		return fmt.Errorf("requesting '%s': %v", params.Request, err)
 	}
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 	context.SetProperty("_status", response.StatusCode)
 	context.SetProperty("_headers", response.Header)
 	responseBody, err := io.ReadAll(response.Body)

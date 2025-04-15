@@ -164,7 +164,9 @@ func (context *Context) InitEnvironment() error {
 		return fmt.Errorf("evaluating environment: %w", err)
 	}
 	for name, value := range environment {
-		os.Setenv(name, value)
+		if err := os.Setenv(name, value); err != nil {
+			return fmt.Errorf("setting environment variable '%s': %w", name, err)
+		}
 	}
 	return nil
 }
@@ -410,7 +412,9 @@ func LoadDotEnv(filename string) (map[string]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("opening dotenv file '%s': %w", filename, err)
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 	reader := bufio.NewReader(file)
 	for {
 		bytes, _, err := reader.ReadLine()

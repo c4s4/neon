@@ -98,7 +98,7 @@ func printColor(text string) {
 // - text: the text to print
 // - args: the arguments for the text to print
 func printColorArgs(text string, args ...interface{}) {
-	fmt.Fprintf(color.Output, text, args...)
+	_, _ = fmt.Fprintf(color.Output, text, args...)
 	fmt.Println()
 }
 

@@ -64,7 +64,7 @@ func replace(context *build.Context, args interface{}) error {
 		}
 		text := string(bytes)
 		for old, new := range with {
-			text = strings.Replace(text, old, new, -1)
+			text = strings.ReplaceAll(text, old, new)
 		}
 		err = os.WriteFile(file, []byte(text), FileMode)
 		if err != nil {

@@ -274,7 +274,9 @@ func TestInfoTemplates(t *testing.T) {
 	if _, err := WriteFile(repo+"/foo/bar", "template2.tpl", ""); err != nil {
 		t.Fatalf("writing file: %v", err)
 	}
-	defer os.RemoveAll(repo)
+	defer func() {
+		_ = os.RemoveAll(repo)
+	}()
 	parents := InfoTemplates(repo)
 	if parents != "foo/bar/template1.tpl\nfoo/bar/template2.tpl" {
 		t.Errorf("Bad templates info: %s", parents)
@@ -289,7 +291,9 @@ func TestInfoParents(t *testing.T) {
 	if _, err := WriteFile(repo+"/foo/bar", "parent2.yml", ""); err != nil {
 		t.Fatalf("write file: %v", err)
 	}
-	defer os.RemoveAll(repo)
+	defer func() {
+		_ = os.RemoveAll(repo)
+	}()
 	parents := InfoParents(repo)
 	if parents != "foo/bar/parent1.yml\nfoo/bar/parent2.yml" {
 		t.Errorf("Bad parents info: %s", parents)

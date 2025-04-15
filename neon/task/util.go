@@ -20,9 +20,9 @@ func SanitizeName(filename string) string {
 		runtime.GOOS == "windows" {
 		filename = filename[2:]
 	}
-	filename = strings.Replace(filename, `\`, `/`, -1)
+	filename = strings.ReplaceAll(filename, `\`, `/`)
 	filename = strings.TrimLeft(filename, "/.")
-	return strings.Replace(filename, "../", "", -1)
+	return strings.ReplaceAll(filename, "../", "")
 }
 
 // RemoveStep remove first part of an error message that include step:

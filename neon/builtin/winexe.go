@@ -47,5 +47,5 @@ func toWindows(command string) string {
 	} else {
 		command = command + ".exe"
 	}
-	return strings.Replace(command, "/", "\\", -1)
+	return strings.ReplaceAll(command, "/", "\\")
 }

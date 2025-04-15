@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"reflect"
@@ -23,7 +24,7 @@ Arguments:
 Examples:
 
     # start a command in background and put its PID in 'pid' variable
-    - start: 'ls -al'
+    - start: [ls, -al]
 	  pid:  pid
 
 Notes:
@@ -34,18 +35,23 @@ Notes:
 }
 
 type startArgs struct {
-	Start string `neon:"name=start,string"`
-	Pid   string `neon:"name=pid,string"`
+	Start []string `neon:"name=start,string"`
+	Pid   string   `neon:"optional,name=pid,string"`
 }
 
 func start(context *build.Context, args interface{}) error {
 	params := args.(startArgs)
-	cmd := exec.Command(params.Start)
+	if len(params.Start) == 0 {
+		return fmt.Errorf("start command is empty")
+	}
+	cmd := exec.Command(params.Start[0], params.Start[1:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Start(); err != nil {
 		return err
 	}
-	context.SetProperty(params.Pid, cmd.Process.Pid)
+	if params.Pid != "" {
+		context.SetProperty(params.Pid, cmd.Process.Pid)
+	}
 	return nil
 }
