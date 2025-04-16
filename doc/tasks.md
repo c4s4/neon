@@ -651,7 +651,7 @@ Arguments:
 Examples:
 
     # start a command in background and put its PID in 'pid' variable
-    - start: 'ls -al'
+    - start: [ls, -al]
 	  pid:  pid
 
 Notes:
