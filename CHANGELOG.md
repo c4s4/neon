@@ -1,8 +1,9 @@
 # NeON
 
-## 2025-04-14:
+## 2025-04-14: 1.13.1
 
 - Fixed code warnings
+- Fix start task
 
 ## 2025-03-13: 1.13.0
 
