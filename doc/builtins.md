@@ -1,6 +1,6 @@
 # Builtins Reference
 
-[absolute](#absolute) - [appendpath](#appendpath) - [changelog](#changelog) - [color](#color) - [contains](#contains) - [directory](#directory) - [env](#env) - [escapeurl](#escapeurl) - [exists](#exists) - [expand](#expand) - [filename](#filename) - [filter](#filter) - [find](#find) - [findinpath](#findinpath) - [followlink](#followlink) - [greater](#greater) - [greaterorequal](#greaterorequal) - [haskey](#haskey) - [join](#join) - [joinpath](#joinpath) - [jsondecode](#jsondecode) - [jsonencode](#jsonencode) - [jsonindent](#jsonindent) - [keys](#keys) - [length](#length) - [list](#list) - [lower](#lower) - [lowercase](#lowercase) - [lowerorequal](#lowerorequal) - [match](#match) - [md5](#md5) - [newer](#newer) - [now](#now) - [ospath](#ospath) - [read](#read) - [replace](#replace) - [run](#run) - [setenv](#setenv) - [sortversions](#sortversions) - [split](#split) - [termlink](#termlink) - [termwidth](#termwidth) - [throw](#throw) - [title](#title) - [toint](#toint) - [trim](#trim) - [unescapeurl](#unescapeurl) - [unixpath](#unixpath) - [uppercase](#uppercase) - [uuid](#uuid) - [windowspath](#windowspath) - [winexe](#winexe) - [yamldecode](#yamldecode) - [yamlencode](#yamlencode)
+[absolute](#absolute) - [appendpath](#appendpath) - [changelog](#changelog) - [color](#color) - [contains](#contains) - [directory](#directory) - [env](#env) - [escapeurl](#escapeurl) - [exists](#exists) - [expand](#expand) - [filename](#filename) - [filter](#filter) - [find](#find) - [findinpath](#findinpath) - [followlink](#followlink) - [greater](#greater) - [greaterorequal](#greaterorequal) - [haskey](#haskey) - [join](#join) - [joinpath](#joinpath) - [jsondecode](#jsondecode) - [jsonencode](#jsonencode) - [jsonindent](#jsonindent) - [keys](#keys) - [length](#length) - [list](#list) - [lower](#lower) - [lowercase](#lowercase) - [lowerorequal](#lowerorequal) - [match](#match) - [md5](#md5) - [newer](#newer) - [now](#now) - [ospath](#ospath) - [read](#read) - [replace](#replace) - [run](#run) - [setenv](#setenv) - [sortversions](#sortversions) - [split](#split) - [termlink](#termlink) - [termwidth](#termwidth) - [throw](#throw) - [title](#title) - [toint](#toint) - [trim](#trim) - [unescapeurl](#unescapeurl) - [unixpath](#unixpath) - [uppercase](#uppercase) - [uuid](#uuid) - [windowspath](#windowspath) - [winexe](#winexe) - [write](#write) - [yamldecode](#yamldecode) - [yamlencode](#yamlencode)
 
 ## absolute
 
@@ -674,9 +674,9 @@ Returns:
 
 Examples:
 
-    # read VERSION file and set variable version with ots content
+    # read content of VERSION file
     read("VERSION")
-    # returns: the contents of "VERSION" file
+    # returns: the contents of VERSION file
 
 ## replace
 
@@ -985,6 +985,20 @@ Examples:
     # run script script.sh unix and windows
     run(winexe("script.sh"))
     # will run script.sh on unix and script.bat on windows
+
+## write
+
+Write a string in given file.
+
+Arguments:
+
+- The file name to write.
+- The string to write.
+
+Examples:
+
+    # write "1.2.3" in VERSION file
+    write("VERSION", "1.2.3")
 
 ## yamldecode
 
