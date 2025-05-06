@@ -422,12 +422,15 @@ Arguments:
 
 - neon: the build file to run (string).
 - targets: the target(s) to run (strings, wrap, optional).
+- properties: the properties to pass to the build (map, optional).
 
 Examples:
 
-    # run target 'foo' of build file 'bar/build.yml'
+    # run target 'hello' of build file 'bar/build.yml' with property name = 'world'
     - neon:    'bar/build.yml'
-      targets: 'foo'
+      targets: 'hello'
+	  properties:
+	    name: 'world'
 
 ## notify
 
