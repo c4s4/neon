@@ -1,7 +1,8 @@
 # NeON
 
-## 2025-04-30: ???
+## 2025-05-06: 1.14.0
 
+- Added `properties` key to `neon` task
 - Added `write()` builtin to write text into a file
 
 ## 2025-04-14: 1.13.1

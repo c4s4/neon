@@ -2,10 +2,11 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
 	"os"
 	"path/filepath"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -19,18 +20,22 @@ Arguments:
 
 - neon: the build file to run (string).
 - targets: the target(s) to run (strings, wrap, optional).
+- properties: the properties to pass to the build (map, optional).
 
 Examples:
 
-    # run target 'foo' of build file 'bar/build.yml'
+    # run target 'hello' of build file 'bar/build.yml' with property name = 'world'
     - neon:    'bar/build.yml'
-      targets: 'foo'`,
+      targets: 'hello'
+	  properties:
+	    name: 'world'`,
 	})
 }
 
 type neonArgs struct {
-	Neon    string   `neon:"file"`
-	Targets []string `neon:"optional,wrap"`
+	Neon       string                      `neon:"file"`
+	Targets    []string                    `neon:"optional,wrap"`
+	Properties map[interface{}]interface{} `neon:"optional,properties"`
 }
 
 func neon(context *build.Context, args interface{}) error {
@@ -59,6 +64,12 @@ func neon(context *build.Context, args interface{}) error {
 	err = newContext.Init()
 	if err != nil {
 		return fmt.Errorf("initializing build context: %v", err)
+	}
+	if params.Properties != nil {
+		for key, value := range params.Properties {
+			name := fmt.Sprintf("%v", key)
+			newContext.SetProperty(name, value)
+		}
 	}
 	err = newBuild.Run(newContext, params.Targets)
 	if err != nil {
