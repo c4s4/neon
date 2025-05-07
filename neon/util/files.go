@@ -86,7 +86,7 @@ func CopyFile(source, dest string) error {
 	}()
 	to, err := os.Create(dest)
 	if err != nil {
-		return fmt.Errorf("creating desctination file '%s': %v", dest, err)
+		return fmt.Errorf("creating destination file '%s': %v", dest, err)
 	}
 	defer func() {
 		_ = to.Close()

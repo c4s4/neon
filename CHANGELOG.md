@@ -1,5 +1,9 @@
 # NeON
 
+## 2025-05-06: 1.14.1
+
+- Fix dotenv loading
+
 ## 2025-05-06: 1.14.0
 
 - Added `properties` key to `neon` task
