@@ -1,6 +1,6 @@
 # Tasks Reference
 
-[$](#$) - [assert](#assert) - [call](#call) - [cat](#cat) - [changelog](#changelog) - [chdir](#chdir) - [chmod](#chmod) - [classpath](#classpath) - [copy](#copy) - [delete](#delete) - [dotenv](#dotenv) - [for](#for) - [if](#if) - [java](#java) - [javac](#javac) - [link](#link) - [mkdir](#mkdir) - [move](#move) - [neon](#neon) - [notify](#notify) - [pass](#pass) - [path](#path) - [print](#print) - [prompt](#prompt) - [read](#read) - [replace](#replace) - [request](#request) - [setenv](#setenv) - [singleton](#singleton) - [sleep](#sleep) - [start](#start) - [super](#super) - [tar](#tar) - [threads](#threads) - [throw](#throw) - [time](#time) - [touch](#touch) - [try](#try) - [untar](#untar) - [unzip](#unzip) - [while](#while) - [write](#write) - [zip](#zip)
+[$](#$) - [assert](#assert) - [call](#call) - [cat](#cat) - [changelog](#changelog) - [chdir](#chdir) - [chmod](#chmod) - [classpath](#classpath) - [copy](#copy) - [delete](#delete) - [dotenv](#dotenv) - [for](#for) - [if](#if) - [java](#java) - [javac](#javac) - [link](#link) - [mkdir](#mkdir) - [move](#move) - [neon](#neon) - [notify](#notify) - [pass](#pass) - [path](#path) - [pause](#pause) - [print](#print) - [prompt](#prompt) - [read](#read) - [replace](#replace) - [request](#request) - [setenv](#setenv) - [singleton](#singleton) - [sleep](#sleep) - [start](#start) - [super](#super) - [tar](#tar) - [threads](#threads) - [throw](#throw) - [time](#time) - [touch](#touch) - [try](#try) - [untar](#untar) - [unzip](#unzip) - [while](#while) - [write](#write) - [zip](#zip)
 
 ## $
 
@@ -487,6 +487,23 @@ Examples:
     - path: 'lib/*.jar'
       to:   'classpath'
 
+## pause
+
+Wait for given duration.
+
+Arguments:
+
+- pause: duration to pause (string).
+- mute: if set to true, do not print a message (bool, optional).
+
+Examples:
+
+    # pause for 3 seconds
+    - pause: 3s
+    # pause for 1 minutes without message
+    - pause: 1m
+      mute:  true
+
 ## print
 
 Print a message on the console.
@@ -655,7 +672,7 @@ Examples:
 
     # start a command in background and put its PID in 'pid' variable
     - start: [ls, -al]
-	  pid:  pid
+      pid:   pid
 
 Notes:
 
