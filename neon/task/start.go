@@ -25,7 +25,7 @@ Examples:
 
     # start a command in background and put its PID in 'pid' variable
     - start: [ls, -al]
-	  pid:  pid
+      pid:  pid
 
 Notes:
 
