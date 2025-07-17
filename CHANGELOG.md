@@ -1,5 +1,9 @@
 # NeON
 
+## 2025-07-17: 1.15.0
+
+- Added `pause` task
+
 ## 2025-05-06: 1.14.1
 
 - Fix dotenv loading
