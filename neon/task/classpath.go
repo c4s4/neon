@@ -199,7 +199,9 @@ func download(path, url string) error {
 	if err != nil {
 		return fmt.Errorf("getting '%s': %v", url, err)
 	}
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 	if response.StatusCode != 200 {
 		return fmt.Errorf("getting '%s': %s", url, response.Status)
 	}
@@ -207,7 +209,9 @@ func download(path, url string) error {
 	if err != nil {
 		return fmt.Errorf("saving dependency '%s': %v", path, err)
 	}
-	defer output.Close()
+	defer func() {
+		_ = output.Close()
+	}()
 	_, err = io.Copy(output, response.Body)
 	if err != nil {
 		return fmt.Errorf("saving dependency '%s': %v", path, err)
@@ -223,7 +227,7 @@ type dependency struct {
 }
 
 func (d *dependency) Path(root string) string {
-	return fmt.Sprintf("%s/%s/%s/%s/%s-%s.jar", root, strings.Replace(d.Group, ".", "/", -1), d.Artifact, d.Version, d.Artifact, d.Version)
+	return fmt.Sprintf("%s/%s/%s/%s/%s-%s.jar", root, strings.ReplaceAll(d.Group, ".", "/"), d.Artifact, d.Version, d.Artifact, d.Version)
 }
 
 func (d *dependency) String() string {

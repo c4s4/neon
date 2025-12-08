@@ -143,7 +143,7 @@ func checkArgumentType(field reflect.StructField, args TaskArgs) (string, error)
 }
 
 func checkUnknownArgs(fields []string, args TaskArgs) error {
-	if !(len(fields) == 0 && len(args) == 1) {
+	if len(fields) != 0 || len(args) != 1 {
 		for name := range args {
 			found := false
 			for _, n := range fields {
@@ -260,7 +260,7 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (result
 				val = evaluateStrings(val, field)
 			}
 			// wrap values if necessary
-			if FieldIs(field, FieldWrap) && !(reflect.TypeOf(val).Kind() == reflect.Slice) {
+			if FieldIs(field, FieldWrap) && reflect.TypeOf(val).Kind() != reflect.Slice {
 				slice := reflect.New(field.Type).Elem()
 				slice = reflect.Append(slice, reflect.ValueOf(val))
 				val = slice.Interface()
@@ -309,9 +309,9 @@ func evaluateExpression(field reflect.StructField, val interface{}, context *Con
 		}
 		if val == nil ||
 			// we accept if expected is slice of interfaces and actual is slice
-			!(expected.Kind() == reflect.Slice && actual.Kind() == reflect.Slice) &&
+			(expected.Kind() != reflect.Slice || actual.Kind() != reflect.Slice) &&
 				// or if slice and wrap
-				!(expected == reflect.SliceOf(actual) && FieldIs(field, FieldWrap)) {
+				(expected != reflect.SliceOf(actual) || !FieldIs(field, FieldWrap)) {
 			return nil, fmt.Errorf("bad expression return type, expected '%v' but '%v' was returned",
 				expected, actual)
 		}

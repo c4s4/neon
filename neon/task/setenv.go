@@ -34,6 +34,5 @@ type setenvArgs struct {
 
 func setenv(context *build.Context, args interface{}) error {
 	params := args.(setenvArgs)
-	os.Setenv(params.Setenv, params.Value)
-	return nil
+	return os.Setenv(params.Setenv, params.Value)
 }

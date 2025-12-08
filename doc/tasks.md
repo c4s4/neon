@@ -1,6 +1,6 @@
 # Tasks Reference
 
-[$](#$) - [assert](#assert) - [call](#call) - [cat](#cat) - [changelog](#changelog) - [chdir](#chdir) - [chmod](#chmod) - [classpath](#classpath) - [copy](#copy) - [delete](#delete) - [dotenv](#dotenv) - [for](#for) - [if](#if) - [java](#java) - [javac](#javac) - [link](#link) - [mkdir](#mkdir) - [move](#move) - [neon](#neon) - [notify](#notify) - [pass](#pass) - [path](#path) - [print](#print) - [prompt](#prompt) - [read](#read) - [replace](#replace) - [request](#request) - [setenv](#setenv) - [singleton](#singleton) - [sleep](#sleep) - [start](#start) - [super](#super) - [tar](#tar) - [threads](#threads) - [throw](#throw) - [time](#time) - [touch](#touch) - [try](#try) - [untar](#untar) - [unzip](#unzip) - [while](#while) - [write](#write) - [zip](#zip)
+[$](#$) - [assert](#assert) - [call](#call) - [cat](#cat) - [changelog](#changelog) - [chdir](#chdir) - [chmod](#chmod) - [classpath](#classpath) - [copy](#copy) - [delete](#delete) - [dotenv](#dotenv) - [for](#for) - [if](#if) - [java](#java) - [javac](#javac) - [link](#link) - [mkdir](#mkdir) - [move](#move) - [neon](#neon) - [notify](#notify) - [pass](#pass) - [path](#path) - [pause](#pause) - [print](#print) - [prompt](#prompt) - [read](#read) - [replace](#replace) - [request](#request) - [setenv](#setenv) - [singleton](#singleton) - [sleep](#sleep) - [start](#start) - [super](#super) - [tar](#tar) - [threads](#threads) - [throw](#throw) - [time](#time) - [touch](#touch) - [try](#try) - [untar](#untar) - [unzip](#unzip) - [while](#while) - [write](#write) - [zip](#zip)
 
 ## $
 
@@ -20,6 +20,7 @@ Arguments:
   3 for stdout and stderr (boolean, optional).
 - <: send given text to standard input of the process (string, optional).
 - :: print command on terminal before running it (boolean, optional).
+- env: environment variables to set running command (map of strings, optional).
 
 Examples:
 
@@ -31,7 +32,11 @@ Examples:
     - $: ['ls', '-al']
     # run pylint on all python files except those in venv
     - $: 'pylint'
-      +: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
+      +: '=filter(find(".", "**/*.py"), "venv/**/*.py")
+	# run echo command passing environment variable
+	- $: 'echo "Hello $NAME!"'
+	  env:
+	    NAME: 'John'
 
 Notes:
 
@@ -417,12 +422,15 @@ Arguments:
 
 - neon: the build file to run (string).
 - targets: the target(s) to run (strings, wrap, optional).
+- properties: the properties to pass to the build (map, optional).
 
 Examples:
 
-    # run target 'foo' of build file 'bar/build.yml'
+    # run target 'hello' of build file 'bar/build.yml' with property name = 'world'
     - neon:    'bar/build.yml'
-      targets: 'foo'
+      targets: 'hello'
+	  properties:
+	    name: 'world'
 
 ## notify
 
@@ -478,6 +486,23 @@ Examples:
     # build classpath with jar files in lib directory
     - path: 'lib/*.jar'
       to:   'classpath'
+
+## pause
+
+Wait for given duration.
+
+Arguments:
+
+- pause: duration to pause (string).
+- mute: if set to true, do not print a message (bool, optional).
+
+Examples:
+
+    # pause for 3 seconds
+    - pause: 3s
+    # pause for 1 minutes without message
+    - pause: 1m
+      mute:  true
 
 ## print
 
@@ -646,8 +671,8 @@ Arguments:
 Examples:
 
     # start a command in background and put its PID in 'pid' variable
-    - start: 'ls -al'
-	  pid:  pid
+    - start: [ls, -al]
+      pid:   pid
 
 Notes:
 

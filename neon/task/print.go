@@ -58,7 +58,9 @@ func print(context *build.Context, args interface{}) error {
 		if !ok {
 			return fmt.Errorf("color %s not found", params.Color)
 		}
-		fmt.Fprint(color.Output, color.New(colorPrint).SprintFunc()(params.Print))
+		if _, err := fmt.Fprint(color.Output, color.New(colorPrint).SprintFunc()(params.Print)); err != nil {
+			return fmt.Errorf("printing %s: %v", params.Print, err)
+		}
 		if !params.NoReturn {
 			fmt.Println()
 		}

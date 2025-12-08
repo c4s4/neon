@@ -8,19 +8,19 @@ import (
 
 func TestFollowLink(t *testing.T) {
 	testDir := BuildDir + "/builtins/followlink"
-	os.MkdirAll(testDir, 0755)
+	_ = os.MkdirAll(testDir, 0755)
 	src, err := filepath.Abs(testDir + "/spam.txt")
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 	}
 	dst, err := filepath.Abs(testDir + "/eggs.txt")
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 	}
-	Touch(src)
-	os.Symlink(src, dst)
+	_ = Touch(src)
+	_ = os.Symlink(src, dst)
 	path := followLink(dst)
 	if path != src {
-		t.Errorf("Symlink not folowed %s instead of %s", path, src)
+		t.Errorf("Symlink not followed %s instead of %s", path, src)
 	}
 }

@@ -50,13 +50,17 @@ func unzipFile(file, dir string) error {
 	if err != nil {
 		return fmt.Errorf("opening source zip file %s: %v", file, err)
 	}
-	defer reader.Close()
+	defer func() {
+		_ = reader.Close()
+	}()
 	for _, file := range reader.File {
 		readCloser, err := file.Open()
 		if err != nil {
 			return fmt.Errorf("opening zip file %s: %v", file.Name, err)
 		}
-		defer readCloser.Close()
+		defer func() {
+			_ = readCloser.Close()
+		}()
 		target := filepath.Join(dir, file.Name)
 		if file.FileInfo().IsDir() {
 			continue
@@ -71,7 +75,9 @@ func unzipFile(file, dir string) error {
 			if err != nil {
 				return fmt.Errorf("creating destination file '%s': %v", target, err)
 			}
-			defer dest.Close()
+			defer func() {
+				_ = dest.Close()
+			}()
 			_, err = io.Copy(dest, readCloser)
 			if err != nil {
 				return fmt.Errorf("copying to destination file '%s': %v", target, err)

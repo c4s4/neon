@@ -2,13 +2,14 @@ package build
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/util"
-	"gopkg.in/yaml.v2"
 	"net"
 	"os"
 	"path/filepath"
 	"runtime"
 	"time"
+
+	"github.com/c4s4/neon/neon/util"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -347,7 +348,9 @@ func (build *Build) Run(context *Context, targets []string) error {
 		return err
 	}
 	if listener != nil {
-		defer listener.Close()
+		defer func() {
+			_ = listener.Close()
+		}()
 	}
 	if len(targets) == 0 {
 		targets = build.GetDefault()

@@ -1,10 +1,11 @@
 package task
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"net"
 	"reflect"
 	t "time"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -54,7 +55,9 @@ func singleton(context *build.Context, args interface{}) error {
 		}
 	}
 	if listener != nil {
-		defer listener.Close()
+		defer func() {
+			_ = listener.Close()
+		}()
 	}
 	err = params.Steps.Run(context)
 	if err != nil {

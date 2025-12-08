@@ -180,7 +180,9 @@ func TestParseConfiguration(t *testing.T) {
 	if _, err := WriteFile("/tmp", "config.yml", "foo: spam\nbar: eggs"); err != nil {
 		t.Fatalf("write file: %v", err)
 	}
-	defer os.RemoveAll("/tmp/config.yml")
+	defer func() {
+		_ = os.RemoveAll("/tmp/config.yml")
+	}()
 	object := map[string]interface{}{
 		"configuration": []string{"/tmp/config.yml"},
 	}

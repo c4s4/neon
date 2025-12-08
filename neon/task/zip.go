@@ -64,12 +64,16 @@ func writeZip(dir string, files []string, prefix, to string) error {
 	if err != nil {
 		return fmt.Errorf("creating zip archive: %v", err)
 	}
-	defer archive.Close()
+	defer func() {
+		_ = archive.Close()
+	}()
 	zipper := z.NewWriter(archive)
 	zipper.RegisterCompressor(z.Deflate, func(out io.Writer) (io.WriteCloser, error) {
 		return flate.NewWriter(out, flate.BestCompression)
 	})
-	defer zipper.Close()
+	defer func() {
+		_ = zipper.Close()
+	}()
 	for _, file := range files {
 		var path string
 		if dir != "" {
@@ -90,7 +94,9 @@ func writeFileToZip(zipper *z.Writer, path, name, prefix string) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 	info, err := file.Stat()
 	if err != nil {
 		return err

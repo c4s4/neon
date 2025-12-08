@@ -308,7 +308,7 @@ func InfoTasksReference() string {
 	sort.Strings(tasks)
 	var links []string
 	for _, task := range tasks {
-		link := "[" + task + "](#" + strings.Replace(task, " ", "-", -1) + ")"
+		link := "[" + task + "](#" + strings.ReplaceAll(task, " ", "-") + ")"
 		links = append(links, link)
 	}
 	info += strings.Join(links, " - ")
@@ -331,7 +331,7 @@ func InfoBuiltinsReference() string {
 	sort.Strings(builtins)
 	var links []string
 	for _, builtin := range builtins {
-		link := "[" + builtin + "](#" + strings.Replace(builtin, " ", "-", -1) + ")"
+		link := "[" + builtin + "](#" + strings.ReplaceAll(builtin, " ", "-") + ")"
 		links = append(links, link)
 	}
 	info += strings.Join(links, " - ")

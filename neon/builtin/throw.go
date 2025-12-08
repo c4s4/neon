@@ -1,7 +1,8 @@
 package builtin
 
 import (
-	"fmt"
+	"errors"
+
 	"github.com/c4s4/neon/neon/build"
 )
 
@@ -28,5 +29,5 @@ Examples:
 }
 
 func throw(message string) error {
-	return fmt.Errorf(message)
+	return errors.New(message)
 }

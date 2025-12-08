@@ -30,5 +30,5 @@ Examples:
 }
 
 func replace(str, from, to string) string {
-	return strings.Replace(str, from, to, -1)
+	return strings.ReplaceAll(str, from, to)
 }

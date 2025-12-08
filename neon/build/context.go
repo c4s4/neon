@@ -164,7 +164,9 @@ func (context *Context) InitEnvironment() error {
 		return fmt.Errorf("evaluating environment: %w", err)
 	}
 	for name, value := range environment {
-		os.Setenv(name, value)
+		if err := os.Setenv(name, value); err != nil {
+			return fmt.Errorf("setting environment variable '%s': %w", name, err)
+		}
 	}
 	return nil
 }
@@ -336,7 +338,7 @@ func (context *Context) EvaluateEnvironment() (map[string]string, error) {
 		environment[name] = value
 	}
 	for _, filename := range context.Build.DotEnv {
-		env, err := LoadDotEnv(filename)
+		env, err := LoadDotEnv(filename, context.Build.Dir)
 		if err != nil {
 			return nil, err
 		}
@@ -403,14 +405,20 @@ func (context *Context) EvaluateEnvironment() (map[string]string, error) {
 // - filename: the name of the file to load
 // Return:
 // - a map of environment variables
-func LoadDotEnv(filename string) (map[string]string, error) {
+func LoadDotEnv(filename, buildDir string) (map[string]string, error) {
 	environment := make(map[string]string)
-	filename = filepath.Clean(util.ExpandUserHome(filename))
+	filename = util.ExpandUserHome(filename)
+	if !filepath.IsAbs(filename) {
+		filename = filepath.Join(buildDir, filename)
+	}
+	filename = filepath.Clean(filename)
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, fmt.Errorf("opening dotenv file '%s': %w", filename, err)
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 	reader := bufio.NewReader(file)
 	for {
 		bytes, _, err := reader.ReadLine()

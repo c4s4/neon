@@ -33,6 +33,7 @@ Arguments:
   3 for stdout and stderr (boolean, optional).
 - <: send given text to standard input of the process (string, optional).
 - :: print command on terminal before running it (boolean, optional).
+- env: environment variables to set running command (map of strings, optional).
 
 Examples:
 
@@ -44,7 +45,11 @@ Examples:
     - $: ['ls', '-al']
     # run pylint on all python files except those in venv
     - $: 'pylint'
-      +: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
+      +: '=filter(find(".", "**/*.py"), "venv/**/*.py")
+	# run echo command passing environment variable
+	- $: 'echo "Hello $NAME!"'
+	  env:
+	    NAME: 'John'
 
 Notes:
 
@@ -59,22 +64,23 @@ Notes:
 }
 
 type shellArgs struct {
-	Shell []string `neon:"name=$,wrap"`
-	Args  []string `neon:"name=+,expression,wrap,optional"`
-	Del1  bool     `neon:"name=1x,bool,optional"`
-	Del2  bool     `neon:"name=2x,bool,optional"`
-	Del3  bool     `neon:"name=3x,bool,optional"`
-	Red1  string   `neon:"name=1>,file,optional"`
-	Red2  string   `neon:"name=2>,file,optional"`
-	Red3  string   `neon:"name=3>,file,optional"`
-	App1  string   `neon:"name=1>>,file,optional"`
-	App2  string   `neon:"name=2>>,file,optional"`
-	App3  string   `neon:"name=3>>,file,optional"`
-	Var1  string   `neon:"name=1=,optional"`
-	Var2  string   `neon:"name=2=,optional"`
-	Var3  string   `neon:"name=3=,optional"`
-	In    string   `neon:"name=<,optional"`
-	Verb  bool     `neon:"name=:,bool,optional"`
+	Shell []string          `neon:"name=$,wrap"`
+	Args  []string          `neon:"name=+,expression,wrap,optional"`
+	Del1  bool              `neon:"name=1x,bool,optional"`
+	Del2  bool              `neon:"name=2x,bool,optional"`
+	Del3  bool              `neon:"name=3x,bool,optional"`
+	Red1  string            `neon:"name=1>,file,optional"`
+	Red2  string            `neon:"name=2>,file,optional"`
+	Red3  string            `neon:"name=3>,file,optional"`
+	App1  string            `neon:"name=1>>,file,optional"`
+	App2  string            `neon:"name=2>>,file,optional"`
+	App3  string            `neon:"name=3>>,file,optional"`
+	Var1  string            `neon:"name=1=,optional"`
+	Var2  string            `neon:"name=2=,optional"`
+	Var3  string            `neon:"name=3=,optional"`
+	In    string            `neon:"name=<,optional"`
+	Verb  bool              `neon:"name=:,bool,optional"`
+	Env   map[string]string `neon:"name=env,optional"`
 }
 
 func shell(context *build.Context, args interface{}) error {
@@ -94,7 +100,9 @@ func shell(context *build.Context, args interface{}) error {
 		if err != nil {
 			return err
 		}
-		defer file.Close()
+		defer func() {
+			_ = file.Close()
+		}()
 		stdout = append(stdout, file)
 	}
 	// redirect stderr in a file
@@ -104,7 +112,9 @@ func shell(context *build.Context, args interface{}) error {
 		if err != nil {
 			return err
 		}
-		defer file.Close()
+		defer func() {
+			_ = file.Close()
+		}()
 		stderr = append(stderr, file)
 	}
 	// append stdout to a file
@@ -114,7 +124,9 @@ func shell(context *build.Context, args interface{}) error {
 		if err != nil {
 			return err
 		}
-		defer file.Close()
+		defer func() {
+			_ = file.Close()
+		}()
 		stdout = append(stdout, file)
 	}
 	// append stderr to a file
@@ -124,7 +136,9 @@ func shell(context *build.Context, args interface{}) error {
 		if err != nil {
 			return err
 		}
-		defer file.Close()
+		defer func() {
+			_ = file.Close()
+		}()
 		stderr = append(stderr, file)
 	}
 	// write stdout in a property
@@ -158,7 +172,7 @@ func shell(context *build.Context, args interface{}) error {
 	} else {
 		multiStderr = io.Discard
 	}
-	err := run(params.Shell, params.Args, multiStdout, multiStderr, stdin, context, params.Verb)
+	err := run(params.Shell, params.Args, multiStdout, multiStderr, stdin, context, params.Env, params.Verb)
 	if property != "" {
 		context.SetProperty(property, strings.TrimSpace(builder.String()))
 	}
@@ -184,26 +198,33 @@ func getStderr(params shellArgs) []io.Writer {
 	return []io.Writer{os.Stderr}
 }
 
-func run(command []string, args []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, verbose bool) error {
+func run(command []string, args []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, env map[string]string, verbose bool) error {
 	if args != nil {
 		command = append(command, args...)
 	}
 	if len(command) == 0 {
 		return fmt.Errorf("empty command")
 	} else if len(command) < 2 {
-		return runString(command[0], stdout, stderr, stdin, context, verbose)
+		return runString(command[0], stdout, stderr, stdin, context, env, verbose)
 	} else {
-		return runList(command, stdout, stderr, stdin, context, verbose)
+		return runList(command, stdout, stderr, stdin, context, env, verbose)
 	}
 }
 
-func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, verbose bool) error {
+func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, env map[string]string, verbose bool) error {
 	if verbose {
 		context.MessageArgs("Running command: %s", strings.Join(cmd, " "))
 	}
 	environment, err := context.EvaluateEnvironment()
 	if err != nil {
 		return fmt.Errorf("building environment: %v", err)
+	}
+	for key, value := range env {
+		environment[key] = value
+	}
+	environ := make([]string, 0, len(env))
+	for key, value := range environment {
+		environ = append(environ, key+"="+value)
 	}
 	path := ""
 	for _, variable := range environment {
@@ -214,8 +235,12 @@ func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *b
 	}
 	if path != "" {
 		oldPath := os.Getenv("PATH")
-		defer os.Setenv("PATH", oldPath)
-		os.Setenv("PATH", path)
+		defer func() {
+			_ = os.Setenv("PATH", oldPath)
+		}()
+		if err := os.Setenv("PATH", path); err != nil {
+			return fmt.Errorf("setting PATH: %v", err)
+		}
 	}
 	executable := cmd[0]
 	executablePath, err := exec.LookPath(executable)
@@ -232,6 +257,7 @@ func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *b
 	command.Stdin = stdin
 	command.Stdout = stdout
 	command.Stderr = stderr
+	command.Env = environ
 	err = command.Run()
 	if err != nil {
 		return fmt.Errorf("executing command: %v", err)
@@ -239,13 +265,24 @@ func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *b
 	return nil
 }
 
-func runString(cmd string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, verbose bool) error {
+func runString(cmd string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, env map[string]string, verbose bool) error {
 	if verbose {
 		context.MessageArgs("Running command: %s", cmd)
 	}
 	shell, err := context.Build.GetShell()
 	if err != nil {
 		return err
+	}
+	environment, err := context.EvaluateEnvironment()
+	if err != nil {
+		return fmt.Errorf("building environment: %v", err)
+	}
+	for key, value := range env {
+		environment[key] = value
+	}
+	environ := make([]string, 0, len(env))
+	for key, value := range environment {
+		environ = append(environ, key+"="+value)
 	}
 	binary := shell[0]
 	arguments := shell[1:]
@@ -259,6 +296,7 @@ func runString(cmd string, stdout, stderr io.Writer, stdin io.Reader, context *b
 	command.Stdin = stdin
 	command.Stdout = stdout
 	command.Stderr = stderr
+	command.Env = environ
 	err = command.Run()
 	if err != nil {
 		return fmt.Errorf("executing command: %v", err)

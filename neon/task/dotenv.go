@@ -49,7 +49,9 @@ func LoadEnv(filename string) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 	reader := bufio.NewReader(file)
 	for {
 		bytes, _, err := reader.ReadLine()
@@ -66,7 +68,7 @@ func LoadEnv(filename string) error {
 		}
 		name := strings.TrimSpace(line[:index])
 		value := strings.TrimSpace(line[index+1:])
-		os.Setenv(name, value)
+		_ = os.Setenv(name, value)
 	}
 	return nil
 }

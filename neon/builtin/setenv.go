@@ -22,6 +22,6 @@ Examples:
     setenv("foo", "bar")`})
 }
 
-func setenv(name, value string) {
-	os.Setenv(name, value)
+func setenv(name, value string) error {
+	return os.Setenv(name, value)
 }

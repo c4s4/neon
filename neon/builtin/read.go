@@ -1,9 +1,10 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
-	"io/ioutil"
+	"os"
 	"strings"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -22,14 +23,14 @@ Returns:
 
 Examples:
 
-    # read VERSION file and set variable version with ots content
+    # read content of VERSION file
     read("VERSION")
-    # returns: the contents of "VERSION" file`,
+    # returns: the contents of VERSION file`,
 	})
 }
 
 func read(file string) string {
-	content, err := ioutil.ReadFile(file)
+	content, err := os.ReadFile(file)
 	if err != nil {
 		panic(err.Error())
 	}

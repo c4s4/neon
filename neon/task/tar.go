@@ -71,14 +71,20 @@ func writeTar(dir string, files []string, prefix, to string) error {
 	if err != nil {
 		return fmt.Errorf("creating tar archive: %v", err)
 	}
-	defer stream.Close()
+	defer func() {
+		_ = stream.Close()
+	}()
 	var fileWriter io.WriteCloser = stream
 	if strings.HasSuffix(to, "gz") {
 		fileWriter = gzip.NewWriter(stream)
-		defer fileWriter.Close()
+		defer func() {
+			_ = fileWriter.Close()
+		}()
 	}
 	writer := t.NewWriter(fileWriter)
-	defer writer.Close()
+	defer func() {
+		_ = writer.Close()
+	}()
 	for _, name := range files {
 		var file string
 		if dir != "" {
@@ -99,7 +105,9 @@ func writeFileToTar(writer *t.Writer, file, name, prefix string) error {
 	if err != nil {
 		return err
 	}
-	defer stream.Close()
+	defer func() {
+		_ = stream.Close()
+	}()
 	info, err := stream.Stat()
 	if err != nil {
 		return err

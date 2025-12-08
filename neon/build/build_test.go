@@ -23,7 +23,9 @@ targets:
 	if _, err := WriteFile("/tmp", "build.yml", buildFile); err != nil {
 		t.Fatalf("write file: %v", err)
 	}
-	defer os.Remove("/tmp/build.yml")
+	defer func() {
+		_ = os.Remove("/tmp/build.yml")
+	}()
 	// define test task
 	TaskMap = make(map[string]TaskDesc)
 	type testArgs struct {

@@ -25,7 +25,9 @@ func TestFindParents(t *testing.T) {
 	if _, err := WriteFile(repo+"/foo/bar", "parent2.yml", ""); err != nil {
 		t.Fatalf("write file: %v", err)
 	}
-	defer os.RemoveAll(repo)
+	defer func() {
+		_ = os.RemoveAll(repo)
+	}()
 	parents, err := FindParents(repo)
 	if err != nil {
 		t.Errorf("Error finding parents: %v", err)
@@ -43,7 +45,9 @@ func TestFindParent(t *testing.T) {
 	if _, err := WriteFile(repo+"/foo/bar", "parent2.yml", ""); err != nil {
 		t.Fatalf("write file: %v", err)
 	}
-	defer os.RemoveAll(repo)
+	defer func() {
+		_ = os.RemoveAll(repo)
+	}()
 	parents, err := FindParent("parent1", repo)
 	if err != nil {
 		t.Errorf("Error finding parent: %v", err)
@@ -61,7 +65,9 @@ func TestParentPath(t *testing.T) {
 	if _, err := WriteFile(repo+"/foo/bar", "parent2.yml", ""); err != nil {
 		t.Fatalf("write file: %v", err)
 	}
-	defer os.RemoveAll(repo)
+	defer func() {
+		_ = os.RemoveAll(repo)
+	}()
 	build := &Build{Repository: repo}
 	path, err := build.ParentPath("parent1")
 	if err != nil {
@@ -77,7 +83,9 @@ func TestInstallPlugin(t *testing.T) {
 	if err := os.MkdirAll(repo, util.DirFileMode); err != nil {
 		t.Fatalf("making directory: %v", err)
 	}
-	defer os.RemoveAll(repo)
+	defer func() {
+		_ = os.RemoveAll(repo)
+	}()
 	err := InstallPlugin("c4s4/build", repo)
 	if err != nil {
 		t.Errorf("Error installing pluging: %v", err)
@@ -96,7 +104,9 @@ func TestFindTemplates(t *testing.T) {
 	if _, err := WriteFile(repo+"/foo/bar", "template2.tpl", ""); err != nil {
 		t.Fatalf("write file: %v", err)
 	}
-	defer os.RemoveAll(repo)
+	defer func() {
+		_ = os.RemoveAll(repo)
+	}()
 	templates, err := FindTemplates(repo)
 	if err != nil {
 		t.Errorf("Error finding templates: %v", err)
@@ -114,7 +124,9 @@ func TestFindTemplate(t *testing.T) {
 	if _, err := WriteFile(repo+"/foo/bar", "template2.tpl", ""); err != nil {
 		t.Fatalf("write file: %v", err)
 	}
-	defer os.RemoveAll(repo)
+	defer func() {
+		_ = os.RemoveAll(repo)
+	}()
 	templates, err := FindTemplate("template1", repo)
 	if err != nil {
 		t.Errorf("Error finding template: %v", err)
@@ -132,7 +144,9 @@ func TestTemplatePath(t *testing.T) {
 	if _, err := WriteFile(repo+"/foo/bar", "template2.tpl", ""); err != nil {
 		t.Fatalf("write file: %v", err)
 	}
-	defer os.RemoveAll(repo)
+	defer func() {
+		_ = os.RemoveAll(repo)
+	}()
 	path, err := TemplatePath("template1", repo)
 	if err != nil {
 		t.Errorf("Error finding template path: %v", err)

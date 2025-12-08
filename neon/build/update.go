@@ -23,9 +23,9 @@ const (
 // Update updates Neon and repository:
 // - repository: the repository path.
 // Return: error if something went wrong
-func Update(repository string) error {
+func Update(repository string, batch bool) error {
 	printNewRelease()
-	return updateRepository(repository)
+	return updateRepository(repository, batch)
 }
 
 func printNewRelease() {
@@ -36,7 +36,9 @@ func printNewRelease() {
 	if response.StatusCode != 200 {
 		return
 	}
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return
@@ -58,7 +60,7 @@ func printNewRelease() {
 	}
 }
 
-func updateRepository(repository string) error {
+func updateRepository(repository string, batch bool) error {
 	plugins, err := util.FindFiles(repository, []string{"*/*"}, nil, true)
 	if err != nil {
 		return fmt.Errorf("searching plugins: %v", err)
@@ -105,21 +107,32 @@ func updateRepository(repository string) error {
 			if hashRemote == hashLocal {
 				fmt.Printf("- %s [%s]: OK\n", plugin, branch)
 			} else {
-				reader := bufio.NewReader(os.Stdin)
-				fmt.Printf("- %s [%s]: Update [Y/n]? ", plugin, branch)
-				input, err := reader.ReadString('\n')
-				if err != nil {
-					return fmt.Errorf("reading user input: %v", err)
+				perform := batch
+				if !batch {
+					reader := bufio.NewReader(os.Stdin)
+					fmt.Printf("- %s [%s]: Update [Y/n]? ", plugin, branch)
+					input, err := reader.ReadString('\n')
+					if err != nil {
+						return fmt.Errorf("reading user input: %v", err)
+					}
+					response := strings.ToLower(strings.TrimSpace(string(input)))
+					if response == "" || response == "y" {
+						perform = true
+					}
+				} else {
+					fmt.Printf("- %s [%s]: NOK\n", plugin, branch)
 				}
-				response := strings.ToLower(strings.TrimSpace(string(input)))
-				if response == "" || response == "y" {
+				if perform {
+					fmt.Printf("  Updating %s [%s]... ", plugin, branch)
 					cmd = exec.Command("git", "pull")
 					cmd.Dir = path
 					bytes, err = cmd.CombinedOutput()
 					if err != nil {
-						println(string(bytes))
+						message := strings.ReplaceAll(string(bytes), "\n", "")
+						fmt.Printf("ERROR: %s", message)
 						return fmt.Errorf("updating plugin: %v", err)
 					}
+					fmt.Println("OK")
 				}
 			}
 		}
