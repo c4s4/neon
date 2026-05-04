@@ -733,7 +733,7 @@ Option `-version` will print NeON version.
 
 ## Configuration file
 
-You can define options to use each time you run NeON with a configuration file *~/.neon/settings.yml*. This file looks like:
+You can define options to use each time you run NeON with a configuration file *~/.neon/settings.yml* (or any other path you set via the `NEON_CONFIG_PATH` environment variable). This file looks like:
 
 ```yaml
 # NeON Configuration File

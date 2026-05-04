@@ -1,5 +1,11 @@
 # NeON
 
+## 2026-05-04: 1.16.0
+
+- Update Anko to 0.1.12
+- Correctifs divers
+- `NEON_CONFIG_PATH` sets configuration file path (which defaults to *~/.neon/settings.yml*)
+
 ## 2025-07-17: 1.15.0
 
 - Added `pause` task

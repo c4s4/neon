@@ -1,7 +1,7 @@
 package build
 
 import (
-	"github.com/mattn/anko/vm"
+	"github.com/mattn/anko/env"
 )
 
 // BuiltinDesc is a descriptor for a builtin function
@@ -25,8 +25,10 @@ func AddBuiltin(desc BuiltinDesc) {
 
 // LoadBuiltins loads defined builtins in the VM
 // - vm: the VM to load builtins into
-func LoadBuiltins(vm *vm.Env) {
+func LoadBuiltins(vm *env.Env) {
 	for name, descriptor := range BuiltinMap {
-		_ = vm.Define(name, descriptor.Func)
+		if err := vm.Define(name, descriptor.Func); err != nil {
+			panic("loading builtin " + name)
+		}
 	}
 }

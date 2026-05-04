@@ -13,7 +13,7 @@ targets:
       then:
       - |
         regexp = import("regexp")
-        n = run("date", "--iso-8601")
+        n = run("date", "+%Y-%m-%d")
         match, err = regexp.MatchString(`\d\d\d\d-\d\d-\d\d`, n)
         if !match || err != nil {
           throw("ERROR run '"+n+"'")
