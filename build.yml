@@ -69,8 +69,7 @@ targets:
 
   archive:
     doc: "Generate distribution archive"
-    #depends: [binaries, doc]
-    depends: [doc]
+    depends: [binaries, doc]
     steps:
     - super:
 
