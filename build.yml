@@ -13,7 +13,6 @@ properties:
   VERSION_PATH: 'github.com/c4s4/neon/neon/build.NeonVersion'
   TASKS_REF:    'doc/tasks.md'
   BUILTINS_REF: 'doc/builtins.md'
-  BINARIES_DIR: '={BUILD_DIR}/bin'
   ARC_FILES:
     =_BASE: ['LICENSE.txt', 'README.md', 'bash_completion_neon']
     =BUILD_DIR: ['bin/neon-*', 'doc/*.pdf']
