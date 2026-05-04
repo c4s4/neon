@@ -14,8 +14,8 @@ import (
 
 	"github.com/c4s4/neon/neon/util"
 	"github.com/mattn/anko/core"
-	"github.com/mattn/anko/packages"
-	"github.com/mattn/anko/parser"
+	"github.com/mattn/anko/env"
+	_ "github.com/mattn/anko/packages"
 	"github.com/mattn/anko/vm"
 )
 
@@ -43,7 +43,7 @@ var (
 // - Index: tracks steps index while running build
 // - Stack: tracks targets calls
 type Context struct {
-	VM      *vm.Env
+	VM      *env.Env
 	Build   *Build
 	Stack   *Stack
 	History *History
@@ -52,12 +52,12 @@ type Context struct {
 // NewContext make a new build context
 // Return: a pointer to the context
 func NewContext(build *Build) *Context {
-	v := vm.NewEnv()
-	core.Import(v)
-	packages.DefineImport(v)
-	LoadBuiltins(v)
+	e := env.NewEnv()
+	core.Import(e)
+	core.ImportToX(e)
+	LoadBuiltins(e)
 	context := &Context{
-		VM:      v,
+		VM:      e,
 		Build:   build,
 		Stack:   NewStack(),
 		History: NewHistory(),
@@ -105,7 +105,7 @@ func (context *Context) InitScripts() error {
 		if err != nil {
 			return fmt.Errorf("reading script '%s': %v", script, err)
 		}
-		_, err = context.VM.Execute(string(source))
+		_, err = vm.Execute(context.VM, nil, string(source))
 		if err != nil {
 			return fmt.Errorf("evaluating script '%s': %v", script, FormatScriptError(err))
 		}
@@ -195,8 +195,8 @@ func (context *Context) GetProperty(name string) (interface{}, error) {
 // - name: the name of the property
 // Return:
 // - an error if something went wrong
-func (context *Context) DelProperty(name string) error {
-	return context.VM.Delete(name)
+func (context *Context) DelProperty(name string) {
+	context.VM.Delete(name)
 }
 
 // EvaluateExpression evaluate given expression in the context
@@ -205,7 +205,7 @@ func (context *Context) DelProperty(name string) error {
 // - the return value of the expression
 // - an error if something went wrong
 func (context *Context) EvaluateExpression(expression string) (interface{}, error) {
-	value, err := context.VM.Execute(expression)
+	value, err := vm.Execute(context.VM, nil, expression)
 	if err != nil {
 		return nil, FormatScriptError(err)
 	}
@@ -457,9 +457,7 @@ func (context *Context) MessageArgs(text string, args ...interface{}) {
 // - err: the error to process
 // Return: the processed error
 func FormatScriptError(err error) error {
-	if e, ok := err.(*parser.Error); ok {
-		return fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
-	} else if e, ok := err.(*vm.Error); ok {
+	if e, ok := err.(*vm.Error); ok {
 		return fmt.Errorf("%s (at line %d, column %d)", err, e.Pos.Line, e.Pos.Column)
 	} else {
 		return err

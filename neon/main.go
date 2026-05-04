@@ -91,10 +91,36 @@ func LoadConfiguration(file string) (*Configuration, error) {
 	return configuration, nil
 }
 
+// Options holds parsed command line options
+type Options struct {
+	File         string
+	Info         bool
+	Version      bool
+	Props        string
+	Time         bool
+	Tasks        bool
+	Task         string
+	PrintTargets bool
+	Builtins     bool
+	Builtin      string
+	Tree         bool
+	TasksRef     bool
+	BuiltinsRef  bool
+	Install      string
+	Repo         string
+	Update       bool
+	Batch        bool
+	Grey         bool
+	Template     string
+	Templates    bool
+	Parents      bool
+	Theme        string
+	Themes       bool
+	Targets      []string
+}
+
 // ParseCommandLine parses command line and returns parsed options
-func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool,
-	bool, string, bool, bool, bool, string, string, bool, bool, bool, string,
-	bool, bool, string, bool, []string) {
+func ParseCommandLine() *Options {
 	file := flag.String("file", DefaultBuildFile, "Build file to run")
 	info := flag.Bool("info", false, "Print build information")
 	version := flag.Bool("version", false, "Print neon version")
@@ -120,9 +146,32 @@ func ParseCommandLine() (string, bool, bool, string, bool, bool, string, bool,
 	themes := flag.Bool("themes", false, "Print all available color themes")
 	flag.Parse()
 	targets := flag.Args()
-	return *file, *info, *version, *props, *timeit, *tasks, *task, *targs, *builtins,
-		*builtin, *tree, *tasksRef, *builtinsRef, *install, *repo, *update, *batch,
-		*grey, *template, *templates, *parents, *theme, *themes, targets
+	return &Options{
+		File:         *file,
+		Info:         *info,
+		Version:      *version,
+		Props:        *props,
+		Time:         *timeit,
+		Tasks:        *tasks,
+		Task:         *task,
+		PrintTargets: *targs,
+		Builtins:     *builtins,
+		Builtin:      *builtin,
+		Tree:         *tree,
+		TasksRef:     *tasksRef,
+		BuiltinsRef:  *builtinsRef,
+		Install:      *install,
+		Repo:         *repo,
+		Update:       *update,
+		Batch:        *batch,
+		Grey:         *grey,
+		Template:     *template,
+		Templates:    *templates,
+		Parents:      *parents,
+		Theme:        *theme,
+		Themes:       *themes,
+		Targets:      targets,
+	}
 }
 
 // FindBuildFile finds build file and returns its path
@@ -162,18 +211,28 @@ func FindBuildFile(name, repo string, configuration *Configuration) (string, str
 
 // Program entry point
 func main() {
+	if err := run(); err != nil {
+		_build.PrintError(err.Error())
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	var err error
 	start := time.Now()
 	// load configuration file
-	configuration, err := LoadConfiguration(DefaultConfiguration)
+	configPath := DefaultConfiguration
+	if envPath := os.Getenv("NEON_CONFIG_PATH"); envPath != "" {
+		configPath = envPath
+	}
+	configuration, err := LoadConfiguration(configPath)
 	if err != nil {
-		PrintError(fmt.Errorf("loading configuration file '%s': %v", DefaultConfiguration, err))
+		return fmt.Errorf("loading configuration file '%s': %v", DefaultConfiguration, err)
 	}
 	// parse command line
-	file, info, version, props, timeit, tasks, task, targs, builtins, builtin,
-		tree, tasksRef, builtinsRef, install, repo, update, batch, grey,
-		template, templates, parents, theme, themes, targets := ParseCommandLine()
+	opts := ParseCommandLine()
 	// options that do not require we load build file
+	repo := opts.Repo
 	if repo == "" {
 		if configuration.Repo != "" {
 			repo = configuration.Repo
@@ -182,101 +241,115 @@ func main() {
 		}
 		repo = util.ExpandUserHome(repo)
 	}
-	_build.Gray = grey
-	configuration.Time = timeit
-	if printInfo(tasks, builtins, templates, parents, themes, tasksRef, builtinsRef, task, builtin, repo) {
-		return
+	_build.Gray = opts.Grey
+	configuration.Time = opts.Time
+	if printInfo(opts, repo) {
+		return nil
 	}
-	if version {
+	if opts.Version {
 		_build.Message(_build.NeonVersion)
-		return
-	} else if install != "" {
-		err := _build.InstallPlugin(install, repo)
-		PrintError(err)
-		return
-	} else if theme != "" {
-		err := _build.ApplyThemeByName(theme)
-		PrintError(err)
-	} else if update {
-		err := _build.Update(repo, batch)
-		PrintError(err)
-		return
+		return nil
+	} else if opts.Install != "" {
+		err := _build.InstallPlugin(opts.Install, repo)
+		return err
+	} else if opts.Theme != "" {
+		err := _build.ApplyThemeByName(opts.Theme)
+		if err != nil {
+			return err
+		}
+	} else if opts.Update {
+		err := _build.Update(repo, opts.Batch)
+		return err
 	}
 	// options that do require we load build file
-	if template != "" {
-		file, err = _build.TemplatePath(template, repo)
-		PrintError(err)
+	file := opts.File
+	if opts.Template != "" {
+		file, err = _build.TemplatePath(opts.Template, repo)
+		if err != nil {
+			return err
+		}
 	}
 	path, base, err := FindBuildFile(file, repo, configuration)
-	PrintError(err)
-	build, err := _build.NewBuild(path, base, repo, template != "")
-	PrintError(err)
-	err = build.SetCommandLineProperties(props)
-	PrintError(err)
-	if targs {
+	if err != nil {
+		return err
+	}
+	build, err := _build.NewBuild(path, base, repo, opts.Template != "")
+	if err != nil {
+		return err
+	}
+	err = build.SetCommandLineProperties(opts.Props)
+	if err != nil {
+		return err
+	}
+	if opts.PrintTargets {
 		_build.Message(build.FormatTargets())
-	} else if info {
+	} else if opts.Info {
 		context := _build.NewContext(build)
 		err = context.Init()
-		PrintError(err)
+		if err != nil {
+			return err
+		}
 		text, err := build.Info(context)
-		PrintError(err)
+		if err != nil {
+			return err
+		}
 		_build.Message(text)
-	} else if tree {
+	} else if opts.Tree {
 		build.Tree()
 	} else {
 		err = os.Chdir(build.Dir)
-		PrintError(err)
+		if err != nil {
+			return err
+		}
 		context := _build.NewContext(build)
 		err = context.Init()
-		PrintError(err)
-		err = build.Run(context, targets)
+		if err != nil {
+			return err
+		}
+		err = build.Run(context, opts.Targets)
 		duration := time.Since(start)
 		if configuration.Time || duration.Seconds() > 10 {
 			_build.InfoArgs("Build duration: %s", duration.String())
 		}
-		PrintError(err)
+		if err != nil {
+			return err
+		}
 		_build.PrintOk()
 	}
+	return nil
 }
 
-func printInfo(tasks, builtins, templates, parents, themes, tasksRef, builtinsRef bool, task, builtin, repo string) bool {
-	if tasks {
+// printInfo prints build information if requested
+func printInfo(opts *Options, repo string) bool {
+	if opts.Tasks {
 		_build.Message(_build.InfoTasks())
 		return true
-	} else if task != "" {
-		_build.Message(_build.InfoTask(task))
+	} else if opts.Task != "" {
+		_build.Message(_build.InfoTask(opts.Task))
 		return true
-	} else if builtins {
+	} else if opts.Builtins {
 		_build.Message(_build.InfoBuiltins())
 		return true
-	} else if builtin != "" {
-		_build.Message(_build.InfoBuiltin(builtin))
+	} else if opts.Builtin != "" {
+		_build.Message(_build.InfoBuiltin(opts.Builtin))
 		return true
-	} else if templates {
+	} else if opts.Templates {
 		_build.Message(_build.InfoTemplates(repo))
 		return true
-	} else if parents {
+	} else if opts.Parents {
 		_build.Message(_build.InfoParents(repo))
 		return true
-	} else if themes {
+	} else if opts.Themes {
 		_build.Message(_build.InfoThemes())
 		return true
-	} else if tasksRef {
+	} else if opts.TasksRef {
 		_build.Message(_build.InfoTasksReference())
 		return true
-	} else if builtinsRef {
+	} else if opts.BuiltinsRef {
 		_build.Message(_build.InfoBuiltinsReference())
 		return true
 	}
 	return false
 }
 
-// PrintError prints an error and exits if any
-// - error: the error to check
-func PrintError(err error, args ...string) {
-	if err != nil {
-		_build.PrintError(err.Error())
-		os.Exit(1)
-	}
-}
+// (Empty or removed)

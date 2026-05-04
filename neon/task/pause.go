@@ -32,7 +32,7 @@ Examples:
 
 type pauseArgs struct {
 	Pause string
-	Mute bool `neon:"optional"`
+	Mute  bool `neon:"optional"`
 }
 
 func pause(context *build.Context, args interface{}) error {

@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"time"
 
 	"github.com/c4s4/neon/neon/util"
 	"gopkg.in/yaml.v2"
+	"strings"
 )
 
 const (
@@ -47,14 +47,34 @@ type Build struct {
 	Template    bool
 }
 
-// NewBuild makes a build from a build file
-// - file: path of the build file
-// - base: base of the build
-// - repo: repository location
-// Return:
-// - Pointer to the build
-// - error if something went wrong
+// NewBuild creates a Build from a build file.
+// This is the public entry point. It initializes a fresh visited map
+// and delegates the actual work to newBuildInternal.
 func NewBuild(file, base, repo string, template bool) (*Build, error) {
+	visited := make(map[string]bool)
+	return newBuildInternal(file, base, repo, template, visited)
+}
+
+// newBuildInternal performs the real build creation while tracking visited files
+// to detect cyclic dependencies.
+func newBuildInternal(file, base, repo string, template bool, visited map[string]bool) (*Build, error) {
+	// Resolve absolute path for cycle detection
+	absPath, err := filepath.Abs(file)
+	if err != nil {
+		return nil, fmt.Errorf("resolving absolute path for '%s': %v", file, err)
+	}
+	// Detect cycle
+	if visited[absPath] {
+		// Build a readable cycle description
+		cycle := []string{}
+		for p := range visited {
+			cycle = append(cycle, p)
+		}
+		cycle = append(cycle, absPath)
+		return nil, fmt.Errorf("dependency cycle detected: %s", strings.Join(cycle, " → "))
+	}
+	// Mark this file as visited for recursive calls
+	visited[absPath] = true
 	object, build, err := parseBuildFile(file)
 	if err != nil {
 		return nil, err
@@ -68,7 +88,8 @@ func NewBuild(file, base, repo string, template bool) (*Build, error) {
 	if err := ParseFields(object, build, repo); err != nil {
 		return nil, err
 	}
-	build.Parents, err = build.GetParents()
+	// Resolve parents using the same visited map
+	build.Parents, err = build.getParentsInternal(visited)
 	if err != nil {
 		return nil, err
 	}
@@ -195,13 +216,24 @@ func (build *Build) SetCommandLineProperties(props string) error {
 // GetParents returns parent build objects.
 // Return list of build objects and an error if any.
 func (build *Build) GetParents() ([]*Build, error) {
+	// Create a fresh visited map for external callers.
+	visited := make(map[string]bool)
+	// Mark the current build file as visited to prevent immediate self‑reference.
+	if absPath, err := filepath.Abs(build.File); err == nil {
+		visited[absPath] = true
+	}
+	return build.getParentsInternal(visited)
+}
+
+// getParentsInternal resolves parent builds using the provided visited map.
+func (build *Build) getParentsInternal(visited map[string]bool) ([]*Build, error) {
 	var parents []*Build
 	for _, extend := range build.Extends {
 		file, err := build.ParentPath(extend)
 		if err != nil {
 			return nil, fmt.Errorf("searching parent build file '%s': %v", extend, err)
 		}
-		parent, err := NewBuild(file, filepath.Dir(file), build.Repository, build.Template)
+		parent, err := newBuildInternal(file, filepath.Dir(file), build.Repository, build.Template, visited)
 		if err != nil {
 			return nil, fmt.Errorf("loading parent build file '%s': %v", extend, err)
 		}
@@ -474,8 +506,11 @@ func ListenPort(port int) (net.Listener, error) {
 	}
 	go func() {
 		for {
-			_, _ = listener.Accept()
-			time.Sleep(100 * time.Millisecond)
+			conn, err := listener.Accept()
+			if err != nil {
+				return
+			}
+			_ = conn.Close()
 		}
 	}()
 	return listener, nil

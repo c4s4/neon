@@ -125,7 +125,7 @@ func runThread(steps build.Steps, ctx *build.Context, index int, input chan inte
 				threadContext := ctx.Copy()
 				threadContext.SetProperty(propertyThread, index)
 				threadContext.SetProperty(propertyInput, arg)
-				_ = threadContext.DelProperty(propertyOutput)
+				threadContext.DelProperty(propertyOutput)
 				if verbose {
 					threadContext.MessageArgs("Thread %d iteration with input '%v'", index, arg)
 				}
