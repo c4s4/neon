@@ -2,9 +2,9 @@
 
 ## 2026-05-05: 1.16.0
 
-- Update Anko to 0.1.12
-- Correctifs divers
+- Various fixes
 - `NEON_CONFIG_PATH` sets configuration file path (which defaults to *~/.neon/settings.yml*)
+- Update Anko to 0.1.12
 
 ## 2025-07-17: 1.15.0
 
