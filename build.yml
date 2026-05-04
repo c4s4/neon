@@ -14,8 +14,8 @@ properties:
   TASKS_REF:    'doc/tasks.md'
   BUILTINS_REF: 'doc/builtins.md'
   ARC_FILES:
-    =_BASE: ['README*', 'LICENSE*', 'bash_completion_neon']
-    '={BUILD_DIR}': ['doc/*.pdf']
+    =_BASE: ['LICENSE.txt', 'README.md', 'bash_completion_neon']
+    =BUILD_DIR: ['bin/neon-*', 'doc/*.pdf']
 
 targets:
 
