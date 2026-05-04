@@ -27,8 +27,8 @@ Examples:
     # run target 'hello' of build file 'bar/build.yml' with property name = 'world'
     - neon:    'bar/build.yml'
       targets: 'hello'
-	  properties:
-	    name: 'world'`,
+      properties:
+        name: 'world'`,
 	})
 }
 
