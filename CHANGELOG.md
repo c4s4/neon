@@ -1,5 +1,9 @@
 # NeON
 
+## 2026-08-10: 1.16.1
+
+- Updated dependencies to fix Anko crash
+
 ## 2026-05-05: 1.16.0
 
 - Various fixes
