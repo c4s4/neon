@@ -1,5 +1,9 @@
 # NeON
 
+## 2026-09-04: 1.17.0
+
+- Added `cafe` option to `$` task to prevent the system from going to sleep while a command is running (Linux and MacOS)
+
 ## 2026-08-10: 1.16.1
 
 - Updated dependencies to fix Anko crash
