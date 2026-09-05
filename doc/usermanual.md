@@ -138,7 +138,7 @@ targets:
     - $: ['go', 'test']
 
   run:
-    doc: Run Goo tool
+    doc: Run Go tool
     steps:
     - $: ['go', 'run', '={NAME}.go']
 
@@ -569,7 +569,7 @@ Field **exclude** is a list of globs of files to exclude from selection. This is
 
 Fields **todir** or **tofile** are destination. One and only one of these fields might be set, and *tofile* can be set only if globs have selected only one file.
 
-Field **flat** tells if copy will be flat, that is at the root of destination directory. This is a boolean, thus you should not set it with a string such as *"false"*, but with a true boolean, such as *false*. This defauts to *true*.
+Field **flat** tells if copy will be flat, that is at the root of destination directory. This is a boolean, thus you should not set it with a string such as *"false"*, but with a true boolean, such as *false*. This defaults to *true*.
 
 [Back to top](#user-manual)
 
@@ -648,7 +648,7 @@ func double(i) {
 }
 ```
 
-Then, in you build file, you could write:
+Then, in your build file, you could write:
 
 ```yaml
 targets:
@@ -658,9 +658,9 @@ targets:
     - 'd = double(21)'
 ```
 
-A this will call the *double()* function you defined in your context. This is a way to write your build utility functions in a separate file and thus keep a clean build file.
+This will call the *double()* function you defined in your context. This is a way to write your build utility functions in a separate file and thus keep a clean build file.
 
-To get more information about [Anko scripting language clic here](http://github.com/mattn/anko).
+To get more information about the [Anko scripting language click here](http://github.com/mattn/anko).
 
 [Back to top](#user-manual)
 
@@ -671,10 +671,14 @@ To get help on command line options, you can type:
 ```
 $ neon -help
 Usage of neon:
+  -batch
+    	Force neon and repository update in batch mode
   -builtin string
     	Print help on given builtin
   -builtins
     	Print builtins list
+  -builtins-ref
+    	Print builtins reference
   -file string
     	Build file to run (default "build.yml")
   -grey
@@ -687,10 +691,6 @@ Usage of neon:
     	List available parent build files in repository
   -props string
     	Build properties
-  -tasks-ref
-    	Print tasks reference
-  -builtins-ref
-    	Print builtins reference
   -repo string
     	Neon plugin repository for installation (default "~/.neon")
   -targets
@@ -699,6 +699,8 @@ Usage of neon:
     	Print help on given task
   -tasks
     	Print tasks list
+  -tasks-ref
+    	Print tasks reference
   -template string
     	Run given template
   -templates
@@ -709,6 +711,10 @@ Usage of neon:
     	Print all available color themes
   -time
     	Print build duration
+  -tree
+    	Print inheritance tree
+  -update
+    	Update neon and repository
   -version
     	Print neon version
 ```
@@ -760,7 +766,7 @@ links:
 
 This example shows default values. You may omit fields in your configuration file, they will have their default value. You can also omit your configuration file altogether.
 
-You can define your own theme with `color` field. It has three fields: *title*, *ok* and *error*, to define colors for titles, OK and ERROR messages. For each of these entries, you list color attributes as defined bellow:
+You can define your own theme with `colors` field. It has three fields: *title*, *ok* and *error*, to define colors for titles, OK and ERROR messages. For each of these entries, you list color attributes as defined below:
 
 ### Attributes
 
@@ -819,8 +825,7 @@ They define color for text background.
 - BgHiCyan
 - BgHiWhite
 
-Build inheritance
------------------
+## Build inheritance
 
 A build file can extend another parent build file with the *extends* field. For instance, with this parent build file called *buildir.yml*:
 
@@ -883,7 +888,7 @@ extends: ./buildir.yml
 targets:
 
   clean:
-    doc: Clea generated files
+    doc: Clean generated files
     steps:
     - print: 'Deleting build directory!!!'
     - super:
@@ -892,7 +897,7 @@ targets:
 The path to extended build files is important:
 
 - If this path is **absolute** or starts with **./** (that is in current directory), this works as you would expect.
-- If this path is relative without starting with *./*, this build file is in the NeON repository. See bellow for more explanations.
+- If this path is relative without starting with *./*, this build file is in the NeON repository. See below for more explanations.
 
 The *super* task will run steps of parent target.
 
@@ -916,7 +921,7 @@ extends:
 - golang
 ```
 
-Will be the same that:
+Will be the same as:
 
 ```yaml
 extends:
@@ -926,7 +931,7 @@ extends:
 If there is only **one** parent build file named *golang.yml* in your NeON repository. If this is not the case, build will stop on error with a message that indicates the number of parent build files with this name in your
 repository.
 
-Note that if you use short names, this remove information that tells the user how to install corresponding plugin. If you extend parent build file *foo/bar/spam.yml*, this tells the user that she can install corresponding plugin typing `neon -install foo/bar`.
+Note that if you use short names, this removes information that tells the user how to install the corresponding plugin. If you extend parent build file *foo/bar/spam.yml*, this tells the user that she can install corresponding plugin typing `neon -install foo/bar`.
 
 Multiple inheritance is possible as follows:
 
@@ -977,7 +982,7 @@ This will change branch to *develop*. You might get a particular version with:
 $ git checkout 1.2.3
 ```
 
-In your parent project repository, simply put you parent build files at the root. You might also put them in any subdirectory. If you put a build file *spam.yml* in subdirectory *eggs*, you would extend it with:
+In your parent project repository, simply put your parent build files at the root. You might also put them in any subdirectory. If you put a build file *spam.yml* in subdirectory *eggs*, you would extend it with:
 
 ```yaml
 extends:
@@ -1039,7 +1044,7 @@ targets:
   test:    Run Go tests
 ```
 
-You can list all available templates in you repository typing:
+You can list all available templates in your repository by typing:
 
 ```
 $ neon -templates
@@ -1050,7 +1055,7 @@ c4s4/build/slides.tpl
 
 ### Creating templates
 
-To create your own templates, you can have a look at following Github project; <http://github.com/c4s4/build> which contains example *Golang* template
+To create your own templates, you can have a look at the following Github project: <http://github.com/c4s4/build> which contains an example *Golang* template
 project.
 
 The template is made of a build file, *golang.tpl*:
@@ -1091,6 +1096,6 @@ This build file prompts the user for the project name and then copies project fi
 
 Template build files are named with *tpl* extension so that they are identified as templates, but otherwise they are plain old build files.
 
-Note that can also invoke templates with a shot name. Thus you can invoke template *foo/bar/spam.tpl* with `neon -template spam`, provided that there is only one template named *spam.tpl* in your repository.
+Note that you can also invoke templates with a short name. Thus you can invoke template *foo/bar/spam.tpl* with `neon -template spam`, provided that there is only one template named *spam.tpl* in your repository.
 
 *Enjoy!*

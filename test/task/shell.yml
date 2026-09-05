@@ -112,3 +112,30 @@ targets:
         } else {
           println("$ test success")
         }
+      # test cafe option (only if wrapper is available on the system)
+      - 'wrapper = "systemd-inhibit"'
+      - if: '_OS == "darwin"'
+        then:
+        - 'wrapper = "caffeinate"'
+      - if: 'len(findinpath(wrapper)) > 0'
+        then:
+        # test string command with cafe
+        - $: 'echo "TEST"'
+          cafe: true
+          1=: 'result'
+        - |
+          if result != "TEST" {
+            throw("$ cafe test failure")
+          } else {
+            println("$ cafe test success")
+          }
+        # test list command with cafe
+        - $: ['echo', 'TEST']
+          cafe: true
+          1=: 'result'
+        - |
+          if result != "TEST" {
+            throw("$ cafe test failure")
+          } else {
+            println("$ cafe test success")
+          }

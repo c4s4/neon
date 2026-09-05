@@ -3,8 +3,8 @@
 Neon is a build tool, which means that its purpose is to automate a build process. Its design goals are:
 
 - **Clean and simple build file syntax**: While XML is too verbose and a programming language too complicated, [YAML](http://www.yaml.org/) is perfect with its simple yet powerful syntax.
-- **Speed**: Slow startup are irritating while working with a build tool whole day long. Neon happens to be as fast as Make, according to my tests on Make builds ported to Neon.
-- **System and language independent**: Neon is written in Go, which run on most operating systems and hardwares, and is not limited to building Go projects. Furthermore, using Neon tasks you can write platform independent builds.
+- **Speed**: Slow startups are irritating while working with a build tool all day long. Neon happens to be as fast as Make, according to my tests on Make builds ported to Neon.
+- **System and language independent**: Neon is written in Go, which runs on most operating systems and hardware, and is not limited to building Go projects. Furthermore, using Neon tasks you can write platform independent builds.
 - **Scriptable**: when a task is complicated, it is very handy to script it with a real programming language. Neon build files can embed [Anko](http://github.com/mattn/anko) scripts, which have a syntax very close to Go.
 
 To demonstrate these features, let's see what *Hello World!* looks like using Neon:
@@ -17,7 +17,7 @@ targets:
     - print: "Hello World!"
 ```
 
-This is that simple!
+It's that simple!
 
 ## Build properties
 
@@ -115,7 +115,7 @@ targets:
     - print: "Hello World!"
 ```
 
-You can run more than one default target by settings `default` to a list of targets to run:
+You can run more than one default target by setting `default` to a list of targets to run:
 
 ```yaml
 default: [foo, bar]
@@ -207,7 +207,7 @@ There are special Neon tasks that make it possible to control the execution flow
 
 - **for/in/do**: to make a loop on a list and store value in a variable.
 - **if/then/else**: to control execution flow depending on a test.
-- **while/do**: too loop while a given condition is met.
+- **while/do**: to loop while a given condition is met.
 
 For instance, to validate all XML files in *data* directory, you could write:
 
@@ -320,7 +320,7 @@ c4s4/build/slides.tpl
 c4s4/build/xslt.tpl
 ```
 
-You can then generate a *Golang* template project with `neon -template c4s4/build/golang.yml`.
+You can then generate a *Golang* template project with `neon -template c4s4/build/golang.tpl`.
 
 You can play with example parent build file project at *http://github.com/c4s4/build* and customize it to match your need. Best way to create your parent build files is to take existing Neon build files and put them in a *Git* repository, and enjoy!
 
@@ -354,6 +354,6 @@ To get help about neon itself, you can:
 
 ## Go further
 
-Neon as much more to offer, see [User Manual](usermanual.md) for in-depth documentation, [Tasks Reference](tasks.md) and [Builtins Reference](builtins.md) for information about tasks and builtins functions.
+Neon has much more to offer, see [User Manual](usermanual.md) for in-depth documentation, [Tasks Reference](tasks.md) and [Builtins Reference](builtins.md) for information about tasks and builtins functions.
 
 *Enjoy!*

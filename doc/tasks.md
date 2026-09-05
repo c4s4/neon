@@ -21,6 +21,9 @@ Arguments:
 - <: send given text to standard input of the process (string, optional).
 - :: print command on terminal before running it (boolean, optional).
 - env: environment variables to set running command (map of strings, optional).
+- cafe: prevent the system from going to sleep while the command is running
+  (boolean, optional). Only supported on Linux (systemd-inhibit) and MacOS
+  (caffeinate).
 
 Examples:
 
@@ -37,6 +40,9 @@ Examples:
 	- $: 'echo "Hello $NAME!"'
 	  env:
 	    NAME: 'John'
+    # run a long command preventing the system from going to sleep
+    - $: 'sleep 3600'
+      cafe: true
 
 Notes:
 
@@ -47,6 +53,9 @@ Notes:
   Windows is 'cmd' which can't properly manage arguments with spaces.
 - Argument of a command defined as a list won't be expanded by shell. Thus
   $USER won't be expanded for instance.
+- The cafe option prevents the system from going to sleep while the command
+  is running. It uses systemd-inhibit on Linux and caffeinate on MacOS and
+  raises an error on any other operating system.
 
 ## assert
 

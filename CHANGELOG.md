@@ -1,14 +1,18 @@
 # NeON
 
+## 2026-09-05: 1.17.0
+
+- Added `cafe` option to `$` task to prevent the system from going to sleep while a command is running (Linux and MacOS)
+
 ## 2026-08-10: 1.16.1
 
 - Updated dependencies to fix Anko crash
 
 ## 2026-05-05: 1.16.0
 
-- Various fixes
 - `NEON_CONFIG_PATH` sets configuration file path (which defaults to *~/.neon/settings.yml*)
-- Update Anko to 0.1.12
+- Updated Anko to 0.1.12
+- Fixed build and archive targets
 
 ## 2025-07-17: 1.15.0
 

@@ -34,6 +34,9 @@ Arguments:
 - <: send given text to standard input of the process (string, optional).
 - :: print command on terminal before running it (boolean, optional).
 - env: environment variables to set running command (map of strings, optional).
+- cafe: prevent the system from going to sleep while the command is running
+  (boolean, optional). Only supported on Linux (systemd-inhibit) and MacOS
+  (caffeinate).
 
 Examples:
 
@@ -50,6 +53,9 @@ Examples:
 	- $: 'echo "Hello $NAME!"'
 	  env:
 	    NAME: 'John'
+    # run a long command preventing the system from going to sleep
+    - $: 'sleep 3600'
+      cafe: true
 
 Notes:
 
@@ -59,7 +65,10 @@ Notes:
 - Defining a command as a list of strings is useful on Windows. Default shell on
   Windows is 'cmd' which can't properly manage arguments with spaces.
 - Argument of a command defined as a list won't be expanded by shell. Thus
-  $USER won't be expanded for instance.`,
+  $USER won't be expanded for instance.
+- The cafe option prevents the system from going to sleep while the command
+  is running. It uses systemd-inhibit on Linux and caffeinate on MacOS and
+  raises an error on any other operating system.`,
 	})
 }
 
@@ -81,6 +90,7 @@ type shellArgs struct {
 	In    string            `neon:"name=<,optional"`
 	Verb  bool              `neon:"name=:,bool,optional"`
 	Env   map[string]string `neon:"name=env,optional"`
+	Cafe  bool              `neon:"name=cafe,optional"`
 }
 
 func shell(context *build.Context, args interface{}) error {
@@ -172,7 +182,7 @@ func shell(context *build.Context, args interface{}) error {
 	} else {
 		multiStderr = io.Discard
 	}
-	err := run(params.Shell, params.Args, multiStdout, multiStderr, stdin, context, params.Env, params.Verb)
+	err := run(params.Shell, params.Args, multiStdout, multiStderr, stdin, context, params.Env, params.Verb, params.Cafe)
 	if property != "" {
 		context.SetProperty(property, strings.TrimSpace(builder.String()))
 	}
@@ -198,16 +208,48 @@ func getStderr(params shellArgs) []io.Writer {
 	return []io.Writer{os.Stderr}
 }
 
-func run(command []string, args []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, env map[string]string, verbose bool) error {
+func run(command []string, args []string, stdout, stderr io.Writer, stdin io.Reader, context *build.Context, env map[string]string, verbose bool, cafe bool) error {
 	if args != nil {
 		command = append(command, args...)
 	}
 	if len(command) == 0 {
 		return fmt.Errorf("empty command")
-	} else if len(command) < 2 {
+	}
+	if cafe && (util.GOOS == "darwin" || util.GOOS == "linux") {
+		wrapper, err := cafeCommand(util.GOOS)
+		if err != nil {
+			return err
+		}
+		if _, err := exec.LookPath(wrapper[0]); err == nil {
+			if len(command) == 1 {
+				command[0] = strings.Join(wrapper, " ") + " " + command[0]
+			} else {
+				command = append(wrapper, command...)
+			}
+		}
+	}
+	if len(command) < 2 {
 		return runString(command[0], stdout, stderr, stdin, context, env, verbose)
 	} else {
 		return runList(command, stdout, stderr, stdin, context, env, verbose)
+	}
+}
+
+// cafeCommand returns the command to prevent the system from going to sleep
+// while a command is running:
+// - os: the operating system (such as "linux" or "darwin")
+// Return:
+// - the command as a list of strings
+// - an error if the operating system is not supported
+func cafeCommand(os string) ([]string, error) {
+	switch os {
+	case "darwin":
+		return []string{"caffeinate", "-i"}, nil
+	case "linux":
+		return []string{"systemd-inhibit", "--what=idle", "--who=NeON",
+			"--why=build", "--mode=block"}, nil
+	default:
+		return nil, fmt.Errorf("cafe option is not supported on %s", os)
 	}
 }
 
