@@ -215,19 +215,17 @@ func run(command []string, args []string, stdout, stderr io.Writer, stdin io.Rea
 	if len(command) == 0 {
 		return fmt.Errorf("empty command")
 	}
-	if cafe {
+	if cafe && (util.GOOS == "darwin" || util.GOOS == "linux") {
 		wrapper, err := cafeCommand(util.GOOS)
 		if err != nil {
 			return err
 		}
-		if _, err := exec.LookPath(wrapper[0]); err != nil {
-			return fmt.Errorf("command '%s' was not found in PATH", wrapper[0])
-		}
-		if len(command) == 1 {
-			// command run in a shell: wrap the command string
-			command[0] = strings.Join(wrapper, " ") + " " + command[0]
-		} else {
-			command = append(wrapper, command...)
+		if _, err := exec.LookPath(wrapper[0]); err == nil {
+			if len(command) == 1 {
+				command[0] = strings.Join(wrapper, " ") + " " + command[0]
+			} else {
+				command = append(wrapper, command...)
+			}
 		}
 	}
 	if len(command) < 2 {

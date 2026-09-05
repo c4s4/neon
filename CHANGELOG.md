@@ -1,6 +1,6 @@
 # NeON
 
-## 2026-09-04: 1.17.0
+## 2026-09-05: 1.17.0
 
 - Added `cafe` option to `$` task to prevent the system from going to sleep while a command is running (Linux and MacOS)
 
