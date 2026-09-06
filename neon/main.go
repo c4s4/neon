@@ -227,7 +227,7 @@ func run() error {
 	}
 	configuration, err := LoadConfiguration(configPath)
 	if err != nil {
-		return fmt.Errorf("loading configuration file '%s': %v", DefaultConfiguration, err)
+		return fmt.Errorf("loading configuration file '%s': %v", configPath, err)
 	}
 	// parse command line
 	opts := ParseCommandLine()

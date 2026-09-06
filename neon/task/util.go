@@ -21,7 +21,10 @@ func SanitizeName(filename string) string {
 		filename = filename[2:]
 	}
 	filename = strings.ReplaceAll(filename, `\`, `/`)
-	filename = strings.TrimLeft(filename, "/.")
+	for strings.HasPrefix(filename, "./") {
+		filename = filename[2:]
+	}
+	filename = strings.TrimLeft(filename, "/")
 	return strings.ReplaceAll(filename, "../", "")
 }
 

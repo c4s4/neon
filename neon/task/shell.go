@@ -67,8 +67,9 @@ Notes:
 - Argument of a command defined as a list won't be expanded by shell. Thus
   $USER won't be expanded for instance.
 - The cafe option prevents the system from going to sleep while the command
-  is running. It uses systemd-inhibit on Linux and caffeinate on MacOS and
-  raises an error on any other operating system.`,
+  is running. It uses systemd-inhibit on Linux and caffeinate on MacOS. On
+  other operating systems, or if the wrapper command is not available in
+  PATH, it is silently ignored.`,
 	})
 }
 
@@ -268,13 +269,7 @@ func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *b
 	for key, value := range environment {
 		environ = append(environ, key+"="+value)
 	}
-	path := ""
-	for _, variable := range environment {
-		if strings.HasPrefix(variable, "PATH=") {
-			index := strings.Index(variable, "=")
-			path = variable[index+1:]
-		}
-	}
+	path := environment["PATH"]
 	if path != "" {
 		oldPath := os.Getenv("PATH")
 		defer func() {

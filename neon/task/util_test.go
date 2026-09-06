@@ -9,10 +9,19 @@ func TestSanitizeName(t *testing.T) {
 		t.Errorf("bad sanitization: %s", SanitizeName("/foo/bar"))
 	}
 	if SanitizeName("../foo/bar") != "foo/bar" {
-		t.Errorf("bad sanitization: %s", SanitizeName("/foo/bar"))
+		t.Errorf("bad sanitization: %s", SanitizeName("../foo/bar"))
 	}
 	if SanitizeName(`foo\bar`) != `foo/bar` {
 		t.Errorf("bad sanitization: %s", SanitizeName(`foo\bar`))
+	}
+	if SanitizeName("./.hidden") != ".hidden" {
+		t.Errorf("bad sanitization: %s", SanitizeName("./.hidden"))
+	}
+	if SanitizeName(".hidden") != ".hidden" {
+		t.Errorf("bad sanitization: %s", SanitizeName(".hidden"))
+	}
+	if SanitizeName("./foo/.bar/baz") != "foo/.bar/baz" {
+		t.Errorf("bad sanitization: %s", SanitizeName("./foo/.bar/baz"))
 	}
 }
 

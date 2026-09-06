@@ -1,6 +1,6 @@
 module github.com/c4s4/neon
 
-go 1.27
+go 1.27.1
 
 require (
 	github.com/c4s4/changelog v1.7.0
