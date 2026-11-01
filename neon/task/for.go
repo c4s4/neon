@@ -1,8 +1,9 @@
 package task
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -25,7 +26,7 @@ Examples:
     - for: file
       in:  ["foo", "bar"]
       do:
-    - touch: =file
+      - touch: =file
     # print first 10 integers
     - for: i
       in: range(10)

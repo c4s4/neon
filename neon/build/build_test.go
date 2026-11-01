@@ -1,6 +1,7 @@
 package build
 
 import (
+	"net"
 	"os"
 	"reflect"
 	"runtime"
@@ -59,4 +60,28 @@ func TestGetShell(t *testing.T) {
 		t.Fail()
 	}
 	Assert(shell, []string{"foo"}, t)
+}
+
+func TestListenPort(t *testing.T) {
+	for _, port := range []int{-1, 0, 65536} {
+		if listener, err := ListenPort(port); err == nil {
+			_ = listener.Close()
+			t.Errorf("port %d should be rejected", port)
+		}
+	}
+	listener, err := ListenPort(54321)
+	if err != nil {
+		t.Fatalf("listening port: %v", err)
+	}
+	defer func() {
+		_ = listener.Close()
+	}()
+	addr, ok := listener.Addr().(*net.TCPAddr)
+	if !ok || !addr.IP.IsLoopback() {
+		t.Errorf("singleton should listen on loopback, listening on %v", listener.Addr())
+	}
+	if other, err := ListenPort(54321); err == nil {
+		_ = other.Close()
+		t.Errorf("second listener on same port should fail")
+	}
 }

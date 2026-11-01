@@ -1,10 +1,11 @@
 package build
 
 import (
-	"github.com/c4s4/neon/neon/util"
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/c4s4/neon/neon/util"
 )
 
 func TestParseSingleton(t *testing.T) {

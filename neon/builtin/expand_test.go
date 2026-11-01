@@ -1,9 +1,10 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/util"
 	"os/user"
 	"testing"
+
+	"github.com/c4s4/neon/neon/util"
 )
 
 func TestExpand(t *testing.T) {

@@ -23,7 +23,7 @@ Examples:
 
     # find python in path
     findinpath("python")
-    # returns: ["/opt/python/current/bin/python", /usr/bin/python"]`,
+    # returns: ["/opt/python/current/bin/python", "/usr/bin/python"]`,
 	})
 }
 

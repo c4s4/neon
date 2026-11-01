@@ -2,11 +2,12 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
-	"github.com/c4s4/neon/neon/util"
 	"os"
 	"path/filepath"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
+	"github.com/c4s4/neon/neon/util"
 )
 
 func init() {
@@ -23,8 +24,8 @@ Arguments:
 - exclude: globs of files to exclude (strings, optional, file, wrap).
 - tofile: file to move file to (string, optional, file).
 - todir: directory to move file(s) to (string, optional, file).
-- flat: tells if files should be flatten in destination directory, defaults to
-  false (boolean, optional).
+- flat: tells if files should be flattened in destination directory, defaults
+  to false (boolean, optional).
 
 Examples:
 

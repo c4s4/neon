@@ -1,12 +1,9 @@
 package task
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"reflect"
-	"strings"
 
 	"github.com/c4s4/neon/neon/build"
 )
@@ -20,7 +17,7 @@ func init() {
 
 Arguments:
 
-- dotenv: name of dotenv file to load.
+- dotenv: name of dotenv file to load (string, file).
 
 Examples:
 
@@ -45,30 +42,14 @@ func dotenv(context *build.Context, args interface{}) error {
 
 // LoadEnv loads environment in given file
 func LoadEnv(filename string) error {
-	file, err := os.Open(filename)
+	environment, err := build.LoadDotEnv(filename, "")
 	if err != nil {
 		return err
 	}
-	defer func() {
-		_ = file.Close()
-	}()
-	reader := bufio.NewReader(file)
-	for {
-		bytes, _, err := reader.ReadLine()
-		if err == io.EOF {
-			break
+	for name, value := range environment {
+		if err := os.Setenv(name, value); err != nil {
+			return fmt.Errorf("setting environment variable '%s': %v", name, err)
 		}
-		line := strings.TrimSpace(string(bytes))
-		if line[0] == '#' {
-			continue
-		}
-		index := strings.Index(line, "=")
-		if index < 0 {
-			return fmt.Errorf("bad environment line: '%s'", line)
-		}
-		name := strings.TrimSpace(line[:index])
-		value := strings.TrimSpace(line[index+1:])
-		_ = os.Setenv(name, value)
 	}
 	return nil
 }

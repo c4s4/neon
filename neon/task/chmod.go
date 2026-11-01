@@ -2,11 +2,12 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
-	util "github.com/c4s4/neon/neon/util"
 	"os"
 	"path/filepath"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
+	util "github.com/c4s4/neon/neon/util"
 )
 
 func init() {
@@ -38,7 +39,7 @@ Notes:
 - The mode is an integer, thus must not be surrounded with quotes, or it would
   be a string and parsing of the task would fail.
 - We usually set mode with octal integers, starting with '0'. If you don't put
-  starting '0', this is decimal integer and you won't probably have expected
+  starting '0', this is decimal integer and you probably won't have expected
   result.`,
 	})
 }

@@ -1,9 +1,10 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"os/exec"
 	"strings"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -26,7 +27,7 @@ Examples:
 
     # zip files of foo directory in bar.zip file
     run("zip", "-r", "bar.zip", "foo")
-    # returns: the trimed output of the command`,
+    # returns: the trimmed output of the command`,
 	})
 }
 

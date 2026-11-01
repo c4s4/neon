@@ -22,7 +22,7 @@ Returns:
 Examples:
 
     # convert path to windows
-    uppercase("/c/foo/bar")
+    windowspath("/c/foo/bar")
     # returns: "c:\foo\bar"`,
 	})
 }

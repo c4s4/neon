@@ -2,6 +2,7 @@ package builtin
 
 import (
 	"encoding/json"
+
 	"github.com/c4s4/neon/neon/build"
 )
 
@@ -9,11 +10,11 @@ func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "jsonindent",
 		Func: jsonIndent,
-		Help: `Indent given string in Json format.
+		Help: `Indent given string in JSON format.
 
 Arguments:
 
-- The string in Json format to indent.
+- The string in JSON format to indent.
 
 Returns:
 
@@ -22,7 +23,7 @@ Returns:
 Examples:
 
     # indent given list
-    jsonindent("['foo', 'bar']")
+    jsonindent('["foo", "bar"]')
     # returns string:
     # [
     #   "foo",

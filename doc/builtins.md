@@ -27,7 +27,7 @@ Append root directory to paths.
 Arguments:
 
 - The root directory.
-- The paths to append.
+- The paths to append as a list of strings.
 
 Returns:
 
@@ -36,9 +36,9 @@ Returns:
 Examples:
 
     # append root "foo" to paths "spam" and "eggs"
-    appendpath("foo", "spam", "eggs")
-	# returns: ["foo/spam", "foo/eggs"] on Linux and
-	# ["foo\spam", "foo\eggs"] on Windows
+    appendpath("foo", ["spam", "eggs"])
+    # returns: ["foo/spam", "foo/eggs"] on Linux and
+    # ["foo\spam", "foo\eggs"] on Windows
 
 ## changelog
 
@@ -51,7 +51,7 @@ Arguments:
 
 Note:
 
-- The function returns a Changelog that is a list of Releases struct with
+- The function returns a Changelog that is a list of Release structures with
   fields Version, Date and Summary.
 
 Examples:
@@ -87,7 +87,7 @@ Examples:
 
 ## contains
 
-Contains strings.
+Tell if a list of strings contains a given string.
 
 Arguments:
 
@@ -223,14 +223,14 @@ Arguments:
 
 Returns:
 
-- The list if filtered files as a list of strings.
+- The list of filtered files as a list of strings.
 
 Examples:
 
     # filter text files removing those in build directory
     filter(find(".", "**/*.txt"), "build/**/*")
     # returns: files with extension "txt" in current directory and
-    # subdirectories, except those in "github.com/c4s4/neon/neon/build" directory
+    # subdirectories, except those in "build" directory
 
 Notes:
 
@@ -243,7 +243,7 @@ Find files.
 Arguments:
 
 - The directory of files to find.
-- The list of pattern for files to find.
+- The patterns of files to find.
 
 Returns:
 
@@ -278,7 +278,7 @@ Examples:
 
     # find python in path
     findinpath("python")
-    # returns: ["/opt/python/current/bin/python", /usr/bin/python"]
+    # returns: ["/opt/python/current/bin/python", "/usr/bin/python"]
 
 ## followlink
 
@@ -300,7 +300,7 @@ Examples:
 
 ## greater
 
-Check that NeON version is greater that given version.
+Check that NeON version is greater than given version.
 
 Arguments:
 
@@ -314,11 +314,11 @@ Examples:
 
     # check that NeON version is greater than 0.12.0
     greater("0.12.0")
-    # return true if version is greater than 0.12.0, false otherwise
+    # returns true if version is greater than 0.12.0, false otherwise
 
 ## greaterorequal
 
-Check that NeON version is greater or equal that given version.
+Check that NeON version is greater than or equal to given version.
 
 Arguments:
 
@@ -326,13 +326,13 @@ Arguments:
 
 Returns:
 
-- A boolean telling if NeON version is greater or equal than given version.
+- A boolean telling if NeON version is greater than or equal to given version.
 
 Examples:
 
-    # check that NeON version is greater or equal than 0.12.0
+    # check that NeON version is greater than or equal to 0.12.0
     greaterorequal("0.12.0")
-    # return true if version is greater or equal than 0.12.0, false otherwise
+    # returns true if version is greater than or equal to 0.12.0, false otherwise
 
 ## haskey
 
@@ -393,47 +393,47 @@ Examples:
 
 ## jsondecode
 
-Decode given string in Json format.
+Decode given string in JSON format.
 
 Arguments:
 
-- The string in Json format to decode.
+- The string in JSON format to decode.
 
 Returns:
 
-- Decoded string.
+- Decoded value.
 
 Examples:
 
     # decode given list
-    jsondecode("['foo', 'bar']")
-    # returns string slice: ["foo", "bar"]
+    jsondecode('["foo", "bar"]')
+    # returns list: ["foo", "bar"]
 
 ## jsonencode
 
-Encode given variable in Json format.
+Encode given variable in JSON format.
 
 Arguments:
 
-- The variable to encode in Json format.
+- The variable to encode in JSON format.
 
 Returns:
 
-- Json encoded string.
+- JSON encoded string.
 
 Examples:
 
     # encode given list
     jsonencode(["foo", "bar"])
-    # returns: "['foo', 'bar']"
+    # returns: '["foo", "bar"]'
 
 ## jsonindent
 
-Indent given string in Json format.
+Indent given string in JSON format.
 
 Arguments:
 
-- The string in Json format to indent.
+- The string in JSON format to indent.
 
 Returns:
 
@@ -442,7 +442,7 @@ Returns:
 Examples:
 
     # indent given list
-    jsonindent("['foo', 'bar']")
+    jsonindent('["foo", "bar"]')
     # returns string:
     # [
     #   "foo",
@@ -459,13 +459,13 @@ Arguments:
 
 Returns:
 
-- A list of keys.
+- A list of keys, in no particular order.
 
 Examples:
 
     # get keys of a map
     keys({"foo": 1, "bar": 2})
-    # returns: ["foo", "bar"]
+    # returns: ["foo", "bar"] (or ["bar", "foo"])
 
 ## length
 
@@ -477,12 +477,13 @@ Arguments:
 
 Returns:
 
-- Length of the given string.
+- Length of the given string, in characters.
 
 Examples:
 
     # get length of the string
     l = length("Hello World!")
+    # returns: 12
 
 ## list
 
@@ -502,11 +503,11 @@ Examples:
 
     # get a list of foo
     list(foo)
-	# return foo if already a list or [foo] otherwise
+    # returns foo if already a list or [foo] otherwise
 
 ## lower
 
-Check that NeON version is lower that given version.
+Check that NeON version is lower than given version.
 
 Arguments:
 
@@ -519,8 +520,8 @@ Returns:
 Examples:
 
     # check that NeON version is lower than 0.12.0
-    greater("0.12.0")
-    # return true if version is lower than 0.12.0, false otherwise
+    lower("0.12.0")
+    # returns true if version is lower than 0.12.0, false otherwise
 
 ## lowercase
 
@@ -542,7 +543,7 @@ Examples:
 
 ## lowerorequal
 
-Check that NeON version is lower or equal that given version.
+Check that NeON version is lower than or equal to given version.
 
 Arguments:
 
@@ -550,13 +551,13 @@ Arguments:
 
 Returns:
 
-- A boolean telling if NeON version is lower or equal than given version.
+- A boolean telling if NeON version is lower than or equal to given version.
 
 Examples:
 
-    # check that NeON version is lower or equal than 0.12.0
+    # check that NeON version is lower than or equal to 0.12.0
     lowerorequal("0.12.0")
-    # return true if version is lower or equal than 0.12.0, false otherwise
+    # returns true if version is lower than or equal to 0.12.0, false otherwise
 
 ## match
 
@@ -569,13 +570,13 @@ Arguments:
 
 Returns:
 
-- A boolean telling string matches regular expression.
+- A boolean telling if string matches regular expression.
 
 Examples:
 
-    # tell if string "neon" marchs "n..n" regular expression:
+    # tell if string "neon" matches "n..n" regular expression:
     match("n..n", "neon")
-    # return true
+    # returns: true
 
 ## md5
 
@@ -614,11 +615,11 @@ Examples:
 
     # generate PDF if source Markdown changed
     if newer("source.md", "result.pdf") {
-    	compile("source.md")
+        compile("source.md")
     }
-	# generate binary if source files are newer than generated binary
+    # generate binary if source files are newer than generated binary
     if newer(find(".", "**/*.go"), "bin/binary") {
-    	generateBinary()
+        generateBinary()
     }
 
 ## now
@@ -636,7 +637,7 @@ Returns:
 Examples:
 
     # put current date and time in dt variable
-    now()
+    dt = now()
     # returns: "2006-01-02 15:04:05"
     # to get date in ISO format
     now()[0:10]
@@ -684,7 +685,7 @@ Replace string with another.
 
 Arguments:
 
-- The strings where take place replacements.
+- The string in which replacements take place.
 - The substring to replace.
 - The replacement substring.
 
@@ -716,7 +717,7 @@ Examples:
 
     # zip files of foo directory in bar.zip file
     run("zip", "-r", "bar.zip", "foo")
-    # returns: the trimed output of the command
+    # returns: the trimmed output of the command
 
 ## setenv
 
@@ -744,6 +745,12 @@ Returns:
 
 - nothing but slice of versions is sorted
 
+Notes:
+
+- A leading 'v' (as in git tags such as 'v1.2.3') is ignored.
+- Suffixes are ordered: SNAPSHOT < ALPHA < BETA < RC < release.
+- Strings that are not valid versions are placed first.
+
 Examples:
 
     # sort version ["1.10", "1.1", "1.2"]
@@ -752,11 +759,11 @@ Examples:
 
 ## split
 
-Split strings.
+Split a string.
 
 Arguments:
 
-- The strings to split.
+- The string to split.
 - The separator for splitting.
 
 Returns:
@@ -767,7 +774,7 @@ Examples:
 
     # split "foo bar" with space
     split("foo bar", " ")
-    # returns: ["foo"," "bar"]
+    # returns: ["foo", "bar"]
 
 ## termlink
 
@@ -800,8 +807,8 @@ Returns:
 
 Examples:
 
-	# get terminal width
-	width = termwidth()
+    # get terminal width
+    width = termwidth()
 
 ## throw
 
@@ -813,7 +820,8 @@ Arguments:
 
 Returns:
 
-- Nothing, but sets the variable 'error' with the error message.
+- Nothing, but the error message is stored in '_error' property if the error
+  is caught with try task.
 
 Examples:
 
@@ -842,7 +850,7 @@ Examples:
 
 ## toint
 
-Converts int64 value to int.
+Convert int64 value to int.
 
 Arguments:
 
@@ -868,7 +876,7 @@ Arguments:
 
 Returns:
 
-- Trimed string.
+- Trimmed string.
 
 Examples:
 
@@ -891,7 +899,7 @@ Returns:
 Examples:
 
     # unescape given URL
-    escapeurl("foo%20bar")
+    unescapeurl("foo%20bar")
     # returns: "foo bar"
 
 ## unixpath
@@ -909,7 +917,7 @@ Returns:
 Examples:
 
     # convert path to unix
-    uppercase("c:\foo\bar")
+    unixpath("c:\foo\bar")
     # returns: "/c/foo/bar"
 
 ## uppercase
@@ -940,7 +948,7 @@ Returns:
 
 Examples:
 
-    # generate an UUID
+    # generate a UUID
     uuid()
     # returns: "9063eafd-40b9-48d9-bf90-ce44e9207821"
 
@@ -959,7 +967,7 @@ Returns:
 Examples:
 
     # convert path to windows
-    uppercase("/c/foo/bar")
+    windowspath("/c/foo/bar")
     # returns: "c:\foo\bar"
 
 ## winexe
@@ -1010,13 +1018,13 @@ Arguments:
 
 Returns:
 
-- Decoded string.
+- Decoded value.
 
 Examples:
 
     # decode given list
     yamldecode("['foo', 'bar']")
-    # returns string slice: ["foo", "bar"]
+    # returns list: ["foo", "bar"]
 
 ## yamlencode
 
@@ -1028,10 +1036,10 @@ Arguments:
 
 Returns:
 
-- Json encoded string.
+- YAML encoded string.
 
 Examples:
 
     # encode given list
     yamlencode(["foo", "bar"])
-    # returns: "['foo', 'bar']"
+    # returns: '["foo", "bar"]'

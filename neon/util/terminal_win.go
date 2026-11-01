@@ -6,7 +6,7 @@ const (
 	DEFAULT_TERMINAL_WIDTH = 80
 )
 
-// Get terminal width
+// TerminalWidth returns the terminal width
 func TerminalWidth() int {
 	return DEFAULT_TERMINAL_WIDTH
 }

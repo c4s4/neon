@@ -1,19 +1,20 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"strings"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "split",
 		Func: split,
-		Help: `Split strings.
+		Help: `Split a string.
 
 Arguments:
 
-- The strings to split.
+- The string to split.
 - The separator for splitting.
 
 Returns:
@@ -24,7 +25,7 @@ Examples:
 
     # split "foo bar" with space
     split("foo bar", " ")
-    # returns: ["foo"," "bar"]`,
+    # returns: ["foo", "bar"]`,
 	})
 }
 

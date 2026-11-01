@@ -3,11 +3,12 @@ package task
 import (
 	z "archive/zip"
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
 	"io"
 	"os"
 	"path/filepath"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -26,7 +27,13 @@ Examples:
 
     # unzip foo.zip to build directory
     - unzip: 'foo.zip'
-      todir: 'build'`,
+      todir: 'build'
+
+Notes:
+
+- Existing files are overwritten. Directories and symbolic links are created.
+- Extraction fails if an entry would be written outside the destination
+  directory, including through a symbolic link.`,
 	})
 }
 
@@ -53,36 +60,67 @@ func unzipFile(file, dir string) error {
 	defer func() {
 		_ = reader.Close()
 	}()
+	// all files are written through root, which forbids writing outside of
+	// destination directory, even following symbolic links
+	if err := os.MkdirAll(dir, DirFileMode); err != nil {
+		return fmt.Errorf("creating destination directory '%s': %v", dir, err)
+	}
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		return fmt.Errorf("opening destination directory '%s': %v", dir, err)
+	}
+	defer func() {
+		_ = root.Close()
+	}()
 	for _, file := range reader.File {
-		readCloser, err := file.Open()
+		name, err := LocalName(file.Name)
 		if err != nil {
-			return fmt.Errorf("opening zip file %s: %v", file.Name, err)
+			return err
 		}
-		defer func() {
-			_ = readCloser.Close()
-		}()
-		target := filepath.Join(dir, file.Name)
 		if file.FileInfo().IsDir() {
+			if err := root.MkdirAll(name, DirFileMode); err != nil {
+				return fmt.Errorf("creating directory '%s': %v", name, err)
+			}
 			continue
-		} else {
-			destination := filepath.Dir(target)
-			if _, err := os.Stat(destination); err != nil {
-				if err := os.MkdirAll(destination, 0755); err != nil {
-					return fmt.Errorf("creating destination directory '%s': %v", target, err)
-				}
-			}
-			dest, err := os.OpenFile(target, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
-			if err != nil {
-				return fmt.Errorf("creating destination file '%s': %v", target, err)
-			}
-			defer func() {
-				_ = dest.Close()
-			}()
-			_, err = io.Copy(dest, readCloser)
-			if err != nil {
-				return fmt.Errorf("copying to destination file '%s': %v", target, err)
-			}
 		}
+		if err := unzipEntry(root, file, name); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func unzipEntry(root *os.Root, file *z.File, name string) error {
+	readCloser, err := file.Open()
+	if err != nil {
+		return fmt.Errorf("opening zip file %s: %v", file.Name, err)
+	}
+	defer func() {
+		_ = readCloser.Close()
+	}()
+	if file.Mode()&os.ModeSymlink != 0 {
+		target, err := io.ReadAll(readCloser)
+		if err != nil {
+			return fmt.Errorf("reading symbolic link '%s': %v", name, err)
+		}
+		if err := createLink(root, name, func() error { return root.Symlink(string(target), name) }); err != nil {
+			return fmt.Errorf("creating symbolic link '%s': %v", name, err)
+		}
+		return nil
+	}
+	if err := root.MkdirAll(filepath.Dir(name), DirFileMode); err != nil {
+		return fmt.Errorf("creating destination directory for '%s': %v", name, err)
+	}
+	dest, err := root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode().Perm())
+	if err != nil {
+		return fmt.Errorf("creating destination file '%s': %v", name, err)
+	}
+	if _, err := io.Copy(dest, readCloser); err != nil {
+		_ = dest.Close()
+		return fmt.Errorf("copying to destination file '%s': %v", name, err)
+	}
+	if err := dest.Close(); err != nil {
+		return fmt.Errorf("closing destination file '%s': %v", name, err)
 	}
 	return nil
 }

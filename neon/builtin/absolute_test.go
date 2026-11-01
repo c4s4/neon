@@ -1,9 +1,10 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/util"
 	"strings"
 	"testing"
+
+	"github.com/c4s4/neon/neon/util"
 )
 
 func TestAbsolute(t *testing.T) {

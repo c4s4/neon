@@ -8,200 +8,277 @@ Each item is tagged with its severity: Critical, Major, Minor or Quality (qualit
 
 ## 1. Security
 
-### 1.1 [Critical] Zip Slip / Tar Slip in `unzip` and `untar`
-
-`neon/task/unzip.go:64` and `neon/task/untar.go:86` build the destination path with `filepath.Join(dir, header.Name)` without checking that the result stays inside `dir`. An archive containing an entry `../../.bashrc` writes outside the target directory.
-**Fix:** reject entries that are absolute or whose `filepath.Rel(dir, target)` starts with `..` (or use `os.Root`, available since Go 1.24).
-
-### 1.2 [Major] Update and version check over plain HTTP
-
-`neon/build/update.go:18-20`: `versionURL` uses `http://`, and the install command suggested to the user is `sh -c "$(curl http://sweetohm.net/neon/install)"`. An attacker on the network (MITM) can get arbitrary code executed.
-**Fix:** switch to HTTPS everywhere, ideally with checksum or signature verification.
-
-### 1.3 [Minor] Singleton port open on all interfaces
-
-`neon/build/build.go:503`: `net.Listen("tcp", ":port")` listens on `0.0.0.0`. A simple local lock should listen on `127.0.0.1`. Port `0` is also accepted: it yields a random port, so no real lock.
-
-### 1.4 [Minor] HTTP calls without timeout
-
-`neon/task/request.go:93` (`&http.Client{}`) and `neon/build/update.go:32` (`http.Get`) have no timeout. A server that doesn't respond blocks the build forever.
-
-### 1.5 [Minor] CI: Codecov uploader via `bash <(curl …)`
-
-`.travis.yml` runs Codecov's bash script, deprecated since the 2021 supply-chain incident. Use the official verified uploader (or the GitHub action).
+All security issues have been fixed: see the [Fixed](#fixed) section at the end of this document.
 
 ## 2. Functional bugs
 
-### 2.1 [Critical] False positive in cycle detection with diamond inheritance **[reproduced]**
-
-`neon/build/build.go:60-77`: the `visited` map is never cleaned up when a branch finishes, so it acts as a global "already seen" set instead of a recursion stack. If A extends B and C, and B and C both extend D, the build is rejected with `dependency cycle detected`.
-```yaml
-# p.yml: extends: [./b.yml, ./c.yml]   b.yml and c.yml: extends: ./d.yml
-```
-This is a regression introduced by the "Cycle detection" fix in `doc/code-review.md`. Shared parent files (for instance `c4s4/build/common.yml`) are a common case.
-**Fix:** `delete(visited, absPath)` once parents are resolved (DFS stack). The error message also lists the path in random order (map iteration): keep an ordered slice.
-**Test to add:** a diamond case in `test/bugs/`.
-
-### 2.2 [Critical] Panics on invalid build files **[reproduced]**
-
-Several user inputs make neon panic instead of producing an error message:
-
-| Input | Panic | Location |
-|---|---|---|
-| `- try: "foo"` (steps field given as a string, integer or boolean) | `reflect.Value.IsNil on string Value` | `neon/build/step.go:115` |
-| `- 1: foo` (non-string task key) | `interface {} is int, not string` | `neon/build/step.go:89` |
-| `- mkdir: [a, ~]` (`null` element in a list) | nil pointer dereference | `neon/build/task.go:204` (`reflect.TypeOf(nil).Kind()`) |
-| property `L: [a, ~]` | `reflect.Value.Set on zero Value` | `neon/build/context.go:300` |
-| empty map for a map-typed field (`env: {}`, `headers: {}`) | index out of range | `neon/build/task.go:214` (`MapKeys()[0]`) |
-| `threads: -1` | `makechan: size out of range` | `neon/task/threads.go:77` |
-
-Also note: `IsValueOfType` only checks the *first* entry of a map (`task.go:214-216`), and a `null` value in a property map is silently dropped (`SetMapIndex` with a zero value, `context.go:320`).
-
-### 2.3 [Major] Target stack corrupted after an error caught by `try` **[reproduced]**
-
-`neon/build/target.go:140-162`: the target is pushed (`Stack.Push`), then if a dependency fails or the `chdir` fails, the function returns without `Pop`. Same problem in `RunParentTarget` (`build.go:441-443`). `Stack.Push` also pushes the target when it detects a loop. When the error is caught by `try`, the next call of the same target reports a false infinite loop:
-```yaml
-targets:
-  t: {steps: [{try: [{call: a}]}, {call: a}]}
-  a: {depends: b}
-  b: {steps: [{throw: boom}]}
-# => ERROR ... infinite loop: t -> a -> a
-```
-**Fix:** `defer context.Stack.Pop()` right after a successful `Push`.
-
-### 2.4 [Major] Inconsistent precedence of inherited targets **[reproduced]**
-
-With `extends: [b, c]` where b and c both define target `x`:
-- `GetTarget` (execution) picks **c**'s (last parent), `build.go:342`;
-- `GetTargets` (used by `-info`, `-targets` and automatic target selection) keeps **b**'s (first parent), `build.go:293-298`;
-- `GetProperties` gives precedence to the last parent.
-
-So `neon -info` shows `b`'s doc while `neon x` runs `c`. **Fix:** iterate in the same direction as `GetTarget`.
-
-### 2.5 [Major] The `version:` field is unusable with binaries built by `neon build` **[reproduced]**
-
-`NeonVersion` is injected with the git hash (`VERSION` = `git rev-parse HEAD[0:8]` in `c4s4/build/golang.yml`), or is `UNKNOWN` without ldflags. The `greater`, `lower`, etc. builtins call `NewVersion(NeonVersion)`, which fails: any build file declaring `version: 'greater("0.1")'` crashes with `Neon version could not be parsed`. For the same reason, `neon -update` always announces a new version, since it compares a hash with a version number (`update.go:47`).
-Other version issues: `Compare` considers `1.0` < `1.0.0` and ignores suffixes (`1.0-SNAPSHOT` == `1.0`). Version builtins report errors with `panic` (`neon/builtin/greater.go:32`, etc.).
-
-### 2.6 [Major] `3>` redirection (stdout + stderr to a file) is corrupted **[reproduced]**
-
-`neon/task/shell.go:108-129`: when `3>` is used, the same file is opened **twice** with `os.Create`, giving two descriptors with independent offsets. Writes overwrite each other:
-```
-echo OUT-LINE-1; echo ERR >&2; echo OUT-LINE-2   →  file: "ERR\nLINE-1\nOUT-LINE-2"
-```
-**Fix:** open the file once and share the writer. With `3=` (output to a property), the same `strings.Builder` is written concurrently by both `exec.Cmd` copy goroutines (through two different `MultiWriter`s), which is a **data race**. A mutex-protected writer is needed.
-
-### 2.7 [Major] `1>>` / `2>>` / `3>>` fail if the file doesn't exist **[reproduced]**
-
-`shell.go:134,146`: `os.OpenFile(..., O_WRONLY|O_APPEND)` without `O_CREATE`. The expected behaviour (that of `>>` in a shell) is to create the file.
-
-### 2.8 [Major] `untar` doesn't truncate existing files **[reproduced]**
-
-`untar.go:94`: `O_CREATE|O_RDWR` without `O_TRUNC`. Extracting `x` (5 bytes, "short") over a longer existing `x` leaves the tail of the old content: `shorth longer existing content`. Empty directories, symbolic links and mtimes are also ignored.
-
-### 2.9 [Major] `zip` doesn't compress **[reproduced]**
-
-`zip.go:104`: `zip.FileInfoHeader` returns `Method = Store`. The registered `BestCompression` compressor is therefore never used. A 200 KB file of zeros produces a 200 KB archive (`Stored 0%`). **Fix:** `header.Method = zip.Deflate`.
-
-### 2.10 [Major] Ignored close errors: truncated archives with no error
-
-`tar.go:81,86` and `zip.go:75`: `writer.Close()` / `gzip.Close()` / `zipper.Close()` write the archive trailers, but their errors are ignored (`_ =`). A full disk produces a corrupted archive and the build ends with `OK`. Same for `dest.Close()` in `unzip.go:78`.
-
-### 2.11 [Major] Infinite loop if a `dotenv` file is a directory **[reproduced]**
-
-`neon/build/context.go:423-427`: `reader.ReadLine()` only handles `io.EOF`. Any other error (for instance `EISDIR`) loops forever. `isPrefix` is also ignored: lines longer than 4 KB are split and the rest is parsed as a new line. Quotes (`FOO="bar"`) and `export FOO=bar` aren't handled, unlike the usual dotenv format.
-
-### 2.12 [Major] Environment variables: undefined `${VAR}` wrongly replaced **[reproduced]**
-
-`context.go:383`: `x${UNDEFINED}y` becomes `x{UNDEFINED}y`, the `$` is lost. More generally, in `EvaluateEnvironment`:
-- an error in a `={...}` expression is silently ignored (`context.go:388-390`);
-- `if replaced != ""` (`context.go:395`) makes it impossible to empty a variable (`FOO: ''`);
-- escaping only handles one or two `\` (unlike `EvaluateString`);
-- variables are evaluated in alphabetical order, so `A: ${B}` doesn't see `B` defined in the same block.
-
-### 2.13 [Major] The build file's `repository:` field is never used
-
-`neon/main.go:233-241` always passes a non-empty repository (`-repo` option, otherwise config, otherwise `~/.neon`), and `ParseRepository` (`neon/build/parse.go:115`) gives precedence to that parameter. The documented `repository:` field (`doc/usermanual.md:1025`) is therefore ignored.
-
-### 2.14 [Major] The `grey` and `time` options from the configuration file are overwritten
-
-`main.go:244-245`: `_build.Gray = opts.Grey` and `configuration.Time = opts.Time` unconditionally replace the values read from `settings.yml`. With `grey: true` in the configuration, output stays in color. An OR is needed (`opts.Grey || configuration.Grey`).
-
-### 2.15 [Minor] `$` (list form) modifies the process `PATH` variable
-
-`shell.go:272-280` does a global `os.Setenv("PATH", …)`, then restores it. Combined with the `threads` task, this creates a race condition: one thread can resolve its executable with another thread's `PATH`. The current directory is also process-wide (`os.Chdir` in `Target.Run` and in the `neon` task), while `threads` runs steps in parallel. **Fix:** look up the executable manually in the computed `PATH`, and set `Dir` explicitly instead of using `os.Getwd()`.
-
-### 2.16 [Minor] `copy` of a file onto itself empties it
-
-`neon/util/files.go:87`: `os.Create(dest)` truncates the source when `source == dest` (a glob that overlaps the destination is enough). Compare with `os.SameFile` before writing.
-
-### 2.17 [Minor] `replace` resets permissions and the replacement order is random
-
-`neon/task/replace.go:69` rewrites the file with `FileMode`: an executable script loses its `+x` bit. Iteration over the `with` map is random: if keys overlap (`a` and `ab`), the result changes from one run to the next. The error message also mentions "copy task".
-
-### 2.18 [Minor] `threads` task
-
-- `threads: 0` with input: nothing runs and the task returns without error.
-- After an error, the other threads keep consuming all inputs, with no cancellation; only the first error is reported.
-- The "Thread %d done" message `defer` is registered before `wg.Done`, so it can be printed after the task has finished.
-- The `error` variable shadows the predeclared type.
-
-### 2.19 [Minor] `neon` task
-
-- `FIXME` in `neon/task/neon.go:43`: the path is resolved relative to the current directory, not the build directory.
-- No recursion detection: a build that calls itself runs until memory is exhausted.
-- Passed properties are set *after* `Init()`, so derived properties (`B: ={A}`) are not re-evaluated.
-
-### 2.20 [Minor] Resolution of parent, script and template paths
-
-- `RegexpParentName`, `RegexpTemplateName` and `RegexpScriptName` (`neon/build/repo.go:20-29`) are not anchored and the `.` is not escaped: `../common/base.yml` or `a/b/c/d.yml` are taken for repository paths. A relative path without `./` (`extends: base.yml`) isn't supported and yields the misleading error "parent was not found".
-- `path.IsAbs` is used instead of `filepath.IsAbs` (`repo.go:76,175,193,209`): Windows absolute paths (`C:\…`) are not recognized.
-- `SetDir` replaces the parents' `Dir` with the root build's, so a `context: ./lib.ank` or a relative `dotenv` declared in a parent is resolved relative to the child's directory.
-- Parents' `version` and `singleton` fields are ignored: only the root build is checked in `Run`.
-- `RegexpLinkName` is unused.
-
-### 2.21 [Minor] Miscellaneous
-
-- `ExpandUserHome` (`files.go:190`) ignores the error from `user.Current()`, which causes a nil pointer dereference (for instance in a container with a UID that has no entry in `/etc/passwd`). Use `os.UserHomeDir()`. A bare `~` is not expanded.
-- `checkUnknownArgs` (`neon/build/task.go:152`) uses `continue` instead of `break`, and its condition `len(fields) != 0 || len(args) != 1` is obscure.
-- If a step contains two task names, the task picked depends on `TaskMap` iteration order (`step.go:71`), so the error message is not deterministic.
-- `MoveFilesToDir` uses `os.Rename`, which fails across filesystems (`EXDEV`).
-- `FindFiles` ignores `zglob.Glob` errors, returns duplicates when globs overlap (creating duplicate entries in tar/zip), and fails on a broken symbolic link.
-- `updateRepository` aborts the whole update as soon as a subfolder of the repository is not a git repository. In `printNewRelease`, the body is not closed when the status is not 200 (`update.go:36-41`).
-- The `chdir` error message in template mode shows `Build.Dir` instead of `Build.Here` (`target.go:156`).
-- Configuration is loaded *before* parsing the command line: an invalid `settings.yml` prevents even `neon -version` or `neon -help` from working.
+All functional bugs have been fixed: see the [Fixed](#fixed) section.
 
 ## 3. User experience
 
-- [Minor] Errors (`PrintError`) are written to **stdout**, not stderr (`neon/build/print.go:83-89`). `update.go` uses `println`, which writes to stderr: outputs are mixed inconsistently.
-- [Minor] Some errors hide the cause: `SetCommandLineProperties` (`build.go:208`) and `ParseConfiguration` (`parse.go:194`) drop the YAML error, and `runList` replaces the `LookPath` error with "not found in PATH".
-- [Minor] Build duration is always printed beyond 10 s, hard-coded in `main.go`, with no option to disable it.
-
----
+All user experience issues have been fixed: see the [Fixed](#fixed) section.
 
 ## 4. Code quality and maintenance
 
-- [Quality] Dependency on `gopkg.in/yaml.v2` (`yaml.v3` exists). With yaml.v2, the keys `yes`/`no`/`on`/`off` are read as booleans (YAML 1.1), which feeds the panics in §2.2.
-- [Quality] `github.com/mcuadros/go-version` (2019, unmaintained) is only used by `sortversions.go`, while the project already has its own `Version` implementation. Two version comparison logics coexist.
-- [Quality] Badly grouped imports (`strings` after third-party imports in `build.go:12`; `task.go`, `parse.go` and `repo.go` mix stdlib and module imports). `neon fmt` should run `goimports`.
-- [Quality] `NewSteps` and `IsValueOfType` rely on `reflect` without safeguards. A typed walk (`switch v := x.(type)`) would be safer and more readable.
-- [Quality] Dead or leftover code: `// (Empty or removed)` comment at the end of `main.go`, commented-out `TODO` in `context.go:212`, useless map loop in `GetShell` (`build.go:456`), `len(stderr) > 0` instead of `> 1` in `shell.go:179`, wrong `len(env)` capacity for `environ`, redundant `bytes.NewBuffer([]byte(body))` in `request.go`, `run_err` variable not in camelCase (`target.go:163`).
-- [Quality] Outdated doc comments: `FindBuildFile` (3 return values and one parameter undocumented), `RunParentTarget` ("boolean: that tells if parent target was found" although no boolean is returned), "singleton port port", "parsig target".
-- [Quality] Mutable global state (`Gray`, colors, `TaskMap`, `BuiltinMap`, `NeonVersion`) that makes tests hard to parallelize.
-- [Quality] `GetProperties`, `GetEnvironment` and `GetDotEnv` recursively re-merge data already merged in `newBuildInternal`. Not wrong, but redundant, and `GetDotEnv` duplicates entries from shared parents (diamond).
+Code quality issues have been fixed (see the [Fixed](#fixed) section), except one that was left as is on purpose:
+
+- [Quality] Mutable global state (`Gray`, colors, `ErrorOutput`, `UserRepository`, `CommandLineRepository`). **Not changed:** these are settings written once by `main` before any build runs. The other globals are either registries filled by `init()` and read-only afterwards (`TaskMap`, `BuiltinMap`), or required by the build (`NeonVersion`, set with `-ldflags`). Injecting these settings would not make builds testable in parallel, because the current directory is global to the process anyway (see 2.23). It would only add plumbing through every message call.
 
 ## 5. Tooling, CI and documentation
 
-- [Major] **Inconsistent Go versions:** `go.mod` declares `go 1.27`, while `.travis.yml` tests on Go `1.26` and `AGENTS.md` states "Go >= 1.26.5". CI can't build the module without a toolchain download. Align all three.
-- [Minor] Travis CI (`travis-ci.org`) is no longer free for open source: CI is probably inactive. Consider migrating to GitHub Actions.
-- [Minor] No test covers the cases in §2 (diamond, `try` + failing dependency, `3>`, `1>>`, untar over an existing file, zip compression ratio, `null` values). AGENTS.md recommends adding a file under `test/bugs/` for each bug.
-- [Minor] The CHANGELOG doesn't mention inheritance cycle detection, nor the switch of `ParseCommandLine` to a struct (changes listed as done in `doc/code-review.md`).
-- [Quality] `doc/code-review.md` is a dated review document living in `doc/`: it may be mistaken for user documentation. Merge it with this file or move it.
-- [Quality] The locally installed `staticcheck` is too old for Go 1.27 ("export data version" errors). Not a repository problem, but `neon tools` could install it with a pinned version.
+All tooling, CI and documentation issues have been fixed: see the [Fixed](#fixed) section.
 
 ## Suggested priorities
 
-1. §1.1 (Zip/Tar Slip) and §2.1 (diamond regression): security and visible regression.
-2. §2.2 (panics) and §2.3 (corrupted stack): engine robustness.
-3. §2.6 to §2.10: silent file corruption in the `$`, `untar`, `zip` and `tar` tasks.
-4. §1.2, §2.5, §2.13, §2.14 and §5 (Go versions and CI).
+1. Add the `CODECOV_TOKEN` secret to the GitHub repository and check the first runs of the GitHub Actions workflow (it could not be run locally).
+2. Release 2.0.0: YAML 1.2 is a breaking change for build files that use `yes`/`no`/`on`/`off` as booleans.
+
+---
+
+## Fixed
+
+Fixed on 2026-11-01. All tests pass (`go test -race ./...`, `golangci-lint`, `test/bugs/*.yml`). The CHANGELOG 2.0.0 entry lists the breaking changes (the other changes are described in this section), `doc/tasks.md` has been regenerated and `doc/usermanual.md` updated.
+
+New tests: `neon/build/fixes_test.go`, `neon/task/fixes_test.go`, `neon/task/archive_test.go`, `neon/task/request_test.go`, `neon/util/fixes_test.go`, and regression build files `test/bugs/8.yml` (diamond inheritance) and `test/bugs/9.yml` (stack after a caught error). Both build files fail with the previous binary.
+
+### 1.1 [Critical] Zip Slip / Tar Slip in `unzip` and `untar`
+
+`unzip.go` and `untar.go` built the destination path with `filepath.Join(dir, name)` without checking that it stayed inside `dir`: an entry `../../.bashrc` was written outside the target directory.
+**Fix:** new `SafeJoin` helper (`neon/task/util.go`) that rejects any entry name that is not local (`filepath.IsLocal`: absolute paths, `..` components, Windows reserved names). Extraction now fails with `illegal path in archive: '<name>'` before writing anything for that entry. Tests in `neon/task/archive_test.go` cover `../x`, `foo/../../x` and `/tmp/x` for both formats.
+**Update (2.26):** extraction now writes through `os.Root`, so a symbolic link (from the archive or already in the destination directory) can't redirect a write outside of it either.
+
+### 1.2 [Major] Update and version check over plain HTTP
+
+`update.go` fetched the latest version and suggested `sh -c "$(curl http://sweetohm.net/neon/install)"` over plain HTTP, open to MITM.
+**Fix:** HTTPS for the version URL, and the suggested install command now uses `https://sweetohm.net/dist/neon/install` (the URL from the README; the old `/neon/install` returned 404). The response body is now also closed when the status is not 200.
+**Still open:** the binary downloaded by the install script is not verified with a checksum or signature (server-side script, outside this repository). **Update:** `-update` now reads `https://sweetohm.net/dist/neon/version`, written by the `deploy` target of `build.yml` at each release (it was 404 before, so `-update` never reported a new release). Versions with a leading `v` (git tags such as `v2.0.0`) are now accepted as release versions, and a new release is reported only if it is greater than the running one.
+
+### 1.3 [Minor] Singleton port open on all interfaces
+
+`ListenPort` listened on `:port` (all interfaces) and accepted port 0 (random port, so no lock).
+**Fix:** listens on `127.0.0.1` and accepts only ports 1 to 65535 (`neon/build/build.go`). The user manual says so. Test `TestListenPort` checks rejected ports, the loopback address and that a second listener on the same port fails.
+
+### 1.4 [Minor] HTTP calls without timeout
+
+`request` and the `-update` version check could block forever.
+**Fix:** the version check times out after 10 seconds. The `request` task has a new optional `timeout` argument in seconds, defaulting to 60 (`TestRequestTimeout`). This is a behavior change: a request longer than 60 seconds now fails unless `timeout` is raised.
+
+### 1.5 [Minor] CI: Codecov uploader via `bash <(curl …)`
+
+`.travis.yml` piped Codecov's deprecated bash script into bash.
+**Fix:** downloads the Codecov CLI, checks the GPG signature of its checksum file against the Codecov key (fingerprint `27034E7FDB850E0BBC2C62FF806BB28AED779869`), then the SHA256 checksum, before running `codecov upload-process`. The signature check was run locally. The full Travis job was not run.
+
+### 2.1 [Critical] False positive in cycle detection with diamond inheritance
+
+The `visited` map was never cleaned up, so a build file extended by two parents was reported as a cycle.
+**Fix:** cycle detection uses the inheritance chain of the current branch (a stack) instead of a global set (`newBuildInternal` in `build.go`). The cycle is printed in order. A real cycle is still detected.
+
+### 2.2 [Critical] Panics on invalid build files
+
+**Fix:** every case of the table now gives an error message:
+- `NewSteps` checks the kind before `IsNil` (`steps must be a list (string provided)`);
+- `NewTaskStep` formats non-string keys (`unknown task '1'`) and rejects steps that name two tasks;
+- `IsValueOfType` handles `nil` values and empty maps, and checks every map entry;
+- `EvaluateObject` keeps `nil` values in lists and maps (`toValue` / `setValue`) and reports type mismatches instead of panicking;
+- `threads` rejects less than 1 thread.
+
+### 2.3 [Major] Target stack corrupted after an error caught by `try`
+
+**Fix:** `Target.Run` and `RunParentTarget` pop the stack with `defer` right after a successful push, and `Stack.Push` no longer appends the target when it detects a loop. `TestStack` was updated accordingly.
+
+### 2.4 [Major] Inconsistent precedence of inherited targets
+
+**Fix:** `GetTargets` gives precedence to the last parent, like `GetTarget` and `GetProperties`: `-info` now shows the target that runs.
+
+### 2.5 [Major] The `version:` field is unusable with binaries built by `neon build`
+
+**Fix:** the version check is skipped when `NeonVersion` is not a release number (`IsReleaseVersion`), and `-update` says it runs a development version instead of announcing a new release. Version expressions of parents are now checked too, and a leading `=` is accepted. Version comparison was fixed afterwards (2.25).
+
+### 2.6 [Major] `3>` redirection corrupted, `3=` data race
+
+**Fix:** redirected files are opened once and shared between stdout and stderr. Output captured in properties goes through a mutex-protected builder (`syncBuilder`). `1=` and `2=` with different property names now capture separately.
+
+### 2.7 [Major] `1>>` / `2>>` / `3>>` fail if the file doesn't exist
+
+**Fix:** append redirections open the file with `O_CREATE`.
+
+### 2.8 [Major] `untar` doesn't truncate existing files
+
+**Fix:** files are opened with `O_TRUNC`, directory entries are created, and modification times are restored. Links are created since 2.26.
+
+### 2.9 [Major] `zip` doesn't compress
+
+**Fix:** `header.Method = zip.Deflate`. The 200 KB test file now compresses to a few hundred bytes.
+
+### 2.10 [Major] Ignored close errors
+
+**Fix:** `writeTar` and `writeZip` close the tar, gzip and zip writers explicitly, in order, and return their errors, as well as the error when closing the file. `unzip` closes each entry right after extraction (no more `defer` in the loop) and checks the error.
+
+### 2.11 [Major] Infinite loop if a `dotenv` file is a directory
+
+**Fix:** a single dotenv parser (`ReadDotEnv` in `context.go`), also used by the `dotenv` task, based on `bufio.Scanner` with lines up to 1 MB, which reports read errors. It accepts the `export` prefix and single or double quotes. The `dotenv` task parser also crashed on empty lines; it now uses the same parser.
+
+### 2.12 [Major] Environment variables
+
+**Fix (`EvaluateEnvironment`):**
+- an undefined `${VAR}` is left unchanged, `$` included;
+- errors in `={...}` expressions are reported;
+- variables set to an empty string are unset, as the user manual says (before, the value of the process environment was kept);
+- escaping handles any number of backslashes;
+- variables are evaluated after the build variables they reference, whatever their names, and cycles are reported.
+
+### 2.13 [Major] The build file's `repository:` field is never used
+
+**Fix:** the repository is now taken from, in order: the `-repo` option, the `repository:` field of the build file, the repository of the configuration file (`UserRepository`), then `~/.neon`.
+
+### 2.14 [Major] The `grey` and `time` options of the configuration file are overwritten
+
+**Fix:** command line options are combined with configuration (`opts.Grey || configuration.Grey`). The command line is now parsed before the configuration is loaded, so `-version` and `-help` work with a broken configuration file.
+
+### 2.15 [Minor] `$` (list) modifies the process `PATH`
+
+**Fix:** the executable is looked up in the computed `PATH` (`lookPath`) without changing the process environment. The global current directory is handled in 2.23.
+
+### 2.16 [Minor] `copy` of a file onto itself empties it
+
+**Fix:** `CopyFile` fails with `source and destination are the same file` when `os.SameFile` matches.
+
+### 2.17 [Minor] `replace` resets permissions and its order is random
+
+**Fix:** the file keeps its mode, and the longest strings are replaced first (deterministic result). The error message no longer mentions the copy task.
+
+### 2.18 [Minor] `threads` task
+
+**Fix:** less than 1 thread is an error. The first error stops other threads, which no longer start new iterations. The "done" message is printed before the task ends. The variable no longer shadows `error`.
+
+### 2.19 [Minor] `neon` task
+
+**Fix:** relative paths are resolved from the build directory (current directory for templates). Recursive calls are detected through the chain of called build files kept in the context (`Context.Calls`). Passed properties are set before build properties are evaluated (`Context.InitWithProperties`). The task help documents this.
+
+### 2.20 [Minor] Resolution of parent, script and template paths
+
+**Fix:**
+- repository regexps are anchored and escape the `.`;
+- `../` paths and relative paths without `./` to an existing `.yml` file are relative to the build file;
+- `filepath.IsAbs` replaces `path.IsAbs`;
+- `./` context scripts of a parent are resolved relative to the parent file (new `FileDir` field);
+- versions of parents are checked and `singleton` is inherited from parents (`GetSingleton`);
+- unused `RegexpLinkName` removed.
+
+Relative `dotenv` files of parents are handled in 2.24.
+
+### 2.21 [Minor] Miscellaneous
+
+**Fix:**
+- `ExpandUserHome` uses `os.UserHomeDir()` (no more nil dereference) and expands `~` alone;
+- `checkUnknownArgs` breaks out of its loop and its condition is explicit;
+- two tasks in the same step give a deterministic error;
+- `move` falls back to copy and remove across file systems (`EXDEV`);
+- `FindFiles` removes duplicates, skips broken symbolic links and reports glob errors other than "not found";
+- `-update` skips repository directories that are not git repositories;
+- the `chdir` error message shows the right directory and the cause;
+- the configuration is loaded after the command line is parsed (see 2.14).
+
+### 2.22 [Major] `singleton` task with `wait: true` busy-loops
+
+**Fix:** the wait loop pauses 20 ms between attempts (`singletonRetryDelay`; a 1 second pause first made the timing of `test/task/singleton.yml` fail), and an invalid port fails immediately instead of waiting forever.
+
+### 2.23 [Minor] Current directory is global to the process
+
+`Target.Run`, `call`, `chdir` and `neon` change the process current directory, which is shared by the threads of the `threads` task. A real per-thread directory is not possible without reworking builtins such as `exists()` or `find()`, which have no access to the context.
+**Fix (chosen behaviour: explicit error):** directory changes go through `build.Chdir`. While threads are running (`EnterParallel` / `LeaveParallel` in `threads`), changing to a directory other than the current one fails with `can't change directory to '…' while threads are running`. Changing to the current directory is still accepted, so calling targets of the same build in threads works. Running another build with the `neon` task, or a `chdir` to another directory, inside `threads` is now an error. Before, it silently mixed the directories of the threads. The `threads` and `neon` task help documents it.
+
+### 2.24 [Minor] Relative `dotenv` files of parents are resolved in the child directory
+
+**Fix (chosen behaviour: relative to the parent file):** relative `dotenv` paths are resolved when the build file is loaded: relative to the file that declares them for parents, like context scripts, and relative to the build directory for the main build file (unchanged). This is a behaviour change for parents that relied on loading the `.env` file of the project. The user manual documents it.
+
+### 2.25 [Minor] Version comparison details
+
+**Fix:** `Version.Compare` treats missing fields as zeros (`1.0` == `1.0.0`), then orders suffixes (`SNAPSHOT` < `ALPHA` < `BETA` < `RC` < release) and suffix numbers (`1.0-RC-1` < `1.0-RC-2`). `TestCompare`, which specified `0` < `0.0`, was updated. The four version builtins share `CompareNeonVersion`, which reports `NeON development version '…' can't be compared with a version number` instead of an obscure message.
+Using `panic` in builtins is not a bug: it is how Anko reports errors raised by Go functions. A function returning `(bool, error)` would be seen as a list of two values in expressions.
+
+### 2.26 [Minor] Other leftovers
+
+**Fix:**
+- `untar` creates symbolic and hard links, and `unzip` creates symbolic links. Extraction writes through `os.Root`, which refuses any write outside the destination directory, even through a link from the archive or one already in place. A hard link whose target is outside the directory is rejected.
+- the `neon` task no longer passes the repository of the calling build: the called build uses its own `repository:` field, unless one was set with `-repo` on the command line (`CommandLineRepository`).
+- `FindFiles` validates include and exclude patterns and reports invalid ones (such as `[bad`).
+
+### 3.1 [Minor] Errors printed on standard output
+
+`PrintError` wrote on stdout, while `update.go` used `println` (stderr) for some messages.
+**Fix:** `PrintError` writes on standard error (`ErrorOutput`, replaceable in tests), in color only if standard error is a terminal. Git outputs and errors of `-update` also go to standard error, through the same writer. Normal messages (titles, `OK`, build output) stay on standard output. This is a behaviour change for scripts that read `ERROR` messages from the standard output of neon.
+
+### 3.2 [Minor] Errors hiding their cause
+
+Fixed along with the functional bugs: errors of command line properties and configuration files now include the YAML error, and a command not found in `PATH` includes the cause.
+
+### 3.3 [Minor] Build duration always printed beyond 10 s
+
+**Fix:** the `time` setting of the configuration file has three states. `true` always prints the duration, `false` never prints it, and when not set the duration is printed for builds longer than 10 seconds (`AutoTimeThreshold`), as before. The `-time` option always prints it. The rule lives in `PrintDuration` (tested). The configuration example of the user manual no longer sets `time: false`, which would now disable the duration.
+
+### 4.1 [Quality] Dependency on `gopkg.in/yaml.v2`
+
+**Fix (chosen behaviour: migrate to YAML 1.2):** neon uses `go.yaml.in/yaml/v3`, the maintained module of the YAML organization. `yes`, `no`, `on` and `off` are now strings; only `true` and `false` are booleans. **This is a breaking change** (CHANGELOG entry bumped to 2.0.0, user manual updated). No build file in this repository or in `~/.neon` used these values as booleans.
+To keep the rest of the code unchanged, `util.DecodeYAML` walks the YAML node tree and produces the same types as before: mappings as `map[interface{}]interface{}`, sequences as `[]interface{}`, timestamps kept as strings (v3 would decode them as `time.Time`). Anchors, aliases and merge keys (`<<`) are supported. All decoding goes through `util` (`DecodeYAML`, `DecodeYAMLObject`, `UnmarshalYAML`), so there is a single place to change. `gopkg.in/yaml.v2` stays as an indirect dependency, required by `github.com/c4s4/changelog`.
+
+### 4.2 [Quality] `github.com/mcuadros/go-version`
+
+**Fix:** `sortversions` uses NeON's own `Version` (`build.SortVersions`), and the dependency is removed. It ignores a leading `v` (git tags), orders suffixes, and places invalid versions first. The suffix number may also be written `RC1` or `RC.1`. On the git tags of this repository, the result is the same as with the old library.
+
+### 4.3 [Quality] Imports grouping
+
+**Fix:** new `.golangci.yml` enabling the `gofmt` (simplify) and `gci` formatters, with three groups: standard library, third party, `github.com/c4s4/neon`. All files were reformatted with `golangci-lint fmt`, which only changes imports. `neon lint` now reports formatting issues, and the `fmt` target of `build.yml` runs `golangci-lint fmt` (AGENTS.md updated).
+
+### 4.4 [Quality] Heavy use of `reflect`
+
+**Fix:** `EvaluateObject` uses a type switch for YAML values (strings, `[]interface{}`, `map[interface{}]interface{}`), split into small functions. Reflection is kept only for other typed slices and maps returned by expressions. Validating and copying task arguments still relies on reflection: tasks declare their arguments as structures with `neon` tags, so reflection is the mechanism itself there, not an accident.
+
+### 4.5 [Quality] Leftover code
+
+**Fix:** removed the commented-out `TODO` in `EvaluateExpression`, and `request` uses `bytes.NewReader(body)`.
+
+### 4.6 [Quality] Redundant merges of inherited data
+
+**Fix:** `GetProperties`, `GetEnvironment` and `GetDotEnv` use the data of parents, already merged when they were loaded, instead of merging recursively again. `dotenv` files and context scripts inherited several times (diamond inheritance) are now loaded once, at their first position. Before, the scripts were run twice.
+
+### 5.1 [Major] Inconsistent Go versions
+
+**Fix:** `go.mod` (`go 1.27`) is the single source of truth. The CI reads it (`go-version-file: go.mod`), and `AGENTS.md` and `README.md` now say Go 1.27. The code needs at least Go 1.25 (`os.Root` methods), so 1.27 was kept rather than lowered.
+
+### 5.2 [Minor] Travis CI no longer running
+
+**Fix:** `.travis.yml` is replaced by `.github/workflows/ci.yml` (GitHub Actions), on pushes to `master` and `develop` and on pull requests, with read-only permissions. Actions are pinned by commit SHA. Two jobs:
+- tests with race detector and coverage (uploaded with the Codecov action), then the `test/bugs/` build files run with the freshly built binary;
+- golangci-lint v2.15.0, which also checks formatting.
+
+The README badge points to the workflow. **To do by the maintainer:** add the `CODECOV_TOKEN` secret. The workflow YAML was checked, but the workflow itself could not be run locally.
+
+### 5.3 [Minor] CHANGELOG missing changes of the previous review
+
+**Fix:** the 1.16.0 entry (2026-05-05, date of the "Merge develop-code-review" commit) now mentions inheritance cycle detection and the singleton listener goroutine leak. The other changes of that review (`Options` struct, `PrintError` no longer exiting) are internal and have no place in the CHANGELOG. The 2.0.0 entry mentions the move to GitHub Actions and the pinned tools.
+
+### 5.4 [Quality] `doc/code-review.md` in user documentation
+
+**Fix:** its content is merged in the [Previous review](#previous-review-2026-05-05) section below, and the file is removed from `doc/`.
+
+### 5.5 [Quality] Outdated `staticcheck`
+
+**Fix:** staticcheck is one of the standard linters of golangci-lint v2, now made explicit in `.golangci.yml`, so it doesn't need to be installed separately. While fixing this, a real problem showed up: `neon tools` installed `github.com/golangci/golangci-lint/cmd/golangci-lint@latest`, which is **v1** and can't read the v2 `.golangci.yml`. `build.yml` now overrides `GOTOOLS` with pinned versions (gox v1.0.1, golangci-lint v2.15.0, gobinsec v0.10.2). The golangci-lint version is the same as in the CI. `AGENTS.md` explains that they must be kept in sync. The old `staticcheck` binary in `~/.gotools/bin` can be deleted.
+**Also fixed:** `AGENTS.md` said the ldflags example of the README had a stale variable path, but it matches `build.yml`; the sentence was corrected.
+
+---
+
+## Previous review (2026-05-05)
+
+Summary of `doc/code-review.md` (in French, merged here and removed), with the status of each item. Fixes were released in 1.16.0 unless stated otherwise:
+
+- `ParseCommandLine` returned 24 values: replaced with an `Options` struct.
+- `PrintError` called `os.Exit(1)`, which prevented deferred cleanups and testing: errors are now returned up to `main`, which exits.
+- The singleton `ListenPort` goroutine looped forever after the listener was closed: the loop stops on `Accept` error.
+- Cyclic inheritance (`extends`) caused a stack overflow: cycle detection was added. Its implementation reported diamond inheritance as a cycle; that regression is fixed in 2.1 of this review.
+- Hard-coded configuration path: `NEON_CONFIG_PATH` environment variable added.
+- Migration to `gopkg.in/yaml.v3` suggested: done in 4.1 of this review (with `go.yaml.in/yaml/v3`).
+- Interfaces for `Build`, `Target` and `Context` suggested for mocking: rejected by the maintainer as not useful.
+- Anko updated to 0.1.12 (since then 0.1.15).
+

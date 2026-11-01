@@ -2,8 +2,9 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {

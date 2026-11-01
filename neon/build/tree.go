@@ -29,7 +29,7 @@ func (build *Build) SubTree(margin string, next bool) {
 	}
 }
 
-// name return name of given file without extension
+// name returns name of given file without extension
 func name(file string) string {
 	return file[:strings.LastIndex(file, ".")]
 }

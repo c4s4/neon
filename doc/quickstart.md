@@ -1,13 +1,13 @@
-# Neon Quick Start
+# NeON Quick Start
 
-Neon is a build tool, which means that its purpose is to automate a build process. Its design goals are:
+NeON is a build tool, which means that its purpose is to automate a build process. Its design goals are:
 
-- **Clean and simple build file syntax**: While XML is too verbose and a programming language too complicated, [YAML](http://www.yaml.org/) is perfect with its simple yet powerful syntax.
-- **Speed**: Slow startups are irritating while working with a build tool all day long. Neon happens to be as fast as Make, according to my tests on Make builds ported to Neon.
-- **System and language independent**: Neon is written in Go, which runs on most operating systems and hardware, and is not limited to building Go projects. Furthermore, using Neon tasks you can write platform independent builds.
-- **Scriptable**: when a task is complicated, it is very handy to script it with a real programming language. Neon build files can embed [Anko](http://github.com/mattn/anko) scripts, which have a syntax very close to Go.
+- **Clean and simple build file syntax**: While XML is too verbose and a programming language too complicated, [YAML](https://yaml.org/) is perfect with its simple yet powerful syntax.
+- **Speed**: Slow startups are irritating while working with a build tool all day long. NeON happens to be as fast as Make, according to my tests on Make builds ported to NeON.
+- **System and language independent**: NeON is written in Go, which runs on most operating systems and hardware, and is not limited to building Go projects. Furthermore, using NeON tasks you can write platform independent builds.
+- **Scriptable**: when a task is complicated, it is very handy to script it with a real programming language. NeON build files can embed [Anko](https://github.com/mattn/anko) scripts, which have a syntax very close to Go.
 
-To demonstrate these features, let's see what *Hello World!* looks like using Neon:
+To demonstrate these features, let's see what *Hello World!* looks like using NeON:
 
 ```yaml
 targets:
@@ -36,7 +36,7 @@ targets:
 
 We access the value of this property with `={PROP_NAME}` syntax. Thus, to get value for property `USER_NAME`, we must write `={USER_NAME}`.
 
-These properties live as variables defined in the context of the embedded [Anko VM](http://github.com/mattn/anko). Thus the content of `={...}` is evaluated as an Anko expression, and you can write *Anko* expressions, such as `={uppercase(USER_NAME)}`.
+These properties live as variables defined in the context of the embedded [Anko VM](https://github.com/mattn/anko). Thus the content of `={...}` is evaluated as an Anko expression, and you can write *Anko* expressions, such as `={uppercase(USER_NAME)}`.
 
 Properties may also have integer, list or hash values. To do so, you should use YAML syntax to write them:
 
@@ -65,7 +65,7 @@ $ neon hello
 string:  string
 integer: 1
 list:    [1, two]
-hash:    [one: 1, two: 2]
+hash:    {one: 1, two: 2}
 OK
 ```
 
@@ -101,9 +101,9 @@ Hello WORLD!
 OK
 ```
 
-Target *hello* now depends on target *upper* which puts `USER_NAME` in upper case. Thus, Neon runs first target *upper*, then target *hello*.
+Target *hello* now depends on target *upper* which puts `USER_NAME` in upper case. Thus, NeON runs first target *upper*, then target *hello*.
 
-When you don't pass any target on command line, Neon selects default one that you can set with `default` field in the build file:
+When you don't pass any target on command line, NeON selects default one that you can set with `default` field in the build file:
 
 ```yaml
 default: hello
@@ -123,9 +123,9 @@ default: [foo, bar]
 
 ## Tasks
 
-If targets are functions, tasks are instructions. They can be *shell* scripts, *Anko* code or *Neon* tasks:
+If targets are functions, tasks are instructions. They can be *shell* scripts, *Anko* code or *NeON* tasks:
 
-#### Shell scripts
+### Shell scripts
 
 To run a shell script, you use task named *$*. Thus, to print the user's name, we could write:
 
@@ -154,11 +154,11 @@ Will produce this output on the console:
 ```
 $ neon broken
 --------------------------------------------------------------------- broken --
-sh: 1: command-that-doesnt-exist: not found
+sh: command-that-doesnt-exist: command not found
 ERROR running target 'broken': in step 1: executing command: exit status 127
 ```
 
-A multi line shell scripts can be written using pipe character `|`:
+A multi line shell script can be written using pipe character `|`:
 
 ```yaml
 targets:
@@ -181,14 +181,13 @@ targets:
     - $: ['java', '-jar', 'echo.jar', 'Hello World!']
 ```
 
-This is useful to write build files that will run on Unix and Windows systems because Windows command interpreter is quite broken regarding options parsing with spaces. In lists, command line options are clearly separated and this
-avoids issues.
+This is useful to write build files that will run on Unix and Windows systems because Windows command interpreter is quite broken regarding options parsing with spaces. In lists, command line options are clearly separated and this avoids issues. Numbers, booleans and nested lists in commands as lists are converted to strings and flattened, so that you can write `['sleep', 1]` or `['go', 'test', =OPTIONS]` where *OPTIONS* is a list.
 
 Note that options in commands as lists won't be evaluated in a shell, thus an option like `${USER}` won't be evaluated. NeON will always evaluate NeON properties, thus an option such as `={USER}` would be evaluated.
 
-### Neon tasks
+### NeON tasks
 
-You could perform most of common build tasks with shell commands, but this would bind your build to a given platform. To develop platform independent builds, you should use Neon tasks. For instance, to copy all XML files to *build* directory, you could call `cp` system command, but you should instead use `copy` Neon task as follows:
+You could perform most of common build tasks with shell commands, but this would bind your build to a given platform. To develop platform independent builds, you should use NeON tasks. For instance, to copy all XML files to *build* directory, you could call `cp` system command, but you should instead use `copy` NeON task as follows:
 
 ```yaml
 targets:
@@ -199,11 +198,11 @@ targets:
       todir: "build"
 ```
 
-This will run on all platforms (Unices and Windows) provided you use slashes as path separator instead of platform dependent ones. Furthermore, in file related tasks, you can use extended globs where `**` replaces any number of directories, see [zglob documentation](http://github.com/mattn/zglob) for more information.
+This will run on all platforms (Unices and Windows) provided you use slashes as path separator instead of platform dependent ones. Furthermore, in file related tasks, you can use extended globs where `**` replaces any number of directories, see [zglob documentation](https://github.com/mattn/go-zglob) for more information.
 
-To list all available Neon tasks, type `neon -tasks` and to get help on a given one, type `neon -task copy` for instance.
+To list all available NeON tasks, type `neon -tasks` and to get help on a given one, type `neon -task copy` for instance.
 
-There are special Neon tasks that make it possible to control the execution flow of your build:
+There are special NeON tasks that make it possible to control the execution flow of your build:
 
 - **for/in/do**: to make a loop on a list and store value in a variable.
 - **if/then/else**: to control execution flow depending on a test.
@@ -270,31 +269,28 @@ targets:
       }
 ```
 
-In addition to Anko builtin functions, Neon adds handy builtins to perform common build tasks. For instance, function `exists(file)` tells if given file exists.
+In addition to Anko builtin functions, NeON adds handy builtins to perform common build tasks. For instance, function `exists(file)` tells if given file exists.
 
-To list all Neon builtins, type `neon -builtins` and to get help on a given function, type `neon -builtin exists` for instance.
+To list all NeON builtins, type `neon -builtins` and to get help on a given function, type `neon -builtin exists` for instance.
 
 ## Parent build files
 
-Your build file can extend existing ones. Parent build files may live in same directory or in a Neon repository, located in *~/.neon/*.
+Your build file can extend existing ones. Parent build files may live in same directory or in a NeON repository, located in *~/.neon/*.
 
-For instance, you can install *c4s4/build* parent build files with command `neon -install c4s4/build`. This will clone *Github* repository *git://github.com/c4s4/build.git* in your Neon repository *~/.neon/c4s4/build*.
+For instance, you can install *c4s4/build* parent build files with command `neon -install c4s4/build`. This will clone *Github* repository *https://github.com/c4s4/build.git* in your NeON repository *~/.neon/c4s4/build*.
 
 You can list parent build files located in your repository with command:
 
 ```bash
 $ neon -parents
-c4s4/build/archive.yml
-c4s4/build/buildir.yml
-c4s4/build/changelog.yml
-c4s4/build/django.yml
-c4s4/build/dotenv.yml
-c4s4/build/git.yml
+c4s4/build/common.yml
+c4s4/build/docker.yml
 c4s4/build/golang.yml
-c4s4/build/java.yml
-c4s4/build/python.yml
+c4s4/build/golib.yml
+c4s4/build/library.yml
+c4s4/build/rust.yml
+c4s4/build/rustlib.yml
 c4s4/build/slides.yml
-c4s4/build/xslt.yml
 ```
 
 You can then extend *golang* parent build file adding in your build file:
@@ -305,24 +301,18 @@ extends: c4s4/build/golang.yml
 
 This provides properties and targets you may list with `neon -info`.
 
-Parent build file projects may also contain templates. You can list templates in your Neon repository with:
+Parent build file projects may also contain templates. You can list templates in your NeON repository with:
 
 ```bash
 $ neon -templates
-c4s4/build/build.tpl
-c4s4/build/django.tpl
-c4s4/build/flask.tpl
 c4s4/build/golang.tpl
-c4s4/build/golangws.tpl
-c4s4/build/java.tpl
-c4s4/build/python.tpl
+c4s4/build/rust.tpl
 c4s4/build/slides.tpl
-c4s4/build/xslt.tpl
 ```
 
 You can then generate a *Golang* template project with `neon -template c4s4/build/golang.tpl`.
 
-You can play with example parent build file project at *http://github.com/c4s4/build* and customize it to match your need. Best way to create your parent build files is to take existing Neon build files and put them in a *Git* repository, and enjoy!
+You can play with example parent build file project at *https://github.com/c4s4/build* and customize it to match your need. Best way to create your parent build files is to take existing NeON build files and put them in a *Git* repository, and enjoy!
 
 ## Getting help
 
@@ -354,6 +344,6 @@ To get help about neon itself, you can:
 
 ## Go further
 
-Neon has much more to offer, see [User Manual](usermanual.md) for in-depth documentation, [Tasks Reference](tasks.md) and [Builtins Reference](builtins.md) for information about tasks and builtins functions.
+NeON has much more to offer, see [User Manual](usermanual.md) for in-depth documentation, [Tasks Reference](tasks.md) and [Builtins Reference](builtins.md) for information about tasks and builtins functions.
 
 *Enjoy!*

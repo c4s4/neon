@@ -4,14 +4,15 @@ import (
 	t "archive/tar"
 	"compress/gzip"
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
-	"github.com/c4s4/neon/neon/util"
 	"io"
 	"os"
 	p "path"
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/c4s4/neon/neon/build"
+	"github.com/c4s4/neon/neon/util"
 )
 
 func init() {
@@ -27,7 +28,7 @@ Arguments:
 - dir: root directory for glob, defaults to '.' (string, optional, file).
 - exclude: globs of files to exclude (strings, optional, file, wrap).
 - tofile: name of the tar file to create (string, file).
-- prefix: prefix directory in the archive (optional).
+- prefix: prefix directory in the archive (string, optional).
 
 Examples:
 
@@ -66,25 +67,23 @@ func tar(context *build.Context, args interface{}) error {
 	return nil
 }
 
-func writeTar(dir string, files []string, prefix, to string) error {
+func writeTar(dir string, files []string, prefix, to string) (err error) {
 	stream, err := os.Create(to)
 	if err != nil {
 		return fmt.Errorf("creating tar archive: %v", err)
 	}
 	defer func() {
-		_ = stream.Close()
+		if e := stream.Close(); e != nil && err == nil {
+			err = fmt.Errorf("closing tar archive: %v", e)
+		}
 	}()
-	var fileWriter io.WriteCloser = stream
+	var gzipWriter *gzip.Writer
+	var fileWriter io.Writer = stream
 	if strings.HasSuffix(to, "gz") {
-		fileWriter = gzip.NewWriter(stream)
-		defer func() {
-			_ = fileWriter.Close()
-		}()
+		gzipWriter = gzip.NewWriter(stream)
+		fileWriter = gzipWriter
 	}
 	writer := t.NewWriter(fileWriter)
-	defer func() {
-		_ = writer.Close()
-	}()
 	for _, name := range files {
 		var file string
 		if dir != "" {
@@ -92,9 +91,17 @@ func writeTar(dir string, files []string, prefix, to string) error {
 		} else {
 			file = name
 		}
-		err := writeFileToTar(writer, file, name, prefix)
-		if err != nil {
+		if err := writeFileToTar(writer, file, name, prefix); err != nil {
 			return fmt.Errorf("writing stream to tar archive: %v", err)
+		}
+	}
+	// close writers in order to flush archive trailers
+	if err := writer.Close(); err != nil {
+		return fmt.Errorf("writing tar archive: %v", err)
+	}
+	if gzipWriter != nil {
+		if err := gzipWriter.Close(); err != nil {
+			return fmt.Errorf("compressing tar archive: %v", err)
 		}
 	}
 	return nil

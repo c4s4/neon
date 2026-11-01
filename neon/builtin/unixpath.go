@@ -22,7 +22,7 @@ Returns:
 Examples:
 
     # convert path to unix
-    uppercase("c:\foo\bar")
+    unixpath("c:\foo\bar")
     # returns: "/c/foo/bar"`,
 	})
 }

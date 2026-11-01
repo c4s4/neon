@@ -1,14 +1,15 @@
 package util
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
-	"os/user"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
+	"syscall"
 
 	"github.com/mattn/go-zglob"
 )
@@ -77,13 +78,17 @@ func CopyFile(source, dest string) error {
 	if err != nil {
 		return fmt.Errorf("opening source file '%s': %v", source, err)
 	}
+	defer func() {
+		_ = from.Close()
+	}()
 	info, err := from.Stat()
 	if err != nil {
 		return fmt.Errorf("getting mode of source file '%s': %v", source, err)
 	}
-	defer func() {
-		_ = from.Close()
-	}()
+	// copying a file onto itself would truncate it
+	if destInfo, err := os.Stat(dest); err == nil && os.SameFile(info, destInfo) {
+		return fmt.Errorf("source and destination are the same file '%s'", source)
+	}
 	to, err := os.Create(dest)
 	if err != nil {
 		return fmt.Errorf("creating destination file '%s': %v", dest, err)
@@ -112,7 +117,7 @@ func CopyFile(source, dest string) error {
 // - dir: root directory
 // - files: globs of source files
 // - toDir: destination directory
-// - flatten: tells if files should be flatten in destination directory
+// - flatten: tells if files should be flattened in destination directory
 // Return: an error if something went wrong
 func CopyFilesToDir(dir string, files []string, toDir string, flatten bool) error {
 	if stat, err := os.Stat(toDir); err != nil || !stat.IsDir() {
@@ -149,7 +154,7 @@ func CopyFilesToDir(dir string, files []string, toDir string, flatten bool) erro
 // - dir: root directory of source files
 // - files: globs of files to move
 // - toDir: destination directory
-// - flatten: tells if files should be flatten in destination directory
+// - flatten: tells if files should be flattened in destination directory
 // Return: an error if something went wrong
 func MoveFilesToDir(dir string, files []string, toDir string, flatten bool) error {
 	dir = ExpandUserHome(dir)
@@ -174,22 +179,39 @@ func MoveFilesToDir(dir string, files []string, toDir string, flatten bool) erro
 				}
 			}
 		}
-		err := os.Rename(source, dest)
-		if err != nil {
+		if err := moveFile(source, dest); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// ExpandUserHome expand path starting with "~/":
+// moveFile moves a file, copying it if it can't be renamed because source and
+// destination are on different file systems:
+// - source: the source file
+// - dest: the destination file
+// Return: an error if something went wrong
+func moveFile(source, dest string) error {
+	err := os.Rename(source, dest)
+	if err == nil || !errors.Is(err, syscall.EXDEV) {
+		return err
+	}
+	if err := CopyFile(source, dest); err != nil {
+		return err
+	}
+	return os.Remove(source)
+}
+
+// ExpandUserHome expands path "~" or starting with "~/":
 // - path: the path to expand
-// Return: expanded path
+// Return: expanded path (unchanged if user home can't be found)
 func ExpandUserHome(path string) string {
-	if strings.HasPrefix(path, "~/") {
-		user, _ := user.Current()
-		home := user.HomeDir
-		path = filepath.Join(home, path[2:])
+	if path == "~" || strings.HasPrefix(path, "~/") {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return path
+		}
+		path = filepath.Join(home, path[1:])
 	}
 	return path
 }
@@ -222,14 +244,20 @@ func PathToWindows(path string) string {
 	return path
 }
 
-// FindFiles finds files in the context:
+// FindFiles finds files in a directory:
 // - dir: the search root directory (current dir if empty)
 // - includes: the list of globs to include
 // - excludes: the list of globs to exclude
 // - folder: tells if we should include folders
-// Return the list of files as a slice of strings
+// Return: the sorted list of files relative to dir, and an error if a pattern
+// is invalid
 func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, error) {
 	var err error
+	for _, pattern := range append(append([]string{}, includes...), excludes...) {
+		if _, err := filepath.Match(pattern, ""); err != nil {
+			return nil, fmt.Errorf("invalid pattern '%s': %v", pattern, err)
+		}
+	}
 	included := joinPath(dir, includes)
 	excluded := joinPath(dir, excludes)
 	included, err = filterFolders(included, folder)
@@ -242,12 +270,23 @@ func FindFiles(dir string, includes, excludes []string, folder bool) ([]string, 
 		return nil, err
 	}
 	sort.Strings(files)
-	return files, nil
+	return removeDuplicates(files), nil
 }
 
-// FindInPath search given executable in PATH:
+// removeDuplicates removes duplicates in a sorted list
+func removeDuplicates(files []string) []string {
+	var unique []string
+	for i, file := range files {
+		if i == 0 || file != files[i-1] {
+			unique = append(unique, file)
+		}
+	}
+	return unique
+}
+
+// FindInPath searches given executable in PATH:
 // - executable: executable to search.
-// Return: list of directories containing executable
+// Return: list of paths of the executable, in the order of the PATH
 func FindInPath(executable string) []string {
 	path := os.Getenv("PATH")
 	dirs := strings.Split(path, string(os.PathListSeparator))
@@ -275,10 +314,17 @@ func joinPath(dir string, paths []string) []string {
 func filterFolders(included []string, folder bool) ([]string, error) {
 	var candidates []string
 	for _, include := range included {
-		list, _ := zglob.Glob(include)
+		list, err := zglob.Glob(include)
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
+			return nil, fmt.Errorf("searching files '%s': %v", include, err)
+		}
 		for _, file := range list {
 			stat, err := os.Stat(file)
 			if err != nil {
+				// skip broken symbolic links
+				if _, lerr := os.Lstat(file); lerr == nil {
+					continue
+				}
 				return nil, fmt.Errorf("stating file: %v", err)
 			}
 			if stat.Mode().IsRegular() ||

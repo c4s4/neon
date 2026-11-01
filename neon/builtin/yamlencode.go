@@ -16,13 +16,13 @@ Arguments:
 
 Returns:
 
-- Json encoded string.
+- YAML encoded string.
 
 Examples:
 
     # encode given list
     yamlencode(["foo", "bar"])
-    # returns: "['foo', 'bar']"`,
+    # returns: '["foo", "bar"]'`,
 	})
 }
 

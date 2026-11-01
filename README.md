@@ -1,6 +1,6 @@
 # NeON
 
-<!--[![Build Status](https://travis-ci.org/c4s4/neon.svg?branch=master)](https://travis-ci.org/c4s4/neon)-->
+[![CI](https://github.com/c4s4/neon/actions/workflows/ci.yml/badge.svg)](https://github.com/c4s4/neon/actions/workflows/ci.yml)
 [![Code Quality](https://goreportcard.com/badge/github.com/c4s4/neon)](https://goreportcard.com/report/github.com/c4s4/neon)
 [![Codecov](https://codecov.io/gh/c4s4/neon/branch/master/graph/badge.svg)](https://codecov.io/gh/c4s4/neon)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
@@ -33,10 +33,10 @@ sh -c "$(wget -O - https://sweetohm.net/dist/neon/install)"
 Go developers can install latest release with following command:
 
 ```bash
-go get -u github.com/c4s4/neon
+go install github.com/c4s4/neon/neon@latest
 ```
 
-Note that *NeON* built this way won't display version number with `neon -version` command and that you must build with Go *1.26.5* or newer.
+Note that *NeON* built this way won't display version number with `neon -version` command and that you must build with Go *1.27* or newer.
 
 ### Binary package
 
@@ -44,7 +44,7 @@ Otherwise, you can download latest binary archive at <https://github.com/c4s4/ne
 
 ### Bash completion
 
-Unix users can add Bash completion by putting file *bash_completion_neon* in the */etc/bash_completion.d/* directory and adding the following line to *~/.bashrc*:
+Unix users can add Bash completion by copying file *bash_completion_neon* as */etc/bash_completion.d/neon* and adding the following line to *~/.bashrc*:
 
 ```bash
 . /etc/bash_completion.d/neon
@@ -58,20 +58,20 @@ This will enable following completions:
 
 ## Documentation
 
-There are four sources of documentation:
+There are five sources of documentation:
 
 - [The quick start guide](doc/quickstart.md)
 - [The user manual](doc/usermanual.md)
 - [The tasks reference](doc/tasks.md)
 - [The builtins reference](doc/builtins.md)
-- [Slides in French](http://sweetohm.net/slides/slides-neon)
+- [Slides in French](https://sweetohm.net/slides/slides-neon)
 
 ## Build
 
-This project uses Go modules, thus you must use Go version *1.26.5* or above to build *NeON*. To build the project without *NeON* already installed, follow these steps:
+This project uses Go modules, thus you must use Go version *1.27* or above to build *NeON*. To build the project without *NeON* already installed, follow these steps:
 
 - Clone the project with `git clone git@github.com:c4s4/neon.git`.
-- Go into the project directory, that must be *outside* your *GOPATH*.
+- Go into the project directory.
 - Build the binary with command
    `go build -ldflags "-X github.com/c4s4/neon/neon/build.NeonVersion=VERSION" ./neon`
 

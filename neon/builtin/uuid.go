@@ -1,8 +1,9 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	guuid "github.com/google/uuid"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -17,7 +18,7 @@ Returns:
 
 Examples:
 
-    # generate an UUID
+    # generate a UUID
     uuid()
     # returns: "9063eafd-40b9-48d9-bf90-ce44e9207821"`,
 	})

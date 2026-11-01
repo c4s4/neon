@@ -1,8 +1,9 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -25,7 +26,7 @@ Examples:
 
     # get a list of foo
     list(foo)
-	# return foo if already a list or [foo] otherwise`,
+    # returns foo if already a list or [foo] otherwise`,
 	})
 }
 

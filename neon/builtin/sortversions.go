@@ -2,8 +2,6 @@ package builtin
 
 import (
 	"github.com/c4s4/neon/neon/build"
-
-	"github.com/mcuadros/go-version"
 )
 
 func init() {
@@ -20,6 +18,12 @@ Returns:
 
 - nothing but slice of versions is sorted
 
+Notes:
+
+- A leading 'v' (as in git tags such as 'v1.2.3') is ignored.
+- Suffixes are ordered: SNAPSHOT < ALPHA < BETA < RC < release.
+- Strings that are not valid versions are placed first.
+
 Examples:
 
     # sort version ["1.10", "1.1", "1.2"]
@@ -29,5 +33,5 @@ Examples:
 }
 
 func sortVersions(versions []string) {
-	version.Sort(versions)
+	build.SortVersions(versions)
 }

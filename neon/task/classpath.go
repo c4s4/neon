@@ -12,13 +12,11 @@ import (
 
 	"github.com/c4s4/neon/neon/build"
 	"github.com/c4s4/neon/neon/util"
-
-	"gopkg.in/yaml.v2"
 )
 
 const (
 	// DefaultRepository is default repository location
-	DefaultRepository = "http://central.maven.org/maven2"
+	DefaultRepository = "https://repo1.maven.org/maven2"
 )
 
 // LocalRepository is default location for local repository
@@ -41,9 +39,9 @@ Arguments:
   wrap).
 - scopes: classpath scope (strings, optional, wrap). If set, will take
   dependencies without scope and listed scopes, if not set, will only take
-  dependencies without scope).
+  dependencies without scope.
 - repositories: repository URLs to get dependencies from, defaults to
-  'http://repo1.maven.org/maven2' (strings, optional, wrap).
+  'https://repo1.maven.org/maven2' (strings, optional, wrap).
 - todir: directory to copy jar files into (string, optional, file).
 
 Examples:
@@ -86,7 +84,7 @@ type classpathArgs struct {
 	Todir        string   `neon:"optional,file"`
 }
 
-// Classpath builds a Java classpath.
+// classpath builds a Java classpath.
 func classpath(context *build.Context, args interface{}) error {
 	params := args.(classpathArgs)
 	// get dependencies
@@ -148,7 +146,7 @@ func getDependency(file string, scopes, repositories []string, context *build.Co
 	if err != nil {
 		return nil, err
 	}
-	err = yaml.Unmarshal(source, &dependencies)
+	err = util.UnmarshalYAML(source, &dependencies)
 	if err != nil {
 		return nil, err
 	}
@@ -226,10 +224,13 @@ type dependency struct {
 	Scopes   []string
 }
 
+// Path returns the path of the jar file of the dependency in given root
+// directory of a Maven repository
 func (d *dependency) Path(root string) string {
 	return fmt.Sprintf("%s/%s/%s/%s/%s-%s.jar", root, strings.ReplaceAll(d.Group, ".", "/"), d.Artifact, d.Version, d.Artifact, d.Version)
 }
 
+// String returns the dependency as "group/artifact/version"
 func (d *dependency) String() string {
 	return fmt.Sprintf("%s/%s/%s", d.Group, d.Artifact, d.Version)
 }

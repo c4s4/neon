@@ -4,12 +4,13 @@ import (
 	z "archive/zip"
 	"compress/flate"
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
-	"github.com/c4s4/neon/neon/util"
 	"io"
 	"os"
 	"path/filepath"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
+	"github.com/c4s4/neon/neon/util"
 )
 
 func init() {
@@ -59,21 +60,20 @@ func zip(context *build.Context, args interface{}) error {
 	return nil
 }
 
-func writeZip(dir string, files []string, prefix, to string) error {
+func writeZip(dir string, files []string, prefix, to string) (err error) {
 	archive, err := os.Create(to)
 	if err != nil {
 		return fmt.Errorf("creating zip archive: %v", err)
 	}
 	defer func() {
-		_ = archive.Close()
+		if e := archive.Close(); e != nil && err == nil {
+			err = fmt.Errorf("closing zip archive: %v", e)
+		}
 	}()
 	zipper := z.NewWriter(archive)
 	zipper.RegisterCompressor(z.Deflate, func(out io.Writer) (io.WriteCloser, error) {
 		return flate.NewWriter(out, flate.BestCompression)
 	})
-	defer func() {
-		_ = zipper.Close()
-	}()
 	for _, file := range files {
 		var path string
 		if dir != "" {
@@ -81,10 +81,13 @@ func writeZip(dir string, files []string, prefix, to string) error {
 		} else {
 			path = file
 		}
-		err := writeFileToZip(zipper, path, file, prefix)
-		if err != nil {
+		if err := writeFileToZip(zipper, path, file, prefix); err != nil {
+			_ = zipper.Close()
 			return fmt.Errorf("writing file to zip archive: %v", err)
 		}
+	}
+	if err := zipper.Close(); err != nil {
+		return fmt.Errorf("writing zip archive: %v", err)
 	}
 	return nil
 }
@@ -110,6 +113,7 @@ func writeFileToZip(zipper *z.Writer, path, name, prefix string) error {
 		name = prefix + "/" + name
 	}
 	header.Name = name
+	header.Method = z.Deflate
 	writer, err := zipper.CreateHeader(header)
 	if err != nil {
 		return err

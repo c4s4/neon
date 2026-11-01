@@ -1,8 +1,9 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"strings"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -13,7 +14,7 @@ func init() {
 
 Arguments:
 
-- The strings where take place replacements.
+- The string in which replacements take place.
 - The substring to replace.
 - The replacement substring.
 

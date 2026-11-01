@@ -28,7 +28,7 @@ Examples:
 
 Notes:
 
-- If the file already exists it changes it modification time.
+- If the file already exists it changes its modification time.
 - If the file doesn't exist, it creates an empty file.`,
 	})
 }

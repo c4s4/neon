@@ -8,9 +8,9 @@ require (
 	github.com/gen2brain/beeep v0.11.2
 	github.com/google/uuid v1.6.0
 	github.com/mattn/anko v0.1.15
+	github.com/mattn/go-isatty v0.0.24
 	github.com/mattn/go-zglob v0.0.6
-	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2
-	gopkg.in/yaml.v2 v2.4.0
+	go.yaml.in/yaml/v3 v3.0.6
 )
 
 require (
@@ -20,10 +20,10 @@ require (
 	github.com/godbus/dbus/v5 v5.2.2 // indirect
 	github.com/jackmordaunt/icns/v3 v3.0.1 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
-	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/sergeymakinen/go-bmp v1.0.0 // indirect
 	github.com/sergeymakinen/go-ico v1.0.0 // indirect
 	github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af // indirect
 	golang.org/x/sys v0.47.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

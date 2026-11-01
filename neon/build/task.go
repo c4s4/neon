@@ -2,14 +2,17 @@ package build
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/util"
 	"reflect"
+	"strconv"
 	"strings"
+	"time"
+
+	"github.com/c4s4/neon/neon/util"
 )
 
-// character for expressions
+// characters and tags for task arguments
 const (
-	// character that start expressions
+	// character that starts expressions
 	CharExpression = "="
 	// expression curly brace
 	CurlyExpression = "{"
@@ -23,15 +26,19 @@ const (
 	FieldFile = "file"
 	// field is an expression
 	FieldExpression = "expression"
-	// field should be rapped in a slice of its type
+	// field should be wrapped in a slice of its type
 	FieldWrap = "wrap"
 	// field is a list of steps
 	FieldSteps = "steps"
 	// field has a different name
 	FieldName = "name"
+	// scalars (numbers, booleans, dates and bytes) in field (or in its list
+	// elements or map values) are converted to strings, and nested lists in a
+	// list field are flattened
+	FieldStrings = "strings"
 )
 
-// TaskMap is a map that gives constructor for given task name
+// TaskMap is a map that gives task descriptor for given task name
 var TaskMap = make(map[string]TaskDesc)
 
 // AddTask adds a task in the map:
@@ -47,11 +54,11 @@ func AddTask(task TaskDesc) {
 	TaskMap[task.Name] = task
 }
 
-// CheckTaskArgs checks that task argument names don't collide with with the
+// CheckTaskArgs checks that task argument names don't collide with the
 // name of an existing task. For instance, a task can't have an argument named
 // copy as a task named copy already exists.
-// - map: the tasks map.
-// - task: the task description.
+// - m: the tasks map.
+// - t: the task description.
 // Return: an error if argument collides.
 func CheckTaskArgs(m map[string]TaskDesc, t TaskDesc) error {
 	for n := range m {
@@ -78,7 +85,8 @@ func HasField(t reflect.Type, n string) bool {
 	return false
 }
 
-// TaskDesc is a task descriptor is made of a task constructor and an help string
+// TaskDesc is a task descriptor, made of the task name, the type of its
+// arguments, the function that runs it and a help string
 type TaskDesc struct {
 	Name string
 	Args reflect.Type
@@ -143,18 +151,20 @@ func checkArgumentType(field reflect.StructField, args TaskArgs) (string, error)
 }
 
 func checkUnknownArgs(fields []string, args TaskArgs) error {
-	if len(fields) != 0 || len(args) != 1 {
-		for name := range args {
-			found := false
-			for _, n := range fields {
-				if n == name {
-					found = true
-					continue
-				}
+	// a task without arguments only has its name as key
+	if len(fields) == 0 && len(args) == 1 {
+		return nil
+	}
+	for name := range args {
+		found := false
+		for _, n := range fields {
+			if n == name {
+				found = true
+				break
 			}
-			if !found {
-				return fmt.Errorf("unknown parameter '%s'", name)
-			}
+		}
+		if !found {
+			return fmt.Errorf("unknown parameter '%v'", name)
 		}
 	}
 	return nil
@@ -165,6 +175,9 @@ func checkUnknownArgs(fields []string, args TaskArgs) error {
 // - value: the value of the argument
 // Return: a bool that tells if type is OK
 func CheckType(field reflect.StructField, value interface{}) bool {
+	if FieldIs(field, FieldStrings) {
+		value = toStrings(field, value)
+	}
 	valueType := reflect.TypeOf(value)
 	// if field is optional and argument nil, it's OK
 	if value == nil {
@@ -196,30 +209,45 @@ func CheckType(field reflect.StructField, value interface{}) bool {
 // - type: the type to check as a reflect.Type
 // Return: a bool telling if value is of given type
 func IsValueOfType(value interface{}, typ reflect.Type) bool {
+	// nil values (null in YAML) are only accepted for interface types
+	if value == nil {
+		return typ.Kind() == reflect.Interface
+	}
+	valueType := reflect.TypeOf(value)
 	// if value is of given type it's true
-	if reflect.TypeOf(value) == typ {
+	if valueType == typ {
+		return true
+	}
+	// any value fits in an empty interface
+	if typ.Kind() == reflect.Interface && valueType.Implements(typ) {
 		return true
 	}
 	// if value and type are slices, test elements
-	if reflect.TypeOf(value).Kind() == reflect.Slice && typ.Kind() == reflect.Slice {
-		for i := 0; i < reflect.ValueOf(value).Len(); i++ {
-			if !IsValueOfType(reflect.ValueOf(value).Index(i).Interface(), typ.Elem()) {
+	if valueType.Kind() == reflect.Slice && typ.Kind() == reflect.Slice {
+		slice := reflect.ValueOf(value)
+		for i := 0; i < slice.Len(); i++ {
+			if !IsValueOfType(slice.Index(i).Interface(), typ.Elem()) {
 				return false
 			}
 		}
 		return true
 	}
-	// if value and type are maps, test key and value
-	if reflect.TypeOf(value).Kind() == reflect.Map && typ.Kind() == reflect.Map {
-		key := reflect.ValueOf(value).MapKeys()[0].Interface()
-		val := reflect.ValueOf(value).MapIndex(reflect.ValueOf(key)).Interface()
-		return IsValueOfType(key, typ.Key()) && IsValueOfType(val, typ.Elem())
+	// if value and type are maps, test all keys and values
+	if valueType.Kind() == reflect.Map && typ.Kind() == reflect.Map {
+		iter := reflect.ValueOf(value).MapRange()
+		for iter.Next() {
+			if !IsValueOfType(iter.Key().Interface(), typ.Key()) ||
+				!IsValueOfType(iter.Value().Interface(), typ.Elem()) {
+				return false
+			}
+		}
+		return true
 	}
 	// else return false
 	return false
 }
 
-// EvaluateTaskArgs builds task arguments from task params and return it
+// EvaluateTaskArgs builds task arguments from task params and returns them
 // - args: task arguments parsed in build file
 // - typ: the type of the arguments
 // - context: the build context to evaluate arguments into
@@ -255,6 +283,10 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (result
 			if err != nil {
 				return nil, err
 			}
+			// flatten lists and convert scalars to strings if necessary
+			if FieldIs(field, FieldStrings) {
+				val = toStrings(field, val)
+			}
 			// evaluate strings to replace "={expression}" with its value
 			if reflect.TypeOf(val).Kind() == reflect.String {
 				val = evaluateStrings(val, field)
@@ -264,6 +296,10 @@ func EvaluateTaskArgs(args TaskArgs, typ reflect.Type, context *Context) (result
 				slice := reflect.New(field.Type).Elem()
 				slice = reflect.Append(slice, reflect.ValueOf(val))
 				val = slice.Interface()
+			}
+			// check type of converted values, to report a clear error
+			if FieldIs(field, FieldStrings) && !IsValueOfType(val, field.Type) {
+				return nil, fmt.Errorf("field '%s' must be of type '%s' ('%v' provided)", name, field.Type, val)
 			}
 			// put value in params
 			CopyValue(reflect.ValueOf(val), value.Field(i))
@@ -296,6 +332,9 @@ func evaluateExpression(field reflect.StructField, val interface{}, context *Con
 	if err != nil {
 		return nil, err
 	}
+	if FieldIs(field, FieldStrings) {
+		val = toStrings(field, val)
+	}
 	expected := field.Type
 	actual := reflect.TypeOf(val)
 	if actual != expected {
@@ -319,7 +358,7 @@ func evaluateExpression(field reflect.StructField, val interface{}, context *Con
 	return val, nil
 }
 
-// CopyValue copy given value in another
+// CopyValue copies given value in another
 // - orig: origin value
 // - dest: destination value
 func CopyValue(orig, dest reflect.Value) {
@@ -356,6 +395,134 @@ func CopyValue(orig, dest reflect.Value) {
 	{
 		dest.Set(orig)
 	}
+}
+
+// toStrings flattens lists (for list fields) and converts scalars to strings
+func toStrings(field reflect.StructField, value interface{}) interface{} {
+	if field.Type.Kind() == reflect.Slice {
+		value = FlattenLists(value)
+	}
+	return ScalarsToStrings(value)
+}
+
+// FlattenLists flattens nested lists in a list: ["a", ["b", ["c"]]] gives
+// ["a", "b", "c"]. Byte slices are not considered as lists. Values that are
+// not lists, or lists without nested list, are returned unchanged.
+// - value: the value to flatten
+// Return: flattened value
+func FlattenLists(value interface{}) interface{} {
+	if !isList(value) {
+		return value
+	}
+	source := reflect.ValueOf(value)
+	nested := false
+	for i := 0; i < source.Len(); i++ {
+		if isList(source.Index(i).Interface()) {
+			nested = true
+			break
+		}
+	}
+	if !nested {
+		return value
+	}
+	var result []interface{}
+	flattenInto(&result, value)
+	return result
+}
+
+func flattenInto(result *[]interface{}, value interface{}) {
+	if !isList(value) {
+		*result = append(*result, value)
+		return
+	}
+	source := reflect.ValueOf(value)
+	for i := 0; i < source.Len(); i++ {
+		flattenInto(result, source.Index(i).Interface())
+	}
+}
+
+// isList tells if value is a list (a slice that is not a byte slice)
+func isList(value interface{}) bool {
+	if value == nil {
+		return false
+	}
+	typ := reflect.TypeOf(value)
+	return typ.Kind() == reflect.Slice && typ.Elem().Kind() != reflect.Uint8
+}
+
+// ScalarsToStrings converts scalars (numbers, booleans, dates and bytes) to strings:
+// the value itself, elements of a list or values of a map. Other values are
+// returned unchanged. Floats are written without exponent and trailing zeros
+// (thus 1.0 gives "1"), booleans as "true" or "false" and dates in RFC 3339
+// format. Note that unquoted dates in YAML files are already strings.
+// - value: the value to convert
+// Return: converted value
+func ScalarsToStrings(value interface{}) interface{} {
+	if str, ok := ScalarToString(value); ok {
+		return str
+	}
+	if value == nil {
+		return nil
+	}
+	switch reflect.TypeOf(value).Kind() {
+	case reflect.Slice:
+		if !isList(value) {
+			return value
+		}
+		source := reflect.ValueOf(value)
+		converted := false
+		list := make([]interface{}, source.Len())
+		for i := 0; i < source.Len(); i++ {
+			element := source.Index(i).Interface()
+			if str, ok := ScalarToString(element); ok {
+				element = str
+				converted = true
+			}
+			list[i] = element
+		}
+		if converted {
+			return list
+		}
+	case reflect.Map:
+		source := reflect.ValueOf(value)
+		converted := false
+		result := make(map[interface{}]interface{}, source.Len())
+		iter := source.MapRange()
+		for iter.Next() {
+			element := iter.Value().Interface()
+			if str, ok := ScalarToString(element); ok {
+				element = str
+				converted = true
+			}
+			result[iter.Key().Interface()] = element
+		}
+		if converted {
+			return result
+		}
+	}
+	return value
+}
+
+// ScalarToString converts a scalar (number, boolean, date or bytes) to a
+// string:
+// - value: the value to convert
+// Return: the string and a boolean telling if value was a scalar to convert
+func ScalarToString(value interface{}) (string, bool) {
+	switch scalar := value.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		return fmt.Sprintf("%d", scalar), true
+	case float32:
+		return strconv.FormatFloat(float64(scalar), 'f', -1, 32), true
+	case float64:
+		return strconv.FormatFloat(scalar, 'f', -1, 64), true
+	case bool:
+		return strconv.FormatBool(scalar), true
+	case time.Time:
+		return scalar.Format(time.RFC3339), true
+	case []byte:
+		return string(scalar), true
+	}
+	return "", false
 }
 
 // FieldIs tells if given field tag contains quality

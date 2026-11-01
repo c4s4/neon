@@ -2,9 +2,9 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
-	"os"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -21,11 +21,13 @@ Arguments:
 Examples:
 
     # go to build directory
-    - chdir: "github.com/c4s4/neon/neon/build"
+    - chdir: "build"
 
 Notes:
 
-- Working directory is set to the build file directory before each target.`,
+- Working directory is set to the build file directory before each target.
+- Changing to another directory while threads are running raises an error, as
+  current directory is shared by all threads.`,
 	})
 }
 
@@ -36,7 +38,7 @@ type chdirArgs struct {
 func chdir(context *build.Context, args interface{}) error {
 	params := args.(chdirArgs)
 	context.MessageArgs("Changing working directory to '%s'", params.Chdir)
-	err := os.Chdir(params.Chdir)
+	err := build.Chdir(params.Chdir)
 	if err != nil {
 		return fmt.Errorf("changing working directory to '%s': %s", params.Chdir, err)
 	}

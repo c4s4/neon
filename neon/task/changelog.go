@@ -2,9 +2,11 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/changelog/lib"
-	"github.com/c4s4/neon/neon/build"
 	"reflect"
+
+	"github.com/c4s4/changelog/lib"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -17,12 +19,12 @@ func init() {
 Arguments:
 
 - changelog: the name of the changelog file (look for changelog in current
-  directory if omitted).
+  directory if omitted) (string, optional, file).
 
 Note:
 
-- The changelog information are stored in _changelog property that is a list of
-  releases objects with fields Version, Date and Summary.
+- The changelog information is stored in _changelog property that is a list
+  of release objects with fields Version, Date and Summary.
 
 Examples:
 

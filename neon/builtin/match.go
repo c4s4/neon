@@ -1,8 +1,9 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"regexp"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -18,13 +19,13 @@ Arguments:
 
 Returns:
 
-- A boolean telling string matches regular expression.
+- A boolean telling if string matches regular expression.
 
 Examples:
 
-    # tell if string "neon" marchs "n..n" regular expression:
+    # tell if string "neon" matches "n..n" regular expression:
     match("n..n", "neon")
-    # return true`,
+    # returns: true`,
 	})
 }
 

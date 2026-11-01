@@ -6,19 +6,20 @@ NeON is a build tool (YAML-driven, `build.yml`) written in Go. The repo dogfoods
 
 - Daily work: `neon <target>` from the repo root (`neon -targets` lists all). Avoid bare `neon` — the default target is `clean, fmt, lint, test, bugs`, and `clean` wipes `build/` plus the Go build/test cache.
 - `neon test` — runs `go test -cover ./...`. This also executes the YAML integration tests (see Testing), so it is the main verification step.
-- `neon build` — builds `build/neon` for the current platform, injecting the version via `-ldflags -X github.com/c4s4/neon/neon/build.NeonVersion=$(git rev-parse --short HEAD)`. Without that flag `neon -version` prints `UNKNOWN`.
-- `neon bugs` — regression suite (see Testing); depends on `build` and invokes the `neon` binary from PATH.
-- `neon fmt` / `neon lint` — `gofmt -s -w .` and `golangci-lint run` (lint needs the tool; `neon tools` installs gox, golangci-lint, gobinsec).
-- Without neon installed, fall back to plain `go test ./...`, `gofmt -s`, `golangci-lint run`. CI (`.travis.yml`) runs `go test -race -covermode=atomic ./...` on Go 1.26.
+- `neon build` — builds `build/neon` for the current platform, injecting the version via `-ldflags -X github.com/c4s4/neon/neon/build.NeonVersion=<VERSION>` (`VERSION` is the first 8 characters of the git commit hash, see `c4s4/build/golang.yml`). Without that flag `neon -version` prints `UNKNOWN`.
+- `neon bugs` — regression suite (see Testing); depends on `build` and runs each file with the freshly built `build/neon` binary.
+- `neon fmt` / `neon lint` — `golangci-lint fmt ./...` (gofmt -s plus import grouping: stdlib, third party, `github.com/c4s4/neon`, configured in `.golangci.yml`) and `golangci-lint run`, which also reports formatting issues (`neon tools` installs gox, golangci-lint, gobinsec).
+- Without neon installed, fall back to plain `go test ./...`, `golangci-lint fmt ./...`, `golangci-lint run`. CI (`.github/workflows/ci.yml`, GitHub Actions) runs `go test -race` with coverage, the `test/bugs/` build files and golangci-lint, with the Go version read from `go.mod`.
 - Single package / single test: `go test -count=1 ./neon/builtin/`, `go test -count=1 -run TestIntegration ./neon/task/`.
-- Trust `build.yml` over the "Build" section of `README.md` (the README's ldflags example has a stale variable path).
+- `build.yml` is the reference for build commands; the "Build" section of `README.md` shows the equivalent plain `go build` command.
 
 ## Prerequisites / gotchas
 
 - `build.yml` extends `c4s4/build/golang.yml`, resolved from the neon plugin repository `~/.neon`. If neon fails to load the build file, install it with `neon -install c4s4/build`.
 - `configuration: '~/.neon/github.yml'` loads the maintainer's out-of-repo config (release token). `release`/`deploy` targets are maintainer-only; never commit secrets.
 - `build/` is gitignored local output (binaries, `build/tst` test scratch, PDFs) — never commit it.
-- Go modules; `go.mod` requires Go >= 1.26.5.
+- Go modules; `go.mod` requires Go >= 1.27 and is the single source of truth for the Go version (CI reads it).
+- Dev tools are pinned in `GOTOOLS` of `build.yml` (`neon tools`); keep the golangci-lint version in sync with `.github/workflows/ci.yml`. It must be v2 (`.golangci.yml` is a v2 config), which also runs staticcheck.
 
 ## Architecture
 
@@ -34,7 +35,7 @@ NeON is a build tool (YAML-driven, `build.yml`) written in Go. The repo dogfoods
 
 - Unit tests are colocated `*_test.go` files.
 - Integration tests are plain YAML build files: `test/builtin/*.yml` and `test/task/*.yml`, executed by `TestIntegration` inside each package when `go test` runs. They write scratch files under `build/tst`.
-- `test/bugs/` holds regression build files for past bugs (some with paired `.tst` mini build files); only run by the `bugs` target, i.e. `neon -file test/bugs/<name>.yml` per file.
+- `test/bugs/` holds regression build files for past bugs (some with paired `.tst` mini build files); only run by the `bugs` target, i.e. `build/neon -file test/bugs/<name>.yml` per file.
 - When reproducing a bug, add a build file under `test/bugs/` so it is covered by `neon bugs`.
 
 ## Conventions

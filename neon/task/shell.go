@@ -5,8 +5,10 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/c4s4/neon/neon/build"
 	"github.com/c4s4/neon/neon/util"
@@ -21,8 +23,10 @@ func init() {
 
 Arguments:
 
-- $: command to run (string or list of strings).
-- +: options to pass on command line after command (strings, optional).
+- $: command to run (string or list of strings, other scalars are converted
+  to strings).
+- +: options to pass on command line after command (strings, other scalars
+  are converted to strings, optional).
 - n=: write command output into named property. Values for n are: 1 for stdout,
   2 for stderr and 3 for stdout and stderr (string, optional).
 - n>: write command output in named file. Values for n are: 1 for stdout,
@@ -31,9 +35,11 @@ Arguments:
   2 for stderr and 3 for stdout and stderr (string, optional).
 - nx: disable command output. Values for n are: 1 for stdout, 2 for stderr and
   3 for stdout and stderr (boolean, optional).
-- <: send given text to standard input of the process (string, optional).
+- <: send given text to standard input of the process (string, other scalars
+  are converted to strings, optional).
 - :: print command on terminal before running it (boolean, optional).
-- env: environment variables to set running command (map of strings, optional).
+- env: environment variables to set running command (map of strings, other
+  scalars are converted to strings, optional).
 - cafe: prevent the system from going to sleep while the command is running
   (boolean, optional). Only supported on Linux (systemd-inhibit) and MacOS
   (caffeinate).
@@ -43,22 +49,33 @@ Examples:
     # execute ls command, put result in 'files' variable and disable output
     - $:  'ls -al'
       1=: 'files'
-	  1x: true
+      1x: true
     # execute command as a list of strings and output on console
     - $: ['ls', '-al']
+    # run go test with options and packages defined as lists in properties
+    - $: ['go', 'test', =TEST_OPTS, =PACKAGES]
     # run pylint on all python files except those in venv
     - $: 'pylint'
-      +: '=filter(find(".", "**/*.py"), "venv/**/*.py")
-	# run echo command passing environment variable
-	- $: 'echo "Hello $NAME!"'
-	  env:
-	    NAME: 'John'
+      +: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
+    # run echo command passing environment variable
+    - $: 'echo "Hello $NAME!"'
+      env:
+        NAME: 'John'
     # run a long command preventing the system from going to sleep
     - $: 'sleep 3600'
       cafe: true
 
 Notes:
 
+- Scalars (numbers, booleans and dates) in command, options, standard input,
+  environment values and file names of redirections are converted to strings.
+  Thus you can write ['sleep', 1] instead of ['sleep', '1']. Floats are
+  written without trailing zeros, so quote values such as versions ('1.0'
+  instead of 1.0). Booleans give 'true' or 'false', unquoted dates (such as
+  2026-11-01) are kept as written.
+- Lists in command or options are flattened, each element being a separate
+  argument. Thus you can write ['go', 'test', =OPTIONS, =PACKAGES] where
+  OPTIONS and PACKAGES are lists.
 - Commands defined as a string run in the shell defined by shell field at the
   root of the build file (or 'sh -c' on Unix and 'cmd /c' on Windows by
   default).
@@ -74,23 +91,23 @@ Notes:
 }
 
 type shellArgs struct {
-	Shell []string          `neon:"name=$,wrap"`
-	Args  []string          `neon:"name=+,expression,wrap,optional"`
+	Shell []string          `neon:"name=$,wrap,strings"`
+	Args  []string          `neon:"name=+,expression,wrap,optional,strings"`
 	Del1  bool              `neon:"name=1x,bool,optional"`
 	Del2  bool              `neon:"name=2x,bool,optional"`
 	Del3  bool              `neon:"name=3x,bool,optional"`
-	Red1  string            `neon:"name=1>,file,optional"`
-	Red2  string            `neon:"name=2>,file,optional"`
-	Red3  string            `neon:"name=3>,file,optional"`
-	App1  string            `neon:"name=1>>,file,optional"`
-	App2  string            `neon:"name=2>>,file,optional"`
-	App3  string            `neon:"name=3>>,file,optional"`
+	Red1  string            `neon:"name=1>,file,optional,strings"`
+	Red2  string            `neon:"name=2>,file,optional,strings"`
+	Red3  string            `neon:"name=3>,file,optional,strings"`
+	App1  string            `neon:"name=1>>,file,optional,strings"`
+	App2  string            `neon:"name=2>>,file,optional,strings"`
+	App3  string            `neon:"name=3>>,file,optional,strings"`
 	Var1  string            `neon:"name=1=,optional"`
 	Var2  string            `neon:"name=2=,optional"`
 	Var3  string            `neon:"name=3=,optional"`
-	In    string            `neon:"name=<,optional"`
+	In    string            `neon:"name=<,optional,strings"`
 	Verb  bool              `neon:"name=:,bool,optional"`
-	Env   map[string]string `neon:"name=env,optional"`
+	Env   map[string]string `neon:"name=env,optional,strings"`
 	Cafe  bool              `neon:"name=cafe,optional"`
 }
 
@@ -101,96 +118,123 @@ func shell(context *build.Context, args interface{}) error {
 	// writers to stdout and stderr
 	stdout := getStdout(params)
 	stderr := getStderr(params)
-	// string builder to redirect in a property
-	builder := &strings.Builder{}
-	property := ""
-	// redirect stdout in a file
-	if params.Red1+params.Red3 != "" {
-		filename := params.Red1 + params.Red3
-		file, err := os.Create(filename)
+	// files are opened once, even if both outputs are redirected to the same
+	// file, so that they share the same file offset
+	files := make(map[string]*os.File)
+	defer func() {
+		for _, file := range files {
+			_ = file.Close()
+		}
+	}()
+	openFile := func(filename string, flag int) (io.Writer, error) {
+		if file, ok := files[filename]; ok {
+			return file, nil
+		}
+		file, err := os.OpenFile(filename, flag, util.FileMode)
+		if err != nil {
+			return nil, err
+		}
+		files[filename] = file
+		return file, nil
+	}
+	// redirect output in a file
+	redirections := []struct {
+		filename string
+		flag     int
+		stdout   bool
+		stderr   bool
+	}{
+		{params.Red1, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, true, false},
+		{params.Red2, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, false, true},
+		{params.Red3, os.O_WRONLY | os.O_CREATE | os.O_TRUNC, true, true},
+		{params.App1, os.O_WRONLY | os.O_CREATE | os.O_APPEND, true, false},
+		{params.App2, os.O_WRONLY | os.O_CREATE | os.O_APPEND, false, true},
+		{params.App3, os.O_WRONLY | os.O_CREATE | os.O_APPEND, true, true},
+	}
+	for _, redirection := range redirections {
+		if redirection.filename == "" {
+			continue
+		}
+		file, err := openFile(redirection.filename, redirection.flag)
 		if err != nil {
 			return err
 		}
-		defer func() {
-			_ = file.Close()
-		}()
-		stdout = append(stdout, file)
-	}
-	// redirect stderr in a file
-	if params.Red2+params.Red3 != "" {
-		filename := params.Red2 + params.Red3
-		file, err := os.Create(filename)
-		if err != nil {
-			return err
+		if redirection.stdout {
+			stdout = append(stdout, file)
 		}
-		defer func() {
-			_ = file.Close()
-		}()
-		stderr = append(stderr, file)
-	}
-	// append stdout to a file
-	if params.App1+params.App3 != "" {
-		filename := params.App1 + params.App3
-		file, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND, util.FileMode)
-		if err != nil {
-			return err
+		if redirection.stderr {
+			stderr = append(stderr, file)
 		}
-		defer func() {
-			_ = file.Close()
-		}()
-		stdout = append(stdout, file)
 	}
-	// append stderr to a file
-	if params.App2+params.App3 != "" {
-		filename := params.App2 + params.App3
-		file, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND, util.FileMode)
-		if err != nil {
-			return err
+	// write output in properties, with writers safe for concurrent use as
+	// stdout and stderr are copied by distinct goroutines
+	properties := make(map[string]*syncBuilder)
+	captures := []struct {
+		property string
+		stdout   bool
+		stderr   bool
+	}{
+		{params.Var1, true, false},
+		{params.Var2, false, true},
+		{params.Var3, true, true},
+	}
+	for _, capture := range captures {
+		if capture.property == "" {
+			continue
 		}
-		defer func() {
-			_ = file.Close()
-		}()
-		stderr = append(stderr, file)
-	}
-	// write stdout in a property
-	if params.Var1+params.Var3 != "" {
-		stdout = append(stdout, builder)
-		property = params.Var1 + params.Var3
-	}
-	// write stderr in a property
-	if params.Var2+params.Var3 != "" {
-		stderr = append(stderr, builder)
-		property = params.Var2 + params.Var3
+		builder, ok := properties[capture.property]
+		if !ok {
+			builder = &syncBuilder{}
+			properties[capture.property] = builder
+		}
+		if capture.stdout {
+			stdout = append(stdout, builder)
+		}
+		if capture.stderr {
+			stderr = append(stderr, builder)
+		}
 	}
 	// write in standard input
 	if params.In != "" {
 		stdin = strings.NewReader(params.In)
 	}
-	// wrap writers in a multi writer if necessary
-	var multiStdout io.Writer
-	if len(stdout) > 1 {
-		multiStdout = io.MultiWriter(stdout...)
-	} else if len(stdout) == 1 {
-		multiStdout = stdout[0]
-	} else {
-		multiStdout = io.Discard
-	}
-	var multiStderr io.Writer
-	if len(stderr) > 0 {
-		multiStderr = io.MultiWriter(stderr...)
-	} else if len(stderr) == 1 {
-		multiStderr = stderr[0]
-	} else {
-		multiStderr = io.Discard
-	}
-	err := run(params.Shell, params.Args, multiStdout, multiStderr, stdin, context, params.Env, params.Verb, params.Cafe)
-	if property != "" {
+	err := run(params.Shell, params.Args, multiWriter(stdout), multiWriter(stderr), stdin, context, params.Env, params.Verb, params.Cafe)
+	for property, builder := range properties {
 		context.SetProperty(property, strings.TrimSpace(builder.String()))
 	}
-	if err != nil {
-		return err
+	return err
+}
+
+// syncBuilder is a strings.Builder safe for concurrent writes
+type syncBuilder struct {
+	mutex   sync.Mutex
+	builder strings.Builder
+}
+
+// Write writes given bytes in the builder
+func (b *syncBuilder) Write(p []byte) (int, error) {
+	b.mutex.Lock()
+	defer b.mutex.Unlock()
+	return b.builder.Write(p)
+}
+
+// String returns the content of the builder
+func (b *syncBuilder) String() string {
+	b.mutex.Lock()
+	defer b.mutex.Unlock()
+	return b.builder.String()
+}
+
+// multiWriter wraps writers in a single writer
+func multiWriter(writers []io.Writer) io.Writer {
+	switch len(writers) {
+	case 0:
+		return io.Discard
+	case 1:
+		return writers[0]
+	default:
+		return io.MultiWriter(writers...)
 	}
-	return nil
 }
 
 func getStdout(params shellArgs) []io.Writer {
@@ -265,24 +309,14 @@ func runList(cmd []string, stdout, stderr io.Writer, stdin io.Reader, context *b
 	for key, value := range env {
 		environment[key] = value
 	}
-	environ := make([]string, 0, len(env))
+	environ := make([]string, 0, len(environment))
 	for key, value := range environment {
 		environ = append(environ, key+"="+value)
 	}
-	path := environment["PATH"]
-	if path != "" {
-		oldPath := os.Getenv("PATH")
-		defer func() {
-			_ = os.Setenv("PATH", oldPath)
-		}()
-		if err := os.Setenv("PATH", path); err != nil {
-			return fmt.Errorf("setting PATH: %v", err)
-		}
-	}
 	executable := cmd[0]
-	executablePath, err := exec.LookPath(executable)
+	executablePath, err := lookPath(executable, environment["PATH"])
 	if err != nil {
-		return fmt.Errorf("command '%s' was not found in PATH", executable)
+		return fmt.Errorf("command '%s' was not found in PATH: %v", executable, err)
 	}
 	arguments := cmd[1:]
 	command := exec.Command(executablePath, arguments...)
@@ -317,7 +351,7 @@ func runString(cmd string, stdout, stderr io.Writer, stdin io.Reader, context *b
 	for key, value := range env {
 		environment[key] = value
 	}
-	environ := make([]string, 0, len(env))
+	environ := make([]string, 0, len(environment))
 	for key, value := range environment {
 		environ = append(environ, key+"="+value)
 	}
@@ -339,4 +373,27 @@ func runString(cmd string, stdout, stderr io.Writer, stdin io.Reader, context *b
 		return fmt.Errorf("executing command: %v", err)
 	}
 	return nil
+}
+
+// lookPath searches executable in given PATH, without changing the PATH of
+// the process (which would be unsafe with threads):
+// - executable: the executable to search
+// - path: the PATH to search in, process PATH if empty
+// Return: the path of the executable and an error if not found
+func lookPath(executable, path string) (string, error) {
+	if path == "" || strings.ContainsRune(executable, os.PathSeparator) || strings.ContainsRune(executable, '/') {
+		return exec.LookPath(executable)
+	}
+	for _, dir := range filepath.SplitList(path) {
+		if dir == "" {
+			dir = "."
+		}
+		// LookPath checks file directly when it contains a separator (and
+		// tries executable extensions on Windows)
+		candidate, err := exec.LookPath(filepath.Join(dir, executable))
+		if err == nil {
+			return candidate, nil
+		}
+	}
+	return "", exec.ErrNotFound
 }

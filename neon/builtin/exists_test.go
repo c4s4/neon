@@ -1,8 +1,9 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/util"
 	"testing"
+
+	"github.com/c4s4/neon/neon/util"
 )
 
 func TestExists(t *testing.T) {

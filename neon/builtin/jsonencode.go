@@ -8,21 +8,21 @@ func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "jsonencode",
 		Func: jsonEncode,
-		Help: `Encode given variable in Json format.
+		Help: `Encode given variable in JSON format.
 
 Arguments:
 
-- The variable to encode in Json format.
+- The variable to encode in JSON format.
 
 Returns:
 
-- Json encoded string.
+- JSON encoded string.
 
 Examples:
 
     # encode given list
     jsonencode(["foo", "bar"])
-    # returns: "['foo', 'bar']"`,
+    # returns: '["foo", "bar"]'`,
 	})
 }
 

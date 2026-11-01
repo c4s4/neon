@@ -1,9 +1,10 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"path/filepath"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -15,7 +16,7 @@ func init() {
 Arguments:
 
 - The root directory.
-- The paths to append.
+- The paths to append as a list of strings.
 
 Returns:
 
@@ -24,9 +25,9 @@ Returns:
 Examples:
 
     # append root "foo" to paths "spam" and "eggs"
-    appendpath("foo", "spam", "eggs")
-	# returns: ["foo/spam", "foo/eggs"] on Linux and
-	# ["foo\spam", "foo\eggs"] on Windows`,
+    appendpath("foo", ["spam", "eggs"])
+    # returns: ["foo/spam", "foo/eggs"] on Linux and
+    # ["foo\spam", "foo\eggs"] on Windows`,
 	})
 }
 

@@ -2,6 +2,7 @@ package builtin
 
 import (
 	"encoding/json"
+
 	"github.com/c4s4/neon/neon/build"
 )
 
@@ -9,21 +10,21 @@ func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "jsondecode",
 		Func: jsonDecode,
-		Help: `Decode given string in Json format.
+		Help: `Decode given string in JSON format.
 
 Arguments:
 
-- The string in Json format to decode.
+- The string in JSON format to decode.
 
 Returns:
 
-- Decoded string.
+- Decoded value.
 
 Examples:
 
     # decode given list
-    jsondecode("['foo', 'bar']")
-    # returns string slice: ["foo", "bar"]`,
+    jsondecode('["foo", "bar"]')
+    # returns list: ["foo", "bar"]`,
 	})
 }
 

@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-// History is structure for an history
+// History is the list of names of targets that already ran during a build
 type History struct {
 	Targets []string
 }
@@ -19,7 +19,7 @@ func NewHistory() *History {
 }
 
 // Contains tells if the history contains given target
-// - target: target to test
+// - name: name of the target to test
 // Returns: a boolean telling if target is in the history
 func (history *History) Contains(name string) bool {
 	for _, target := range history.Targets {
@@ -32,13 +32,13 @@ func (history *History) Contains(name string) bool {
 
 // Push a target on the history
 // - target: target to push on the history
-// Return: an error if we are in an infinite loop
+// Return: always nil (kept for symmetry with Stack.Push)
 func (history *History) Push(target *Target) error {
 	history.Targets = append(history.Targets, target.Name)
 	return nil
 }
 
-// ToString returns string representation of the history, such as:
+// String returns string representation of the history, such as:
 // "foo, bar, spam"
 // Return: the history as a string
 func (history *History) String() string {

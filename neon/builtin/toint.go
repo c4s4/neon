@@ -8,7 +8,7 @@ func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "toint",
 		Func: toint,
-		Help: `Converts int64 value to int.
+		Help: `Convert int64 value to int.
 
 Arguments:
 

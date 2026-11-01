@@ -9,7 +9,7 @@ func init() {
 	build.AddBuiltin(build.BuiltinDesc{
 		Name: "contains",
 		Func: contains,
-		Help: `Contains strings.
+		Help: `Tell if a list of strings contains a given string.
 
 Arguments:
 

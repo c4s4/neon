@@ -2,11 +2,12 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
-	"github.com/c4s4/neon/neon/util"
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/c4s4/neon/neon/build"
+	"github.com/c4s4/neon/neon/util"
 )
 
 func init() {

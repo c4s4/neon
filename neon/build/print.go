@@ -2,12 +2,19 @@ package build
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"strings"
 	"unicode/utf8"
 
-	"github.com/c4s4/neon/neon/util"
 	"github.com/fatih/color"
+	"github.com/mattn/go-isatty"
+
+	"github.com/c4s4/neon/neon/util"
 )
+
+// ErrorOutput is the writer for error messages (standard error by default)
+var ErrorOutput io.Writer = os.Stderr
 
 type colorizer func(a ...interface{}) string
 
@@ -77,24 +84,38 @@ func PrintOk() {
 	}
 }
 
-// PrintError prints a red ERROR on the console followed with an explanatory
-// text
+// PrintError prints a red ERROR on standard error followed with an
+// explanatory text. Color is used only if standard error is a terminal.
 // - text: the explanatory text to print
 func PrintError(text string) {
-	if Gray {
-		printGrayArgs("ERROR %s", text)
+	if Gray || !isTerminal(ErrorOutput) {
+		_, _ = fmt.Fprintf(ErrorOutput, "ERROR %s\n", text)
 	} else {
-		printColorArgs("%s %s", colorError("ERROR"), text)
+		writer := ErrorOutput
+		if writer == os.Stderr {
+			// handles colors on Windows
+			writer = color.Error
+		}
+		_, _ = fmt.Fprintf(writer, "%s %s\n", colorError("ERROR"), text)
 	}
 }
 
-// PrintColor prints a string in given color
+// isTerminal tells if given writer is a terminal
+func isTerminal(writer io.Writer) bool {
+	file, ok := writer.(*os.File)
+	if !ok {
+		return false
+	}
+	return isatty.IsTerminal(file.Fd()) || isatty.IsCygwinTerminal(file.Fd())
+}
+
+// printColor prints a string, already colorized
 // - text: the text to print
 func printColor(text string) {
 	fmt.Println(text)
 }
 
-// PrintColor prints a string with arguments in given color
+// printColorArgs prints a string with arguments, already colorized
 // - text: the text to print
 // - args: the arguments for the text to print
 func printColorArgs(text string, args ...interface{}) {
@@ -102,13 +123,13 @@ func printColorArgs(text string, args ...interface{}) {
 	fmt.Println()
 }
 
-// PrintGrey prints a string in gray
+// printGray prints a string without color
 // - text: the text to print
 func printGray(text string) {
 	fmt.Println(text)
 }
 
-// PrintGreyArgs prints a string with arguments in gray
+// printGrayArgs prints a string with arguments without color
 // - text: the text to print
 // - args: the arguments for the text to print
 func printGrayArgs(text string, fields ...interface{}) {

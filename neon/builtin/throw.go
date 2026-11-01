@@ -18,7 +18,8 @@ Arguments:
 
 Returns:
 
-- Nothing, but sets the variable 'error' with the error message.
+- Nothing, but the error message is stored in '_error' property if the error
+  is caught with try task.
 
 Examples:
 

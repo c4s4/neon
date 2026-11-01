@@ -13,21 +13,33 @@ properties:
   VERSION_PATH: 'github.com/c4s4/neon/neon/build.NeonVersion'
   TASKS_REF:    'doc/tasks.md'
   BUILTINS_REF: 'doc/builtins.md'
+  # pinned tools (golangci-lint v2 is required by .golangci.yml, same version
+  # as in .github/workflows/ci.yml)
+  GOTOOLS:
+  - 'github.com/mitchellh/gox@v1.0.1'
+  - 'github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0'
+  - 'github.com/intercloud/gobinsec@v0.10.2'
   ARC_FILES:
     =_BASE: ['LICENSE.txt', 'README.md', 'bash_completion_neon']
     =BUILD_DIR: ['bin/neon-*', 'doc/*.pdf']
 
 targets:
 
+  fmt:
+    doc: "Format Go code (gofmt and imports grouping, see .golangci.yml)"
+    steps:
+    - print: "Formatting Go source files"
+    - $: ['golangci-lint', 'fmt', =PACKAGE]
+
   bugs:
-    doc: "Run bug build files"
+    doc: "Run bug build files with built binary"
     depends: [build]
     steps:
     - for: file
       in:  'find(".", "test/bugs/*.yml")'
       do:
       - print: "Running build file '={file}'"
-      - $: ['neon', '-file', =file]
+      - $: ['={BUILD_DIR}/={NAME}', '-file', =file]
 
   refs:
     doc: "Generate reference documentation"
@@ -65,6 +77,21 @@ targets:
     - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/usermanual.pdf', 'doc/usermanual.md']
     - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/tasks.pdf', 'doc/tasks.md']
     - $: ['md2pdf', '-o', '={BUILD_DIR}/doc/builtins.pdf', 'doc/builtins.md']
+
+  deploy:
+    doc: "Deploy binaries and version file on dist server"
+    steps:
+    # version file is read by 'neon -update' to tell if a new release is
+    # available, it is only written for release versions (set by release)
+    - if: 'match("^v?[0-9]+([.][0-9]+)*(-[A-Za-z]+([-.]?[0-9]+)?)?$", VERSION)'
+      then:
+      - print: "Writing version file for release ={VERSION}"
+      - write: '={BUILD_DIR}/={BIN_DIR}/version'
+        text:  =VERSION
+      else:
+      - print: "VERSION '={VERSION}' is not a release number, version file not deployed"
+      - delete: '={BUILD_DIR}/={BIN_DIR}/version'
+    - super:
 
   archive:
     doc: "Generate distribution archive"

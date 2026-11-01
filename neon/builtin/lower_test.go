@@ -1,8 +1,9 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"testing"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func TestLower(t *testing.T) {

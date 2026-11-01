@@ -8,8 +8,10 @@ Execute a command and return output and value.
 
 Arguments:
 
-- $: command to run (string or list of strings).
-- +: options to pass on command line after command (strings, optional).
+- $: command to run (string or list of strings, other scalars are converted
+  to strings).
+- +: options to pass on command line after command (strings, other scalars
+  are converted to strings, optional).
 - n=: write command output into named property. Values for n are: 1 for stdout,
   2 for stderr and 3 for stdout and stderr (string, optional).
 - n>: write command output in named file. Values for n are: 1 for stdout,
@@ -18,9 +20,11 @@ Arguments:
   2 for stderr and 3 for stdout and stderr (string, optional).
 - nx: disable command output. Values for n are: 1 for stdout, 2 for stderr and
   3 for stdout and stderr (boolean, optional).
-- <: send given text to standard input of the process (string, optional).
+- <: send given text to standard input of the process (string, other scalars
+  are converted to strings, optional).
 - :: print command on terminal before running it (boolean, optional).
-- env: environment variables to set running command (map of strings, optional).
+- env: environment variables to set running command (map of strings, other
+  scalars are converted to strings, optional).
 - cafe: prevent the system from going to sleep while the command is running
   (boolean, optional). Only supported on Linux (systemd-inhibit) and MacOS
   (caffeinate).
@@ -30,22 +34,33 @@ Examples:
     # execute ls command, put result in 'files' variable and disable output
     - $:  'ls -al'
       1=: 'files'
-	  1x: true
+      1x: true
     # execute command as a list of strings and output on console
     - $: ['ls', '-al']
+    # run go test with options and packages defined as lists in properties
+    - $: ['go', 'test', =TEST_OPTS, =PACKAGES]
     # run pylint on all python files except those in venv
     - $: 'pylint'
-      +: '=filter(find(".", "**/*.py"), "venv/**/*.py")
-	# run echo command passing environment variable
-	- $: 'echo "Hello $NAME!"'
-	  env:
-	    NAME: 'John'
+      +: '=filter(find(".", "**/*.py"), "venv/**/*.py")'
+    # run echo command passing environment variable
+    - $: 'echo "Hello $NAME!"'
+      env:
+        NAME: 'John'
     # run a long command preventing the system from going to sleep
     - $: 'sleep 3600'
       cafe: true
 
 Notes:
 
+- Scalars (numbers, booleans and dates) in command, options, standard input,
+  environment values and file names of redirections are converted to strings.
+  Thus you can write ['sleep', 1] instead of ['sleep', '1']. Floats are
+  written without trailing zeros, so quote values such as versions ('1.0'
+  instead of 1.0). Booleans give 'true' or 'false', unquoted dates (such as
+  2026-11-01) are kept as written.
+- Lists in command or options are flattened, each element being a separate
+  argument. Thus you can write ['go', 'test', =OPTIONS, =PACKAGES] where
+  OPTIONS and PACKAGES are lists.
 - Commands defined as a string run in the shell defined by shell field at the
   root of the build file (or 'sh -c' on Unix and 'cmd /c' on Windows by
   default).
@@ -104,12 +119,12 @@ Load changelog information from file.
 Arguments:
 
 - changelog: the name of the changelog file (look for changelog in current
-  directory if omitted).
+  directory if omitted) (string, optional, file).
 
 Note:
 
-- The changelog information are stored in _changelog property that is a list of
-  releases objects with fields Version, Date and Summary.
+- The changelog information is stored in _changelog property that is a list
+  of release objects with fields Version, Date and Summary.
 
 Examples:
 
@@ -127,11 +142,13 @@ Arguments:
 Examples:
 
     # go to build directory
-    - chdir: "github.com/c4s4/neon/neon/build"
+    - chdir: "build"
 
 Notes:
 
 - Working directory is set to the build file directory before each target.
+- Changing to another directory while threads are running raises an error, as
+  current directory is shared by all threads.
 
 ## chmod
 
@@ -159,7 +176,7 @@ Notes:
 - The mode is an integer, thus must not be surrounded with quotes, or it would
   be a string and parsing of the task would fail.
 - We usually set mode with octal integers, starting with '0'. If you don't put
-  starting '0', this is decimal integer and you won't probably have expected
+  starting '0', this is decimal integer and you probably won't have expected
   result.
 
 ## classpath
@@ -176,9 +193,9 @@ Arguments:
   wrap).
 - scopes: classpath scope (strings, optional, wrap). If set, will take
   dependencies without scope and listed scopes, if not set, will only take
-  dependencies without scope).
+  dependencies without scope.
 - repositories: repository URLs to get dependencies from, defaults to
-  'http://repo1.maven.org/maven2' (strings, optional, wrap).
+  'https://repo1.maven.org/maven2' (strings, optional, wrap).
 - todir: directory to copy jar files into (string, optional, file).
 
 Examples:
@@ -220,8 +237,8 @@ Arguments:
 - exclude: globs of files to exclude (strings, optional, file, wrap).
 - tofile: file to copy file to (string, optional, file).
 - todir: directory to copy files to (string, optional, file).
-- flat: tells if files should be flatten in destination directory, defaults to
-  false (boolean, optional).
+- flat: tells if files should be flattened in destination directory, defaults
+  to false (boolean, optional).
 
 Examples:
 
@@ -271,7 +288,7 @@ Load given dotenv file in environment.
 
 Arguments:
 
-- dotenv: name of dotenv file to load.
+- dotenv: name of dotenv file to load (string, file).
 
 Examples:
 
@@ -295,7 +312,7 @@ Examples:
     - for: file
       in:  ["foo", "bar"]
       do:
-    - touch: =file
+      - touch: =file
     # print first 10 integers
     - for: i
       in: range(10)
@@ -374,8 +391,8 @@ Arguments:
 Examples:
 
     # create a link from file 'foo' to 'bar'
-    - link: 'foo''
-      to:   'bar''
+    - link: 'foo'
+      to:   'bar'
 
 ## mkdir
 
@@ -401,8 +418,8 @@ Arguments:
 - exclude: globs of files to exclude (strings, optional, file, wrap).
 - tofile: file to move file to (string, optional, file).
 - todir: directory to move file(s) to (string, optional, file).
-- flat: tells if files should be flatten in destination directory, defaults to
-  false (boolean, optional).
+- flat: tells if files should be flattened in destination directory, defaults
+  to false (boolean, optional).
 
 Examples:
 
@@ -442,15 +459,26 @@ Examples:
       properties:
         name: 'world'
 
+Notes:
+
+- Relative build file paths are relative to the directory of the calling
+  build (or current directory for templates).
+- Properties passed to the build override those defined in the build file
+  and are used to evaluate other properties of the build.
+- Recursive calls of a build file are detected and raise an error.
+- The called build uses its own repository, unless one was set with -repo
+  option on command line.
+- The called build runs in its own directory, thus it can't run in threads.
+
 ## notify
 
 Desktop notification.
 
 Arguments:
 
-- notify: the title of the notification
-- text: the notification text (optional)
-- image: path to the notification image (optional)
+- notify: the title of the notification (string).
+- text: the notification text (string, optional).
+- image: path to the notification image (string, optional, file).
 
 Examples:
 
@@ -510,7 +538,7 @@ Examples:
 
     # pause for 3 seconds
     - pause: 3s
-    # pause for 1 minutes without message
+    # pause for 1 minute without message
     - pause: 1m
       mute:  true
 
@@ -521,7 +549,7 @@ Print a message on the console.
 Arguments:
 
 - print: text to print (string).
-- color: text color (string).
+- color: text color (string, optional).
 - noreturn: if set to true, do not print a newline at the end (bool, optional).
 
 Possible colors are black, red, green, yellow, blue, magenta, cyan and white.
@@ -540,7 +568,7 @@ Prompt the user for the value of a given property matching a pattern.
 
 Arguments:
 
-- prompt: message to print at prompt that include a description of expected
+- prompt: message to print at prompt that includes a description of expected
   pattern (string).
 - to: name of the property to set (string).
 - default: default value if user doesn't type anything, written into square
@@ -576,14 +604,15 @@ Examples:
 
 ## replace
 
-Replace text matching patterns in files.
+Replace strings in files.
 
 Arguments:
 
 - replace: globs of files to process (strings, file, wrap).
-- with: map with replacements (map with string keys and values).
+- with: map with strings to replace as keys and replacements as values (map
+  with string keys and values).
 - dir: root directory for globs (string, optional, file).
-- exclude: globs of files to exclude (strings, optional, files).
+- exclude: globs of files to exclude (strings, optional, file).
 
 Examples:
 
@@ -607,11 +636,12 @@ Arguments:
 - password: user password for authentication (string, optional).
 - status: expected status code, raise an error if different, defaults to 200
   (int, optional).
+- timeout: request timeout in seconds, defaults to 60 (int, optional).
 
 Examples:
 
     # get google.com
-    - request: 'google.com'
+    - request: 'https://www.google.com'
 
 Notes:
 
@@ -642,15 +672,15 @@ Arguments:
 
 - singleton: port we are listening to, should be between 1024 and 65535 (integer).
 - steps: steps we want to run (steps).
-- wait: tells if we wait until resource if released (if true) or stop on error
+- wait: tells if we wait until resource is released (if true) or stop on error
   (if false, which is default) (bool, optional).
 
 Examples:
 
     # ensure one single instance is waiting
-	- singleton: 12345
-	  steps:
-	  - sleep: 10.0
+    - singleton: 12345
+      steps:
+      - sleep: 10.0
 
 ## sleep
 
@@ -675,8 +705,8 @@ Start a command in background and put its PID in a variable.
 
 Arguments:
 
-- start: command to run (string).
-- pid: name of the variable to put PID into.
+- start: command to run as a list of strings (strings).
+- pid: name of the variable to put PID into (string, optional).
 
 Examples:
 
@@ -686,8 +716,9 @@ Examples:
 
 Notes:
 
-- Commands run in the shell defined by shell field at the root of the build file
-  (or 'sh -c' on Unix and 'cmd /c' on Windows by default).
+- The command is not run in a shell: the first element of the list is the
+  executable and the others are its arguments.
+- The task doesn't wait for the command to finish.
 
 ## super
 
@@ -704,7 +735,7 @@ Examples:
 
 Notes:
 
-- This will raise en error if parent build files have no target with same name.
+- This will raise an error if parent build files have no target with same name.
 
 ## tar
 
@@ -716,7 +747,7 @@ Arguments:
 - dir: root directory for glob, defaults to '.' (string, optional, file).
 - exclude: globs of files to exclude (strings, optional, file, wrap).
 - tofile: name of the tar file to create (string, file).
-- prefix: prefix directory in the archive (optional).
+- prefix: prefix directory in the archive (string, optional).
 
 Examples:
 
@@ -766,8 +797,11 @@ properties, they won't affect other threads. But all properties will be lost
 when thread is done, except for _output that will be appended to other in
 resulting _output property.
 
-Don't change current directory in threads as it would affect other threads as
-well.
+Current directory is shared by all threads: changing to another directory
+while threads are running (with chdir or neon tasks, or calling a target of a
+build in another directory) raises an error. Number of threads must be at
+least 1. When a thread fails, other threads stop and the first error is
+returned.
 
 ## throw
 
@@ -786,7 +820,7 @@ Notes:
 
 - You can catch raised errors with try/catch/finally task.
 - Property _error is set with the error message.
-- If the error was not catch, the error message will be printed on the console
+- If the error was not caught, the error message will be printed on the console
   as the cause of the build failure.
 
 ## time
@@ -822,7 +856,7 @@ Examples:
 
 Notes:
 
-- If the file already exists it changes it modification time.
+- If the file already exists it changes its modification time.
 - If the file doesn't exist, it creates an empty file.
 
 ## try
@@ -839,16 +873,16 @@ Examples:
 
     # execute a command and continue even if it fails
     - try:
-      - 'command-that-doesnt-exist'
+      - $: 'command-that-doesnt-exist'
     - print: 'Continue even if command fails'
     # execute a command and print a message if it fails
     - try:
-      - 'command-that-doesnt-exist'
+      - $: 'command-that-doesnt-exist'
       catch:
-      - print: 'There was an error!'
-    # execute a command a print message in all cases
+      - print: 'There was an error: ={_error}'
+    # execute a command and print a message in all cases
     - try:
-      - 'command-that-doesnt-exist'
+      - $: 'command-that-doesnt-exist'
       finally:
       - print: 'Print whatever happens'
 
@@ -875,6 +909,10 @@ Notes:
 
 - If archive filename ends with .gz (with a name such as foo.tar.gz or foo.tgz)
   the tar archive is uncompressed with gzip.
+- Existing files are overwritten. Directories, symbolic and hard links are
+  created.
+- Extraction fails if an entry would be written outside the destination
+  directory, including through a symbolic link.
 
 ## unzip
 
@@ -891,21 +929,28 @@ Examples:
     - unzip: 'foo.zip'
       todir: 'build'
 
+Notes:
+
+- Existing files are overwritten. Directories and symbolic links are created.
+- Extraction fails if an entry would be written outside the destination
+  directory, including through a symbolic link.
+
 ## while
 
 While loop.
 
 Arguments:
 
-- while: condition evaluated at each iteration (string).
+- while: condition evaluated at each iteration (boolean, expression).
 - do: steps that run while condition is true (steps).
 
 Examples:
 
     # loop until i >= 10
+    - 'i = 0'
     - while: 'i < 10'
       do:
-      - script: 'println(i++)'
+      - 'println(i++)'
 
 ## write
 
@@ -915,8 +960,8 @@ Arguments:
 
 - write: file to write into (string, file).
 - text: text to write into the file (string, optional).
-- append: tells if we should append content to file, default to false (boolean,
-  optional).
+- append: tells if we should append content to file, defaults to false
+  (boolean, optional).
 
 Examples:
 
