@@ -102,6 +102,6 @@ targets:
 
   release:
     doc: "Perform a release"
-    depends: [branch, version, clean, lint, test, bugs, refs, archive, deploy]
+    depends: [branch, pushed, version, clean, lint, test, bugs, refs, archive, deploy]
     steps:
     - super:
