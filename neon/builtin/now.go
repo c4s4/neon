@@ -1,8 +1,9 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"time"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -22,7 +23,7 @@ Returns:
 Examples:
 
     # put current date and time in dt variable
-    now()
+    dt = now()
     # returns: "2006-01-02 15:04:05"
     # to get date in ISO format
     now()[0:10]

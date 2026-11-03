@@ -11,8 +11,6 @@ import (
 	_ "github.com/c4s4/neon/neon/builtin"
 	_ "github.com/c4s4/neon/neon/task"
 	"github.com/c4s4/neon/neon/util"
-
-	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -20,6 +18,9 @@ const (
 	DefaultBuildFile = "build.yml"
 	// DefaultConfiguration is the default location for configuration file
 	DefaultConfiguration = "~/.neon/settings.yml"
+	// AutoTimeThreshold is the duration above which build duration is printed
+	// if time is not set in configuration
+	AutoTimeThreshold = 10 * time.Second
 )
 
 // Configuration holds configuration properties
@@ -30,8 +31,9 @@ type Configuration struct {
 	Theme string
 	// Colors of custom theme
 	Colors *_build.Colors
-	// Time will print execution time
-	Time bool
+	// Time tells if build duration is printed: always if true, never if
+	// false, and for builds longer than AutoTimeThreshold if not set
+	Time *bool
 	// Repo location
 	Repo string
 	// Links associates build files to directories
@@ -49,7 +51,7 @@ func ParseConfiguration(file string) (*Configuration, error) {
 		if err != nil {
 			return nil, err
 		}
-		err = yaml.Unmarshal(source, &configuration)
+		err = util.UnmarshalYAML(source, &configuration)
 		if err != nil {
 			return nil, err
 		}
@@ -135,7 +137,7 @@ func ParseCommandLine() *Options {
 	tasksRef := flag.Bool("tasks-ref", false, "Print tasks reference")
 	builtinsRef := flag.Bool("builtins-ref", false, "Print builtins reference")
 	install := flag.String("install", "", "Install given plugin")
-	repo := flag.String("repo", "", "Neon plugin repository for installation")
+	repo := flag.String("repo", "", "NeON repository for parent build files, templates and plugins (defaults to ~/.neon)")
 	update := flag.Bool("update", false, "Update neon and repository")
 	batch := flag.Bool("batch", false, "Force neon and repository update in batch mode")
 	grey := flag.Bool("grey", false, "Print on terminal without colors")
@@ -177,8 +179,10 @@ func ParseCommandLine() *Options {
 // FindBuildFile finds build file and returns its path
 // - name: the name of the build file
 // - repo: the repository path
+// - configuration: the configuration, with links of directories to build files
 // Return:
 // - path of found build file
+// - directory of the build (where the build file or link was found)
 // - an error if something went wrong
 func FindBuildFile(name, repo string, configuration *Configuration) (string, string, error) {
 	absolute, err := filepath.Abs(name)
@@ -209,7 +213,7 @@ func FindBuildFile(name, repo string, configuration *Configuration) (string, str
 	}
 }
 
-// Program entry point
+// main is the program entry point
 func main() {
 	if err := run(); err != nil {
 		_build.PrintError(err.Error())
@@ -220,6 +224,13 @@ func main() {
 func run() error {
 	var err error
 	start := time.Now()
+	// parse command line
+	opts := ParseCommandLine()
+	// print version before loading configuration, which might be broken
+	if opts.Version {
+		_build.Message(_build.NeonVersion)
+		return nil
+	}
 	// load configuration file
 	configPath := DefaultConfiguration
 	if envPath := os.Getenv("NEON_CONFIG_PATH"); envPath != "" {
@@ -227,11 +238,13 @@ func run() error {
 	}
 	configuration, err := LoadConfiguration(configPath)
 	if err != nil {
-		return fmt.Errorf("loading configuration file '%s': %v", DefaultConfiguration, err)
+		return fmt.Errorf("loading configuration file '%s': %v", configPath, err)
 	}
-	// parse command line
-	opts := ParseCommandLine()
-	// options that do not require we load build file
+	// repository set in configuration is used for builds that don't define one
+	if configuration.Repo != "" {
+		_build.UserRepository = util.ExpandUserHome(configuration.Repo)
+	}
+	// options that don't require loading the build file
 	repo := opts.Repo
 	if repo == "" {
 		if configuration.Repo != "" {
@@ -239,17 +252,14 @@ func run() error {
 		} else {
 			repo = _build.DefaultRepository
 		}
-		repo = util.ExpandUserHome(repo)
 	}
-	_build.Gray = opts.Grey
-	configuration.Time = opts.Time
+	repo = util.ExpandUserHome(repo)
+	// command line options add to configuration
+	_build.Gray = opts.Grey || configuration.Grey
 	if printInfo(opts, repo) {
 		return nil
 	}
-	if opts.Version {
-		_build.Message(_build.NeonVersion)
-		return nil
-	} else if opts.Install != "" {
+	if opts.Install != "" {
 		err := _build.InstallPlugin(opts.Install, repo)
 		return err
 	} else if opts.Theme != "" {
@@ -261,7 +271,7 @@ func run() error {
 		err := _build.Update(repo, opts.Batch)
 		return err
 	}
-	// options that do require we load build file
+	// options that require loading the build file
 	file := opts.File
 	if opts.Template != "" {
 		file, err = _build.TemplatePath(opts.Template, repo)
@@ -273,7 +283,9 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	build, err := _build.NewBuild(path, base, repo, opts.Template != "")
+	// repository on command line overrides the one of the build file
+	_build.CommandLineRepository = util.ExpandUserHome(opts.Repo)
+	build, err := _build.NewBuild(path, base, _build.CommandLineRepository, opts.Template != "")
 	if err != nil {
 		return err
 	}
@@ -308,7 +320,7 @@ func run() error {
 		}
 		err = build.Run(context, opts.Targets)
 		duration := time.Since(start)
-		if configuration.Time || duration.Seconds() > 10 {
+		if PrintDuration(opts.Time, configuration.Time, duration) {
 			_build.InfoArgs("Build duration: %s", duration.String())
 		}
 		if err != nil {
@@ -317,6 +329,21 @@ func run() error {
 		_build.PrintOk()
 	}
 	return nil
+}
+
+// PrintDuration tells if build duration should be printed:
+// - option: the -time option on command line, that forces printing
+// - setting: the time setting of configuration (nil if not set)
+// - duration: the build duration
+// Return: true if duration should be printed
+func PrintDuration(option bool, setting *bool, duration time.Duration) bool {
+	if option {
+		return true
+	}
+	if setting != nil {
+		return *setting
+	}
+	return duration > AutoTimeThreshold
 }
 
 // printInfo prints build information if requested
@@ -351,5 +378,3 @@ func printInfo(opts *Options, repo string) bool {
 	}
 	return false
 }
-
-// (Empty or removed)

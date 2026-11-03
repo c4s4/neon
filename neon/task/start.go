@@ -18,8 +18,8 @@ func init() {
 
 Arguments:
 
-- start: command to run (string).
-- pid: name of the variable to put PID into.
+- start: command to run as a list of strings (strings).
+- pid: name of the variable to put PID into (string, optional).
 
 Examples:
 
@@ -29,8 +29,9 @@ Examples:
 
 Notes:
 
-- Commands run in the shell defined by shell field at the root of the build file
-  (or 'sh -c' on Unix and 'cmd /c' on Windows by default).`,
+- The command is not run in a shell: the first element of the list is the
+  executable and the others are its arguments.
+- The task doesn't wait for the command to finish.`,
 	})
 }
 

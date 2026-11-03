@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"reflect"
+	t "time"
 
 	"github.com/c4s4/neon/neon/build"
 )
@@ -16,6 +17,8 @@ const (
 	DefaultMethod = "GET"
 	// DefaultStatus is the default expected response status
 	DefaultStatus = 200
+	// DefaultTimeout is the default request timeout in seconds
+	DefaultTimeout = 60
 )
 
 func init() {
@@ -37,11 +40,12 @@ Arguments:
 - password: user password for authentication (string, optional).
 - status: expected status code, raise an error if different, defaults to 200
   (int, optional).
+- timeout: request timeout in seconds, defaults to 60 (int, optional).
 
 Examples:
 
     # get google.com
-    - request: 'google.com'
+    - request: 'https://www.google.com'
 
 Notes:
 
@@ -60,6 +64,7 @@ type requestArgs struct {
 	Username string            `neon:"optional"`
 	Password string            `neon:"optional"`
 	Status   int               `neon:"optional"`
+	Timeout  int               `neon:"optional"`
 }
 
 func request(context *build.Context, args interface{}) error {
@@ -80,7 +85,7 @@ func request(context *build.Context, args interface{}) error {
 			return err
 		}
 	}
-	request, err := http.NewRequest(method, params.Request, bytes.NewBuffer([]byte(body)))
+	request, err := http.NewRequest(method, params.Request, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("building request: %v", err)
 	}
@@ -90,7 +95,11 @@ func request(context *build.Context, args interface{}) error {
 	if params.Username != "" {
 		request.SetBasicAuth(params.Username, params.Password)
 	}
-	client := &http.Client{}
+	timeout := params.Timeout
+	if timeout <= 0 {
+		timeout = DefaultTimeout
+	}
+	client := &http.Client{Timeout: t.Duration(timeout) * t.Second}
 	response, err := client.Do(request)
 	if err != nil {
 		return fmt.Errorf("requesting '%s': %v", params.Request, err)

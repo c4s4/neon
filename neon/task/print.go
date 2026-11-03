@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/c4s4/neon/neon/build"
 	"github.com/fatih/color"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -18,7 +19,7 @@ func init() {
 Arguments:
 
 - print: text to print (string).
-- color: text color (string).
+- color: text color (string, optional).
 - noreturn: if set to true, do not print a newline at the end (bool, optional).
 
 Possible colors are black, red, green, yellow, blue, magenta, cyan and white.

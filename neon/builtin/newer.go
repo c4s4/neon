@@ -29,11 +29,11 @@ Examples:
 
     # generate PDF if source Markdown changed
     if newer("source.md", "result.pdf") {
-    	compile("source.md")
+        compile("source.md")
     }
-	# generate binary if source files are newer than generated binary
+    # generate binary if source files are newer than generated binary
     if newer(find(".", "**/*.go"), "bin/binary") {
-    	generateBinary()
+        generateBinary()
     }`,
 	})
 }

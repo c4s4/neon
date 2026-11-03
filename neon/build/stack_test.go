@@ -23,14 +23,15 @@ func TestStack(t *testing.T) {
 	if err == nil || err.Error() != "infinite loop: foo -> bar -> foo" {
 		t.Errorf("Should have raised infinite loop error")
 	}
-	if stack.String() != "foo -> bar -> foo" {
+	// a failed push leaves the stack unchanged
+	if stack.String() != "foo -> bar" {
 		t.Errorf("Error ToString: %v", stack.String())
 	}
 	copy := stack.Copy()
-	if copy.String() != "foo -> bar -> foo" {
-		t.Errorf("Error ToString: %v", stack.String())
+	if copy.String() != "foo -> bar" {
+		t.Errorf("Error ToString: %v", copy.String())
 	}
-	if stack.Last().Name != "foo" {
+	if stack.Last().Name != "bar" {
 		t.Errorf("Error Last: %v", stack.Last())
 	}
 }

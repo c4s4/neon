@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/c4s4/changelog/lib"
+
 	"github.com/c4s4/neon/neon/build"
 )
 
@@ -20,7 +21,7 @@ Arguments:
 
 Note:
 
-- The function returns a Changelog that is a list of Releases struct with
+- The function returns a Changelog that is a list of Release structures with
   fields Version, Date and Summary.
 
 Examples:

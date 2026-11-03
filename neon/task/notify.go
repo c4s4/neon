@@ -3,9 +3,11 @@
 package task
 
 import (
-	"github.com/c4s4/neon/neon/build"
-	"github.com/gen2brain/beeep"
 	"reflect"
+
+	"github.com/gen2brain/beeep"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -17,9 +19,9 @@ func init() {
 
 Arguments:
 
-- notify: the title of the notification
-- text: the notification text (optional)
-- image: path to the notification image (optional)
+- notify: the title of the notification (string).
+- text: the notification text (string, optional).
+- image: path to the notification image (string, optional, file).
 
 Examples:
 

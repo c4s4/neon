@@ -2,13 +2,13 @@ package build
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/util"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/c4s4/neon/neon/util"
 )
 
 const (
@@ -16,17 +16,23 @@ const (
 	PluginSite = "github.com"
 )
 
-// RegexpParentName is regexp for parent name
-var RegexpParentName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.yml`)
+// RegexpParentName is regexp for parent name in repository (such as
+// "c4s4/build/golang.yml")
+var RegexpParentName = regexp.MustCompile(`^[^/.][^/]*/[^/]+/[^/]+\.yml$`)
 
-// RegexpTemplateName is regexp for template name
-var RegexpTemplateName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.tpl`)
+// RegexpTemplateName is regexp for template name in repository (such as
+// "c4s4/build/golang.tpl")
+var RegexpTemplateName = regexp.MustCompile(`^[^/.][^/]*/[^/]+/[^/]+\.tpl$`)
 
-// RegexpScriptName is regexp for script name
-var RegexpScriptName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.ank`)
+// RegexpScriptName is regexp for script name in repository (such as
+// "c4s4/build/foo.ank")
+var RegexpScriptName = regexp.MustCompile(`^[^/.][^/]*/[^/]+/[^/]+\.ank$`)
 
-// RegexpLinkName is regexp for parent name
-var RegexpLinkName = regexp.MustCompile(`[^/]+/[^/]+/[^/]+.yml`)
+// isRelativePath tells if given path is explicitly relative (starting with
+// "./" or "../")
+func isRelativePath(name string) bool {
+	return strings.HasPrefix(name, "./") || strings.HasPrefix(name, "../")
+}
 
 // FindParents finds parent build files in given repository.
 // - repository: the NeON repository (defaults to '~/.neon')
@@ -48,7 +54,7 @@ func FindParents(repository string) ([]string, error) {
 // - parent: the parent to find (such as "golang").
 // - repository: the NeON repository (defaults to '~/.neon')
 // Return:
-// - parent path relative to repository (such as "c4s4/build/golang.tpl").
+// - matching parents relative to repository (such as "c4s4/build/golang.yml").
 // - error if something went wrong.
 func FindParent(parent, repository string) ([]string, error) {
 	files, err := FindParents(repository)
@@ -67,20 +73,28 @@ func FindParent(parent, repository string) ([]string, error) {
 	return parents, nil
 }
 
-// ParentPath returns file path for plugin with given name.
-// - name: the name of the plugin (as "c4s4/build/foo.yml" or "foo")
+// ParentPath returns file path for parent build file with given name.
+// - name: the name of the parent (as "./foo.yml", "c4s4/build/foo.yml", "foo")
 // Return:
-// - the plugin path as a string (as /home/casa/.neon/c4s4/build/foo.yml)
+// - the parent path as a string (as /home/casa/.neon/c4s4/build/foo.yml)
 // - error if something went wrong
 func (build *Build) ParentPath(name string) (string, error) {
-	if path.IsAbs(name) {
+	name = util.ExpandUserHome(name)
+	if filepath.IsAbs(name) {
 		return name, nil
 	}
-	if strings.HasPrefix(name, "./") {
+	if isRelativePath(name) {
 		return filepath.Join(build.Dir, name), nil
 	}
 	if RegexpParentName.MatchString(name) {
 		return util.ExpandUserHome(filepath.Join(build.Repository, name)), nil
+	}
+	// relative path without "./" to an existing file
+	if strings.HasSuffix(name, ".yml") {
+		local := filepath.Join(build.Dir, name)
+		if util.FileExists(local) {
+			return local, nil
+		}
 	}
 	parents, err := FindParent(name, build.Repository)
 	if err != nil || len(parents) == 0 {
@@ -94,7 +108,7 @@ func (build *Build) ParentPath(name string) (string, error) {
 }
 
 // InstallPlugin installs given plugin in repository:
-//   - plugin: the plugin name such as c4s4/build. First part us Github user name
+//   - plugin: the plugin name such as c4s4/build. First part is Github user name
 //     and second is repository name for the plugin.
 //   - repository: plugin repository, defaults to ~/.neon.
 //
@@ -145,7 +159,7 @@ func FindTemplates(repository string) ([]string, error) {
 // - template: the template to find (such as "golang").
 // - repository: the NeON repository (defaults to '~/.neon')
 // Return:
-// - templates path relative to repo (such as "c4s4/build/golang.tpl").
+// - matching templates relative to repo (such as "c4s4/build/golang.tpl").
 // - error if something went wrong.
 func FindTemplate(template, repository string) ([]string, error) {
 	files, err := FindTemplates(repository)
@@ -164,12 +178,12 @@ func FindTemplate(template, repository string) ([]string, error) {
 	return templates, nil
 }
 
-// TemplatePath return the template path:
+// TemplatePath returns the template path:
 // - name: the name of the template (such as 'c4s4/build/golang.tpl')
 // - repository: the repository for plugins (defaults to '~/.neon')
 // Return: template path (as '~/.neon/c4s4/build/golang.tpl')
 func TemplatePath(name, repository string) (string, error) {
-	if path.IsAbs(name) || strings.HasPrefix(name, "./") {
+	if filepath.IsAbs(name) || isRelativePath(name) {
 		return name, nil
 	}
 	if RegexpTemplateName.MatchString(name) {
@@ -186,12 +200,12 @@ func TemplatePath(name, repository string) (string, error) {
 	return filepath.Join(repository, templates[0]), nil
 }
 
-// LinkPath return the link path:
+// LinkPath returns the link path:
 // - name: the name of the build file (such as 'c4s4/build/build.yml')
 // - repository: the repository for plugins (defaults to '~/.neon')
 // Return: link path (as '~/.neon/c4s4/build/build.yml')
 func LinkPath(name, repository string) string {
-	if path.IsAbs(name) {
+	if filepath.IsAbs(name) {
 		return name
 	}
 	if strings.HasPrefix(name, "./") {
@@ -206,11 +220,17 @@ func LinkPath(name, repository string) string {
 // - the script path as a string (as /home/casa/.neon/c4s4/build/foo.ank)
 // - error if something went wrong
 func (build *Build) ScriptPath(name string) (string, error) {
-	if path.IsAbs(name) {
+	name = util.ExpandUserHome(name)
+	if filepath.IsAbs(name) {
 		return name, nil
 	}
-	if strings.HasPrefix(name, "./") {
-		return filepath.Join(build.Dir, name), nil
+	if isRelativePath(name) {
+		// relative to the build file that declares the script
+		dir := build.FileDir
+		if dir == "" {
+			dir = build.Dir
+		}
+		return filepath.Join(dir, name), nil
 	}
 	if RegexpScriptName.MatchString(name) {
 		return util.ExpandUserHome(filepath.Join(build.Repository, name)), nil

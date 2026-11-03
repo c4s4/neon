@@ -20,7 +20,7 @@ func NewStack() *Stack {
 }
 
 // Contains tells if the stack contains given target
-// - target: target to test
+// - name: name of the target to test
 // Returns: a boolean telling if target is in the stack
 func (stack *Stack) Contains(name string) bool {
 	for _, target := range stack.Targets {
@@ -31,14 +31,14 @@ func (stack *Stack) Contains(name string) bool {
 	return false
 }
 
-// Push a target on the stack
+// Push a target on the stack. The stack is unchanged if an error is returned.
 // - target: target to push on the stack
-// Return: an error if we are in an infinite loop
+// Return: an error if target is already on the stack (infinite loop)
 func (stack *Stack) Push(target *Target) error {
 	for _, t := range stack.Targets {
 		if t == target {
-			stack.Targets = append(stack.Targets, target)
-			return fmt.Errorf("infinite loop: %v", stack.String())
+			loop := &Stack{Targets: append(append([]*Target{}, stack.Targets...), target)}
+			return fmt.Errorf("infinite loop: %v", loop.String())
 		}
 	}
 	stack.Targets = append(stack.Targets, target)
@@ -65,7 +65,7 @@ func (stack *Stack) Last() *Target {
 	return stack.Targets[len(stack.Targets)-1]
 }
 
-// ToString returns string representation of the stack, such as:
+// String returns string representation of the stack, such as:
 // "foo -> bar -> spam"
 // Return: the stack as a string
 func (stack *Stack) String() string {

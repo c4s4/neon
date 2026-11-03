@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/c4s4/neon/neon/build"
 )
@@ -37,7 +38,7 @@ foo: bars`
 	if configuration.Theme != "bee" {
 		t.Errorf("Error parsing configuration")
 	}
-	if configuration.Time != true {
+	if configuration.Time == nil || *configuration.Time != true {
 		t.Errorf("Error parsing configuration")
 	}
 	if configuration.Repo != "~/.neon" {
@@ -147,5 +148,28 @@ func TestFindBuildFile(t *testing.T) {
 func Assert(actual, expected interface{}, t *testing.T) {
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("actual (\"%s\") != expected (\"%s\")", actual, expected)
+	}
+}
+
+func TestPrintDuration(t *testing.T) {
+	yes, no := true, false
+	short, long := time.Second, AutoTimeThreshold+time.Second
+	cases := []struct {
+		option   bool
+		setting  *bool
+		duration time.Duration
+		expected bool
+	}{
+		{false, nil, short, false},
+		{false, nil, long, true},
+		{true, nil, short, true},
+		{false, &yes, short, true},
+		{false, &no, long, false},
+		{true, &no, short, true},
+	}
+	for _, c := range cases {
+		if PrintDuration(c.option, c.setting, c.duration) != c.expected {
+			t.Errorf("bad result for %+v", c)
+		}
 	}
 }

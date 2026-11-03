@@ -1,11 +1,12 @@
 package build
 
 import (
-	"github.com/c4s4/neon/neon/util"
 	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/c4s4/neon/neon/util"
 )
 
 func TestPluginPath(t *testing.T) {

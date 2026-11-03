@@ -70,22 +70,24 @@ integers:
 floats:
   - 1.2
   - 3.14
-dates:
-  - 2015-10-21
+booleans:
+  - true
+  - false
 strings:
   - This is text
   - "1"
-  - '2015-10-21'
+  - 2015-10-21
 ```
 
-So, numbers are numbers, dates are ISO formatted and you can force anything to be a string surrounding it with quotes (simple or double).
+So, numbers are numbers, booleans are booleans and you can force anything to be a string surrounding it with quotes (simple or double). Note that dates are strings.
 
 Things to know to avoid troubles writing YAML:
 
 - You **cannot indent with tabulations**, this is a syntax error!
 - Strings with colons must be surrounded with quotes or they are considered maps. Thus you would write string *"see: this is cool"* with quotes if you don't want it to be a map.
+- Since NeON *2.0.0*, build files are parsed as YAML *1.2*: only `true` and `false` are booleans. Values such as `yes`, `no`, `on` or `off` are strings, so write `verbose: true` instead of `verbose: yes`. Dates such as `2026-11-01` are strings.
 
-This introduction to YAML should be enough for you to write valid build files. If you want more information about YAML, please visit [YAML website](http://yaml.org).
+This introduction to YAML should be enough for you to write valid build files. If you want more information about YAML, please visit [YAML website](https://yaml.org).
 
 [Back to top](#user-manual)
 
@@ -97,27 +99,27 @@ A build file is a YAML map. First level fields are the following:
 - **default** is for default target, which will run if none is passed on command line. This might be a string or a list of strings. If no default targets are defined, you must pass a target on command line, unless the build file defines only one target.
 - **extends** is the list of extended build files. See inheritance section for more details. This is a string or a list of strings.
 - **expose** is the list of properties and targets to print in information page (printed with *-info* option). If not defined, all properties and targets are printed on information page.
-- **repository** is the default location for parent build files. Defaults to directory *.neon* in the home directory of the user.
+- **repository** is the default location for parent build files. Repository passed with *-repo* option on command line overrides this field. If not set, defaults to repository set in configuration file, or else directory *.neon* in the home directory of the user.
 - **context** is a list of scripts loaded on startup. This is a string or a list of strings. This is useful to define your own builtin functions.
-- **singleton** is a port that is opened on startup to ensure that only a single instance of the build is running. This is an integer. This should be between *1024* and *65535* (or between *1* and *65535* if the build is running as root).
+- **singleton** is a port that is opened on the loopback interface (127.0.0.1) on startup to ensure that only a single instance of the build is running. This is an integer. This should be between *1024* and *65535* (or between *1* and *65535* if the build is running as root).
 - **shell** defines the command to execute to run a shell task. This command is defined as a list (such as `["sh", "-c"]` or `["cmd", "/c"]` for instance). The command to run in the shell will be added as the last argument. If you define a single command, this will run for all operating systems. You may instead define the shell as a map of command per operating system. For instance:
-	```yaml
-	shell:
-	  windows: ['cmd', '/c']
-	  default: ['sh', '-c']
-	```
+  ```yaml
+  shell:
+    windows: ['cmd', '/c']
+    default: ['sh', '-c']
+  ```
   This will define a shell for windows and for other environments. Thus, if you define a single command (say `['sh', '-c']`), this is equivalent to:
-	```yaml
-	shell:
-	  default: ['sh', '-c']
-	```
+  ```yaml
+  shell:
+    default: ['sh', '-c']
+  ```
   Note that commands defined as lists will not run with these shells, thus options won't be evaluated and `${USER}` will stay as is.
-- **version** is an expression that checks required NeON version to run the build file. For instance, if your build file requires NeON version *0.12* or greater and a version under *0.15.0*, you would write : `version: 'greaterorequal("0.12") && lower("0.15")'`. Have a look at builtins *greater*, *greaterorequal*, *lower* and *lowerorequal*.
+- **version** is an expression that checks required NeON version to run the build file. For instance, if your build file requires NeON version *0.12* or greater and a version under *0.15.0*, you would write: `version: 'greaterorequal("0.12") && lower("0.15")'`. Have a look at builtins *greater*, *greaterorequal*, *lower* and *lowerorequal*. Version expressions of parent build files are also checked. This check is skipped with development versions of NeON (which version is not a release number, such as a git hash).
 - **properties** is a map of properties of the build file. See section *Properties* for more information about build properties.
 - **configuration** is a list of YAML files to load as build properties. These YAML files must be maps with string keys. This might be a string or a list of strings.
-- **environment** is a map that defines environment for the build file. Environment variables set to empty strings will be unset.
-- **dotenv** is a list of files to load as environment variables. These files must be in dotenv format. This might be a string or a list of strings. Last files in the list will overwrite previous ones.
-- **targets** is a map for targets of the build files. This is a map with string keys.
+- **environment** is a map that defines environment for the build file. Environment variables set to empty strings will be unset. A value may reference other variables with `${NAME}` (left unchanged if variable is not defined, escape with `\${NAME}`) and expressions with `={expression}`.
+- **dotenv** is a list of files to load as environment variables. These files must be in dotenv format (lines such as `NAME=value`, with optional `export` prefix and quotes around value). Relative paths are relative to the directory of the build file that declares them (for the main build file, its build directory). This might be a string or a list of strings. Last files in the list will overwrite previous ones.
+- **targets** is a map for targets of the build file. This is a map with string keys.
 
 Most build files will define documentation, default target, properties and targets. Thus a simple build file might look like following:
 
@@ -190,7 +192,7 @@ To avoid errors, you should follow these conventions:
 - Lowercase properties are local variables. Note that they are defined in the whole build file, but you should always define their value in current target.
 - Properties starting with underscores (such as *_error*) are internal variables, defined by NeON. They should not be modified unless you know what you are doing.
 
-These properties are defined in the virtual machine that runs scripts. This scripting language is [Anko](http://github.com/mattn/anko), which is a kind of scripted Go.
+These properties are defined in the virtual machine that runs scripts. This scripting language is [Anko](https://github.com/mattn/anko), which is a kind of scripted Go.
 
 ### Referencing build properties
 
@@ -282,6 +284,7 @@ $ neon
 ----------------------------------------------------------------------- test --
 BASE: /home/casa/dsk
 HERE: /home/casa/dsk
+REPO: /home/casa/.neon
 OS:   linux
 ARCH: amd64
 NCPU: 2
@@ -407,7 +410,7 @@ And running it redefining property on command line:
 
 ```
 $ neon -props '{FOO: cmd}'
------------------------------------------------------------------------- test --
+----------------------------------------------------------------------- test --
 FOO: cmd
 OK
 ```
@@ -440,8 +443,6 @@ A target might define following fields:
 - **steps** is the list of tasks to run the target.
 
 Tasks might be one of the following:
-
-[Back to top](#user-manual)
 
 ### NeON task
 
@@ -533,13 +534,13 @@ Examples:
     - print: 'duration: ={duration}s'
 ```
 
-Tags in parenthesis in the description of tasks arguments may be the following:
+Tags in parentheses in the description of tasks arguments may be the following:
 
 - *string*, *strings*, *integer*, *float* and *boolean* are the types of the argument. *strings* is a list of strings.
 - *optional* indicates that the field may be omitted (with or without default value).
 - *file* is for arguments that are files. They will be expanded with user home if they start with *~/*.
 - *expression* means that they are an Anko expression and that they will be evaluated in the context of the build, even if they don't start with *=* (which is the sign that denotes expressions).
-- *wrap* tells that single strings will be wrapped into a list of strings. For instance, *mkdir* take a list of strings as argument, but as being tagged as *wrap*, it can accept a single string that will be wrapped into a list if necessary.
+- *wrap* tells that single strings will be wrapped into a list of strings. For instance, *mkdir* takes a list of strings as argument, but as being tagged as *wrap*, it can accept a single string that will be wrapped into a list if necessary.
 - *steps* is a special type as this is a list of steps. For instance, *then* argument of task *if* is the list of steps to perform and is tagged *steps*.
 
 You can get information on available tasks [on this reference page](tasks.md).
@@ -561,7 +562,7 @@ The **task field**, *copy* in this case, defines globs for files to select. Thes
 - **?** to select a character. Thus *?.txt* would select *1.txt* but not *12.txt*.
 - **\*\*** to select any number of directories. Thus *\*\*/\*.txt* would select *foo.txt*, *foo/bar.txt* and any file with *txt* extension in a subdirectory.
 
-For more information on these globs, see [zglob documentation](http://github.com/mattn/go-zglob).
+For more information on these globs, see [zglob documentation](https://github.com/mattn/go-zglob).
 
 The **dir** field is the root directory for globs. Note that selected files are relative to this directory. If *dir* field is not set, it defaults to current working directory.
 
@@ -569,13 +570,13 @@ Field **exclude** is a list of globs of files to exclude from selection. This is
 
 Fields **todir** or **tofile** are destination. One and only one of these fields might be set, and *tofile* can be set only if globs have selected only one file.
 
-Field **flat** tells if copy will be flat, that is at the root of destination directory. This is a boolean, thus you should not set it with a string such as *"false"*, but with a true boolean, such as *false*. This defaults to *true*.
+Field **flat** tells if copy will be flat, that is at the root of destination directory. This is a boolean, thus you should not set it with a string such as *"false"*, but with a true boolean, such as *false*. This defaults to *false*.
 
 [Back to top](#user-manual)
 
 ### Shell task
 
-A shell task runs a script. This script will run with *sh* on Unix and *cmd.exe* on Windows by default. You can define which shell to use with a *shell* field at the root of the build file (see section [Build file structure](build-file-structure) for more information).
+A shell task runs a script. This script will run with *sh* on Unix and *cmd.exe* on Windows by default. You can define which shell to use with a *shell* field at the root of the build file (see section [Build file structure](#build-file-structure) for more information).
 
 This script might be a simple command such as *ls*:
 
@@ -614,13 +615,15 @@ targets:
 
 This way, you will write portable build files that will run seamlessly on Unix boxes or Windows machines.
 
+In commands written as lists, numbers, booleans and dates are converted to strings, and nested lists are flattened. Thus you can write `['sleep', 1]`, or `['go', 'test', =OPTIONS, =PACKAGES]` where *OPTIONS* and *PACKAGES* are lists.
+
 A shell task will fail if the command returns a value different from *0*. You might manage errors with *try/catch/finally* task.
 
 [Back to top](#user-manual)
 
 ### Script task
 
-A script task is a piece of code that will run in the NeON scripting engine. This is also a way to write platform independent code. But this is a way to write complex scripts that would be complicated to write with system commands.
+A script task is a piece of code that will run in the NeON scripting engine. This is also a way to write platform independent code, and to write complex scripts that would be complicated to write with system commands.
 
 A script task is a simple string. For instance:
 
@@ -634,7 +637,7 @@ targets:
 
 Your scripts might use builtin functions, defined by Anko scripting engine (such as *toString()*) or by NeON. To list NeON builtins, you can type command `neon -builtins`. To get help on given builtin, type `neon -builtin split`. You can get information on available builtin functions [on this reference page](builtins.md).
 
-You can define your own functions in scripts that you load in the build file with *context* field. For instance, to define your own *double* function to use it in you build files, you could define *context* as following:
+You can define your own functions in scripts that you load in the build file with *context* field. For instance, to define your own *double* function to use it in your build files, you could define *context* as following:
 
 ```yaml
 context: 'myscript.ank'
@@ -660,7 +663,7 @@ targets:
 
 This will call the *double()* function you defined in your context. This is a way to write your build utility functions in a separate file and thus keep a clean build file.
 
-To get more information about the [Anko scripting language click here](http://github.com/mattn/anko).
+To get more information about the [Anko scripting language click here](https://github.com/mattn/anko).
 
 [Back to top](#user-manual)
 
@@ -692,7 +695,7 @@ Usage of neon:
   -props string
     	Build properties
   -repo string
-    	Neon plugin repository for installation (default "~/.neon")
+    	NeON repository for parent build files, templates and plugins (defaults to ~/.neon)
   -targets
     	Print targets list
   -task string
@@ -721,15 +724,15 @@ Usage of neon:
 
 In most cases, you will call NeON passing build targets to invoke. Thus to call target foo, you would type `neon foo`. You can call more than one target on command line, with `neon foo bar`. Note that second target will be called even if it already ran calling *foo*.
 
-Called build file will default to *build.yml* in current directory. If this file is not found in current directory, it will be searched recursively in parent directories. You can force build file name with the `-file` option. Thus to run build file *foo.yml*, you would type `neon -file foo.yml`. Execution times are always written on console when greater than *10 s*. You can force to print build execution time with `-time` option.
+Called build file will default to *build.yml* in current directory. If this file is not found in current directory, it will be searched recursively in parent directories. You can force build file name with the `-file` option. Thus to run build file *foo.yml*, you would type `neon -file foo.yml`. Execution times are written on console when greater than *10 s*. You can force to print build execution time with `-time` option, or set `time` in configuration file to always (`true`) or never (`false`) print it.
 
 You can get information on build file with `-info` option. This will print the build documentation (written in *doc* field at the root of the build file), default target(s), repository, extended build files, properties (with their own help) and targets (with their help). Using this option is a good way to have an idea of what can perform a build file. You can get targets list with `-targets` option.
 
 You can define properties on command line with `-props` options and a YAML map with properties. For instance, to define property *foo* with value *bar*, you would invoke NeON with command line `neon -props '{foo: bar}'`.
 
-You can set the path to your repository (where live parent build files and templates) with `-repo` option. This defaults to *~/.neon* but you can set it anywhere with this option. This option affects builds, but also where are installed plugin with `-install` option and where they are searched with `-templates` and `-parent` options.
+You can set the path to your repository (where live parent build files and templates) with `-repo` option. This defaults to *~/.neon* but you can set it anywhere with this option. This option affects builds, but also where plugins are installed with `-install` option and where they are searched with `-templates` and `-parents` options.
 
-The `-install` option will install given plugin in repository. Thus typing `neon -install foo/bar` will try to clone propject *bar* of user *foo* on Github into your repository. You can list parent build files in your  repository with `-parents` option and templates with `-templates`. You can run a template with `-template` option, thus to run template *foo/bar/spam.tpl*, you would type `neon -template foo/bar/spam.tpl`. This template may also be invoked with the shortcut `neon -template spam`, provided there is only one template named *spam.tpl* in your repository.
+The `-install` option will install given plugin in repository. Thus typing `neon -install foo/bar` will try to clone project *bar* of user *foo* on Github into your repository. You can list parent build files in your repository with `-parents` option and templates with `-templates`. You can run a template with `-template` option, thus to run template *foo/bar/spam.tpl*, you would type `neon -template foo/bar/spam.tpl`. This template may also be invoked with the shortcut `neon -template spam`, provided there is only one template named *spam.tpl* in your repository.
 
 To list all available builtins, you have option `-builtins`. To get help on a given builtin, you would type `neon -builtin foo`. To list all available tasks, you have option `-tasks` and to get help on a given task, you would type `neon -task foo`. Options `-tasks-ref` and `-builtins-ref` will print on console help on tasks and builtins in Markdown format (this is the way reference documentations are generated).
 
@@ -748,8 +751,9 @@ You can define options to use each time you run NeON with a configuration file *
 grey: false
 # theme applies named theme
 theme: bee
-# time will print execution time
-time: false
+# time: true always prints build duration, false never prints it
+# (when not set, duration is printed for builds longer than 10 seconds)
+#time: true
 # repo location
 repo: ~/.neon
 
@@ -764,7 +768,7 @@ links:
   ~/doc: ~/.neon/c4s4/build/projects.yml
 ```
 
-This example shows default values. You may omit fields in your configuration file, they will have their default value. You can also omit your configuration file altogether.
+This example shows default values for *grey*, *theme* and *repo* (*time*, *colors* and *links* are not set by default). You may omit fields in your configuration file, they will have their default value. You can also omit your configuration file altogether.
 
 You can define your own theme with `colors` field. It has three fields: *title*, *ok* and *error*, to define colors for titles, OK and ERROR messages. For each of these entries, you list color attributes as defined below:
 
@@ -896,8 +900,10 @@ targets:
 
 The path to extended build files is important:
 
-- If this path is **absolute** or starts with **./** (that is in current directory), this works as you would expect.
-- If this path is relative without starting with *./*, this build file is in the NeON repository. See below for more explanations.
+- If this path is **absolute** or starts with **./** or **../**, this works as you would expect (relative paths are relative to the directory of the build file).
+- If this path is in the form *user/plugin/file.yml*, this build file is in the NeON repository. See below for more explanations.
+- If this path is a relative path to an existing file ending with *.yml* (such as `common.yml`), it is relative to the directory of the build file.
+- Otherwise, this is a short name for a parent build file in the repository (see below).
 
 The *super* task will run steps of parent target.
 
@@ -905,13 +911,14 @@ You can list all parent build files in your repository with following command:
 
 ```
 $ neon -parents
-c4s4/build/buildir.yml
-c4s4/build/github.yml
+c4s4/build/common.yml
+c4s4/build/docker.yml
 c4s4/build/golang.yml
-c4s4/build/java.yml
-c4s4/build/release.yml
+c4s4/build/golib.yml
+c4s4/build/library.yml
+c4s4/build/rust.yml
+c4s4/build/rustlib.yml
 c4s4/build/slides.yml
-c4s4/build/xslt.yml
 ```
 
 Note that you use a short name for parent build files you extend, for instance:
@@ -946,9 +953,9 @@ Each parent build file overwrites preceding ones, so that properties and targets
 
 [Back to top](#user-manual)
 
-## Neon repository
+## NeON repository
 
-NeON repository is the place where live installed parent build files. By default, NeON repository is in *~/.neon* directory. This may be changed with *repository* field in the build file.
+NeON repository is the place where live installed parent build files. By default, NeON repository is in *~/.neon* directory. This may be changed with *repository* field in the build file, *repo* field of the configuration file or *-repo* option on command line.
 
 When you extend a build file with following statement:
 
@@ -965,12 +972,12 @@ $ neon -install foo/bar
 This will clone Git repository *bar* of user *foo* on *Github*. Thus this will run command:
 
 ```bash
-$ git clone git://github.com/foo/bar.git <neon-repo>/foo/bar
+$ git clone https://github.com/foo/bar.git <neon-repo>/foo/bar
 ```
 
-Thus, if your parent build files are public, you should put them on *Github* so that they can be easily shared in your team. I personally share my parent build files in repository <http://github.com/c4s4/build>.
+Thus, if your parent build files are public, you should put them on *Github* so that they can be easily shared in your team. I personally share my parent build files in repository <https://github.com/c4s4/build>.
 
-By default this will clone *master* branch. You can change this running following command in created Git repository:
+By default this will clone the default branch of the repository. You can change this running following command in created Git repository:
 
 ```bash
 $ git checkout develop
@@ -1000,13 +1007,14 @@ This will ask you the project name and generate the project:
 
 ```
 $ neon -template c4s4/build/golang.tpl
-------------------------------------------------------------------- template --
+-------------------------------------------------------------------- template --
+This template will generate a Golang project
 Name of this project: test
 Making directory '/home/casa/dsk/test'
-Copying 6 file(s)
+Copying 7 file(s)
 Moving 1 file(s)
 Moving 1 file(s)
-Replacing text in file '/home/casa/dsk/test/build.yml'
+Replacing text in file '/home/casa/dsk/test/go.mod'
 Project generated in 'test' directory
 OK
 ```
@@ -1015,32 +1023,23 @@ This creates a *test* directory with generated project:
 
 ```
 $ ls test
-build.yml  CHANGELOG.yml  LICENSE.txt  README.md  test.go  test_test.go
+build.yml  go.mod  LICENSE.txt  README.md  test.go  test_test.go
 ```
 
 To have an idea of targets in newly created project, go in generated directory and type:
 
 ```
 $ neon -info
-repository: ~/.neon
-
+build: /home/casa/dsk/test/build.yml
+default: [fmt, lint, test]
+repository: /home/casa/.neon
 extends:
 - c4s4/build/golang.yml
 
-properties:
-  BUILD_DIR: "build"
-  LIBRARIES: ["github.com/mitchellh/gox"]
-  VERSION:   "1.0.0"
-  ARCHIVE:   "build/test-1.0.0.tar.gz"
-  NAME:      "test"
-
 targets:
-  archive: Build distribution archive
-  bin:     Make binary
-  clean:   Clean build directory
   fmt:     Format Go code
-  libs:    Install libraries
-  run:     Run Go tool
+  lint:    Lint code with golangci-lint
+  release: Perform a release [branch, version, clean, lint, test, archive, deploy]
   test:    Run Go tests
 ```
 
@@ -1049,19 +1048,18 @@ You can list all available templates in your repository by typing:
 ```
 $ neon -templates
 c4s4/build/golang.tpl
-c4s4/build/java.tpl
+c4s4/build/rust.tpl
 c4s4/build/slides.tpl
 ```
 
 ### Creating templates
 
-To create your own templates, you can have a look at the following Github project: <http://github.com/c4s4/build> which contains an example *Golang* template
-project.
+To create your own templates, you can have a look at the following Github project: <https://github.com/c4s4/build> which contains an example *Golang* template project.
 
 The template is made of a build file, *golang.tpl*:
 
 ```yaml
-# Neon template file (http://github.com/c4s4/neon)
+# NeON template file (https://github.com/c4s4/neon)
 
 default: template
 
@@ -1070,9 +1068,10 @@ targets:
   template:
     doc: Generate Golang project
     steps:
+    - print: 'This template will generate a Golang project'
     - prompt:  'Name of this project'
       to:      'name'
-      pattern: '^\w+$'
+      pattern: '^[\w_-]+$'
       error:   'Project name must be made of letters, numbers, - and _'
     - if: 'exists(joinpath(_HERE, name))'
       then:
@@ -1085,8 +1084,8 @@ targets:
       tofile: '={_HERE}/={name}/={name}.go'
     - move:   '={_HERE}/={name}/main_test.go'
       tofile: '={_HERE}/={name}/={name}_test.go'
-    - replace: '={_HERE}/={name}/build.yml'
-      with:    {'main': =name}
+    - replace: '={_HERE}/={name}/go.mod'
+      with:    {'name': =name}
     - print: "Project generated in '={name}' directory"
 ```
 

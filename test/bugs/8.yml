@@ -1,0 +1,10 @@
+# Diamond inheritance (8-b and 8-c both extend 8-d) must not be reported as a
+# dependency cycle
+
+extends: [./8-b.tst, ./8-c.tst]
+default: bug
+
+targets:
+
+  bug:
+    depends: [b, c, d]

@@ -21,6 +21,47 @@ targets:
         } else {
           println("$ test success")
         }
+      # test numbers converted to strings
+      - 'n = 3'
+      - $:  ['echo', 1, 2.5, -7, =n, 4]
+        +:  '=[5, 6.5]'
+        1=: 'result'
+      - |
+        if result != "1 2.5 -7 3 4 5 6.5" {
+          throw("$ numbers test failure: " + result)
+        } else {
+          println("$ numbers test success")
+        }
+      # test nested lists flattened
+      - 'opts = ["a"]'
+      - $:  ['echo', =opts, ['b', [1]]]
+        +:  ['=["c", 2]', 'd']
+        1=: 'result'
+      - |
+        if result != "a b 1 c 2 d" {
+          throw("$ lists test failure: " + result)
+        } else {
+          println("$ lists test success")
+        }
+      - $:  ['echo', true, false, 2026-11-01]
+        1=: 'result'
+      - |
+        if result != "true false 2026-11-01" {
+          throw("$ scalars test failure: " + result)
+        } else {
+          println("$ scalars test success")
+        }
+      - $:  ['sh', '-c', 'echo "$NUM" && cat']
+        <:  12
+        env:
+          NUM: 42
+        1=: 'result'
+      - |
+        if result != "42\n12" {
+          throw("$ numbers test failure: " + result)
+        } else {
+          println("$ numbers test success")
+        }
       # test command
       - $:  ['echo', 'TEST']
         1=: 'result'

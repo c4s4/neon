@@ -21,8 +21,8 @@ Returns:
 
 Examples:
 
-	# get terminal width
-	width = termwidth()`,
+    # get terminal width
+    width = termwidth()`,
 	})
 }
 

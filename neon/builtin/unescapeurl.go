@@ -1,8 +1,9 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"net/url"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -22,7 +23,7 @@ Returns:
 Examples:
 
     # unescape given URL
-    escapeurl("foo%20bar")
+    unescapeurl("foo%20bar")
     # returns: "foo bar"`,
 	})
 }

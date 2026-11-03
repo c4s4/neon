@@ -1,0 +1,24 @@
+# A target which dependency fails, called in a try, must not leave the target
+# on the stack (which raised a false infinite loop error on next call)
+
+default: bug
+
+targets:
+
+  bug:
+    steps:
+    - try:
+      - call: a
+    - try:
+      - call: a
+      catch:
+      - if: '_error.contains("infinite loop")'
+        then:
+        - throw: 'False infinite loop: ={_error}'
+
+  a:
+    depends: b
+
+  b:
+    steps:
+    - throw: boom

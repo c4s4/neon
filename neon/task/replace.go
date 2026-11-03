@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strings"
 
 	"github.com/c4s4/neon/neon/build"
@@ -16,14 +17,15 @@ func init() {
 		Name: "replace",
 		Func: replace,
 		Args: reflect.TypeOf(replaceArgs{}),
-		Help: `Replace text matching patterns in files.
+		Help: `Replace strings in files.
 
 Arguments:
 
 - replace: globs of files to process (strings, file, wrap).
-- with: map with replacements (map with string keys and values).
+- with: map with strings to replace as keys and replacements as values (map
+  with string keys and values).
 - dir: root directory for globs (string, optional, file).
-- exclude: globs of files to exclude (strings, optional, files).
+- exclude: globs of files to exclude (strings, optional, file).
 
 Examples:
 
@@ -48,25 +50,42 @@ func replace(context *build.Context, args interface{}) error {
 	}
 	files, err := util.FindFiles(params.Dir, params.Replace, params.Exclude, false)
 	if err != nil {
-		return fmt.Errorf("getting source files for copy task: %v", err)
+		return fmt.Errorf("getting source files for replace task: %v", err)
 	}
 	if len(files) < 1 {
 		return nil
 	}
+	// longest strings are replaced first, so that result doesn't depend on
+	// map iteration order when strings overlap
+	olds := make([]string, 0, len(with))
+	for old := range with {
+		olds = append(olds, old)
+	}
+	sort.Slice(olds, func(i, j int) bool {
+		if len(olds[i]) != len(olds[j]) {
+			return len(olds[i]) > len(olds[j])
+		}
+		return olds[i] < olds[j]
+	})
 	for _, file := range files {
 		context.MessageArgs("Replacing text in file '%s'", file)
 		if params.Dir != "" {
 			file = filepath.Join(params.Dir, file)
+		}
+		info, err := os.Stat(file)
+		if err != nil {
+			return fmt.Errorf("getting mode of file '%s': %v", file, err)
 		}
 		bytes, err := os.ReadFile(file)
 		if err != nil {
 			return fmt.Errorf("reading file '%s': %v", file, err)
 		}
 		text := string(bytes)
-		for old, new := range with {
-			text = strings.ReplaceAll(text, old, new)
+		for _, old := range olds {
+			text = strings.ReplaceAll(text, old, with[old])
 		}
-		err = os.WriteFile(file, []byte(text), FileMode)
+		// WriteFile keeps mode of existing file
+		err = os.WriteFile(file, []byte(text), info.Mode().Perm())
 		if err != nil {
 			return fmt.Errorf("writing file '%s': %v", file, err)
 		}

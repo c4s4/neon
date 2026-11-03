@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -87,3 +88,25 @@ func TestPrintOk(t *testing.T) {
 // 		t.Errorf("PrintError failure: '%s'", string(out))
 // 	}
 // }
+
+func TestPrintErrorOnStderr(t *testing.T) {
+	saved := ErrorOutput
+	defer func() {
+		ErrorOutput = saved
+	}()
+	var buffer strings.Builder
+	ErrorOutput = &buffer
+	stdout := os.Stdout
+	read, write, _ := os.Pipe()
+	os.Stdout = write
+	PrintError("test")
+	os.Stdout = stdout
+	_ = write.Close()
+	out, _ := io.ReadAll(read)
+	if len(out) != 0 {
+		t.Errorf("nothing should be printed on stdout: %q", out)
+	}
+	if buffer.String() != "ERROR test\n" {
+		t.Errorf("bad error output: %q", buffer.String())
+	}
+}

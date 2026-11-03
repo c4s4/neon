@@ -2,9 +2,10 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
 	"os"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -18,8 +19,8 @@ Arguments:
 
 - write: file to write into (string, file).
 - text: text to write into the file (string, optional).
-- append: tells if we should append content to file, default to false (boolean,
-  optional).
+- append: tells if we should append content to file, defaults to false
+  (boolean, optional).
 
 Examples:
 

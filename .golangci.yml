@@ -1,0 +1,20 @@
+version: "2"
+
+linters:
+  # standard linters: errcheck, govet, ineffassign, staticcheck and unused
+  # (staticcheck runs here, no need to install it separately)
+  default: standard
+
+formatters:
+  enable:
+    - gci
+    - gofmt
+  settings:
+    gci:
+      # standard library, then third party, then neon packages
+      sections:
+        - standard
+        - default
+        - localmodule
+    gofmt:
+      simplify: true

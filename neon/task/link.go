@@ -2,9 +2,10 @@ package task
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
 	"os"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -22,8 +23,8 @@ Arguments:
 Examples:
 
     # create a link from file 'foo' to 'bar'
-    - link: 'foo''
-      to:   'bar''`,
+    - link: 'foo'
+      to:   'bar'`,
 	})
 }
 

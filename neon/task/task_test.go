@@ -1,13 +1,14 @@
 package task
 
 import (
-	_build "github.com/c4s4/neon/neon/build"
-	_ "github.com/c4s4/neon/neon/builtin"
-	"github.com/c4s4/neon/neon/util"
 	"os"
 	_path "path"
 	"path/filepath"
 	"testing"
+
+	_build "github.com/c4s4/neon/neon/build"
+	_ "github.com/c4s4/neon/neon/builtin"
+	"github.com/c4s4/neon/neon/util"
 )
 
 const (

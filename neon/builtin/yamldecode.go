@@ -2,7 +2,7 @@ package builtin
 
 import (
 	"github.com/c4s4/neon/neon/build"
-	"gopkg.in/yaml.v2"
+	"github.com/c4s4/neon/neon/util"
 )
 
 func init() {
@@ -17,19 +17,18 @@ Arguments:
 
 Returns:
 
-- Decoded string.
+- Decoded value.
 
 Examples:
 
     # decode given list
     yamldecode("['foo', 'bar']")
-    # returns string slice: ["foo", "bar"]`,
+    # returns list: ["foo", "bar"]`,
 	})
 }
 
 func yamlDecode(encoded string) interface{} {
-	var value interface{}
-	err := yaml.Unmarshal([]byte(encoded), &value)
+	value, err := util.DecodeYAML([]byte(encoded))
 	if err != nil {
 		panic(err)
 	}

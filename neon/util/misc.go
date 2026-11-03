@@ -27,7 +27,7 @@ func ToString(object interface{}) (string, error) {
 	return "", fmt.Errorf("%#v is not a string", str)
 }
 
-// ToSliceString return interface as a slice of strings:
+// ToSliceString returns interface as a slice of strings:
 // - object: the slice of strings or string as an interface
 // Return:
 // - converted slice of strings
@@ -53,8 +53,8 @@ func ToSliceString(object interface{}) ([]string, error) {
 	return nil, fmt.Errorf("must be a slice of strings or a string")
 }
 
-// ToMapStringString return interface as a map with string keys and values:
-// - object: the maps of strings as an interface
+// ToMapStringString returns interface as a map with string keys and values:
+// - object: the map of strings as an interface
 // Return:
 // - converted map of strings
 // - an error if something went wrong
@@ -78,9 +78,9 @@ func ToMapStringString(object interface{}) (map[string]string, error) {
 	return result, nil
 }
 
-// ToMapStringInterface return interface as a map with string keys and
+// ToMapStringInterface returns interface as a map with string keys and
 // interface values:
-// - object: the maps of interfaces as an interface
+// - object: the map of interfaces as an interface
 // Return:
 // - converted map of interfaces
 // - an error if something went wrong
@@ -145,7 +145,7 @@ func Windows() bool {
 }
 
 // RemoveBlankLines removes blank lines of given string:
-// - text: to text to process
+// - text: the text to process
 // Return: a string without blank lines
 func RemoveBlankLines(text string) string {
 	regex := regexp.MustCompile("(\n\\s*)+\n")

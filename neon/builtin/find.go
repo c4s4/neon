@@ -1,9 +1,10 @@
 package builtin
 
 import (
+	"sort"
+
 	"github.com/c4s4/neon/neon/build"
 	"github.com/c4s4/neon/neon/util"
-	"sort"
 )
 
 func init() {
@@ -15,7 +16,7 @@ func init() {
 Arguments:
 
 - The directory of files to find.
-- The list of pattern for files to find.
+- The patterns of files to find.
 
 Returns:
 

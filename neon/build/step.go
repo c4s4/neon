@@ -35,6 +35,7 @@ type ScriptStep struct {
 
 // NewScriptStep makes a new script step
 // - script: the script as a string
+// Return:
 // - built step
 // - error if something went wrong
 func NewScriptStep(script string) (Step, error) {
@@ -45,7 +46,7 @@ func NewScriptStep(script string) (Step, error) {
 }
 
 // Run a script step using Anko VM.
-// - context: the build context to run tha script
+// - context: the build context to run the script
 // Return: an error if something went wrong
 func (step ScriptStep) Run(context *Context) error {
 	_, err := context.EvaluateExpression(step.Script)
@@ -68,25 +69,37 @@ type TaskStep struct {
 // - error if something went wrong
 func NewTaskStep(args TaskArgs) (Step, error) {
 	// find the task in the map
-	for name, desc := range TaskMap {
-		for field := range args {
-			if name == field {
-				err := ValidateTaskArgs(args, desc.Args)
-				if err != nil {
-					return nil, fmt.Errorf("parsing task '%s': %v", name, err)
-				}
-				step := TaskStep{
-					Desc: desc,
-					Args: args,
-				}
-				return step, nil
-			}
+	var names []string
+	for field := range args {
+		name, ok := field.(string)
+		if !ok {
+			continue
 		}
+		if _, found := TaskMap[name]; found {
+			names = append(names, name)
+		}
+	}
+	sort.Strings(names)
+	if len(names) > 1 {
+		return nil, fmt.Errorf("step defines more than one task: %s", strings.Join(names, ", "))
+	}
+	if len(names) == 1 {
+		name := names[0]
+		desc := TaskMap[name]
+		err := ValidateTaskArgs(args, desc.Args)
+		if err != nil {
+			return nil, fmt.Errorf("parsing task '%s': %v", name, err)
+		}
+		step := TaskStep{
+			Desc: desc,
+			Args: args,
+		}
+		return step, nil
 	}
 	// task was not found, build error message
 	var fields []string
 	for field := range args {
-		fields = append(fields, field.(string))
+		fields = append(fields, fmt.Sprintf("%v", field))
 	}
 	sort.Strings(fields)
 	return nil, fmt.Errorf("unknown task '%s'", strings.Join(fields, "/"))
@@ -106,22 +119,22 @@ func (step TaskStep) Run(context *Context) error {
 // Steps is a list of steps
 type Steps []Step
 
-// NewSteps makes a new steps
+// NewSteps makes steps from a list
 // - object: body of the steps as an interface
 // Return:
 // - steps
 // - an error if something went wrong
 func NewSteps(object interface{}) (Steps, error) {
-	if reflect.ValueOf(object).IsNil() {
+	if object == nil {
 		return []Step{}, nil
 	}
-	if reflect.TypeOf(object).Kind() != reflect.Slice {
-		return nil, fmt.Errorf("steps must be a slice")
+	value := reflect.ValueOf(object)
+	if value.Kind() != reflect.Slice {
+		return nil, fmt.Errorf("steps must be a list (%v provided)", reflect.TypeOf(object))
 	}
-	len := reflect.ValueOf(object).Len()
-	steps := make([]Step, len)
-	for i := 0; i < len; i++ {
-		step, err := NewStep(reflect.ValueOf(object).Index(i).Interface())
+	steps := make([]Step, value.Len())
+	for i := 0; i < value.Len(); i++ {
+		step, err := NewStep(value.Index(i).Interface())
 		if err != nil {
 			return nil, err
 		}

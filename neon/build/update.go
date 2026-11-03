@@ -7,21 +7,31 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/c4s4/neon/neon/util"
 )
 
 const (
-	versionURL         = "http://sweetohm.net/neon/version"
-	installCommandCurl = "sh -c \"$(curl http://sweetohm.net/neon/install)\""
-	installCommandWget = "sh -c \"$(wget -O - http://sweetohm.net/neon/install)\""
+	// versionURL is the URL of the file with latest release version, deployed
+	// with binaries by the release (see deploy target in build.yml)
+	versionURLDefault  = "https://sweetohm.net/dist/neon/version"
+	installCommandCurl = "sh -c \"$(curl https://sweetohm.net/dist/neon/install)\""
+	installCommandWget = "sh -c \"$(wget -O - https://sweetohm.net/dist/neon/install)\""
+	// updateTimeout is the timeout for the request checking latest version
+	updateTimeout = 10 * time.Second
 )
 
-// Update updates Neon and repository:
+// versionURL is the URL of the version file (a variable for testing purpose)
+var versionURL = versionURLDefault
+
+// Update prints if a new NeON release is available and updates plugins of
+// repository:
 // - repository: the repository path.
+// - batch: update plugins without asking for confirmation.
 // Return: error if something went wrong
 func Update(repository string, batch bool) error {
 	printNewRelease()
@@ -29,22 +39,30 @@ func Update(repository string, batch bool) error {
 }
 
 func printNewRelease() {
-	response, err := http.Get(versionURL)
+	client := &http.Client{Timeout: updateTimeout}
+	response, err := client.Get(versionURL)
 	if err != nil {
-		return
-	}
-	if response.StatusCode != 200 {
 		return
 	}
 	defer func() {
 		_ = response.Body.Close()
 	}()
+	if response.StatusCode != http.StatusOK {
+		return
+	}
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return
 	}
 	version := strings.TrimSpace(string(body))
-	if version != NeonVersion {
+	latest, err := NewVersion(version)
+	if err != nil {
+		return
+	}
+	current, err := NewVersion(NeonVersion)
+	if err != nil {
+		fmt.Printf("You are running a development version of neon (%s), latest release is %s\n", NeonVersion, version)
+	} else if latest.Compare(current) > 0 {
 		fmt.Printf("Neon %s is available\n", version)
 		if runtime.GOOS != "windows" {
 			if len(util.FindInPath("curl")) > 0 {
@@ -68,13 +86,18 @@ func updateRepository(repository string, batch bool) error {
 	if len(plugins) > 0 {
 		fmt.Println("Plugins:")
 		for _, plugin := range plugins {
-			path := path.Join(repository, plugin)
+			path := filepath.Join(repository, plugin)
+			// skip directories that are not git repositories
+			if !util.DirExists(filepath.Join(path, ".git")) {
+				fmt.Printf("- %s: not a git repository, skipped\n", plugin)
+				continue
+			}
 			// fetch repository
 			cmd := exec.Command("git", "fetch")
 			cmd.Dir = path
 			bytes, err := cmd.CombinedOutput()
 			if err != nil {
-				println(string(bytes))
+				_, _ = fmt.Fprintln(ErrorOutput, string(bytes))
 				return fmt.Errorf("fetching repository: %v", err)
 			}
 			// get branch name
@@ -82,7 +105,7 @@ func updateRepository(repository string, batch bool) error {
 			cmd.Dir = path
 			bytes, err = cmd.CombinedOutput()
 			if err != nil {
-				println(string(bytes))
+				_, _ = fmt.Fprintln(ErrorOutput, string(bytes))
 				return fmt.Errorf("getting branch for plugin: %v", err)
 			}
 			branch := strings.TrimSpace(string(bytes))
@@ -91,7 +114,7 @@ func updateRepository(repository string, batch bool) error {
 			cmd.Dir = path
 			bytes, err = cmd.CombinedOutput()
 			if err != nil {
-				println(string(bytes))
+				_, _ = fmt.Fprintln(ErrorOutput, string(bytes))
 				return fmt.Errorf("getting hash for local: %v", err)
 			}
 			hashLocal := strings.TrimSpace(string(bytes))
@@ -100,7 +123,7 @@ func updateRepository(repository string, batch bool) error {
 			cmd.Dir = path
 			bytes, err = cmd.CombinedOutput()
 			if err != nil {
-				println(string(bytes))
+				_, _ = fmt.Fprintln(ErrorOutput, string(bytes))
 				return fmt.Errorf("getting hash for remote: %v", err)
 			}
 			hashRemote := strings.TrimSpace(string(bytes))
@@ -129,7 +152,8 @@ func updateRepository(repository string, batch bool) error {
 					bytes, err = cmd.CombinedOutput()
 					if err != nil {
 						message := strings.ReplaceAll(string(bytes), "\n", "")
-						fmt.Printf("ERROR: %s", message)
+						fmt.Println()
+						_, _ = fmt.Fprintln(ErrorOutput, message)
 						return fmt.Errorf("updating plugin: %v", err)
 					}
 					fmt.Println("OK")

@@ -1,8 +1,9 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"unicode/utf8"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -17,12 +18,13 @@ Arguments:
 
 Returns:
 
-- Length of the given string.
+- Length of the given string, in characters.
 
 Examples:
 
     # get length of the string
-    l = length("Hello World!")`,
+    l = length("Hello World!")
+    # returns: 12`,
 	})
 }
 

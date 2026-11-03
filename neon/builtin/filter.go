@@ -1,9 +1,9 @@
 package builtin
 
 import (
-	"github.com/c4s4/neon/neon/build"
-
 	zglob "github.com/mattn/go-zglob"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -19,14 +19,14 @@ Arguments:
 
 Returns:
 
-- The list if filtered files as a list of strings.
+- The list of filtered files as a list of strings.
 
 Examples:
 
     # filter text files removing those in build directory
     filter(find(".", "**/*.txt"), "build/**/*")
     # returns: files with extension "txt" in current directory and
-    # subdirectories, except those in "github.com/c4s4/neon/neon/build" directory
+    # subdirectories, except those in "build" directory
 
 Notes:
 

@@ -2,7 +2,6 @@ package build
 
 import (
 	"fmt"
-	"os"
 	"reflect"
 
 	"github.com/c4s4/neon/neon/util"
@@ -80,7 +79,7 @@ func ParseTargetDepends(object util.Object, target *Target) error {
 
 // ParseTargetUnless parses unless clause of the target:
 // - object: body of the target as an interface
-// - target: the target to document
+// - target: the target being parsed
 // Return: an error if something went wrong
 func ParseTargetUnless(object util.Object, target *Target) error {
 	if object.HasField("unless") {
@@ -101,7 +100,7 @@ func ParseTargetSteps(object util.Object, target *Target) error {
 	if object.HasField("steps") {
 		list, err := object.GetList("steps")
 		if err != nil {
-			return fmt.Errorf("parsig target '%s': steps must be a list", target.Name)
+			return fmt.Errorf("parsing target '%s': steps must be a list", target.Name)
 		}
 		var steps []Step
 		for index, object := range list {
@@ -140,6 +139,9 @@ func (target *Target) Run(context *Context) error {
 	if err := context.Stack.Push(target); err != nil {
 		return err
 	}
+	defer func() {
+		_ = context.Stack.Pop()
+	}()
 	if err := context.History.Push(target); err != nil {
 		return err
 	}
@@ -152,17 +154,13 @@ func (target *Target) Run(context *Context) error {
 	}
 	Title(target.Name)
 	if target.Build.Template {
-		if err := os.Chdir(target.Build.Here); err != nil {
-			return fmt.Errorf("changing to current directory '%s'", target.Build.Dir)
+		if err := Chdir(target.Build.Here); err != nil {
+			return fmt.Errorf("changing to current directory '%s': %v", target.Build.Here, err)
 		}
 	} else {
-		if err := os.Chdir(target.Build.Dir); err != nil {
-			return fmt.Errorf("changing to build directory '%s'", target.Build.Dir)
+		if err := Chdir(target.Build.Dir); err != nil {
+			return fmt.Errorf("changing to build directory '%s': %v", target.Build.Dir, err)
 		}
 	}
-	run_err := target.Steps.Run(context)
-	if err := context.Stack.Pop(); err != nil {
-		return err
-	}
-	return run_err
+	return target.Steps.Run(context)
 }

@@ -1,8 +1,9 @@
 package task
 
 import (
-	"github.com/c4s4/neon/neon/build"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -23,7 +24,7 @@ Examples:
 
 Notes:
 
-- This will raise en error if parent build files have no target with same name.`,
+- This will raise an error if parent build files have no target with same name.`,
 	})
 }
 

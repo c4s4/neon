@@ -2,8 +2,9 @@ package task
 
 import (
 	"errors"
-	"github.com/c4s4/neon/neon/build"
 	"reflect"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -26,7 +27,7 @@ Notes:
 
 - You can catch raised errors with try/catch/finally task.
 - Property _error is set with the error message.
-- If the error was not catch, the error message will be printed on the console
+- If the error was not caught, the error message will be printed on the console
   as the cause of the build failure.`,
 	})
 }

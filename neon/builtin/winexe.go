@@ -1,9 +1,10 @@
 package builtin
 
 import (
+	"strings"
+
 	"github.com/c4s4/neon/neon/build"
 	"github.com/c4s4/neon/neon/util"
-	"strings"
 )
 
 func init() {

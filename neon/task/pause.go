@@ -24,7 +24,7 @@ Examples:
 
     # pause for 3 seconds
     - pause: 3s
-    # pause for 1 minutes without message
+    # pause for 1 minute without message
     - pause: 1m
       mute:  true`,
 	})

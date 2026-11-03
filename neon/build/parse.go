@@ -2,12 +2,20 @@ package build
 
 import (
 	"fmt"
-	"github.com/c4s4/neon/neon/util"
 	"path/filepath"
 	"strconv"
 
-	"gopkg.in/yaml.v2"
+	"github.com/c4s4/neon/neon/util"
 )
+
+// UserRepository is the repository set in user configuration file. It is
+// used when the build file doesn't define a repository.
+var UserRepository = ""
+
+// CommandLineRepository is the repository set with -repo option on command
+// line. It overrides repository of build files, including those run with the
+// neon task.
+var CommandLineRepository = ""
 
 // ParseSingleton parses singleton field of the build:
 // - object: the object to parse
@@ -102,7 +110,8 @@ func ParseDoc(object util.Object, build *Build) error {
 // ParseRepository parses repository field of the build:
 // - object: the object to parse
 // - build: build that is being constructed
-// - repo: repository location passed on command line
+// - repository: repository location passed on command line (or by child
+// build), that overrides repository field of the build file
 // Return: an error if something went wrong
 func ParseRepository(object util.Object, build *Build, repository string) error {
 	if object.HasField("repository") {
@@ -114,6 +123,9 @@ func ParseRepository(object util.Object, build *Build, repository string) error 
 	}
 	if repository != "" {
 		build.Repository = repository
+	}
+	if build.Repository == "" {
+		build.Repository = UserRepository
 	}
 	if build.Repository == "" {
 		build.Repository = DefaultRepository
@@ -175,7 +187,6 @@ func ParseProperties(object util.Object, build *Build) error {
 // Return: an error if something went wrong
 func ParseConfiguration(object util.Object, build *Build) error {
 	if object.HasField("configuration") {
-		var config util.Object
 		files, err := object.GetListStringsOrString("configuration")
 		if err != nil {
 			return fmt.Errorf("getting configuration file: %v", err)
@@ -189,9 +200,9 @@ func ParseConfiguration(object util.Object, build *Build) error {
 			if err != nil {
 				return fmt.Errorf("reading configuration file: %v", err)
 			}
-			err = yaml.Unmarshal(source, &config)
+			config, err := util.DecodeYAMLObject(source)
 			if err != nil {
-				return fmt.Errorf("configuration must be a map with string keys")
+				return fmt.Errorf("configuration must be a map with string keys: %v", err)
 			}
 			for name, value := range config {
 				build.Properties[name] = value

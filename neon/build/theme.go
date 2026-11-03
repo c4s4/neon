@@ -2,6 +2,7 @@ package build
 
 import (
 	"fmt"
+
 	"github.com/fatih/color"
 )
 
@@ -138,7 +139,7 @@ var Attributes = map[string]color.Attribute{
 	"BgHiWhite":    color.BgHiWhite,
 }
 
-// apply default theme
+// init applies default theme
 func init() {
 	_ = ApplyThemeByName(defaultTheme)
 }
@@ -160,7 +161,7 @@ func ApplyTheme(theme *Theme) {
 	colorError = color.New(theme.Error...).SprintFunc()
 }
 
-// ParseAttributes parse attributes
+// ParseAttributes parses attributes
 func ParseAttributes(colors []string) ([]color.Attribute, error) {
 	var attributes []color.Attribute
 	for _, col := range colors {

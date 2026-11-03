@@ -44,7 +44,7 @@ func call(context *build.Context, args interface{}) error {
 			return err
 		}
 		context.Stack = stack
-		if err := os.Chdir(dir); err != nil {
+		if err := build.Chdir(dir); err != nil {
 			return fmt.Errorf("changing to build directory: %v", err)
 		}
 	}

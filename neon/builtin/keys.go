@@ -16,13 +16,13 @@ Arguments:
 
 Returns:
 
-- A list of keys.
+- A list of keys, in no particular order.
 
 Examples:
 
     # get keys of a map
     keys({"foo": 1, "bar": 2})
-    # returns: ["foo", "bar"]`,
+    # returns: ["foo", "bar"] (or ["bar", "foo"])`,
 	})
 }
 

@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"reflect"
 	"sync"
 
@@ -53,8 +54,11 @@ properties, they won't affect other threads. But all properties will be lost
 when thread is done, except for _output that will be appended to other in
 resulting _output property.
 
-Don't change current directory in threads as it would affect other threads as
-well.`,
+Current directory is shared by all threads: changing to another directory
+while threads are running (with chdir or neon tasks, or calling a target of a
+build in another directory) raises an error. Number of threads must be at
+least 1. When a thread fails, other threads stop and the first error is
+returned.`,
 	})
 }
 
@@ -67,6 +71,9 @@ type threadsArgs struct {
 
 func threads(context *build.Context, args interface{}) error {
 	params := args.(threadsArgs)
+	if params.Threads < 1 {
+		return fmt.Errorf("number of threads must be at least 1 (%d provided)", params.Threads)
+	}
 	if params.Input == nil {
 		params.Input = make([]interface{}, params.Threads)
 	}
@@ -74,78 +81,69 @@ func threads(context *build.Context, args interface{}) error {
 	for _, d := range params.Input {
 		input <- d
 	}
-	error := make(chan error, params.Threads)
+	close(input)
+	build.EnterParallel()
+	defer build.LeaveParallel()
+	errs := make(chan error, params.Threads)
+	// stop is closed on first error to stop other threads
+	stop := make(chan struct{})
+	var once sync.Once
 	var wg sync.WaitGroup
 	wg.Add(params.Threads)
 	if params.Verbose {
 		context.MessageArgs("Starting %d threads", params.Threads)
 	}
-	output := make(chan interface{}, len(input))
+	output := make(chan interface{}, len(params.Input))
 	for i := 0; i < params.Threads; i++ {
-		go runThread(params.Steps, context, i, input, output, &wg, error, params.Verbose)
+		go func(index int) {
+			defer wg.Done()
+			if err := runThread(params.Steps, context, index, input, output, stop, params.Verbose); err != nil {
+				errs <- err
+				once.Do(func() { close(stop) })
+			}
+		}(i)
 	}
 	wg.Wait()
+	close(output)
+	close(errs)
 	var out []interface{}
-	stop := false
-	for !stop {
-		select {
-		case o, ok := <-output:
-			if ok {
-				out = append(out, o)
-			} else {
-				stop = true
-			}
-		default:
-			stop = true
-		}
+	for o := range output {
+		out = append(out, o)
 	}
 	context.SetProperty(propertyOutput, out)
-	select {
-	case e, ok := <-error:
-		if ok {
-			return e
-		}
-		return nil
-	default:
-		return nil
-	}
+	// return first error, if any
+	return <-errs
 }
 
-func runThread(steps build.Steps, ctx *build.Context, index int, input chan interface{}, output chan interface{},
-	wg *sync.WaitGroup, errors chan error, verbose bool) {
+func runThread(steps build.Steps, ctx *build.Context, index int, input <-chan interface{}, output chan<- interface{},
+	stop <-chan struct{}, verbose bool) error {
 	if verbose {
 		ctx.MessageArgs("Thread %d started", index)
 		defer ctx.MessageArgs("Thread %d done", index)
 	}
-	defer wg.Done()
-	for {
+	for arg := range input {
 		select {
-		case arg, ok := <-input:
-			if ok {
-				threadContext := ctx.Copy()
-				threadContext.SetProperty(propertyThread, index)
-				threadContext.SetProperty(propertyInput, arg)
-				threadContext.DelProperty(propertyOutput)
-				if verbose {
-					threadContext.MessageArgs("Thread %d iteration with input '%v'", index, arg)
-				}
-				err := steps.Run(threadContext)
-				out, _ := threadContext.GetProperty(propertyOutput)
-				if err != nil {
-					errors <- err
-					return
-				}
-				if out != nil {
-					output <- out
-					if verbose {
-						threadContext.MessageArgs("Thread %d output '%v'", index, out)
-					}
-				}
-			} else {
-				return
-			}
+		case <-stop:
+			return nil
 		default:
-			return
+		}
+		threadContext := ctx.Copy()
+		threadContext.SetProperty(propertyThread, index)
+		threadContext.SetProperty(propertyInput, arg)
+		threadContext.DelProperty(propertyOutput)
+		if verbose {
+			threadContext.MessageArgs("Thread %d iteration with input '%v'", index, arg)
+		}
+		if err := steps.Run(threadContext); err != nil {
+			return err
+		}
+		out, _ := threadContext.GetProperty(propertyOutput)
+		if out != nil {
+			output <- out
+			if verbose {
+				threadContext.MessageArgs("Thread %d output '%v'", index, out)
+			}
 		}
 	}
+	return nil
 }

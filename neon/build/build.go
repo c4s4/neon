@@ -6,10 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/c4s4/neon/neon/util"
-	"gopkg.in/yaml.v2"
-	"strings"
 )
 
 const (
@@ -27,6 +26,7 @@ var Fields = []string{"doc", "default", "extends", "repository", "context", "sin
 type Build struct {
 	File        string
 	Dir         string
+	FileDir     string
 	Here        string
 	Default     []string
 	Doc         string
@@ -48,33 +48,30 @@ type Build struct {
 }
 
 // NewBuild creates a Build from a build file.
-// This is the public entry point. It initializes a fresh visited map
+// This is the public entry point. It initializes an empty inheritance chain
 // and delegates the actual work to newBuildInternal.
 func NewBuild(file, base, repo string, template bool) (*Build, error) {
-	visited := make(map[string]bool)
-	return newBuildInternal(file, base, repo, template, visited)
+	return newBuildInternal(file, base, repo, template, nil)
 }
 
-// newBuildInternal performs the real build creation while tracking visited files
-// to detect cyclic dependencies.
-func newBuildInternal(file, base, repo string, template bool, visited map[string]bool) (*Build, error) {
+// newBuildInternal performs the real build creation while tracking the chain
+// of build files being loaded to detect cyclic inheritance. The chain is a
+// stack: a file may appear several times in the inheritance tree (diamond
+// inheritance), but not twice on the same branch.
+func newBuildInternal(file, base, repo string, template bool, chain []string) (*Build, error) {
 	// Resolve absolute path for cycle detection
-	absPath, err := filepath.Abs(file)
+	absPath, err := filepath.Abs(util.ExpandUserHome(file))
 	if err != nil {
 		return nil, fmt.Errorf("resolving absolute path for '%s': %v", file, err)
 	}
 	// Detect cycle
-	if visited[absPath] {
-		// Build a readable cycle description
-		cycle := []string{}
-		for p := range visited {
-			cycle = append(cycle, p)
+	for _, path := range chain {
+		if path == absPath {
+			cycle := append(append([]string{}, chain...), absPath)
+			return nil, fmt.Errorf("dependency cycle detected: %s", strings.Join(cycle, " → "))
 		}
-		cycle = append(cycle, absPath)
-		return nil, fmt.Errorf("dependency cycle detected: %s", strings.Join(cycle, " → "))
 	}
-	// Mark this file as visited for recursive calls
-	visited[absPath] = true
+	chain = append(append([]string{}, chain...), absPath)
 	object, build, err := parseBuildFile(file)
 	if err != nil {
 		return nil, err
@@ -82,14 +79,28 @@ func newBuildInternal(file, base, repo string, template bool, visited map[string
 	if err := SetDirectories(build, base); err != nil {
 		return nil, err
 	}
+	build.FileDir = filepath.Dir(absPath)
 	if err := object.CheckFields(Fields); err != nil {
 		return nil, fmt.Errorf("parsing build file: %v", err)
 	}
 	if err := ParseFields(object, build, repo); err != nil {
 		return nil, err
 	}
-	// Resolve parents using the same visited map
-	build.Parents, err = build.getParentsInternal(visited)
+	// Relative dotenv files of parents are relative to the parent build file,
+	// those of the root build are relative to the build directory
+	dotEnvDir := build.FileDir
+	if len(chain) == 1 {
+		dotEnvDir = build.Dir
+	}
+	for i, file := range build.DotEnv {
+		file = util.ExpandUserHome(file)
+		if !filepath.IsAbs(file) {
+			file = filepath.Join(dotEnvDir, file)
+		}
+		build.DotEnv[i] = file
+	}
+	// Resolve parents with the current inheritance chain
+	build.Parents, err = build.getParentsInternal(chain)
 	if err != nil {
 		return nil, err
 	}
@@ -158,16 +169,16 @@ func parseBuildFile(file string) (util.Object, *Build, error) {
 	if err != nil {
 		return nil, nil, fmt.Errorf("loading build file '%s': %v", file, err)
 	}
-	var object util.Object
-	if err = yaml.Unmarshal(source, &object); err != nil {
+	object, err := util.DecodeYAMLObject(source)
+	if err != nil {
 		return nil, nil, fmt.Errorf("build must be a map with string keys: %v", err)
 	}
 	return object, build, nil
 }
 
-// SetDirectories sets build and base directories:
-// - build: the build directory.
-// - base: the base directory.
+// SetDirectories sets build directory and current directory (Here):
+// - build: the build to set directories for.
+// - base: the build directory.
 // Return: an error if something went wrong.
 func SetDirectories(build *Build, base string) error {
 	build.Dir = base
@@ -198,14 +209,13 @@ func (build *Build) SetRoot(root *Build) {
 }
 
 // SetCommandLineProperties defines properties passed on command line in the
-// context. These properties overwrite those define in the build file.
+// context. These properties overwrite those defined in the build file.
 // - props: properties as a YAML map
 // Return: error if something went wrong
 func (build *Build) SetCommandLineProperties(props string) error {
-	var object util.Object
-	err := yaml.Unmarshal([]byte(props), &object)
+	object, err := util.DecodeYAMLObject([]byte(props))
 	if err != nil {
-		return fmt.Errorf("parsing command line properties: properties must be a map with string keys")
+		return fmt.Errorf("parsing command line properties: properties must be a map with string keys: %v", err)
 	}
 	for name, value := range object {
 		build.Properties[name] = value
@@ -214,26 +224,25 @@ func (build *Build) SetCommandLineProperties(props string) error {
 }
 
 // GetParents returns parent build objects.
-// Return list of build objects and an error if any.
+// Return: list of build objects and an error if any.
 func (build *Build) GetParents() ([]*Build, error) {
-	// Create a fresh visited map for external callers.
-	visited := make(map[string]bool)
-	// Mark the current build file as visited to prevent immediate self‑reference.
-	if absPath, err := filepath.Abs(build.File); err == nil {
-		visited[absPath] = true
+	var chain []string
+	// Put the current build file in the chain to prevent self-reference.
+	if build.FileDir != "" {
+		chain = append(chain, filepath.Join(build.FileDir, build.File))
 	}
-	return build.getParentsInternal(visited)
+	return build.getParentsInternal(chain)
 }
 
-// getParentsInternal resolves parent builds using the provided visited map.
-func (build *Build) getParentsInternal(visited map[string]bool) ([]*Build, error) {
+// getParentsInternal resolves parent builds with the given inheritance chain.
+func (build *Build) getParentsInternal(chain []string) ([]*Build, error) {
 	var parents []*Build
 	for _, extend := range build.Extends {
 		file, err := build.ParentPath(extend)
 		if err != nil {
 			return nil, fmt.Errorf("searching parent build file '%s': %v", extend, err)
 		}
-		parent, err := newBuildInternal(file, filepath.Dir(file), build.Repository, build.Template, visited)
+		parent, err := newBuildInternal(file, filepath.Dir(file), build.Repository, build.Template, chain)
 		if err != nil {
 			return nil, fmt.Errorf("loading parent build file '%s': %v", extend, err)
 		}
@@ -243,12 +252,13 @@ func (build *Build) getParentsInternal(visited map[string]bool) ([]*Build, error
 }
 
 // GetProperties returns build properties, including those inherited from
-// parents
+// parents. Parents are already loaded, thus their properties already include
+// those of their own parents.
 // Return: build properties as an Object
 func (build *Build) GetProperties() util.Object {
 	var properties = make(map[string]interface{})
 	for _, parent := range build.Parents {
-		for name, value := range parent.GetProperties() {
+		for name, value := range parent.Properties {
 			properties[name] = value
 		}
 	}
@@ -264,7 +274,7 @@ func (build *Build) GetProperties() util.Object {
 func (build *Build) GetEnvironment() map[string]string {
 	var environment = make(map[string]string)
 	for _, parent := range build.Parents {
-		for name, value := range parent.GetEnvironment() {
+		for name, value := range parent.Environment {
 			environment[name] = value
 		}
 	}
@@ -275,23 +285,37 @@ func (build *Build) GetEnvironment() map[string]string {
 }
 
 // GetDotEnv returns the list of dotenv files to load in environment, including
-// those inherited from parents
+// those inherited from parents. A file inherited several times (diamond
+// inheritance) appears once, at its first position.
 // Return: list of dotenv files as a slice of strings
 func (build *Build) GetDotEnv() []string {
 	var dotenv []string
 	for _, parent := range build.Parents {
-		dotenv = append(dotenv, parent.GetDotEnv()...)
+		dotenv = append(dotenv, parent.DotEnv...)
 	}
 	dotenv = append(dotenv, build.DotEnv...)
-	return dotenv
+	return unique(dotenv)
+}
+
+// unique removes duplicates from a list, keeping first occurrences
+func unique(list []string) []string {
+	seen := make(map[string]bool, len(list))
+	var result []string
+	for _, element := range list {
+		if !seen[element] {
+			seen[element] = true
+			result = append(result, element)
+		}
+	}
+	return result
 }
 
 // GetTargets returns build targets, including those inherited from parents
 // Return: targets as a map of targets with their name as keys
 func (build *Build) GetTargets() map[string]*Target {
 	var targets = make(map[string]*Target)
-	for i := len(build.Parents) - 1; i >= 0; i-- {
-		parent := build.Parents[i]
+	// last parent has precedence, as in GetTarget
+	for _, parent := range build.Parents {
 		for name, target := range parent.GetTargets() {
 			targets[name] = target
 		}
@@ -304,7 +328,7 @@ func (build *Build) GetTargets() map[string]*Target {
 
 // GetDefault returns default targets. If none is defined in build, return
 // those from parent build files.
-// Return: default targets a slice of strings
+// Return: default targets as a slice of strings
 func (build *Build) GetDefault() []string {
 	if len(build.Default) > 0 {
 		return build.Default
@@ -319,18 +343,45 @@ func (build *Build) GetDefault() []string {
 	return nil
 }
 
-// GetScripts return a list of context scripts to run.
-// Return: the list of context scripts
-func (build *Build) GetScripts() []string {
+// GetScripts returns a list of context scripts to run, with their path
+// resolved relative to the build file that declares them. A script inherited
+// several times (diamond inheritance) is loaded once.
+// Return: the list of context script paths and an error if any
+func (build *Build) GetScripts() ([]string, error) {
 	var scripts []string
 	for _, parent := range build.Parents {
-		scripts = append(scripts, parent.GetScripts()...)
+		parentScripts, err := parent.GetScripts()
+		if err != nil {
+			return nil, err
+		}
+		scripts = append(scripts, parentScripts...)
 	}
-	scripts = append(scripts, build.Scripts...)
-	return scripts
+	for _, script := range build.Scripts {
+		path, err := build.ScriptPath(script)
+		if err != nil {
+			return nil, fmt.Errorf("getting script path '%s': %v", script, err)
+		}
+		scripts = append(scripts, path)
+	}
+	return unique(scripts), nil
 }
 
-// GetTarget return target with given name. If not defined in build,
+// GetSingleton returns singleton port expression. If none is defined in
+// build, return the one of parent build files.
+// Return: singleton port expression, empty if none
+func (build *Build) GetSingleton() string {
+	if build.Singleton != "" {
+		return build.Singleton
+	}
+	for i := len(build.Parents) - 1; i >= 0; i-- {
+		if singleton := build.Parents[i].GetSingleton(); singleton != "" {
+			return singleton
+		}
+	}
+	return ""
+}
+
+// GetTarget returns target with given name. If not defined in build,
 // return target inherited from parent
 // - name: the target name as a string
 // Return: found target
@@ -349,7 +400,7 @@ func (build *Build) GetTarget(name string) *Target {
 	return nil
 }
 
-// GetParentTarget return parent target with given name.
+// GetParentTarget returns parent target with given name.
 // - name: the name of the target to run
 // Return:
 // - target: found parent target, nil if none was found
@@ -426,37 +477,31 @@ func (build *Build) RunTarget(context *Context, name string) error {
 // RunParentTarget runs parent target with given name in a build context.
 // - context: build context
 // - name: the name of the target to run
-// Return:
-// - boolean: that tells if parent target was found
-// - error: if something went wrong
+// Return: an error if parent target was not found or failed
 func (build *Build) RunParentTarget(context *Context, name string) error {
 	target, err := build.GetParentTarget(name)
 	if err != nil {
 		return err
 	}
-	err = context.Stack.Push(target)
-	if err != nil {
+	if err := context.Stack.Push(target); err != nil {
 		return err
 	}
-	err = target.Steps.Run(context)
-	if err != nil {
+	defer func() {
+		_ = context.Stack.Pop()
+	}()
+	if err := target.Steps.Run(context); err != nil {
 		return fmt.Errorf("running target '%s': %v", name, err)
-	}
-	if err := context.Stack.Pop(); err != nil {
-		return err
 	}
 	return nil
 }
 
-// GetShell return shell for current os.
+// GetShell returns shell for current OS.
 // Return:
 // - shell as a slice of strings (such as ["sh", "-c"])
 // - error if something went wrong
 func (build *Build) GetShell() ([]string, error) {
-	for system, shell := range build.Shell {
-		if system != "default" && system == runtime.GOOS {
-			return shell, nil
-		}
+	if shell, ok := build.Shell[runtime.GOOS]; ok {
+		return shell, nil
 	}
 	shell, ok := build.Shell["default"]
 	if !ok {
@@ -471,10 +516,10 @@ func (build *Build) GetShell() ([]string, error) {
 // - context: build context
 // Return: a listener and an error if another instance is running on same port
 func (build *Build) EnsureSingle(context *Context) (net.Listener, error) {
-	if build.Singleton == "" {
+	expression := build.GetSingleton()
+	if expression == "" {
 		return nil, nil
 	}
-	expression := build.Singleton
 	if IsExpression(expression) {
 		expression = expression[1:]
 	}
@@ -493,14 +538,14 @@ func (build *Build) EnsureSingle(context *Context) (net.Listener, error) {
 	return ListenPort(int(port))
 }
 
-// ListenPort listens given port:
+// ListenPort listens given port on loopback interface:
 // - port: port to listen.
 // Return: listener and error if any
 func ListenPort(port int) (net.Listener, error) {
-	if port < 0 || port > 65535 {
-		return nil, fmt.Errorf("singleton port port must be between 0 and 65535")
+	if port < 1 || port > 65535 {
+		return nil, fmt.Errorf("singleton port must be between 1 and 65535")
 	}
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
 	if err != nil {
 		return nil, fmt.Errorf("listening singleton port: %v", err)
 	}
@@ -516,12 +561,26 @@ func ListenPort(port int) (net.Listener, error) {
 	return listener, nil
 }
 
-// CheckVersion checks evaluates version expression to check that NeON version is OK
+// CheckVersion evaluates version expressions of the build and its parents to
+// check that NeON version is OK. Version check is skipped for development
+// builds, which version is not a release number (such as a git hash).
 func (build *Build) CheckVersion(context *Context) error {
+	if !IsReleaseVersion(NeonVersion) {
+		return nil
+	}
+	for _, parent := range build.Parents {
+		if err := parent.CheckVersion(context); err != nil {
+			return err
+		}
+	}
 	if build.Version == "" {
 		return nil
 	}
-	result, err := context.EvaluateExpression(build.Version)
+	expression := build.Version
+	if IsExpression(expression) {
+		expression = expression[1:]
+	}
+	result, err := context.EvaluateExpression(expression)
 	if err != nil {
 		return fmt.Errorf("evaluating version expression: %v", err)
 	}
@@ -530,7 +589,7 @@ func (build *Build) CheckVersion(context *Context) error {
 		return fmt.Errorf("version expression should return a boolean")
 	}
 	if !versionOK {
-		return fmt.Errorf("neon version '%s' doesn't meet requirements in version field", NeonVersion)
+		return fmt.Errorf("neon version '%s' doesn't meet requirements in version field of '%s'", NeonVersion, build.File)
 	}
 	return nil
 }

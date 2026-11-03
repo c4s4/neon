@@ -3,11 +3,12 @@ package task
 import (
 	"bufio"
 	"fmt"
-	"github.com/c4s4/neon/neon/build"
 	"os"
 	"reflect"
 	"regexp"
 	"strings"
+
+	"github.com/c4s4/neon/neon/build"
 )
 
 func init() {
@@ -19,7 +20,7 @@ func init() {
 
 Arguments:
 
-- prompt: message to print at prompt that include a description of expected
+- prompt: message to print at prompt that includes a description of expected
   pattern (string).
 - to: name of the property to set (string).
 - default: default value if user doesn't type anything, written into square

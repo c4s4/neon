@@ -65,7 +65,7 @@ func (object Object) GetBoolean(field string) (bool, error) {
 	return boolean, nil
 }
 
-// GetInteger returns an object field as a integer:
+// GetInteger returns an object field as an integer:
 // - field: name of the field to get
 // Return:
 // - integer content of the field
@@ -224,7 +224,7 @@ func (object Object) Copy() Object {
 	return copy
 }
 
-// Fields return fields of the object as a list of strings
+// Fields returns fields of the object as a list of strings
 func (object Object) Fields() []string {
 	fields := make([]string, len(object))
 	index := 0
