@@ -96,12 +96,6 @@ func neon(context *build.Context, args interface{}) error {
 	if err != nil {
 		return fmt.Errorf("initializing build context: %v", err)
 	}
-	if params.Properties != nil {
-		for key, value := range params.Properties {
-			name := fmt.Sprintf("%v", key)
-			newContext.SetProperty(name, value)
-		}
-	}
 	err = newBuild.Run(newContext, params.Targets)
 	if err != nil {
 		return fmt.Errorf("running build '%s': %v", params.Neon, err)
