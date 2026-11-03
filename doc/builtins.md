@@ -449,28 +449,6 @@ Examples:
     #   "bar"
     # ]
 
-## jsonindent
-
-Indent given string in Json format.
-
-Arguments:
-
-- The string in Json format to indent.
-
-Returns:
-
-- Indented JSON string.
-
-Examples:
-
-    # indent given list
-    jsonindent("['foo', 'bar']")
-    # returns string:
-    # [
-    #   "foo",
-    #   "bar"
-    # ]
-
 ## keys
 
 Return keys of given map.
