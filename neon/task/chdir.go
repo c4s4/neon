@@ -17,11 +17,15 @@ func init() {
 Arguments:
 
 - chdir: the directory to change to (string, file).
+- mute: don't print message.
 
 Examples:
 
     # go to build directory
     - chdir: "build"
+	# go to target directory without printing any message
+	- chdir: "build"
+	  mute:  true
 
 Notes:
 
@@ -33,11 +37,14 @@ Notes:
 
 type chdirArgs struct {
 	Chdir string `neon:"file"`
+	Mute  bool   `neon:"optional"`
 }
 
 func chdir(context *build.Context, args interface{}) error {
 	params := args.(chdirArgs)
-	context.MessageArgs("Changing working directory to '%s'", params.Chdir)
+	if !params.Mute {
+		context.MessageArgs("Changing working directory to '%s'", params.Chdir)
+	}
 	err := build.Chdir(params.Chdir)
 	if err != nil {
 		return fmt.Errorf("changing working directory to '%s': %s", params.Chdir, err)

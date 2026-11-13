@@ -1,5 +1,9 @@
 # NeON
 
+## ????.??.??: ?.?.?
+
+- Added `mute` option to `chdir` task.
+
 ## 2026-11-01: 1.18.0
 
 - Bug fixes
