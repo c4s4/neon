@@ -138,11 +138,15 @@ Change current working directory.
 Arguments:
 
 - chdir: the directory to change to (string, file).
+- mute: don't print message.
 
 Examples:
 
     # go to build directory
     - chdir: "build"
+	# go to target directory without printing any message
+	- chdir: "build"
+	  mute:  true
 
 Notes:
 
