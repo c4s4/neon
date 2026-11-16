@@ -1,6 +1,6 @@
 # NeON
 
-## ????.??.??: ?.?.?
+## 2026-11-16: 1.19.0
 
 - Added `mute` option to `chdir` task.
 
